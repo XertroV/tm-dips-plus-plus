@@ -1,0 +1,9 @@
+[meta]
+name     = "Fall-o-meter"
+author   = "XertroV"
+category = "Deep Dip 2"
+version  = "0.1.0"
+
+[script]
+#__DEFINES__
+dependencies = ["VehicleState", "Camera"]
