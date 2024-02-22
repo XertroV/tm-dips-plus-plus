@@ -6,7 +6,7 @@ class Animation {
     Animation(const string &in name) {
         this.name = name;
         this.start = Time::Now;
-        id = Math::Rand(0, 0xEFFFFFFF);
+        id = Math::Rand(0, 0x7FFFFFFF);
     }
 
     bool opEquals(const Animation &other) const {
@@ -30,11 +30,12 @@ class Animation {
 
 
 Animation@[] statusAnimations;
-Animation@[] fullScreenAnimations;
+Animation@[] titleScreenAnimations;
 
 
 void ClearAnimations() {
     statusAnimations.Resize(0);
+    titleScreenAnimations.Resize(0);
 }
 
 

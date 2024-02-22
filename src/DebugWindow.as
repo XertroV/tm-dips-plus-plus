@@ -46,6 +46,14 @@ void DrawAnimationsTab() {
         }
         UI::TreePop();
     }
+    if (UI::TreeNode("titleScreenAnimations")) {
+        for (uint i = 0; i < titleScreenAnimations.Length; i++) {
+            auto anim = titleScreenAnimations[i];
+            if (anim is null) continue;
+            UI::Text(anim.ToString(i));
+        }
+        UI::TreePop();
+    }
 }
 
 
@@ -138,6 +146,8 @@ bool g_ShowFalls = true;
 /** Render function called every frame.
 */
 void Render() {
+    RenderTitleScreenAnims();
+
     if (g_DebugOpen) {
         RenderDebugWindow();
     }
@@ -146,6 +156,14 @@ void Render() {
         RenderAnimations();
     }
 }
+
+
+void RenderTitleScreenAnims() {
+    for (uint i = 0; i < titleScreenAnimations.Length; i++) {
+        titleScreenAnimations[i].Draw();
+    }
+}
+
 
 void RenderAnimations() {
     nvg::Reset();

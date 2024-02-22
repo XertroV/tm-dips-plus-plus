@@ -10,6 +10,8 @@ void LoadFonts() {
 
 void Main(){
     startnew(LoadFonts);
+    sleep(500);
+    titleScreenAnimations.InsertLast(FloorTitleGeneric("Floor 00 - SparklingW"));
 }
 //remove any hooks
 void OnDestroyed() { _Unload(); }
