@@ -48,26 +48,101 @@ class PlayerState {
         }
     }
 
+    uint lastVehicleFromPlayerTime = 0;
+    float vfpTimeDelta = 0;
+    uint lastVFPIx = 0;
+
+    void UpdateVehicleFromCSmPlayer() {
+        // don't do this if we already had a vehicle
+        if (updatedThisFrame & UpdatedFlags::Position > 0) return;
+        if (this.player is null) return;
+
+        auto nextIx = Dev::GetOffsetUint32(player, O_CSmPlayer_NetPacketsBuf_NextIx);
+        auto currIx = (nextIx + 200) % LEN_CSmPlayer_NetPacketsBuf;
+        auto prevIx = (currIx + 200) % LEN_CSmPlayer_NetPacketsBuf;
+        auto offset = O_CSmPlayer_NetPacketsBuf + currIx * SZ_CSmPlayer_NetPacketsBufStruct;
+        auto prevOffset = O_CSmPlayer_NetPacketsBuf + prevIx * SZ_CSmPlayer_NetPacketsBufStruct;
+
+
+        vfpTimeDelta = 0.0;
+        auto timeSinceLast = Time::Now - lastVehicleFromPlayerTime;
+        if (timeSinceLast < 200) {
+            vfpTimeDelta = float(timeSinceLast) * 0.001 * 0.995;
+        }
+        if (lastVFPIx != currIx) {
+            lastVFPIx = currIx;
+            lastVehicleFromPlayerTime = Time::Now;
+        }
+
+        // auto lastUpdateTime = Dev::GetOffsetUint32(player, O_CSmPlayer_NetPacketsUpdatedBuf + prevIx * SZ_CSmPlayer_NetPacketsUpdatedBufEl);
+        // auto currUpdateTime = Dev::GetOffsetUint32(player, O_CSmPlayer_NetPacketsUpdatedBuf + currIx * SZ_CSmPlayer_NetPacketsUpdatedBufEl);
+        // auto timeDiff = currUpdateTime - lastUpdateTime;
+
+        // auto wheelOffset = offset + 0x68;
+        // Values documented in DrawDebugTree_Player
+        bool anyWheelFlying =
+            Dev::GetOffsetUint8(player, offset + O_PlayerNetStruct_WheelOnGround + SZ_PlayerNetStruct_Wheel * 0) == 0
+            || Dev::GetOffsetUint8(player, offset + O_PlayerNetStruct_WheelOnGround + SZ_PlayerNetStruct_Wheel * 1) == 0
+            || Dev::GetOffsetUint8(player, offset + O_PlayerNetStruct_WheelOnGround + SZ_PlayerNetStruct_Wheel * 2) == 0
+            || Dev::GetOffsetUint8(player, offset + O_PlayerNetStruct_WheelOnGround + SZ_PlayerNetStruct_Wheel * 3) == 0;
+        bool allWheelsFlying =
+            Dev::GetOffsetUint8(player, offset + O_PlayerNetStruct_WheelOnGround + SZ_PlayerNetStruct_Wheel * 0) == 0
+            && Dev::GetOffsetUint8(player, offset + O_PlayerNetStruct_WheelOnGround + SZ_PlayerNetStruct_Wheel * 1) == 0
+            && Dev::GetOffsetUint8(player, offset + O_PlayerNetStruct_WheelOnGround + SZ_PlayerNetStruct_Wheel * 2) == 0
+            && Dev::GetOffsetUint8(player, offset + O_PlayerNetStruct_WheelOnGround + SZ_PlayerNetStruct_Wheel * 3) == 0;
+
+        auto newDiscontCount = Dev::GetOffsetUint8(player, offset + O_PlayerNetStruct_DiscontinuityCount);
+        auto flags = Dev::GetOffsetUint32(player, offset + O_PlayerNetStruct_Flags);
+        auto newFrozen = flags & (PlayerNetStructFlags::Respawning | PlayerNetStructFlags::Spawning | PlayerNetStructFlags::Unspawned) > 0;
+        vel = Dev::GetOffsetVec3(player, offset + O_PlayerNetStruct_Vel);
+        pos = Dev::GetOffsetVec3(player, offset + O_PlayerNetStruct_Pos);
+        rot = Dev_GetOffsetQuat(player, offset + O_PlayerNetStruct_Quat);
+        UpdatePlayerFromRawValues(vel, pos + vel*vfpTimeDelta, rot,
+            anyWheelFlying,
+            allWheelsFlying,
+            newDiscontCount,
+            newFrozen
+        );
+    }
+
     void UpdateVehicleState(CSceneVehicleVis@ vis) {
         @vehicle = vis;
         // updatedThisFrame |= UpdatedFlags::Flying | UpdatedFlags::Falling | UpdatedFlags::Position;
         auto @state = vis.AsyncState;
 
         groundDist = state.GroundDist;
-        if (pos.LengthSquared() == 0) {
-            pos = state.Position;
-        } else {
-            // state.WorldVel is before collisions
-            // vel = state.Position - pos;
-            vel = state.WorldVel;
-            if (vel.LengthSquared() < 0.0000001) {
-                vel = vec3();
-            }
+
+        bool anyWheelFlying = state.FLGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null
+                || state.FRGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null
+                || state.RLGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null
+                || state.RRGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null;
+        bool allWheelsFlying = state.FLGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null
+                && state.FRGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null
+                && state.RLGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null
+                && state.RRGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null;
+
+        // state.DiscontinuityCount does not work for some reason
+        auto newDiscontCount = Dev::GetOffsetUint8(state, 0xA);
+        auto newFrozen = Dev::GetOffsetUint8(state, 0x1BC) > 0;
+        UpdatePlayerFromRawValues(
+            state.WorldVel,
+            state.Position,
+            quat(DirUpLeftToMat(state.Dir, state.Up, state.Left)),
+            anyWheelFlying,
+            allWheelsFlying,
+            newDiscontCount,
+            newFrozen
+        );
+    }
+
+    void UpdatePlayerFromRawValues(const vec3 &in vel, const vec3 &in pos, const quat &in rot, bool anyWheelFlying, bool allWheelsFlying, uint newDiscontCount, bool newFrozen) {
+        this.vel = vel;
+        // simplify low velocities
+        if (vel.LengthSquared() < 0.0000001) {
+            this.vel = vec3();
         }
-        pos = state.Position;
-        dir = state.Dir;
-        up = state.Up;
-        left = state.Left;
+        this.pos = pos;
+        this.rot = rot;
         updatedThisFrame |= UpdatedFlags::Position;
 
         // other ppls vehicles just get buggy after y=-1000
@@ -76,13 +151,11 @@ class PlayerState {
             this.isIdle = isIdle;
             updatedThisFrame |= UpdatedFlags::Idle;
         }
-        // state.DiscontinuityCount does not work for some reason
-        auto newDiscontCount = Dev::GetOffsetUint8(state, 0xA);
+
         if (discontinuityCount != newDiscontCount) {
             discontinuityCount = newDiscontCount;
             updatedThisFrame |= UpdatedFlags::DiscontinuityCount;
         }
-        auto newFrozen = Dev::GetOffsetUint8(state, 0x1BC) > 0;
         if (newFrozen != stateFrozen) {
             updatedThisFrame |= UpdatedFlags::FrozenVehicleState;
             stateFrozen = newFrozen;
@@ -90,17 +163,11 @@ class PlayerState {
 
         bool newFlying;
         if (this.isFlying && !isIdle && !stateFrozen) {
-            newFlying = state.FLGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null
-                || state.FRGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null
-                || state.RLGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null
-                || state.RRGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null;
+            newFlying = anyWheelFlying;
         } else {
-            newFlying = !isIdle && !stateFrozen
-                && state.FLGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null
-                && state.FRGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null
-                && state.RLGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null
-                && state.RRGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null;
+            newFlying = !isIdle && !stateFrozen && allWheelsFlying;
         }
+
         // once we start falling, we want to keep falling
         bool isFalling = newFlying && (this.isFalling || vel.y < -0.05);
         // update flying/falling values
@@ -130,9 +197,8 @@ class PlayerState {
 
     vec3 vel;
     vec3 pos;
-    vec3 dir;
-    vec3 up;
-    vec3 left;
+    quat rot;
+    // not updated when getting details from player
     float groundDist;
     bool isFlying;
     bool isFalling;
@@ -157,36 +223,92 @@ class PlayerState {
     void DrawDebugTree_Player(uint i) {
         UI::PushFont(f_MonoSpace);
         UI::PushID(i);
-        if (UI::TreeNode("Raw Player "+Text::Format("0x%x", i)+": " + this.playerName + "##debug")) {
+        // +Text::Format("0x%x", i)
+        if (UI::TreeNode("Raw Player "+": " + this.playerName + "##debug")) {
             if (player is null) UI::Text("Null Player!?");
-            auto capacity = 201;
-            auto nextIx = Dev::GetOffsetUint32(player, 0xBE1C);
+            auto capacity = LEN_CSmPlayer_NetPacketsBuf;
+            auto nextIx = Dev::GetOffsetUint32(player, O_CSmPlayer_NetPacketsBuf_NextIx);
             auto currIx = (nextIx + 200) % capacity;
-            auto offset = 0x1160 + currIx * 0xD8;
+            auto prevIx = (currIx + 200) % capacity;
+            auto offset = O_CSmPlayer_NetPacketsBuf + currIx * SZ_CSmPlayer_NetPacketsBufStruct;
             UI::Text("NextIx: " + Text::Format("0x%x", nextIx) + ", CurrIx: " + Text::Format("0x%x", currIx));
             UI::Text("Offset: " + Text::Format("0x%04x", offset));
-            for (uint j = 0; j < 0xD8; j += 8) {
-                auto asInts = Dev::GetOffsetNat2(player, offset + j);
-                UI::Text(Text::Format("+0x%02x: ", j) + Dev::GetOffsetVec2(player, offset + j).ToString() + " | " + Dev::GetOffsetNat2(player, offset + j).ToString() + " | " + Text::Format("0x%04x", asInts.x) + ", " + Text::Format("0x%04x", asInts.y));
+            auto lastUpdateTime = Dev::GetOffsetUint32(player, O_CSmPlayer_NetPacketsUpdatedBuf + prevIx * SZ_CSmPlayer_NetPacketsUpdatedBufEl);
+            auto currUpdateTime = Dev::GetOffsetUint32(player, O_CSmPlayer_NetPacketsUpdatedBuf + currIx * SZ_CSmPlayer_NetPacketsUpdatedBufEl);
+            UI::Text("LastUpdateTime: " + Text::Format("%d", lastUpdateTime) + ", CurrUpdateTime: " + Text::Format("%d", currUpdateTime));
+            UI::Text("TimeDiff: " + Text::Format("%d", currUpdateTime - lastUpdateTime));
 
-                // 0x0: 1
-                // 0x4: quat?
-                // 0x14: pos
-                // 0x20: ?
-                // 0x38: flags -- 0x400 normally; 0x500 = braking; 0x100 = braking
-                //       -- 0x2000: reactor?, 0x1: snowcar
-                // 0x3A: gear (uint16)
-                // 0x3c: RPM
-                // 0x40: steering and gas (vec2; [-1,1], [0,1])
-                // 0x48: wheel rot?? (float [])
-                // 0x58: resapwn time (uint), some flag (0xe while respawning) uint16
-                // 0x60: discontinuetyCount (respanw) uint16
-                // whell structs, c0 - a4; 0x1c bytes; so starts at 0x68 till end
-                //    - 0x0: flags?
-                //    - 0x4: wheel rot (float)
-                //    - 0x10: wheel icing (float)
-                //    - 0x18: wheel on ground (last in struct, bool)
+            // for (uint j = 0; j < 0xD8; j += 8) {
+            //     auto asInts = Dev::GetOffsetNat2(player, offset + j);
+            //     UI::Text(Text::Format("+0x%02x: ", j) + Dev::GetOffsetVec2(player, offset + j).ToString() + " | " + Dev::GetOffsetNat2(player, offset + j).ToString() + " | " + Text::Format("0x%04x", asInts.x) + ", " + Text::Format("0x%04x", asInts.y));
+            // }
 
+            // 0x0: 1
+            // 0x4: quat?
+            // 0x14: pos
+            // 0x20: velocity
+            // 0x38: flags -- 0x400 normally; 0x100 = braking; 0x800 = sliding?
+            //       -- 0x2000: reactor?, 0x1: snowcar, 0x40000 = nosteer
+            //       -- 0x800000: spawning, 0x1000000: unspawned, 0x8000000: respawning
+            // 0x3A: gear (uint4)
+            // 0x3c: RPM
+            // 0x40: steering and gas (vec2; [-1,1], [0,1])
+            // 0x48: wheel rot float
+            // 0x4C: unk uint32
+            // 0x58: resapwn time (uint),
+            // 0x5C: respawning at CP uint16
+            // 0x60: discontinuetyCount (respanw) uint16
+            // whell structs, c0 - a4; 0x1c bytes; so starts at 0x68 till end
+            //    - 0x0: flags?
+            //    - 0x4: wheel rot (float)
+            //    - 0x10: wheel icing (float)
+            //    - 0x18: wheel on ground (last in struct, bool)
+            CopiableLabeledValue("0x1", Text::Format("0x%04x", Dev::GetOffsetUint32(player, offset + 0x0)));
+            CopiableLabeledValue("Quat", Dev_GetOffsetQuat(player, offset + 0x4).ToString());
+            CopiableLabeledValue("Pos", Dev::GetOffsetVec3(player, offset + 0x14).ToString());
+            CopiableLabeledValue("Vel", Dev::GetOffsetVec3(player, offset + 0x20).ToString());
+            CopiableLabeledValue("Forces", Dev::GetOffsetVec3(player, offset + 0x2C).ToString());
+            // CopiableLabeledValue("0x2C", Text::Format("0x%08x", Dev::GetOffsetUint32(player, offset + 0x2C)) + Text::Format(" / %.2f", Dev::GetOffsetFloat(player, offset + 0x2C)));
+            // CopiableLabeledValue("0x30", Text::Format("0x%08x", Dev::GetOffsetUint32(player, offset + 0x30)) + Text::Format(" / %.2f", Dev::GetOffsetFloat(player, offset + 0x30)));
+            // CopiableLabeledValue("0x34", Text::Format("0x%08x", Dev::GetOffsetUint32(player, offset + 0x34)) + Text::Format(" / %.2f", Dev::GetOffsetFloat(player, offset + 0x34)));
+            auto flags = Dev::GetOffsetUint32(player, offset + 0x38);
+            CopiableLabeledValue("Flags", Text::Format("0x%08x", flags));
+
+            UI::SameLine();
+            string flagsStr = "";
+            if (flags & 0x400 != 0) flagsStr += "Normal?, ";
+            if (flags & 0x100 != 0) flagsStr += "Braking, ";
+            if (flags & 0x800 != 0) flagsStr += "Sliding, ";
+            if (flags & 0x2000 != 0) flagsStr += "Reactor?, ";
+            if (flags & 0x1 != 0) flagsStr += "Snowcar, ";
+            if (flags & 0x40000 != 0) flagsStr += "NoSteer, ";
+            if (flags & 0x800000 != 0) flagsStr += "Spawning, ";
+            if (flags & 0x1000000 != 0) flagsStr += "Unspawned, ";
+            if (flags & 0x8000000 != 0) flagsStr += "Respawning, ";
+            UI::Text(flagsStr);
+
+            auto gear = Dev::GetOffsetUint8(player, offset + 0x3B) >> 4;
+            CopiableLabeledValue("Gear", Text::Format("0x%01x", gear));
+            CopiableLabeledValue("RPM", Text::Format("%.0f", Dev::GetOffsetFloat(player, offset + 0x3C)));
+            CopiableLabeledValue("Steering", Text::Format("%.2f", Dev::GetOffsetFloat(player, offset + 0x40)));
+            CopiableLabeledValue("Gas", Text::Format("%.2f", Dev::GetOffsetFloat(player, offset + 0x44)));
+            CopiableLabeledValue("WheelYaw", Text::Format("%.2f", Dev::GetOffsetFloat(player, offset + 0x48)));
+            CopiableLabeledValue("0x4C", Text::Format("0x%08x", Dev::GetOffsetUint32(player, offset + 0x4C)));
+            CopiableLabeledValue("RespawnTime", Text::Format("0x%08x", Dev::GetOffsetUint32(player, offset + 0x58)));
+            CopiableLabeledValue("RespawnCP", Text::Format("0x%08x", Dev::GetOffsetUint16(player, offset + 0x5C)));
+            CopiableLabeledValue("DiscontinuityCount", Text::Format("0x%08x", Dev::GetOffsetUint16(player, offset + 0x60)));
+            for (uint w = 0; w < 4; w++) {
+                // order: FL, FR, RR, RL
+                UI::Text("Wheel " + tostring(WheelOrder(w)) + ":");
+                UI::Indent();
+                auto wheelOffset = offset + 0x68 + w * 0x1C;
+                CopiableLabeledValue("WheelFlags", Text::Format("0x%08x", Dev::GetOffsetUint32(player, wheelOffset + 0x0)));
+                CopiableLabeledValue("WheelRot", Text::Format("%.2f", Dev::GetOffsetFloat(player, wheelOffset + 0x4)));
+                CopiableLabeledValue("0x8", Text::Format("0x%08x", Dev::GetOffsetUint32(player, wheelOffset + 0x8)));
+                CopiableLabeledValue("WheelIcing", Text::Format("%.2f", Dev::GetOffsetFloat(player, wheelOffset + 0x10)));
+                CopiableLabeledValue("0x14", Text::Format("0x%08x", Dev::GetOffsetUint32(player, wheelOffset + 0x14)));
+                CopiableLabeledValue("WheelOnGround", tostring(0 != Dev::GetOffsetUint8(player, wheelOffset + 0x18)));
+                UI::Unindent();
             }
             UI::TreePop();
         }
@@ -200,10 +322,9 @@ class PlayerState {
             CopiableLabeledValue("Vehicle ID", Text::Format("0x%08x", this.lastVehicleId));
             CopiableLabeledValue("Login", this.playerLogin);
             CopiableLabeledValue("Score.Id.Value", tostring(this.playerScoreMwId));
+            CopiableLabeledValue("vfpTimeDelta", Text::Format("%.3f", this.vfpTimeDelta));
             CopiableLabeledValue("pos", this.pos.ToString());
-            CopiableLabeledValue("up", this.up.ToString());
-            CopiableLabeledValue("dir", this.dir.ToString());
-            CopiableLabeledValue("left", this.left.ToString());
+            CopiableLabeledValue("dir", this.rot.ToString());
             CopiableLabeledValue("vel", Text::Format("%.2f", this.vel.Length()) + ", " + this.vel.ToString());
             CopiableLabeledValue("groundDist", tostring(this.groundDist));
             CopiableLabeledValue("isFlying", tostring(this.isFlying));
@@ -235,6 +356,19 @@ class PlayerState {
     }
 }
 
+enum PlayerNetStructFlags {
+    Snowcar = 0x1,
+    Braking = 0x100,
+    Normal = 0x400,
+    // not all sliding, but is when you're braking, maybe it's Smoking?
+    Sliding = 0x800,
+    Reactor = 0x2000,
+    NoSteer = 0x40000,
+    Spawning = 0x800000,
+    Unspawned = 0x1000000,
+    Respawning = 0x8000000,
+
+}
 
 enum UpdatedFlags {
     None = 0,
@@ -446,4 +580,12 @@ class FlyingEndedAnim : Animation {
         }
         return "[ " + i + " ] " + name + ": " + MsgText() + " (scale: " + baseScale.ToString() + ")";
     }
+}
+
+
+enum WheelOrder {
+    FL = 0,
+    FR = 1,
+    RR = 2,
+    RL = 3,
 }

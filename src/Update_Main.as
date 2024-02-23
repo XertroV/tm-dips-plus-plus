@@ -11,7 +11,12 @@ namespace PS {
     void UpdatePlayers() {
         auto cp = cast<CSmArenaClient>(GetApp().CurrentPlayground);
         SortPlayersAndUpdateVehicleIds(cp);
-        UpdateVehicleStates();
+        auto viss = UpdateVehicleStates();
+        // when opponents are off
+        if (nbPlayerVisStates <= 1) {
+            TellArenaIfaceToGetPositionData();
+            UpdatePlayersAsNeededFromCSmPlayer();
+        }
     }
 
     void SortPlayersAndUpdateVehicleIds(CSmArenaClient@ cp) {
@@ -130,9 +135,12 @@ namespace PS {
         }
     }
 
-
-    void UpdateVehicleStates() {
+    uint debug_NbVisStates;
+    uint nbPlayerVisStates = 0;
+    array<CSceneVehicleVis@>@ UpdateVehicleStates() {
         array<CSceneVehicleVis@>@ viss = VehicleState::GetAllVis(GetApp().GameScene);
+        nbPlayerVisStates = 0;
+        debug_NbVisStates = viss.Length;
         if (viss is null) throw("Update Vehicle State: null vis");
         uint nbVehicles = viss.Length;
         CSceneVehicleVis@ vis;
@@ -143,6 +151,7 @@ namespace PS {
             if (vis is null) throw("Update Vehicle State: null vis");
             entId = Dev::GetOffsetUint32(vis, 0);
             if (entId > 0x3000000 || entId & 0x2000000 == 0) continue;
+            nbPlayerVisStates++;
             auto ix = entId & 0xFFFFFF;
             if (ix >= vehicleIdToPlayers.Length) {
                 throw("Invalid vehicle id: " + Text::Format("0x%08x", entId));
@@ -151,6 +160,15 @@ namespace PS {
             if (player !is null) player.UpdateVehicleState(vis);
             // this happens on any snowcar map:
             // else trace("Player is null for valid vehicle id: " + Text::Format("0x%08x", entId));
+        }
+        return viss;
+    }
+
+    // we do this when opponents are off
+    void UpdatePlayersAsNeededFromCSmPlayer() {
+        uint nbPlayers = players.Length;
+        for (uint i = 0; i < nbPlayers; i++) {
+            players[i].UpdateVehicleFromCSmPlayer();
         }
     }
 }

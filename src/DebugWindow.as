@@ -20,6 +20,10 @@ void RenderDebugWindow() {
             DrawAnimationsTab();
             UI::EndTabItem();
         }
+        if (UI::BeginTabItem("Offsets")) {
+            DrawOffsetsTab();
+            UI::EndTabItem();
+        }
         UI::EndTabBar();
     }
     UI::End();
@@ -90,8 +94,8 @@ void DrawPlayersNetPacketsTab() {
         for (uint i = 0; i < PS::players.Length; i++) {
             auto p = PS::players[i];
             if (p is null) continue;
-            p.DrawDebugTree_Player(i);
             p.DrawDebugTree(i);
+            p.DrawDebugTree_Player(i);
         }
         UI::TreePop();
     }
@@ -108,6 +112,8 @@ void DrawPlayersAndVehiclesTab() {
     CopiableLabeledValue("Active", tostring(g_Active));
     CopiableLabeledValue("vehicleIdToPlayers.Length", tostring(PS::vehicleIdToPlayers.Length) + " / " + Text::Format("0x%x", PS::vehicleIdToPlayers.Length));
     CopiableLabeledValue("Nb Players", tostring(PS::players.Length));
+    CopiableLabeledValue("Nb Vehicles", tostring(PS::debug_NbVisStates));
+    CopiableLabeledValue("Nb Player Vehicles", tostring(PS::nbPlayerVisStates));
     if (UI::TreeNode("VehicleIdToPlayers")) {
         uint count = 0;
         for (int i = 0; i < PS::vehicleIdToPlayers.Length; i++) {
@@ -126,6 +132,28 @@ void DrawPlayersAndVehiclesTab() {
         UI::TreePop();
     }
 }
+
+
+void DrawOffsetsTab() {
+    CopiableLabeledValue("O_CSmPlayer_NetPacketsBuf", Text::Format("0x%04x", O_CSmPlayer_NetPacketsBuf));
+    CopiableLabeledValue("SZ_CSmPlayer_NetPacketsBufStruct", Text::Format("0x%04x", SZ_CSmPlayer_NetPacketsBufStruct));
+    CopiableLabeledValue("LEN_CSmPlayer_NetPacketsBuf", Text::Format("0x%04x", LEN_CSmPlayer_NetPacketsBuf));
+    CopiableLabeledValue("SZ_CSmPlayer_NetPacketsUpdatedBufEl", Text::Format("0x%04x", SZ_CSmPlayer_NetPacketsUpdatedBufEl));
+    CopiableLabeledValue("O_CSmPlayer_NetPacketsUpdatedBuf", Text::Format("0x%04x", O_CSmPlayer_NetPacketsUpdatedBuf));
+    CopiableLabeledValue("O_CSmPlayer_NetPacketsBuf_NextIx", Text::Format("0x%04x", O_CSmPlayer_NetPacketsBuf_NextIx));
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Render function called every frame intended only for menu items in `UI`.
 */
@@ -152,15 +180,15 @@ void Render() {
         RenderDebugWindow();
     }
 
-    if (g_ShowFalls) {
-        RenderAnimations();
-    }
+    RenderAnimations();
+    // if (g_ShowFalls) {
+    // }
 }
 
 
 void RenderTitleScreenAnims() {
     for (uint i = 0; i < titleScreenAnimations.Length; i++) {
-        titleScreenAnimations[i].Draw();
+        // titleScreenAnimations[i].Draw();
     }
 }
 
@@ -180,6 +208,7 @@ void RenderAnimations() {
     for (uint i = 0; i < statusAnimations.Length; i++) {
         @anim = statusAnimations[i];
         if (anim !is null && anim.Update()) {
+            if (!g_ShowFalls) continue;
             s = Time::Now;
             auto y = anim.Draw().y;
             if (Time::Now - s > 1) {
