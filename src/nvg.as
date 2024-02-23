@@ -15,5 +15,39 @@ vec2 DrawTextWithStroke(const vec2 &in pos, const string &in text, vec4 textColo
     }
     nvg::FillColor(textColor);
     nvg::Text(pos, text);
-    return nvg::TextBounds(text) + strokeWidth;
+    // don't return with +strokeWidth b/c it means we can't turn stroke on/off without causing readjustments in the UI
+    return nvg::TextBounds(text);
+}
+
+void nvg_Reset() {
+    nvg::Reset();
+    if (scissorStack is null) return;
+    scissorStack.RemoveRange(0, scissorStack.Length);
+}
+
+vec4[]@ scissorStack = {};
+void PushScissor(const vec4 &in rect) {
+    if (scissorStack is null) return;
+    nvg::ResetScissor();
+    nvg::Scissor(rect.x, rect.y, rect.z, rect.w);
+    scissorStack.InsertLast(rect);
+}
+void PushScissor(vec2 xy, vec2 wh) {
+    PushScissor(vec4(xy, wh));
+}
+void PopScissor() {
+    if (scissorStack is null) return;
+    if (scissorStack.IsEmpty()) {
+        warn("PopScissor called on empty stack!");
+        nvg::ResetScissor();
+    } else {
+        scissorStack.RemoveAt(scissorStack.Length - 1);
+        if (!scissorStack.IsEmpty()) {
+            vec4 last = scissorStack[scissorStack.Length - 1];
+            nvg::ResetScissor();
+            nvg::Scissor(last.x, last.y, last.z, last.w);
+        } else {
+            nvg::ResetScissor();
+        }
+    }
 }

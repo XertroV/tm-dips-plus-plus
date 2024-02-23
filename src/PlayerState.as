@@ -123,7 +123,7 @@ class PlayerState {
 
         // state.DiscontinuityCount does not work for some reason
         auto newDiscontCount = Dev::GetOffsetUint8(state, 0xA);
-        auto newFrozen = Dev::GetOffsetUint8(state, 0x1BC) > 0;
+        auto newFrozen = Dev::GetOffsetUint8(state, O_VehicleState_Frozen) > 0;
         UpdatePlayerFromRawValues(
             state.WorldVel,
             state.Position,
@@ -357,16 +357,16 @@ class PlayerState {
 }
 
 enum PlayerNetStructFlags {
-    Snowcar = 0x1,
-    Braking = 0x100,
-    Normal = 0x400,
+    Snowcar     = 0x1,
+    Braking     = 0x100,
+    Normal      = 0x400,
     // not all sliding, but is when you're braking, maybe it's Smoking?
-    Sliding = 0x800,
-    Reactor = 0x2000,
-    NoSteer = 0x40000,
-    Spawning = 0x800000,
-    Unspawned = 0x1000000,
-    Respawning = 0x8000000,
+    Sliding     = 0x800,
+    Reactor     = 0x2000,
+    NoSteer     = 0x40000,
+    Spawning    = 0x800000,
+    Unspawned   = 0x1000000,
+    Respawning  = 0x8000000,
 
 }
 
@@ -393,8 +393,7 @@ class Event {
     Event() {}
 
     Event@ WithVehicleState(CSceneVehicleVisState@ state) {
-        info = info | EventInfo::VehicleState;
-        // todo
+        info = info | EventInfo::VehicleState;        // todo
         return this;
     }
     Event@ WithActiveState(bool active) {

@@ -3,6 +3,11 @@ const string MenuIconColor = "\\$fd5";
 const string MenuTitle = MenuIconColor + Icons::ArrowDown + "\\$z " + PluginName;
 
 UI::Font@ f_MonoSpace = null;
+int f_Nvg_OswaldLightItalic = nvg::LoadFont("Oswald-LightItalic.ttf", true, true);
+int f_Nvg_ExoLightItalic = nvg::LoadFont("Exo-LightItalic.ttf", true, true);
+int f_Nvg_ExoRegularItalic = nvg::LoadFont("Exo-Italic.ttf", true, true);
+// int g_nvgFont = nvg::LoadFont("RobotoSans.ttf", true, true);
+
 
 void LoadFonts() {
 	@f_MonoSpace = UI::LoadFont("DroidSansMono.ttf");
@@ -11,7 +16,10 @@ void LoadFonts() {
 void Main(){
     startnew(LoadFonts);
     sleep(500);
-    titleScreenAnimations.InsertLast(FloorTitleGeneric("Floor 00 - SparklingW"));
+    auto size = vec2(400, 100);
+    auto pos = vec2((Draw::GetWidth() - size.x) / 2.0, 200);
+    titleScreenAnimations.InsertLast(FloorTitleGeneric("Floor 00 - SparklingW", pos, size));
+    RefreshAssets();
 }
 //remove any hooks
 void OnDestroyed() { _Unload(); }
@@ -21,9 +29,13 @@ void _Unload() {
 }
 
 bool g_Active = false;
+vec2 g_screen;
 
 void RenderEarly() {
+    g_screen = vec2(Draw::GetWidth(), Draw::GetHeight());
     RenderEarlyInner();
+    UpdateDownloads();
+    DownloadProgress::Draw();
 }
 
 bool RenderEarlyInner() {
@@ -51,10 +63,11 @@ bool Inactive(bool wasActive) {
     return false;
 }
 
+float g_DT;
 /** Called every frame. `dt` is the delta time (milliseconds since last frame).
 */
 void Update(float dt) {
-
+    g_DT = dt;
 }
 
 
@@ -72,7 +85,10 @@ bool EmitGoingActive(bool val) {
 
 
 
-
+MemoryBuffer@ ReadToBuf(const string &in path) {
+    IO::File file(path, IO::FileMode::Read);
+    return file.Read(file.Size());
+}
 
 
 

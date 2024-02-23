@@ -52,11 +52,24 @@ void DrawAnimationsTab() {
     }
     if (UI::TreeNode("titleScreenAnimations")) {
         for (uint i = 0; i < titleScreenAnimations.Length; i++) {
-            auto anim = titleScreenAnimations[i];
+            auto anim = cast<FloorTitleGeneric>(titleScreenAnimations[i]);
             if (anim is null) continue;
             UI::Text(anim.ToString(i));
+            anim.DebugSlider();
         }
         UI::TreePop();
+    }
+    UI::Separator();
+    if (UI::Button("Add Test Animation")) {
+        auto size = vec2(g_screen.x, g_screen.y * .3);
+        auto pos = vec2(0, g_screen.y * .1);
+        // titleScreenAnimations.InsertLast(FloorTitleGeneric("Floor 00 - SparklingW", pos, size));
+        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null, null));
+        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null, null));
+        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null, null));
+        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null, null));
+        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null, null));
+        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null, null));
     }
 }
 
@@ -166,8 +179,6 @@ void RenderMenu() {
     }
 }
 
-int g_nvgFont = nvg::LoadFont("RobotoSans.ttf", true, true);
-
 [Setting hidden]
 bool g_ShowFalls = true;
 
@@ -175,27 +186,31 @@ bool g_ShowFalls = true;
 */
 void Render() {
     RenderTitleScreenAnims();
+    RenderAnimations();
 
     if (g_DebugOpen) {
         RenderDebugWindow();
     }
-
-    RenderAnimations();
-    // if (g_ShowFalls) {
-    // }
 }
 
 
 void RenderTitleScreenAnims() {
-    for (uint i = 0; i < titleScreenAnimations.Length; i++) {
-        // titleScreenAnimations[i].Draw();
+    if (titleScreenAnimations.Length == 0) return;
+    if (titleScreenAnimations[0].Update()) {
+        titleScreenAnimations[0].Draw();
+    } else {
+        trace("Removing title anim: " + titleScreenAnimations[0].ToString());
+        titleScreenAnimations.RemoveAt(0);
     }
+    // for (uint i = 0; i < titleScreenAnimations.Length; i++) {
+    //     // titleScreenAnimations[i].Draw();
+    // }
 }
 
 
 void RenderAnimations() {
     nvg::Reset();
-    nvg::FontFace(g_nvgFont);
+    nvg::FontFace(f_Nvg_ExoRegularItalic);
     nvg::FontSize(40.0);
     nvg::Translate(vec2(150, 400.0));
     nvg::TextAlign(nvg::Align::Left | nvg::Align::Top);

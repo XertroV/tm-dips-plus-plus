@@ -23,6 +23,9 @@ const uint16 O_PlayerNetStruct_WheelOnGround = O_PlayerNetStruct_Wheels + 0x18;
 const uint16 SZ_PlayerNetStruct_Wheel = 0x1C;
 
 
+const uint16 O_VehicleState_DiscontCount = GetOffset("CSceneVehicleVisState", "DiscontinuityCount");
+const uint16 O_VehicleState_Frozen = GetOffset("CSceneVehicleVisState", "RaceStartTime") + 0x8;
+
 quat Dev_GetOffsetQuat(CMwNod@ nod, uint16 offset) {
     auto v = Dev::GetOffsetVec4(nod, offset);
     return quat(v.x, v.y, v.z, v.w);

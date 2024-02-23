@@ -38,6 +38,9 @@ void ClearAnimations() {
     titleScreenAnimations.Resize(0);
 }
 
+void AddTitleScreenAnimation(Animation@ anim) {
+    titleScreenAnimations.InsertLast(anim);
+}
 
 void EmitStatusAnimation(Animation@ anim) {
     // trace('New animation: ' + anim.name);
