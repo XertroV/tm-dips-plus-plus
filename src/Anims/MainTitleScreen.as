@@ -45,6 +45,7 @@ class MainTitleScreenAnim : FloorTitleGeneric {
 
     float titleHeight = 0.45;
     float secHeight = 0.3;
+    vec4 textColor = vec4(1);
 
     void DrawText(float t) override {
         if (stage == MainTextStageIx && !started) {
@@ -72,14 +73,14 @@ class MainTitleScreenAnim : FloorTitleGeneric {
         nvg::TextAlign(nvg::Align::Center | nvg::Align::Middle);
         auto fontSize = size.y * titleHeight;
         nvg::FontSize(fontSize);
-        auto textSize = nvg::TextBounds(titleName + "^^^^");
+        auto textSize = nvg::TextBounds(titleName);
         if (textSize.x > (size.x - 20.0)) {
             fontSize *= (size.x - 20.0) / textSize.x;
             nvg::FontSize(fontSize);
         }
 
         // PushScissor(pos + vec2(slide1X, 0), size + vec2());
-        nvg::Text(currPos.x + size.x / 2, currPos.y + size.y * titleHeight / 2.0, titleName);
+        DrawTextWithShadow(vec2(currPos.x + size.x / 2, currPos.y + size.y * titleHeight / 2.0), titleName, textColor, fontSize * 0.05);
         currPos.y += size.y * (titleHeight) + gapH;
         // PopScissor();
 
@@ -91,7 +92,7 @@ class MainTitleScreenAnim : FloorTitleGeneric {
             nvg::FontSize(fontSize);
         }
         // PushScissor(pos + vec2(slide2X, 0), size + vec2());
-        nvg::Text(currPos.x + size.x / 2, currPos.y + size.y * secHeight / 2.0, secLine);
+        DrawTextWithShadow(vec2(currPos.x + size.x / 2, currPos.y + size.y * secHeight / 2.0), secLine, textColor, fontSize * 0.03);
         // PopScissor();
     }
 }

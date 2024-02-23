@@ -487,7 +487,7 @@ class PlayerFlyingAnim : Animation {
             return vec2();
         }
         nvg::Scale(lastScale);
-        auto size = DrawTextWithStroke(vec2(), MsgText(), vec4(1), 0.0);
+        auto size = DrawTextWithShadow(vec2(), MsgText());
         // if (Math::IsNaN(size.x) || Math::IsInf(size.x)) {
         //     nvg::Scale(1.0 / (lastScale));
         //     return vec2();
@@ -558,7 +558,7 @@ class FlyingEndedAnim : Animation {
         }
         auto finalScale = scale * baseScale;
         nvg::Scale(finalScale);
-        auto size = DrawTextWithStroke(vec2(), MsgText(), color);
+        auto size = DrawTextWithShadow(vec2(), MsgText(), color);
         // if (Math::IsNaN(size.x) || Math::IsInf(size.x)) {
         //     nvg::Scale(1.0 / (finalScale));
         //     return vec2();

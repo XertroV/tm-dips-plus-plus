@@ -19,6 +19,21 @@ vec2 DrawTextWithStroke(const vec2 &in pos, const string &in text, vec4 textColo
     return nvg::TextBounds(text);
 }
 
+vec2 DrawTextWithShadow(const vec2 &in pos, const string &in text, vec4 textColor = vec4(1), float strokeWidth = 2., vec4 strokeColor = vec4(0, 0, 0, 1)) {
+    if (strokeWidth > 0.0) {
+        nvg::FillColor(strokeColor);
+        float i = 1;
+        float angle = TAU * float(i) / nTextStrokeCopies;
+        vec2 offs = vec2(Math::Sin(angle), Math::Cos(angle)) * strokeWidth;
+        nvg::Text(pos + offs, text);
+    }
+    nvg::FillColor(textColor);
+    nvg::Text(pos, text);
+    // don't return with +strokeWidth b/c it means we can't turn stroke on/off without causing readjustments in the UI
+    return nvg::TextBounds(text);
+}
+
+
 void nvg_Reset() {
     nvg::Reset();
     if (scissorStack is null) return;

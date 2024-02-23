@@ -97,6 +97,23 @@ class AssetDownload {
         started = true;
         startnew(CoroutineFunc(this.RunDownload));
         trace("Downloading " + this.url + " to " + this.path);
+        CheckDestinationDir();
+    }
+
+    void CheckDestinationDir() {
+        auto parts = this.path.Split("/");
+        auto fileName = parts[parts.Length - 1];
+        parts.RemoveLast();
+        auto dir = string::Join(parts, "/");
+        trace("Checking destination dir: " + dir);
+        if (!IO::FileExists(dir) && !IO::FolderExists(dir)) {
+            // create all directories up to the file, then a directory with the name of the file
+            IO::CreateFolder(dir, true);
+            trace("Created folder: " + dir);
+            // // then remove the folder with the same name as the file (but not parent folders)
+            // IO::DeleteFolder(path);
+            // trace("Removed folder: " + path);
+        }
     }
 
     void RunDownload() {
@@ -120,7 +137,7 @@ class AssetDownload {
 
     // for overriding
     void DoneCallback() {
-        trace("Download done (CB): " + this.url);
+        // trace("Download done (CB): " + this.url);
     }
 }
 
@@ -145,7 +162,7 @@ void DeleteAssets(const string[] &in paths) {
     }
 }
 
-const int MAX_DLS = 20;
+const int MAX_DLS = 30;
 
 void UpdateDownloads() {
     AssetDownload@ dl;

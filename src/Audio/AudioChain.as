@@ -8,13 +8,28 @@ class AudioChain {
     AudioChain(string[]@ samplePaths) {
         for (uint i = 0; i < samplePaths.Length; i++) {
             MemoryBuffer@ buf = ReadToBuf(samplePaths[i]);
-            Audio::Sample@ sample = Audio::LoadSample(buf, true);
+            Audio::Sample@ sample = Audio::LoadSample(buf, false);
             samples.InsertLast(sample);
             auto v = Audio::Start(sample);
             v.SetGain(S_VolumeGain);
             totalDuration += v.GetLength();
             queued.InsertLast(v);
         }
+    }
+
+    ~AudioChain() {
+        for (uint i = 0; i < samples.Length; i++) {
+            @samples[i] = null;
+        }
+        Audio::Voice@ v;
+        for (uint i = 0; i < queued.Length; i++) {
+            // ensure it finishes playing to clear from memory
+            @v = queued[i];
+            v.SetGain(0.0);
+            v.Play();
+        }
+        samples.RemoveRange(0, samples.Length);
+        queued.RemoveRange(0, queued.Length);
     }
 
     void AppendSample(Audio::Sample@ sample) {

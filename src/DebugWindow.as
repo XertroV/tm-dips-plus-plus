@@ -52,9 +52,10 @@ void DrawAnimationsTab() {
     }
     if (UI::TreeNode("titleScreenAnimations")) {
         for (uint i = 0; i < titleScreenAnimations.Length; i++) {
+            auto animGeneric = titleScreenAnimations[i];
+            UI::Text(animGeneric.ToString(i));
             auto anim = cast<FloorTitleGeneric>(titleScreenAnimations[i]);
             if (anim is null) continue;
-            UI::Text(anim.ToString(i));
             anim.DebugSlider();
         }
         UI::TreePop();
