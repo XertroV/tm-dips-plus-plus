@@ -1,9 +1,11 @@
 GUARD: fall from floor 1+, but only after 10+ falls.
+LABEL: m01
 
 Uhh Hello. Uh, shame about that last fall. Soooo... umm, we haven't met, but uh I'm here standing in for Cecil while he takes a little bit of a break. Uhh don't worry, he'll be back soon. In the mean time though.... ahh yes, okay the next line. I found it, don't worry. It says: *clears throat* to proceed, you must go up. Oh, umm do you know what that means? To be honest I'm a bit new, it's my first day, so if you have any ideas, uhh.. I would really appreciate that. uhh... Thank you. ... In advance I guess... I mean, I only say that because, well I've been talking to you this whole time and you haven't really responded. I sort of wonder how Cecil does it. Like does he just say stuff and then things happen and that's it? Or, when things happen he says stuff? Uh, like no feedback? I... I mean I don't really know. *sigh* (okay) Uhh, it would be nice, you know, if you talked a little bit. ... but umm ... I guess... it's okay if you don't. So umm. Okay, well, good luck up there!
 
 
 GUARD: fall from floor 3+, first line played, 15+ falls
+LABEL: m02
 
 Hey, it's me again. Cecil had to step out for a minute. You were doing so well! We both thought you'd be okay not to fall *there*, of all places.
 [...] (*excited*) Oh, by the way, I've been watching a bit and I think I get what's going on now. Like, when you fall, he presses some buttons and says one of the things on these cards. He's got like... hundreds of them, all over the desk.
@@ -17,6 +19,7 @@ Uhh, you couldn't, like... finish floor 1 real quick, could you? It would just m
 Uhh speaking of, I should probably go. (*whispers*) okay, good luck.
 
 [GUARD: played 02 and waited 35s+ on floor zero]
+LABEL: m02a
 
 01 cecil: Ahh, there you are, how are we looking?
 02 maddie: Uhh.. they're on floor uhh... ohh they must have just fallen now, things looked fine a minute ago.
@@ -26,11 +29,14 @@ Uhh speaking of, I should probably go. (*whispers*) okay, good luck.
 
 
 
+
+LABEL: m??
+
 Hey, so uhh dad's away at the moment, and I'm meant to let him know if you fall, but i've been watching you fall for LITERALLY hours and when you do he says some stupid line like *Deep Dip 2: Circle of Dipsterbation* and like to be honest it's pretty lame. Like, you're doing one of the LITERALLY hardest things to do, line in the world, and... well for one that's really impressive, and... I believe in you. It's the destinations we seek that make us who we are, not the falls we take along the way. .. Good luck up there. .. I gotta go.
 
 
 
-
+LABEL: m??
 
 hey so uhh dads on break again and.. well look I've heard of this plax guy who made floor 13 and... well i mean i don't think he plays fair, you know? like it's a bit off... Like it's normal not to finish it first try. Don't worry about it, we're all still rooting for you.... it would help if you didn't fall though.
 
