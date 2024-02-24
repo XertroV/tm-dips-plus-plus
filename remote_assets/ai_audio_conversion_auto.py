@@ -20,7 +20,11 @@ if len(ls_key) == 0 or len(ls_val) == 0:
 driver.execute_script(f"window.localStorage.setItem('{ls_key}', '{ls_val}');")
 ls_val = '{"7dYEhp5uUI7fL30Im2Ks":1708744717657,"tRHw88OXJFlj5KrSC7xX":1708744708825}'
 driver.execute_script(f"window.localStorage.setItem('voice-dropdown', '{ls_val}');")
+# valantino
 driver.execute_script(f"window.localStorage.setItem('xi:selected-voice-id', '7dYEhp5uUI7fL30Im2Ks');")
+# phoebe
+driver.execute_script(f"window.localStorage.setItem('xi:selected-voice-id', 'tRHw88OXJFlj5KrSC7xX');")
+
 driver.get('https://elevenlabs.io/speech-synthesis')
 
 
@@ -179,6 +183,14 @@ def process_files(folder_path, output_path):
 # Example usage:
 folder_path = Path(sys.argv[1]).absolute()
 output_path = Path(sys.argv[2]).absolute()
+
+if not folder_path.exists():
+    print(f"Folder path {folder_path} does not exist")
+    sys.exit(1)
+
+if not output_path.exists():
+    print(f"Output path {output_path} does not exist, creating it")
+    output_path.mkdir(parents=True, exist_ok=True)
 
 print(f"Processing MP3 files in {folder_path} and saving to {output_path}")
 print(f"Please ensure the browser is open and on the correct page")
