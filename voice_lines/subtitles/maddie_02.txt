@@ -1,3 +1,4 @@
+color: maddie
 0: Hey, it's me again. Cecil had to step out for a minute. You were doing so well! We both thought you'd be okay not to fall *there*, of all places.
 9303: (*excited*) Oh, by the way, I've been watching a bit and I think I get what's going on now. Like, when you fall, he presses some buttons and says one of the things on these cards. He's got like... hundreds of them, all over the desk.
 23060: (*quizzically*) Not sure what the other papers are for, though. ...
