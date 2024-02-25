@@ -3,7 +3,7 @@ bool g_DebugOpen = false;
 
 void RenderDebugWindow() {
     if (UI::Begin(PluginName + ": Debug Window", g_DebugOpen, UI::WindowFlags::None)) {
-        UI::BeginTabBar("DebugTabBar");
+        UI::BeginTabBar("DebugTabBar", UI::TabBarFlags::FittingPolicyScroll);
         if (UI::BeginTabItem("Players and Vehicles")) {
             DrawPlayersAndVehiclesTab();
             UI::EndTabItem();
@@ -20,6 +20,14 @@ void RenderDebugWindow() {
             DrawAnimationsTab();
             UI::EndTabItem();
         }
+        if (UI::BeginTabItem("Collections")) {
+            DrawCollectionsTab();
+            UI::EndTabItem();
+        }
+        if (UI::BeginTabItem("Credits -------------")) {
+            DrawCreditsTab();
+            UI::EndTabItem();
+        }
         if (UI::BeginTabItem("Offsets")) {
             DrawOffsetsTab();
             UI::EndTabItem();
@@ -27,6 +35,12 @@ void RenderDebugWindow() {
         UI::EndTabBar();
     }
     UI::End();
+}
+
+void DrawCreditsTab() {
+    if (UI::Button("Roll Credits")) {
+        NotifyWarning("Credits: todo");
+    }
 }
 
 string GetNbPlayers() {
@@ -38,6 +52,20 @@ string GetNbPlayers() {
     } catch {
         return getExceptionInfo();
     }
+}
+
+void DrawCollectionsTab() {
+    if (GLOBAL_TITLE_COLLECTION !is null && UI::TreeNode("Titles")) {
+
+        for (uint i = 0; i < GLOBAL_TITLE_COLLECTION.items.Length; i++) {
+            auto title = cast<TitleCollectionItem>(GLOBAL_TITLE_COLLECTION.items[i]);
+            if (title is null) continue;
+            title.DrawDebug();
+        }
+
+        UI::TreePop();
+    }
+
 }
 
 void DrawAnimationsTab() {
@@ -65,12 +93,12 @@ void DrawAnimationsTab() {
         auto size = vec2(g_screen.x, g_screen.y * .3);
         auto pos = vec2(0, g_screen.y * .1);
         // titleScreenAnimations.InsertLast(FloorTitleGeneric("Floor 00 - SparklingW", pos, size));
-        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null, null));
-        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null, null));
-        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null, null));
-        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null, null));
-        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null, null));
-        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null, null));
+        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null));
+        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null));
+        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null));
+        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null));
+        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null));
+        titleScreenAnimations.InsertLast(MainTitleScreenAnim("Deep Dip 2", "The Re-Dippening", null));
     }
 }
 

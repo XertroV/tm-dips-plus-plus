@@ -2,6 +2,7 @@ const string AudioBaseDir = IO::FromStorageFolder("Audio/");
 const string AudioS3SourceUrl = "https://xert.s3.us-east-1.wasabisys.com/d++/audio/";
 
 string Audio_GetPath(const string &in name) {
+    if (name.Contains(AudioBaseDir)) return name;
     return AudioBaseDir + name;
 }
 

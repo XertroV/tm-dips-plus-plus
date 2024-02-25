@@ -7,7 +7,7 @@ class AudioChain {
 
     AudioChain(string[]@ samplePaths) {
         for (uint i = 0; i < samplePaths.Length; i++) {
-            MemoryBuffer@ buf = ReadToBuf(samplePaths[i]);
+            MemoryBuffer@ buf = ReadToBuf(Audio_GetPath(samplePaths[i]));
             Audio::Sample@ sample = Audio::LoadSample(buf, false);
             samples.InsertLast(sample);
             auto v = Audio::Start(sample);

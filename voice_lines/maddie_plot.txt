@@ -1,10 +1,199 @@
 * what are the other papers on the desk?
+  * some are boring company documents, or other scraps
+  * after digging a bit, though, she finds philosophy, buried
+  * she learns from this as she and the player progress
+  * she questions why these are here, are they Cecil's? Why did he bring them here, and why are they buried?
+    * later, she finds the philosophy replaced with different works -- by whom? and why?
+
 * who are the calls with?
+  * the founding architect, he is the project lead (sorta CEO) and organized the other architects and board members (shareholders). he is not on the board.
+  * possible name: Mason? (or The Mason)
+  * it is his vision that is played out, so he's invested in how it goes
+  * he acts as a guide for Cecil, and their conversations increase in frequency as the player nears the top.
+  * he advocates non-interference with the players, and this is a rule for everyone but Maddie; she isn't employed by the company, and the architect respects Cecil's goals. It was the architect that suggested Cecil bring Maddie in to 'observe'. Cecil's goals, values, modesty, and appreciation of philosophy mean the architect want's to give Maddie the chance to experience philosophical growth via her ability to talk to the player and think while this is ongoing. It's not that he thinks Maddie's success is assured, she needs to make the progress herself, but he's giving her the chance.
+  * his voice lines are withheld for player's that have not finished the map.
+    * his lines are blanked out, being seen only in the subtitles of Cecil's calls.
+    * maddie can sometimes overhear cecil's end of the conversation.
+  * he and cecil only ever briefly discuss maddie -- most of the lore is left unsaid
+    * what we do here is his advice that at some point Cecil needs to take a step back and not interfere with Maddie's development any further, Cecil should be there for her, but should not step in to prevent her making a mistake. Cecil is unsure about this because of the uncertainty and because he still feels Maddie isn't mature. the architect replies: that's the point. cecil pauses, and agrees. "Thanks, old friend"
+  * his purpose is to facilitate New Greatness (creating the environments where exceptional people can develop into great people -- great thinkers, great writers, great mappers, great drivers, etc)
+
+  * While never directly mentioned, the architect created the project some time after losing his own child. This, in effect destroyed his prior career and caused him to reflect on life and purpose -- his child was the last purpose and legacy he had besides his work (his wife having passed away some years prior, which is why he had only 1 child), and he was already too old to raise another child. Before this, he was a renowned architect with an incredibly successful firm, however, he did not build great buildings -- they were built to pander, and came and went with fashion. While reconsidering his life after the death of his child, he hid himself away from the world, becoming somewhat reclusive and withdrawn. During this time, in an effort to figure out his life, he studied philosophy and read widely. He realized that his work was not the legacy he wanted to leave. Eventually, he concluded that there were serious problems with the world and his previous ideas, like a general cultural hostility toward self-sufficient greatness (i.e., ppl who did not pander to society, who did not desire other people's approval, but were rather satisfied by meeting their own standards, goals, and values). He recognized the need for greater recognition and awareness of this, without it, many people never saw anyone recognized for their greatness (unless those 'great' people played by the social rules and valued their own selves by how much society 'appreciated' them). If young people don't even know that they can opt-out of living a secondhanded life, how could they surpass the average person with their average biases and average cultural allegiances, etc. So he resolved to dedicate the remainder of his life and fortune to creating something enduring: the tower.
+
+  * Mason and Cecil BG:
+    * Mason and cecil met decades ago -- Cecil actually worked for Mason before Mason withdrew. Cecil was fired after humiliating Mason by questioning the last building Mason worked on during that time -- this was the first time Cecil and Mason had met. Cecil was an amateur (and average) philosopher and scientist, but a solid foreman -- he'd learnt to use these skills in combination to find unique and elegant solutions to construction problems. These solutions often made the difference for whether a project was on-time and under-budget or not, something he was well known for in the local construction circles. Mason did not consider people like Cecil to be worth fraternizing with, preferring to mingle with politicians and billionaires.
+    * Mason was visiting the build site early during construction with the clients (although it was not clear they were clients). Cecil, not noticing this, came up to Mason and began explaining a flaw with the design openly in front of the clients. The problem concerned the the foundation and how it integrated with some of the facade's flourishes (which was a grand, intricate fusion of architectural styles, meant to display the sophistication and refined taste of Mason and the clients). This embarrassed and enraged Mason, so Cecil was fired. Although Mason was told later that Cecil should be rehired, his hubris and pride meant he reject this possibility outright. (And Cecil was hired by another firm immediately, in any case.) Cecil never finished the explanation of his solution, and no-one could replicate it so they were only able to half-fix it. But the problems Cecil pointed out eventually contributed to delays and expensive re-designs. However, the building was never finished as Mason's son died about 75% of the way through construction and Mason's company fell apart shortly after. Other architectural firms were brought in to assess whether the project could be recovered, but they all quoted too much -- the project was declared not-viable, and it was written off.
+
+    * +[2-3years]
+
+    * That building sat, deteriorating, and this was a great embarrassment to Mason -- his first failure. The humiliation of that failed project was one of the reasons Mason began to reconsider his philosophy and conclude that one's own philosophical standards are the only standards to matter. Some years later, as Mason developed his sense of humility, he reached out to Cecil. While Cecil was initially confused and skeptical of the call, Mason asked to meet and Cecil agreed. The location was a hill that overlooked the construction site and, beyond, the quiet sea.
+
+    * While Cecil was expecting an apology, it never came. Instead, Mason spent some time recounting his reflections about what had happened -- the building, firing Cecil, his son's death, his humiliation and the beginning of his philosophical journey. At the end, he thanked Cecil. Mason finally felt as though he might be able to build something of his life, though he didn't yet know what that would look like. The two sat there in silence for a while, looking out over the crumbling facade against an orange sea. After the sun had set, Cecil replied: "You're welcome." After another pause he continued: "What will you do now?". Mason didn't know, but had an idea "... Can I offer you a job?" "I already have a job." I know, but ---" "No, Mason. You can't." Mason sat there in silence for a long moment before Cecil reflected "Not until you know what it is." Mason, surprised, asked "How did you know?" "... You told me a great deal." Mason started "I--", paused, and then replied: "... I suppose so." Hesitantly, he continued "... Do you mind if I call you again?" "No, Mason, I don't." Cecil replied, not firmly this time, but gently. Mason took in a deep breath and felt as though the air had somehow become cleaner, crisper. Cecil began to stand, "It's time I got going, you can call me next week," before walking to the stairs that would take him west, down the hill, past the derelict, and north along the shoreline, back home. When Cecil got to the top of the stairs he turned back: "I'm look forward to it." before turning and descending the twisting stairs. Mason sat there until it was dark. Then he stood up, nodded to his driver, and walked towards the car door. He watched as it effortlessly swung open to greet him, expertly guided by a wrinkled hand at the end of a long, pressed black sleeve, neatly separated by a thin band of pure white. Mason paused, before looking into that pair of wise, grey-blue eyes. They watched him with infinite patience, as he turned to look at the silhouette of the Failure for the last time. He turned back to his driver, nodded, and got in.
+
+    * Over the next 8 years, the two met regularly, but not always frequently. They discussed philosophy, mostly. Things Mason had been reading and learning, with Cecil challenging Mason frequently. Often they found they were both wrong, and re-discovered old ideas, which they might have found earlier had they only known where to look. Cecil shared more about his own life, too, like his daughter, who had been born shortly before Mason and Cecil met for the second time. The two would frequently discuss the challenges of raising a child, Mason sharing many of his regrets, and Cecil sharing the challenges, his ideas, her progress in school and hobbies. They found a great deal of overlap in their discussions. Seemingly they could start by discussing economics, and then travel through the moral foundation of one's life to the role that parents should play in their child's development. Then, one day, abruptly, Mason stood up.
+    * [maddie is 8]
+    * "What is it?" Asked Cecil.
+      "I know what I'll do, now." Mason replied.
+      Cecil chuckled "You've just realized it now? After all these years?"
+      "Yes. There are others like us, you know?"
+      "Like us how?"
+      "Free thinkers. I met one years ago, but there are more. I have a project for us."
+      "And you didn't reach out this whole time?"
+      "Do you remember who I was? I..." he said, trailing off.
+      "I remember."
+      "She didn't like me very much."
+      "... But she will now?"
+      "I'll have to find out..."
+      "..."
+      "I'll need a foreman, too, you know. It might be helpful if you came with me. And I could use the company."
+      "... Not before you're ready."
+      "So I still haven't changed your mind, I see."
+      "No, you changed my mind a long time ago, but I can't follow you halfway around the world to find these people. I'm staying here, with Maddie."
+      Mason paused, before "... Yes... but when I'm ready?"
+      "Then you can offer me that job."
+      "And when will that be, I wonder?"
+      "You'll know... and if you don't, they will."
+      "...mm."
+      "Call me if you get stuck." Cecil said, and stood up.
+      "Of course. Or, when I'm ready," Mason joked.
+      "Heh, or when you're ready." and they shook hands.
+      It was 8 years before Cecil saw Mason again.
+    * [maddie is 16]
+    * Cecil stood on the atrium's upper balcony. He didn't need to speak very loudly, though everyone could hear him.
+      Just as he was wrapping up, a familiar *floop   floop   floop* came into earshot, and he instinctively ducked to avoid a local magpie returning to feed its chicks. It wouldn't really do any damage to Cecil at the moment anyway, but that wasn't why he ducked. A chorus of shrill chirping erupted from the eucalypt's foliage as Cecil turned to head downstairs to finish up for the day.
+      Cecil stopped. A slender old man with perfect posture stood at the stairs, looking at Cecil with patient, grey-blue eyes. His black suit was out of place here, even though nothing about the suit was out of place.
+      "Hello, I don't believe we've met" Cecil began, extending his hand.
+      "I believe we have, once, though it was a long time ago." the voice replied, referring to something Cecil couldn't put his finger on.
+      Cecil cocked his head slightly, trying to remember.
+      "I have been asked", the voice began, as the wrinkled hand's grip relaxed, and their hands parted, "to inform you that it is time."
+      Surprised, Cecil took a moment before replying, "Now?"
+      "Whenever you are ready."
+      "Where is the site?"
+      "Just beyond the outskirts of the city. I am to accommodate any travel requirements you might have for the duration of the project."
+      "I see." Cecil mused. "And construction?"
+      "The excavators can be on-site tomorrow and await your instruction."
+      Cecil nodded, and called his Project Manager:
+        "You remember when you hired me, I told you---"
+        "You're resigning, aren't you?"
+        "Yes"
+        "You know," the phone crackled, "I'd started to think it'd never happen."
+        "It's been a while, hasn't it?"
+        "More than we deserved."
+        "How much longer do you need me on-site for?"
+        "We're 3 months ahead of schedule and only have the roof left, Cecil. I think we can handle it from here."
+        "... Thanks" Cecil said, earnestly. "Means a lot."
+        "So, you going to tell me what this project is, now?"
+        "I would tell you if I knew."
+        A laugh the size of a hippopotamus bounced out of the speaker, as Cecil instinctively pulled the phone just far enough from his ear to avoid hearing damage.
+      The chirping had stopped.
+      "Tomorrow, then." Cecil said to Mason's driver, who simply nodded in return.
+      Cecil turned and placed his hands on the balcony railing. "Team?" he began, "I have some news."
+
+    * Cecil and the driver returned their hard-hats and exited the site.
+      "So what's the project?" Cecil started.
+      "I would tell you if I knew." the driver replied. Cecil thought he could hear a sly grin. "Mason would prefer to inform you personally," he clarified.
+      "Tomorrow?"
+      "No, he is waiting for us."
+      "You aren't taking me home?"
+      "That is our first destination."
+      "I see. And then?"
+      "That is up to you and Mason."
+      *What are you up to, Mason?* Cecil thought.
+      Behind them, the build site disappeared behind a hill.
+
+    * The door opened and Cecil stood up, gazing over to the wide veranda guarding his house from the sun. He could hear Maddie giggling, and started down the path, and after a moment, a leathery figure emerged to meet him. "I told you!" Mason grinned, "When I get stuck, or when I'm ready!"
+      "Never doubted it."
+      "Come, I want to show you something." Mason said, louder than necessary considering how close they both where, before continuing as they passed, almost in a whisper "Tell her nothing yet. I'll explain on the way."
+      Cecil gave him a quizzical look.
+      "You can put your things away, then I'll show you." Mason said, with a nod, once again at a regular volume.
+      Mason continued to the car, leaving Cecil standing half way.
+      Cecil turned and made his way to the veranda.
+      "Hey Kiddo, you right to handle dinner tonight?"
+      "Sure Dad, you off somewhere?"
+      "Yep. Got a new job starting tomorrow."
+      "Ooh fun, what is it?"
+      "I wish I knew. We're going to see the site, I think." Cecil chuckled in reply.
+      "You've got a new job but you don't know what it is?" she asked, confused. "Doesn't sound like the right order, Dad."
+      "Probably not, but I know enough." Cecil, dropping his gear inside.
+      "Is that your new boss?"
+      "In a way, I guess so."
+      "So... who is he?", she pressed, "He knows a lot about you."
+      "Heh," Cecil chuckled, "I'm sure he does. He's an old friend."
+      "Not going to tell me then?" she protested.
+      "Soon enough." as he gave her a wink. "I'll be back later tonight."
+      "Okay" She chirped, then picked up her book, leant back in the weathered sunbleached cushions, and began to read.
+
+    * Mason and Cecil stood at the edge of the fire-trail, looking down over the a wide riverbed, caving its way through the valley. By some coincidence of geology, it made a perfect foundation and quarry. Some of the surrounding rock face had already begun being carved away, and a collection of great granite blocks stood neatly in a corner, if it could be called that. The main surveying tent stood down the hill, and Cecil had seen orange vests entering and leaving for the last few hours. The light was fading, now, and the orange vests had become almost invisible amongst the yellow grass.
+      "So what do you think?" Mason asked.
+      After a pause, "I'm not sure, yet." replied Cecil. "But I like it. ... Do you think it'll work?"
+      "For which goals." Mason replied. "If you're talking about mine, it already is."
+      Cecil thought, but before he knew what to say,
+      "What are your goals, Cecil? I can't tell you whether it'll work for you if you don't even know."
+      Cecil stood watching the light fade. "A lot has changed, hasn't it?"
+      "Yes."
+      "Where were you, these past 8 years?"
+      "Preparing."
+      "Did you find her?"
+      "Yes, and the others."
+      "So you were preparing with them?"
+      "No."
+      "Took you a while, then." Cecil joked.
+      "No. I didn't have to look hard at all before finding the first group."
+      "They didn't help you?"
+      "No, they did. When I got stuck I would go to them."
+      "I'm not sure I follow."
+      "... They told me the same thing you did. 'Not until I'm ready'."
+      Cecil waited for Mason to continue.
+      "I was preparing myself" came the answer. "The tower itself will be easy by comparison -- that's what we do, right?"
+      "I suppose so." Cecil paused, before asking: "What did you need to be ready for?"
+      "To convince them." Mason paused, before continuing "They'll be here tomorrow. You'll understand then."
+      "Okay"
+
+    * [+2 years, Maddie is 18; this is where the main plot happens]
+
+
+
+
+
+
+
+
+
+
 * Maddie's philosophy journey
+  * too big for here, after all the qs
+
 * what are the buttons doing?
+  * the main/used buttons are for recording: starting, stopping, etc
+  * also a switch for the mic
+
+* what are so many of the buttons dusty?
+  * this project has existed for a long time before Maddie sees it -- the tower was made for it, embodies it, and many have tried and failed before.
+  * these buttons aren't used *yet*, they only get used once the player finishes. maddie discovers this when the player has been to a floor near the top.
+  * how is this revealed to the player and what does maddie feel about discovering this?
+
 * who are the shareholders?
+  * the shareholders are a small group of philanthropists who reject the typical reason for philanthropy: to help the masses. Instead, these philanthropists want to help the best people and spread the best ideas. They are philosophers in their values but modest in their abilities. They recognize that showcasing the best of the world is necessary for people to desire to live unironically and with integrity to their values -- otherwise they might not even know that it's possible. Their investment in this pays off with the player's achievement of finishing the map: this plays into the theme that we are all invested in the player's success, despite the difficulty.
+
 * who are the people who built this and why?
+  * Obviously the DD2 mappers, but in the context of the story they have built a literal tower. (This is also backed by the shareholders)
+  * the architects also overlap (incompletely) with the shareholders -- some architects are shareholders and vice versa, but not all.
+  * their goals are twofold:
+    * to facilitate the challenge/company/project for similar reasons to the founding architect.
+    * to create an enduring monument to greatness, to push the boundaries of architecture and thus it is metaphorically a reference to itself: a great work in and of itself, it is a monument to great works. It is a stand alone complex, an internally consistent embodiment of the idea of the value of consistency, greatness, and progress.
+
+
 * why does Cecil care about the job and why does Maddie respect it?
+  * Cecil is modest in his aspirations for his life:
+    * he wants to raise Maddie in the best way that he can, and give her the best upbringing and thus the best start in life. He values ideas and philosophy, but recognizes he is not a great philosopher (but he can be a great father). Imparting good values to Maddie and teaching her to think (and letting her teach herself) is his goal.
+    * he also agrees with the shareholders, he knows that he is contributing to something great in a way that he can succeed at, and contribute to the legacy.
+    * Maddie originally doesn't understand Cecil's goals besides that it pays the bills. As she slowly discovers more about the company, she initially questions whether this is right and the role of the shareholders: are they exploiters? However, through her own philosophical development, and discussions with her father, she comes to develop and understanding of why it is like it is, and why it matters. She questions what the alternatives would look like, and whether the hypothetical worlds of those alternatives are good and whether she would want to live in them. She eventually comes to respect their goals, though ultimately (epilogue) she decides to find her own way, leaving the care of her father so she can find and climb her own towers. The player is part of her inspiration, and she wouldn't have done that if she hadn't had this experience, which gave her the time to think and reflect on the purpose of her life. At some point, mid-way, she reflects on how things have changed: she has become uncertain, but also realizes that she was somewhat directionless beforehand. She grows to accept that uncertainty is a necessary part of purpose, achievement, and greatness. She also realizes the danger of striving for certainty and denying criticism, innovation, and change.
+
+
+
+
+
+
 
 # maddie's journey
 - start as passive observer, need to step in
@@ -74,6 +263,15 @@ maddie evolution:
 
 
 
+- at some point, Cecil returns while Maddie is talking to the player, interrupting her mid thought
+  - this surprises and scares her a bit, she thinks she has disappointed him and has done something wrong
+  - he replies: no, you've done nothing to apologize for. I'm not disapointed at all. nothing like that
+  - she asks: what is it like then?
+  - cecil: ... it's not something I can put into works. ... You'll understand one day, in time.
+  - (this is referring to one of the purpose's of Cecil's life: raising Maddie. She's breaking out of a passive role, using her mind, and becoming a philosopher. Cecil is very proud of this, but does not want to compromise her development by telling her. It must be for her to figure out)
+  - cecil: Anyway, I have some news that we need to discuss. Why don't you turn that off and come sit with me here.
+
+
 - can one be satisfied with being a link in a great chain? a journey so long that you can't see either end?
 - or do people need to invent a world for themselves that puts them in a privileged / special position?
 - i guess in some ways both are the same because we could ruin everything, that's the power and danger of being human, being part of something bigger.
@@ -101,6 +299,19 @@ company plot:
 - we need great people, great achievements, great ideas, to see them with our own eyes. how else can anyone learn to surpass their ancestors?
 - if we don't surpass our ancestors... what are we living for? just to die?
 -
-
+- msg to player: your success is what brings meaning to our work. Thank you.
+-
+- most of the buttons are dusty b/c they're only used after someone finishes the map: what we've been waiting for
+- maddie can find out how to use these at the end, finally communicating with the player
+-
 - who builds this stuff and why?
 -
+
+- idea for the plot/name: name it after the player that finishes first.
+    - when they finish, begin playing the credits and have the announcer read out this new title (the last time the announcer appears)
+    - e.g., Deep Dip 2: Granaddy's Gauntlet / The Ascension of Jave / The Legend of Mussa / Bren's Gift
+      - (I like the 'gift' one)
+    - after this, it plays for everyone once on their next reset / restart
+    - while the first player has the map name *actually* changed to this new one, for the first 10 finishers or so
+      we can give them the same treatment: everyone else gets to hear the finisher's title once
+    - this is the purpose of Cecil's fake titles: they are (in essence) practice for this moment. To usher this achievement into the history books.

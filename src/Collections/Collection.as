@@ -4,8 +4,6 @@ class Collection {
     void AddItem(CollectionItem@ item) {
         items.InsertLast(item);
     }
-
-
 }
 
 class CollectionItem {
