@@ -3,9 +3,9 @@ const string MenuIconColor = "\\$fd5";
 const string MenuTitle = MenuIconColor + Icons::ArrowDown + "\\$z " + PluginName;
 
 UI::Font@ f_MonoSpace = null;
-int f_Nvg_OswaldLightItalic = nvg::LoadFont("Oswald-LightItalic.ttf", true, true);
-int f_Nvg_ExoLightItalic = nvg::LoadFont("Exo-LightItalic.ttf", true, true);
-int f_Nvg_ExoRegularItalic = nvg::LoadFont("Exo-Italic.ttf", true, true);
+int f_Nvg_OswaldLightItalic = nvg::LoadFont("Fonts/Oswald-LightItalic.ttf", true, true);
+int f_Nvg_ExoLightItalic = nvg::LoadFont("Fonts/Exo-LightItalic.ttf", true, true);
+int f_Nvg_ExoRegularItalic = nvg::LoadFont("Fonts/Exo-Italic.ttf", true, true);
 // int g_nvgFont = nvg::LoadFont("RobotoSans.ttf", true, true);
 
 

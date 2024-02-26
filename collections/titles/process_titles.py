@@ -6,12 +6,14 @@ from pathlib import Path
 
 def sanitize_filename(filename: str):
     """Sanitize the filename to be filesystem-friendly."""
-    if filename == "dips++":
-        return "dips-plus-plus"
+    if filename == "Dips++":
+        return "dipsplusplus"
     return "".join([c for c in filename if c.isalpha() or c.isdigit() or c==' ']).rstrip().replace(" ", "").replace('é', 'e')
 
 def sanitize_filename_underscore(filename: str):
     """Sanitize the filename to be filesystem-friendly."""
+    if filename == "Dips++":
+        return "dips_plus_plus"
     return "".join([c for c in filename if c.isalpha() or c.isdigit() or c==' ']).rstrip().replace(" ", "_").replace('é', 'e')
 
 def proc_normal_titles(titles_p: Path):
@@ -22,7 +24,7 @@ def proc_normal_titles(titles_p: Path):
 
     def match_filename(filename: str, audios: list[Path]):
         for audio in audios:
-            if str(audio).lower().endswith(filename.lower()):
+            if str(audio).lower().endswith('/'+filename.lower()):
                 return audio
 
     ordered_titles = []
