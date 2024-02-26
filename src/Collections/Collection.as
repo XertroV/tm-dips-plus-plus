@@ -22,6 +22,19 @@ class CollectionItem {
         FromSpecJson(spec);
     }
 
+    void CollectSoonAsync(uint64 sleepTime) {
+        if (!collected) {
+            collectedAt = Time::Stamp;
+            collected = true;
+            sleep(sleepTime);
+            EmitCollected(this);
+        }
+    }
+
+    void CollectSoonTrigger(uint64 sleepTime) {
+        startnew(CoroutineFuncUserdataUint64(CollectSoonAsync), sleepTime);
+    }
+
     Json::Value@ ToSpecJson() {
         Json::Value@ spec = Json::Object();
         ToSpecJsonInner(spec);
@@ -53,4 +66,11 @@ class CollectionItem {
         name = spec["name"];
         autocollect = spec["autocollect"];
     }
+}
+
+
+
+
+void EmitCollected(CollectionItem@ item) {
+    print("Collected " + item.name);
 }

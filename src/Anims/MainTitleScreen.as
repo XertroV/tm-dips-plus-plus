@@ -8,32 +8,21 @@ class MainTitleScreenAnim : FloorTitleGeneric {
 
     MainTitleScreenAnim(const string &in titleName, const string &in secLine, AudioChain@ audioArg) {
         auto ps = GetPosSize();
-        super(titleName, pos, size);
+        super(titleName, ps.xy, ps.zw);
         this.secLine = secLine;
         @this.audio = audioArg;
-        auto sampleNb = debug_srcNonce % 6;
-        if (this.audio is null) {
-            @this.audio = AudioChain({
-                Audio_GetPath(DEF_TITLE_AUDIO),
-                sampleNb == 0 ? Audio_GetPath("what_we_dip_in_the_shadows.mp3")
-                : sampleNb == 1 ? Audio_GetPath("tomorrowwhenthedipsbegan.mp3")
-                : sampleNb == 2 ? Audio_GetPath("truediptective.mp3")
-                : sampleNb == 3 ? Audio_GetPath("todipornottodipthatisthequestion.mp3")
-                : sampleNb == 4 ? Audio_GetPath("whoframeddeeperdippit.mp3")
-                // : sampleNb == 4 ? Audio_GetPath("theredipening.mp3")
-                : Audio_GetPath("withvindeepsalastripledip.mp3")
-            });
-            this.secLine = sampleNb == 0 ? "What We Dip in the Shadows"
-                : sampleNb == 1 ? "Tomorrow, When the Dips Began"
-                : sampleNb == 2 ? "True Diptective"
-                : sampleNb == 3 ? "To Dip or Not to Dip, That is the Question"
-                : sampleNb == 4 ? "Who Framed Deeper Dippit?"
-                // : sampleNb == 4 ? "The Redipening"
-                : "With Vin Deepsal as Triple Dip";
-        }
-        debug_srcNonce++;
+
         // sub 0.8 to account for starting to play early
         this.SetStageTime(MainTextStageIx, this.audio.totalDuration - 0.8);
+    }
+
+    MainTitleScreenAnim(const string &in titleName, AudioChain@ audio) {
+        auto ps = GetPosSize();
+        super(titleName, ps.xy, ps.zw);
+        @this.audio = audio;
+        titleHeight = 0.7;
+        secHeight = 0.0;
+        gapPartitions = 4;
     }
 
     vec4 GetPosSize() {
@@ -59,6 +48,8 @@ class MainTitleScreenAnim : FloorTitleGeneric {
 
     float titleHeight = 0.45;
     float secHeight = 0.3;
+    // set to 4 to center title if no secHeight
+    float gapPartitions = 5;
     vec4 textColor = vec4(1);
 
     void DrawText(float t) override {
@@ -80,7 +71,7 @@ class MainTitleScreenAnim : FloorTitleGeneric {
 
         nvg::FontFace(f_Nvg_ExoRegularItalic);
         // want to have title as 45% height, and subtitle as 30% height, evenly spaced
-        float gapH = size.y * (1.0 - titleHeight - secHeight) / 5.0;
+        float gapH = size.y * (1.0 - titleHeight - secHeight) / gapPartitions;
         auto currPos = pos + vec2(0, gapH * 2.0);
         nvg::TextAlign(nvg::Align::Center | nvg::Align::Middle);
         auto fontSize = size.y * titleHeight;
@@ -95,6 +86,8 @@ class MainTitleScreenAnim : FloorTitleGeneric {
         DrawTextWithShadow(vec2(currPos.x + size.x / 2, currPos.y + size.y * titleHeight / 2.0), titleName, textColor, fontSize * 0.05);
         currPos.y += size.y * (titleHeight) + gapH;
         // PopScissor();
+
+        if (secHeight <= 0.0) return;
 
         fontSize = size.y * secHeight;
         nvg::FontSize(fontSize);

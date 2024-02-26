@@ -19,7 +19,7 @@ void Main(){
     auto size = vec2(400, 100);
     auto pos = vec2((Draw::GetWidth() - size.x) / 2.0, 200);
     titleScreenAnimations.InsertLast(FloorTitleGeneric("Floor 00 - SparklingW", pos, size));
-    RefreshAssets();
+    startnew(RefreshAssets);
 }
 //remove any hooks
 void OnDestroyed() { _Unload(); }
