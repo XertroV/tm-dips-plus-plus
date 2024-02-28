@@ -1,11 +1,11 @@
-// 0x1160
-const uint16 O_CSmPlayer_NetPacketsBuf = GetOffset("CSmPlayer", "Score") + 0x118;
+// 0x1160 -> 1180
+const uint16 O_CSmPlayer_NetPacketsBuf = GetOffset("CSmPlayer", "Score") + 0x130;
 const uint16 SZ_CSmPlayer_NetPacketsBufStruct = 0xD8;
 const uint16 LEN_CSmPlayer_NetPacketsBuf = 201;
 const uint16 SZ_CSmPlayer_NetPacketsUpdatedBufEl = 0x4;
-// BAF8
+// BAF8 -> BB18
 const uint16 O_CSmPlayer_NetPacketsUpdatedBuf = O_CSmPlayer_NetPacketsBuf + SZ_CSmPlayer_NetPacketsBufStruct * LEN_CSmPlayer_NetPacketsBuf;
-// 0xBE1C
+// 0xBE1c -> 0xbe3C
 const uint16 O_CSmPlayer_NetPacketsBuf_NextIx = O_CSmPlayer_NetPacketsUpdatedBuf + SZ_CSmPlayer_NetPacketsUpdatedBufEl * LEN_CSmPlayer_NetPacketsBuf;
 
 
