@@ -13,9 +13,9 @@ void RefreshAssets() {
     }
     auto @files = IO::IndexFolder(AudioBaseDir, true);
     files.SortAsc();
-    if (/* dev: force redownload */ true) {
-        @files = {};
-    }
+    // if (/* dev: force redownload */ true) {
+    //     @files = {};
+    // }
     auto @repoFiles = GetAudioAssetsRepositoryFiles();
     string[] newAssets;
     string[] remAssets;
