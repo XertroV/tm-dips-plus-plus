@@ -16,7 +16,7 @@ GL HF
 
 
 
-
+if someone stays on a floor for some time but didn't trigger the floor intro thing, show it anyway?
 
 
 

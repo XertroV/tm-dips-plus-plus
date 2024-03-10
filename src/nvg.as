@@ -1,5 +1,21 @@
 const double TAU = 6.28318530717958647692;
 
+const vec4 cMagenta = vec4(1, 0, 1, 1);
+const vec4 cCyan =  vec4(0, 1, 1, 1);
+const vec4 cGreen = vec4(0, 1, 0, 1);
+const vec4 cBlue =  vec4(0, 0, 1, 1);
+const vec4 cRed =   vec4(1, 0, 0, 1);
+const vec4 cOrange = vec4(1, .4, .05, 1);
+const vec4 cBlack =  vec4(0,0,0, 1);
+const vec4 cGray =  vec4(.5, .5, .5, 1);
+const vec4 cWhite = vec4(1);
+const vec4 cNone = vec4(0, 0, 0, 0);
+const vec4 cLightYellow = vec4(1, 1, 0.5, 1);
+const vec4 cSkyBlue = vec4(0.33, 0.66, 0.98, 1);
+const vec4 cLimeGreen = vec4(0.2, 0.8, 0.2, 1);
+
+
+
 // this does not seem to be expensive
 const float nTextStrokeCopies = 7;
 
@@ -65,4 +81,23 @@ void PopScissor() {
             nvg::ResetScissor();
         }
     }
+}
+
+
+
+
+
+
+void nvgDrawPointCircle(const vec2 &in pos, float radius, const vec4 &in color = cWhite, const vec4 &in fillColor = cNone) {
+    nvg::Reset();
+    nvg::BeginPath();
+    nvg::StrokeColor(color);
+    nvg::StrokeWidth(radius * 0.3);
+    nvg::Circle(pos, radius);
+    nvg::Stroke();
+    if (fillColor.w > 0) {
+        nvg::FillColor(fillColor);
+        nvg::Fill();
+    }
+    nvg::ClosePath();
 }

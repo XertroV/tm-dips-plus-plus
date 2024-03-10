@@ -41,7 +41,7 @@ namespace PS {
             }
 
             if (player is null) {
-                // end of the known list of players,
+                // ~~end of the known list of players,~~
                 throw("null player");
             }
 
@@ -90,13 +90,14 @@ namespace PS {
             // }
         }
 
+        // find players that left
         if (players.Length > nbPlayers) {
             for (uint i = nbPlayers; i < players.Length; i++) {
                 @player = players[i];
                 if (player is null) throw("null player");
                 player.Reset();
                 auto ix = player.lastVehicleId & 0xFFFFFF;
-                if (ix < vehicleIdToPlayers.Length) {
+                if (ix < vehicleIdToPlayers.Length && vehicleIdToPlayers[ix] !is null) {
                     if (vehicleIdToPlayers[ix].playerScoreMwId == player.playerScoreMwId) {
                         @vehicleIdToPlayers[ix] = null;
                     }

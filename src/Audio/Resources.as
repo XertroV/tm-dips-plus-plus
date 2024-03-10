@@ -169,6 +169,7 @@ void DeleteAssets(const string[] &in paths) {
 const int MAX_DLS = 30;
 
 void UpdateDownloads() {
+    if (g_ActiveDownloads.Length == 0) return;
     AssetDownload@ dl;
     for (int i = Math::Min(MAX_DLS, g_ActiveDownloads.Length) - 1; i >= 0; i--) {
         @dl = g_ActiveDownloads[i];

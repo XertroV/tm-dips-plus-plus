@@ -14,6 +14,8 @@ class PlayerState {
     // changed flags, type: union of UpdatedFlags
     int updatedThisFrame = UpdatedFlags::None;
 
+    Minimap::PlayerMinimapLabel@ minimapLabel;
+
 
     PlayerState() {}
     PlayerState(CSmPlayer@ player) {
@@ -21,8 +23,8 @@ class PlayerState {
         playerScoreMwId = player.Score.Id.Value;
         playerName = player.User.Name;
         playerLogin = player.User.Login;
+        @minimapLabel = Minimap::PlayerMinimapLabel(this);
     }
-
 
     // run this first to clear references
     void Reset() {
@@ -30,7 +32,7 @@ class PlayerState {
         @vehicle = null;
         updatedThisFrame = UpdatedFlags::None;
         // this will be set to false if we get an update (isIdle = pos.LenSq == 0)
-        isIdle = true;
+        // isIdle = true;
     }
 
     void ResetUpdateFlags() {
@@ -146,9 +148,11 @@ class PlayerState {
         updatedThisFrame |= UpdatedFlags::Position;
 
         // other ppls vehicles just get buggy after y=-1000
-        bool isIdle = pos.y < -950 || pos.LengthSquared() == 0;
-        if (isIdle != this.isIdle) {
-            this.isIdle = isIdle;
+        float posL2 = pos.LengthSquared();
+        bool newIsIdle = pos.y < -950 || posL2 == 0 || Math::IsNaN(posL2);
+        if (newIsIdle != this.isIdle) {
+            // print("Player " + playerName + " new is idle: " + newIsIdle + " (was: " + this.isIdle + ")");
+            this.isIdle = newIsIdle;
             updatedThisFrame |= UpdatedFlags::Idle;
         }
 
@@ -195,6 +199,8 @@ class PlayerState {
         }
     }
 
+    vec2 lastMinimapPos;
+
     vec3 vel;
     vec3 pos;
     quat rot;
@@ -207,7 +213,7 @@ class PlayerState {
     vec3 fallStart;
     uint fallStartTs;
     // if the player model is at 0,0,0 or no vehicle state is present
-    bool isIdle;
+    bool isIdle = true;
 
     float FallYDistance() {
         if (!isFalling) return 0.;
@@ -218,6 +224,11 @@ class PlayerState {
 
     Animation@ GenerateFlyingAnim() {
         return PlayerFlyingAnim(this);
+    }
+
+    string DebugString() {
+        return playerName + ": \n  pos: " + pos.ToString() + "\n  vel: " + vel.ToString() + "\n  rot: " + rot.ToString() + "\n  flying: " + isFlying + "\n  falling: " + isFalling + "\n  groundDist: " + groundDist + "\n  idle: " + isIdle + "\n  frozen: " + stateFrozen + "\n  lastMinimapPos: " + lastMinimapPos.ToString() + "\n  updatedThisFrame: " + updatedThisFrame + "\n  discontinuityCount: " + discontinuityCount + "\n  lastVehicleId: " + Text::Format("0x%08x", lastVehicleId)
+            + "\n  vfpTimeDelta: " + Text::Format("%.3f", vfpTimeDelta);
     }
 
     void DrawDebugTree_Player(uint i) {
@@ -237,6 +248,7 @@ class PlayerState {
             auto currUpdateTime = Dev::GetOffsetUint32(player, O_CSmPlayer_NetPacketsUpdatedBuf + currIx * SZ_CSmPlayer_NetPacketsUpdatedBufEl);
             UI::Text("LastUpdateTime: " + Text::Format("%d", lastUpdateTime) + ", CurrUpdateTime: " + Text::Format("%d", currUpdateTime));
             UI::Text("TimeDiff: " + Text::Format("%d", currUpdateTime - lastUpdateTime));
+            CopiableLabeledValue("lastMinimapPos", this.lastMinimapPos.ToString());
 
             // for (uint j = 0; j < 0xD8; j += 8) {
             //     auto asInts = Dev::GetOffsetNat2(player, offset + j);
@@ -333,6 +345,7 @@ class PlayerState {
             CopiableLabeledValue("isIdle", '' + this.isIdle);
             CopiableLabeledValue("respawnCount", '' + this.discontinuityCount);
             CopiableLabeledValue("stateFrozen", '' + this.stateFrozen);
+            CopiableLabeledValue("lastMinimapPos", this.lastMinimapPos.ToString());
             // draw flags
             string updated = "Updated: ";
             if (this.updatedThisFrame == 0) updated += "None";
@@ -354,6 +367,8 @@ class PlayerState {
         UI::PopID();
 
     }
+
+
 }
 
 enum PlayerNetStructFlags {
@@ -543,7 +558,7 @@ class FlyingEndedAnim : Animation {
             return false;
         }
         auto now = Time::Now;
-        if (now - start >= FLYING_END_ANIM_DURATION) {
+        if (float(now - start) >= FLYING_END_ANIM_DURATION) {
             return false;
         }
         return true;

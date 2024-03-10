@@ -1,0 +1,43 @@
+VehicleVisState stuff
+
+- 0x1E0 - 0x4 = 0x1DC : 1 when visible, 2 otherwise?
+CamGrpStates
+
+
+0x13C: 4 normally, 0 when respawning
+0x154: 4 normally, 0 when respawning
+^ wheel on ground
+
+0x1bc = 1 when restarting, 0 otherwise
+
+0x1dc = 2 when transparent, includes being close to player
+
+
+
+
+
+
+
+
+CSmPlayer - 0xEB8 - pos,
+ef0 RPM?
+
+score @ 0x1048
+
++0x1160
+uint: 01
+inline buffer of structs - 0xd8 = 216 large?
+  (yep: (0xbaf8 - 0x1160) / 201 = 216)
+
++0xBAF8: start of update log,
+  buffer of uint, game time updated, example: 8421100 8421160 8421280 8421340 8421380
+  length: 201
++0xBE1C: current index? (or next index mb)
++be20: FFFFFFFF, 0
+0, 0
+0, 0
+0, 0
+0xBE40: 0, updated timestamp, might be since when you joined the server
+0, 0
+0, 0
+(end of nod)

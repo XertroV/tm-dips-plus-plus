@@ -6,6 +6,7 @@ UI::Font@ f_MonoSpace = null;
 int f_Nvg_OswaldLightItalic = nvg::LoadFont("Fonts/Oswald-LightItalic.ttf", true, true);
 int f_Nvg_ExoLightItalic = nvg::LoadFont("Fonts/Exo-LightItalic.ttf", true, true);
 int f_Nvg_ExoRegularItalic = nvg::LoadFont("Fonts/Exo-Italic.ttf", true, true);
+int f_Nvg_ExoRegular = nvg::LoadFont("Fonts/Exo-Regular.ttf", true, true);
 // int g_nvgFont = nvg::LoadFont("RobotoSans.ttf", true, true);
 
 
@@ -35,7 +36,15 @@ void RenderEarly() {
     g_screen = vec2(Draw::GetWidth(), Draw::GetHeight());
     RenderEarlyInner();
     UpdateDownloads();
+    Minimap::RenderEarly();
+}
+
+void Render() {
     DownloadProgress::Draw();
+    RenderTitleScreenAnims();
+    RenderAnimations();
+    RenderDebugWindow();
+    Minimap::Render();
 }
 
 bool RenderEarlyInner() {
@@ -53,6 +62,92 @@ bool RenderEarlyInner() {
     PS::UpdatePlayers();
     return true;
 }
+
+
+/** Render function called every frame intended only for menu items in `UI`.
+*/
+void RenderMenu() {
+    if (UI::MenuItem(PluginName + ": Show Falls On Left Side", "", g_ShowFalls)) {
+        g_ShowFalls = !g_ShowFalls;
+    }
+    if (UI::MenuItem(PluginName + ": Debug Window", "", g_DebugOpen)) {
+        g_DebugOpen = !g_DebugOpen;
+    }
+}
+
+[Setting hidden]
+bool g_ShowFalls = true;
+
+
+
+
+
+
+void RenderTitleScreenAnims() {
+    if (titleScreenAnimations.Length == 0) return;
+    if (titleScreenAnimations[0].Update()) {
+        titleScreenAnimations[0].Draw();
+    } else {
+        trace("Removing title anim: " + titleScreenAnimations[0].ToString());
+        titleScreenAnimations.RemoveAt(0);
+    }
+    // for (uint i = 0; i < titleScreenAnimations.Length; i++) {
+    //     // titleScreenAnimations[i].Draw();
+    // }
+}
+
+
+void RenderAnimations() {
+    nvg::Reset();
+    nvg::FontFace(f_Nvg_ExoRegularItalic);
+    nvg::FontSize(40.0);
+    nvg::Translate(vec2(150, 400.0));
+    nvg::TextAlign(nvg::Align::Left | nvg::Align::Top);
+
+    // vec2 pos;
+    uint[] toRem;
+
+    Animation@ anim;
+    uint s, e;
+    for (uint i = 0; i < statusAnimations.Length; i++) {
+        @anim = statusAnimations[i];
+        if (anim !is null && anim.Update()) {
+            if (!g_ShowFalls) continue;
+            s = Time::Now;
+            auto y = anim.Draw().y;
+            if (Time::Now - s > 1) {
+                warn("Draw took " + (Time::Now - s) + "ms: " + anim.ToString(i) + " y-nan: " + Math::IsNaN(y) + ", y-inf: " + Math::IsInf(y) + ", y: " + y);
+            }
+            if (Math::IsNaN(y)) continue;
+            // if (Math::IsNaN(y)) {
+            //     trace("NaN " + i + ", " + anim.name);
+            // }
+            // if (Math::IsInf(y)) {
+            //     trace("Inf " + i + ", " + anim.name);
+            // }
+            if (y > 0.05) nvg::Translate(vec2(0, y));
+        } else {
+            toRem.InsertLast(i);
+        }
+    }
+
+    if (toRem.Length == 0) return;
+    // trace("removing " + toRem.Length + " / first: " + toRem[0]);
+    for (int i = toRem.Length - 1; i >= 0; i--) {
+        statusAnimations.RemoveAt(toRem[i]);
+        // trace('removed: ' + toRem[i]);
+    }
+}
+
+
+
+
+
+
+
+
+
+
 
 // when we're inactive we call this so we can do other things first
 bool Inactive(bool wasActive) {

@@ -2,26 +2,31 @@
 bool g_DebugOpen = false;
 
 void RenderDebugWindow() {
+    if (!g_DebugOpen) return;
     if (UI::Begin(PluginName + ": Debug Window", g_DebugOpen, UI::WindowFlags::None)) {
         UI::BeginTabBar("DebugTabBar", UI::TabBarFlags::FittingPolicyScroll);
-        if (UI::BeginTabItem("Players and Vehicles")) {
+        if (UI::BeginTabItem("Collections")) {
+            DrawCollectionsTab();
+            UI::EndTabItem();
+        }
+        if (UI::BeginTabItem("Players")) {
             DrawPlayersAndVehiclesTab();
-            UI::EndTabItem();
-        }
-        if (UI::BeginTabItem("Players From Net Packets")) {
-            DrawPlayersNetPacketsTab();
-            UI::EndTabItem();
-        }
-        if (UI::BeginTabItem("Current Statuses")) {
-            DrawCurrentStatusesTab();
             UI::EndTabItem();
         }
         if (UI::BeginTabItem("Animations")) {
             DrawAnimationsTab();
             UI::EndTabItem();
         }
-        if (UI::BeginTabItem("Collections")) {
-            DrawCollectionsTab();
+        if (UI::BeginTabItem("Minimap")) {
+            DrawMinimapTab();
+            UI::EndTabItem();
+        }
+        if (UI::BeginTabItem("Net Packets")) {
+            DrawPlayersNetPacketsTab();
+            UI::EndTabItem();
+        }
+        if (UI::BeginTabItem("Current Statuses")) {
+            DrawCurrentStatusesTab();
             UI::EndTabItem();
         }
         if (UI::BeginTabItem("Credits -------------")) {
@@ -66,6 +71,10 @@ void DrawCollectionsTab() {
         UI::TreePop();
     }
 
+}
+
+void DrawMinimapTab() {
+    Minimap::DrawMinimapDebug();
 }
 
 void DrawAnimationsTab() {
@@ -152,6 +161,7 @@ void DrawPlayersNetPacketsTab() {
 
 void DrawPlayersAndVehiclesTab() {
     CopiableLabeledValue("Active", tostring(g_Active));
+    CopiableLabeledValue("Map Bounds", Minimap::mapMinMax.ToString());
     CopiableLabeledValue("vehicleIdToPlayers.Length", tostring(PS::vehicleIdToPlayers.Length) + " / " + Text::Format("0x%x", PS::vehicleIdToPlayers.Length));
     CopiableLabeledValue("Nb Players", tostring(PS::players.Length));
     CopiableLabeledValue("Nb Vehicles", tostring(PS::debug_NbVisStates));
@@ -183,98 +193,4 @@ void DrawOffsetsTab() {
     CopiableLabeledValue("SZ_CSmPlayer_NetPacketsUpdatedBufEl", Text::Format("0x%04x", SZ_CSmPlayer_NetPacketsUpdatedBufEl));
     CopiableLabeledValue("O_CSmPlayer_NetPacketsUpdatedBuf", Text::Format("0x%04x", O_CSmPlayer_NetPacketsUpdatedBuf));
     CopiableLabeledValue("O_CSmPlayer_NetPacketsBuf_NextIx", Text::Format("0x%04x", O_CSmPlayer_NetPacketsBuf_NextIx));
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-/** Render function called every frame intended only for menu items in `UI`.
-*/
-void RenderMenu() {
-    if (UI::MenuItem(PluginName + ": Show Falls On Left Side", "", g_ShowFalls)) {
-        g_ShowFalls = !g_ShowFalls;
-    }
-    if (UI::MenuItem(PluginName + ": Debug Window", "", g_DebugOpen)) {
-        g_DebugOpen = !g_DebugOpen;
-    }
-}
-
-[Setting hidden]
-bool g_ShowFalls = true;
-
-/** Render function called every frame.
-*/
-void Render() {
-    RenderTitleScreenAnims();
-    RenderAnimations();
-
-    if (g_DebugOpen) {
-        RenderDebugWindow();
-    }
-}
-
-
-void RenderTitleScreenAnims() {
-    if (titleScreenAnimations.Length == 0) return;
-    if (titleScreenAnimations[0].Update()) {
-        titleScreenAnimations[0].Draw();
-    } else {
-        trace("Removing title anim: " + titleScreenAnimations[0].ToString());
-        titleScreenAnimations.RemoveAt(0);
-    }
-    // for (uint i = 0; i < titleScreenAnimations.Length; i++) {
-    //     // titleScreenAnimations[i].Draw();
-    // }
-}
-
-
-void RenderAnimations() {
-    nvg::Reset();
-    nvg::FontFace(f_Nvg_ExoRegularItalic);
-    nvg::FontSize(40.0);
-    nvg::Translate(vec2(150, 400.0));
-    nvg::TextAlign(nvg::Align::Left | nvg::Align::Top);
-
-    vec2 pos;
-    uint[] toRem;
-
-    Animation@ anim;
-    uint s, e;
-    for (uint i = 0; i < statusAnimations.Length; i++) {
-        @anim = statusAnimations[i];
-        if (anim !is null && anim.Update()) {
-            if (!g_ShowFalls) continue;
-            s = Time::Now;
-            auto y = anim.Draw().y;
-            if (Time::Now - s > 1) {
-                warn("Draw took " + (Time::Now - s) + "ms: " + anim.ToString(i) + " y-nan: " + Math::IsNaN(y) + ", y-inf: " + Math::IsInf(y) + ", y: " + y);
-            }
-            if (Math::IsNaN(y)) continue;
-            // if (Math::IsNaN(y)) {
-            //     trace("NaN " + i + ", " + anim.name);
-            // }
-            // if (Math::IsInf(y)) {
-            //     trace("Inf " + i + ", " + anim.name);
-            // }
-            if (y > 0.05) nvg::Translate(vec2(0, y));
-        } else {
-            toRem.InsertLast(i);
-        }
-    }
-
-    if (toRem.Length == 0) return;
-    // trace("removing " + toRem.Length + " / first: " + toRem[0]);
-    for (int i = toRem.Length - 1; i >= 0; i--) {
-        statusAnimations.RemoveAt(toRem[i]);
-        // trace('removed: ' + toRem[i]);
-    }
 }
