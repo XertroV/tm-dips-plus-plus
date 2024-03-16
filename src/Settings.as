@@ -6,3 +6,6 @@ float S_VolumeGain = 0.55;
 
 [Setting hidden]
 float S_MinimapPlayerLabelFS = 24.0;
+
+[Setting hidden]
+bool S_ShowMinimap = true;

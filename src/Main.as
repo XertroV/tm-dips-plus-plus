@@ -7,6 +7,9 @@ int f_Nvg_OswaldLightItalic = nvg::LoadFont("Fonts/Oswald-LightItalic.ttf", true
 int f_Nvg_ExoLightItalic = nvg::LoadFont("Fonts/Exo-LightItalic.ttf", true, true);
 int f_Nvg_ExoRegularItalic = nvg::LoadFont("Fonts/Exo-Italic.ttf", true, true);
 int f_Nvg_ExoRegular = nvg::LoadFont("Fonts/Exo-Regular.ttf", true, true);
+int f_Nvg_ExoMedium = nvg::LoadFont("Fonts/Exo-Medium.ttf", true, true);
+int f_Nvg_ExoMediumItalic = nvg::LoadFont("Fonts/Exo-MediumItalic.ttf", true, true);
+int f_Nvg_ExoBold = nvg::LoadFont("Fonts/Exo-Bold.ttf", true, true);
 // int g_nvgFont = nvg::LoadFont("RobotoSans.ttf", true, true);
 
 
@@ -16,10 +19,13 @@ void LoadFonts() {
 
 void Main(){
     startnew(LoadFonts);
+    g_LocalPlayerMwId = GetLocalPlayerMwId();
+    startnew(AwaitLocalPlayerMwId);
+    GenerateHeightStrings();
     sleep(500);
-    auto size = vec2(400, 100);
-    auto pos = vec2((Draw::GetWidth() - size.x) / 2.0, 200);
-    titleScreenAnimations.InsertLast(FloorTitleGeneric("Floor 00 - SparklingW", pos, size));
+    // auto size = vec2(400, 100);
+    // auto pos = vec2((Draw::GetWidth() - size.x) / 2.0, 200);
+    // titleScreenAnimations.InsertLast(FloorTitleGeneric("Floor 00 - SparklingW", pos, size));
     startnew(RefreshAssets);
 }
 //remove any hooks
@@ -28,6 +34,9 @@ void OnDisabled() { _Unload(); }
 void _Unload() {
 
 }
+
+
+
 
 bool g_Active = false;
 vec2 g_screen;
@@ -45,6 +54,7 @@ void Render() {
     RenderAnimations();
     RenderDebugWindow();
     Minimap::Render();
+    HUD::Render(PS::viewedPlayer);
 }
 
 bool RenderEarlyInner() {
@@ -64,11 +74,13 @@ bool RenderEarlyInner() {
 }
 
 
+
 /** Render function called every frame intended only for menu items in `UI`.
 */
 void RenderMenu() {
     if (UI::MenuItem(PluginName + ": Show Falls On Left Side", "", g_ShowFalls)) {
         g_ShowFalls = !g_ShowFalls;
+        S_ShowMinimap = g_ShowFalls;
     }
     if (UI::MenuItem(PluginName + ": Debug Window", "", g_DebugOpen)) {
         g_DebugOpen = !g_DebugOpen;
@@ -176,9 +188,32 @@ bool EmitGoingActive(bool val) {
 }
 
 
+uint g_LocalPlayerMwId = -1;
 
+void AwaitLocalPlayerMwId() {
+    while (g_LocalPlayerMwId == -1) {
+        g_LocalPlayerMwId = GetLocalPlayerMwId();
+        if (g_LocalPlayerMwId == -1) sleep(1000);
+        else break;
+    }
+    // for (uint i = 0; i < PS::players.Length; i++) {
+    //     PS::players[i].CheckUpdateIsLocal();
+    // }
+}
 
+uint GetLocalPlayerMwId() {
+    auto app = GetApp();
+    if (app.LocalPlayerInfo is null) return -1;
+    return app.LocalPlayerInfo.Id.Value;
+}
 
+uint GetViewedPlayerMwId(CSmArenaClient@ cp) {
+    try {
+        return cast<CSmPlayer>(cp.GameTerminals[0].GUIPlayer).Score.Id.Value;
+    } catch {
+        return 0;
+    }
+}
 
 MemoryBuffer@ ReadToBuf(const string &in path) {
     IO::File file(path, IO::FileMode::Read);

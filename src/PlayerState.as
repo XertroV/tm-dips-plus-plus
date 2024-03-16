@@ -10,6 +10,9 @@ class PlayerState {
     uint discontinuityCount = 0;
     bool stateFrozen = false;
     uint lastVehicleId = 0x0FF00000;
+    vec4 color;
+    bool isLocal = false;
+    bool isViewed = false;
 
     // changed flags, type: union of UpdatedFlags
     int updatedThisFrame = UpdatedFlags::None;
@@ -23,7 +26,14 @@ class PlayerState {
         playerScoreMwId = player.Score.Id.Value;
         playerName = player.User.Name;
         playerLogin = player.User.Login;
+        color = vec4(player.LinearHueSrgb, 1.0);
         @minimapLabel = Minimap::PlayerMinimapLabel(this);
+        isLocal = playerScoreMwId == g_LocalPlayerMwId;
+        startnew(CoroutineFunc(CheckUpdateIsLocal));
+    }
+
+    void CheckUpdateIsLocal() {
+        isLocal = playerScoreMwId == g_LocalPlayerMwId;
     }
 
     // run this first to clear references
@@ -41,18 +51,20 @@ class PlayerState {
 
     void Update(CSmPlayer@ player) {
         @this.player = player;
+        this.isViewed = PS::guiPlayerMwId == playerScoreMwId;
         auto entId = player.GetCurrentEntityID();
         if (entId != lastVehicleId) {
             PS::UpdateVehicleId(this, entId);
             lastVehicleId = entId;
             updatedThisFrame |= UpdatedFlags::VehicleId;
-            trace('Updated vehicle id for ' + playerName + ": " + Text::Format("0x%08x", entId));
+            // trace('Updated vehicle id for ' + playerName + ": " + Text::Format("0x%08x", entId));
         }
     }
 
     uint lastVehicleFromPlayerTime = 0;
     float vfpTimeDelta = 0;
     uint lastVFPIx = 0;
+    vec3 priorPos, priorVel;
 
     void UpdateVehicleFromCSmPlayer() {
         // don't do this if we already had a vehicle
@@ -69,12 +81,16 @@ class PlayerState {
         vfpTimeDelta = 0.0;
         auto timeSinceLast = Time::Now - lastVehicleFromPlayerTime;
         if (timeSinceLast < 200) {
-            vfpTimeDelta = float(timeSinceLast) * 0.001 * 0.995;
+            vfpTimeDelta = float(timeSinceLast) * 0.001;
+        } else {
+            vfpTimeDelta = 0.0;
         }
         if (lastVFPIx != currIx) {
             lastVFPIx = currIx;
             lastVehicleFromPlayerTime = Time::Now;
         }
+        priorPos = pos;
+        priorVel = vel;
 
         // auto lastUpdateTime = Dev::GetOffsetUint32(player, O_CSmPlayer_NetPacketsUpdatedBuf + prevIx * SZ_CSmPlayer_NetPacketsUpdatedBufEl);
         // auto currUpdateTime = Dev::GetOffsetUint32(player, O_CSmPlayer_NetPacketsUpdatedBuf + currIx * SZ_CSmPlayer_NetPacketsUpdatedBufEl);
@@ -99,7 +115,12 @@ class PlayerState {
         vel = Dev::GetOffsetVec3(player, offset + O_PlayerNetStruct_Vel);
         pos = Dev::GetOffsetVec3(player, offset + O_PlayerNetStruct_Pos);
         rot = Dev_GetOffsetQuat(player, offset + O_PlayerNetStruct_Quat);
-        UpdatePlayerFromRawValues(vel, pos + vel*vfpTimeDelta, rot,
+        float lerpT = 0.1;
+        UpdatePlayerFromRawValues(
+            Math::Lerp(priorVel, vel, lerpT),
+            Math::Lerp(priorPos, pos, lerpT),
+            //pos,
+            rot,
             anyWheelFlying,
             allWheelsFlying,
             newDiscontCount,
@@ -126,6 +147,8 @@ class PlayerState {
         // state.DiscontinuityCount does not work for some reason
         auto newDiscontCount = Dev::GetOffsetUint8(state, 0xA);
         auto newFrozen = Dev::GetOffsetUint8(state, O_VehicleState_Frozen) > 0;
+        priorPos = state.Position;
+        priorVel = state.WorldVel;
         UpdatePlayerFromRawValues(
             state.WorldVel,
             state.Position,
@@ -158,6 +181,8 @@ class PlayerState {
 
         if (discontinuityCount != newDiscontCount) {
             discontinuityCount = newDiscontCount;
+            priorPos = pos;
+            priorVel = vel;
             updatedThisFrame |= UpdatedFlags::DiscontinuityCount;
         }
         if (newFrozen != stateFrozen) {
@@ -181,7 +206,7 @@ class PlayerState {
             if (newFlying) {
                 flyStart = pos;
                 flyStartTs = Time::Now;
-                EmitStatusAnimation(this.GenerateFlyingAnim());
+                // EmitStatusAnimation(this.GenerateFlyingAnim());
             } else {
                 flyStart = vec3();
             }
@@ -229,6 +254,10 @@ class PlayerState {
     string DebugString() {
         return playerName + ": \n  pos: " + pos.ToString() + "\n  vel: " + vel.ToString() + "\n  rot: " + rot.ToString() + "\n  flying: " + isFlying + "\n  falling: " + isFalling + "\n  groundDist: " + groundDist + "\n  idle: " + isIdle + "\n  frozen: " + stateFrozen + "\n  lastMinimapPos: " + lastMinimapPos.ToString() + "\n  updatedThisFrame: " + updatedThisFrame + "\n  discontinuityCount: " + discontinuityCount + "\n  lastVehicleId: " + Text::Format("0x%08x", lastVehicleId)
             + "\n  vfpTimeDelta: " + Text::Format("%.3f", vfpTimeDelta);
+    }
+
+    bool IsIdleOrNotUpdated() {
+        return isIdle || updatedThisFrame == UpdatedFlags::None;
     }
 
     void DrawDebugTree_Player(uint i) {
@@ -334,6 +363,7 @@ class PlayerState {
             CopiableLabeledValue("Vehicle ID", Text::Format("0x%08x", this.lastVehicleId));
             CopiableLabeledValue("Login", this.playerLogin);
             CopiableLabeledValue("Score.Id.Value", tostring(this.playerScoreMwId));
+            CopiableLabeledValue("isLocal", tostring(this.isLocal));
             CopiableLabeledValue("vfpTimeDelta", Text::Format("%.3f", this.vfpTimeDelta));
             CopiableLabeledValue("pos", this.pos.ToString());
             CopiableLabeledValue("dir", this.rot.ToString());
@@ -498,7 +528,7 @@ class PlayerFlyingAnim : Animation {
             return vec2();
         }
         lastScale = vec2(Math::Clamp(fallDist / 20.0, 0.0001, 1.0));
-        if (lastScale.x * 20.0 < 1.0) {
+        if (lastScale.x * 20.0 < 1.5) {
             return vec2();
         }
         nvg::Scale(lastScale);

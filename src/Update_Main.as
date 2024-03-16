@@ -2,14 +2,22 @@ namespace PS {
     PlayerState@[] players;
     // offset by 0x04000000 (so 0x400000a is index 0xa)
     PlayerState@[] vehicleIdToPlayers;
+    PlayerState@ localPlayer;
+    PlayerState@ viewedPlayer;
+    uint guiPlayerMwId;
 
     void ClearPlayers() {
         players.RemoveRange(0, players.Length);
         vehicleIdToPlayers.RemoveRange(0, vehicleIdToPlayers.Length);
+        @localPlayer = null;
+        @viewedPlayer = null;
+        guiPlayerMwId = 0;
     }
 
+    /// current playground must not be null
     void UpdatePlayers() {
         auto cp = cast<CSmArenaClient>(GetApp().CurrentPlayground);
+        guiPlayerMwId = GetViewedPlayerMwId(cp);
         SortPlayersAndUpdateVehicleIds(cp);
         auto viss = UpdateVehicleStates();
         // when opponents are off
@@ -79,6 +87,12 @@ namespace PS {
 
             player.Reset();
             player.Update(gamePlayer);
+            if (localPlayer is null && player.isLocal) {
+                @localPlayer = player;
+            }
+            if (player.isViewed) {
+                @viewedPlayer = player;
+            }
 
             // if
             // auto ps = GetPlayerState(player);

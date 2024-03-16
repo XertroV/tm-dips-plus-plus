@@ -7,8 +7,12 @@ const vec4 cBlue =  vec4(0, 0, 1, 1);
 const vec4 cRed =   vec4(1, 0, 0, 1);
 const vec4 cOrange = vec4(1, .4, .05, 1);
 const vec4 cBlack =  vec4(0,0,0, 1);
+const vec4 cBlack75 =  vec4(0,0,0, .75);
 const vec4 cGray =  vec4(.5, .5, .5, 1);
 const vec4 cWhite = vec4(1);
+const vec4 cWhite75 = vec4(1,1,1,.75);
+const vec4 cWhite25 = vec4(1,1,1,.25);
+const vec4 cWhite15 = vec4(1,1,1,.15);
 const vec4 cNone = vec4(0, 0, 0, 0);
 const vec4 cLightYellow = vec4(1, 1, 0.5, 1);
 const vec4 cSkyBlue = vec4(0.33, 0.66, 0.98, 1);
@@ -17,16 +21,15 @@ const vec4 cLimeGreen = vec4(0.2, 0.8, 0.2, 1);
 
 
 // this does not seem to be expensive
-const float nTextStrokeCopies = 7;
+const float nTextStrokeCopies = 16;
 
-vec2 DrawTextWithStroke(const vec2 &in pos, const string &in text, vec4 textColor = vec4(1), float strokeWidth = 2., vec4 strokeColor = vec4(0, 0, 0, 1)) {
+vec2 DrawTextWithStroke(const vec2 &in pos, const string &in text, vec4 textColor = vec4(1), float strokeWidth = 2., vec4 strokeColor = cBlack75) {
     if (strokeWidth > 0.0) {
         nvg::FillColor(strokeColor);
-        for (float i = 1; i < nTextStrokeCopies; i++) {
+        for (float i = 0; i < nTextStrokeCopies; i++) {
             float angle = TAU * float(i) / nTextStrokeCopies;
             vec2 offs = vec2(Math::Sin(angle), Math::Cos(angle)) * strokeWidth;
             nvg::Text(pos + offs, text);
-            break;
         }
     }
     nvg::FillColor(textColor);
@@ -100,4 +103,52 @@ void nvgDrawPointCircle(const vec2 &in pos, float radius, const vec4 &in color =
         nvg::Fill();
     }
     nvg::ClosePath();
+}
+
+
+void nvgDrawPointCross(const vec2 &in pos, float radius, const vec4 &in color = cWhite, const vec4 &in fillColor = cNone) {
+    nvg::Reset();
+    nvg::BeginPath();
+    nvg::StrokeColor(color);
+    nvg::StrokeWidth(radius * 0.3);
+    nvg::MoveTo(pos - radius);
+    nvg::LineTo(pos + radius);
+    nvg::MoveTo(pos + radius * vec2(1, -1));
+    nvg::LineTo(pos + radius * vec2(-1, 1));
+    nvg::Stroke();
+    if (fillColor.w > 0) {
+        nvg::FillColor(fillColor);
+        nvg::Fill();
+    }
+    nvg::ClosePath();
+}
+
+void drawLabelBackgroundTagLines(const vec2 &in origPos, float fontSize, float triHeight, const vec2 &in textBounds) {
+    vec2 pos = origPos;
+    nvg::PathWinding(nvg::Winding::CW);
+    nvg::MoveTo(pos);
+    pos += vec2(fontSize, triHeight);
+    nvg::LineTo(pos);
+    pos += vec2(textBounds.x, 0);
+    nvg::LineTo(pos);
+    pos += vec2(0, -2.0 * triHeight);
+    nvg::LineTo(pos);
+    pos -= vec2(textBounds.x, 0);
+    nvg::LineTo(pos);
+    nvg::LineTo(origPos);
+}
+
+void drawLabelBackgroundTagLinesRev(const vec2 &in origPos, float fontSize, float triHeight, const vec2 &in textBounds) {
+    vec2 pos = origPos;
+    nvg::PathWinding(nvg::Winding::CW);
+    nvg::MoveTo(pos);
+    pos -= vec2(fontSize, triHeight);
+    nvg::LineTo(pos);
+    pos -= vec2(textBounds.x, 0);
+    nvg::LineTo(pos);
+    pos -= vec2(0, -2.0 * triHeight);
+    nvg::LineTo(pos);
+    pos += vec2(textBounds.x, 0);
+    nvg::LineTo(pos);
+    nvg::LineTo(origPos);
 }
