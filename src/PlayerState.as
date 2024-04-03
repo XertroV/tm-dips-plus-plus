@@ -23,6 +23,8 @@ class PlayerState {
     PlayerState() {}
     PlayerState(CSmPlayer@ player) {
         @this.player = player;
+        // bots have no score. players sometimes too on init
+        if (player.Score is null) return;
         playerScoreMwId = player.Score.Id.Value;
         playerName = player.User.Name;
         playerLogin = player.User.Login;
@@ -412,7 +414,6 @@ enum PlayerNetStructFlags {
     Spawning    = 0x800000,
     Unspawned   = 0x1000000,
     Respawning  = 0x8000000,
-
 }
 
 enum UpdatedFlags {
@@ -480,7 +481,7 @@ enum EventInfo {
 
 
 
-
+// for a little status list of events
 class PlayerFlyingAnim : Animation {
     PlayerState@ player;
     bool wasFlying;
@@ -528,7 +529,7 @@ class PlayerFlyingAnim : Animation {
             return vec2();
         }
         lastScale = vec2(Math::Clamp(fallDist / 20.0, 0.0001, 1.0));
-        if (lastScale.x * 20.0 < 1.5) {
+        if (lastScale.x * 20.0 < 2.0) {
             return vec2();
         }
         nvg::Scale(lastScale);

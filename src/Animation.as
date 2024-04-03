@@ -28,12 +28,15 @@ class Animation {
     }
 }
 
-
+Animation@[] subtitleAnims;
+Animation@[] textOverlayAnims;
 Animation@[] statusAnimations;
 Animation@[] titleScreenAnimations;
 
 
 void ClearAnimations() {
+    subtitleAnims.Resize(0);
+    textOverlayAnims.Resize(0);
     statusAnimations.Resize(0);
     titleScreenAnimations.Resize(0);
 }

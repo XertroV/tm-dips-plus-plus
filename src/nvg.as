@@ -8,6 +8,7 @@ const vec4 cRed =   vec4(1, 0, 0, 1);
 const vec4 cOrange = vec4(1, .4, .05, 1);
 const vec4 cBlack =  vec4(0,0,0, 1);
 const vec4 cBlack75 =  vec4(0,0,0, .75);
+const vec4 cBlack85 =  vec4(0,0,0, .85);
 const vec4 cGray =  vec4(.5, .5, .5, 1);
 const vec4 cWhite = vec4(1);
 const vec4 cWhite75 = vec4(1,1,1,.75);
@@ -151,4 +152,74 @@ void drawLabelBackgroundTagLinesRev(const vec2 &in origPos, float fontSize, floa
     pos += vec2(textBounds.x, 0);
     nvg::LineTo(pos);
     nvg::LineTo(origPos);
+}
+
+
+
+
+bool nvgWorldPosLastVisible = false;
+vec3 nvgLastWorldPos = vec3();
+vec3 nvgLastUv = vec3();
+
+void nvgWorldPosReset() {
+    nvgWorldPosLastVisible = false;
+}
+
+void nvgToWorldPos(vec3 &in pos, vec4 &in col = vec4(1)) {
+    nvgLastWorldPos = pos;
+    nvgLastUv = Camera::ToScreen(pos);
+    if (nvgLastUv.z > 0) {
+        nvgWorldPosLastVisible = false;
+        return;
+    }
+    if (nvgWorldPosLastVisible)
+        nvg::LineTo(nvgLastUv.xy);
+    else
+        nvg::MoveTo(nvgLastUv.xy);
+    nvgWorldPosLastVisible = true;
+    nvg::StrokeColor(col);
+    nvg::Stroke();
+    nvg::ClosePath();
+    nvg::BeginPath();
+    nvg::MoveTo(nvgLastUv.xy);
+}
+
+void nvgMoveToWorldPos(vec3 pos) {
+    nvgLastWorldPos = pos;
+    nvgLastUv = Camera::ToScreen(pos);
+    if (nvgLastUv.z > 0) {
+        nvgWorldPosLastVisible = false;
+        return;
+    }
+    nvg::MoveTo(nvgLastUv.xy);
+    nvgWorldPosLastVisible = true;
+}
+
+
+void nvgDrawBlockBox(const mat4 &in m, const vec3 &in size, const vec4 &in color = cWhite) {
+    // prevent stroke from being drawn on top of the box
+    nvg::BeginPath();
+    nvg::Reset();
+    nvg::StrokeColor(color);
+    nvg::StrokeWidth(2.0);
+    vec3 prePos = nvgLastWorldPos;
+    vec3 pos = (m * vec3()).xyz;
+    nvgMoveToWorldPos(pos);
+    nvgToWorldPos(pos, color);
+    nvgToWorldPos((m * (size * vec3(1, 0, 0))).xyz, color);
+    nvgToWorldPos((m * (size * vec3(1, 0, 1))).xyz, color);
+    nvgToWorldPos((m * (size * vec3(0, 0, 1))).xyz, color);
+    nvgToWorldPos(pos, color);
+    nvgToWorldPos((m * (size * vec3(0, 1, 0))).xyz, color);
+    nvgToWorldPos((m * (size * vec3(1, 1, 0))).xyz, color);
+    nvgToWorldPos((m * (size * vec3(1, 1, 1))).xyz, color);
+    nvgToWorldPos((m * (size * vec3(0, 1, 1))).xyz, color);
+    nvgToWorldPos((m * (size * vec3(0, 1, 0))).xyz, color);
+    nvgMoveToWorldPos((m * (size * vec3(1, 0, 0))).xyz);
+    nvgToWorldPos((m * (size * vec3(1, 1, 0))).xyz, color);
+    nvgMoveToWorldPos((m * (size * vec3(1, 0, 1))).xyz);
+    nvgToWorldPos((m * (size * vec3(1, 1, 1))).xyz, color);
+    nvgMoveToWorldPos((m * (size * vec3(0, 0, 1))).xyz);
+    nvgToWorldPos((m * (size * vec3(0, 1, 1))).xyz, color);
+    nvgMoveToWorldPos(prePos);
 }

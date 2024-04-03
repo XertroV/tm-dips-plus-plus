@@ -1,5 +1,6 @@
 const string AudioBaseDir = IO::FromStorageFolder("Audio/");
-const string AudioS3SourceUrl = "https://xert.s3.us-east-1.wasabisys.com/d++/audio/";
+// const string AudioS3SourceUrl = "https://xert.s3.us-east-1.wasabisys.com/d++/audio/";
+const string AudioS3SourceUrl = "https://assets.xk.io/d++/audio/";
 
 string Audio_GetPath(const string &in name) {
     if (name.Contains(AudioBaseDir)) return name;
@@ -19,8 +20,9 @@ void RefreshAssets() {
     auto @repoFiles = GetAudioAssetsRepositoryFiles();
     string[] newAssets;
     string[] remAssets;
-    print("Local files: " + Json::Write(files.ToJson()));
-    print("Repo files: " + Json::Write(repoFiles.ToJson()));
+    // print("Local files: " + Json::Write(files.ToJson()));
+    // print("Repo files: " + Json::Write(repoFiles.ToJson()));
+
     // compare each index in files and repoFiles to figure out which we need to download or delete
     // they are ordered the same
     uint fix = 0, rix = 0;
@@ -28,7 +30,7 @@ void RefreshAssets() {
     while (fix < files.Length && rix < repoFiles.Length) {
         file = files[fix].Replace(AudioBaseDir, "");
         repoFile = repoFiles[rix];
-        trace('comparing ' + file + ' to ' + repoFile);
+        // trace('comparing ' + file + ' to ' + repoFile);
         if (file < repoFile) {
             remAssets.InsertLast(file);
             fix++;
@@ -50,8 +52,10 @@ void RefreshAssets() {
             remAssets.InsertLast(files[i]);
         }
     }
-    print("New assets: " + Json::Write(newAssets.ToJson()));
-    print("Rem assets: " + Json::Write(remAssets.ToJson()));
+
+    // print("New assets: " + Json::Write(newAssets.ToJson()));
+    // print("Rem assets: " + Json::Write(remAssets.ToJson()));
+
     PushAssetDownloads(newAssets);
     DeleteAssets(remAssets);
 }
@@ -75,8 +79,9 @@ string[] GetAudioAssetsRepositoryFiles() {
         NotifyWarning("Response code: " + req.ResponseCode());
         auto body = req.String();
         NotifyWarning("Response body: " + body);
-        return {};
+        throw("Failed to get audio assets index");
     }
+    return {};
 }
 
 

@@ -135,7 +135,7 @@ namespace Minimap {
     }
 
     float HeightToMinimapY(float h) {
-        return minimapCenterPos.y + minimapSize.y * (1.0 - (h - mapMinMax.x) / Math::Max(mapHeightDelta, 32));
+        return minimapCenterPos.y + minimapSize.y * (1.0 - (h - mapMinMax.x) / Math::Max(mapHeightDelta, 8));
     }
 
     void RenderMinimapBg() {

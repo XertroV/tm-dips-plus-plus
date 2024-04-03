@@ -13,7 +13,9 @@ class MainTitleScreenAnim : FloorTitleGeneric {
         @this.audio = audioArg;
 
         // sub 0.8 to account for starting to play early
-        this.SetStageTime(MainTextStageIx, this.audio.totalDuration - 0.8);
+        if (this.audio !is null) {
+            this.SetStageTime(MainTextStageIx, this.audio.totalDuration - 0.8);
+        }
     }
 
     MainTitleScreenAnim(const string &in titleName, AudioChain@ audio) {
@@ -39,7 +41,7 @@ class MainTitleScreenAnim : FloorTitleGeneric {
         pos = ps.xy;
         size = ps.zw;
         if (!started) {
-            audio.Play();
+            if (audio !is null) audio.Play();
             started = true;
         }
         return ret;

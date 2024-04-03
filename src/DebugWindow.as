@@ -3,8 +3,12 @@ bool g_DebugOpen = false;
 
 void RenderDebugWindow() {
     if (!g_DebugOpen) return;
-    if (UI::Begin(PluginName + ": Debug Window", g_DebugOpen, UI::WindowFlags::None)) {
+    if (UI::Begin(PluginName + ": Debug Window", g_DebugOpen, UI::WindowFlags::AlwaysVerticalScrollbar)) {
         UI::BeginTabBar("DebugTabBar", UI::TabBarFlags::FittingPolicyScroll);
+        if (UI::BeginTabItem("Triggers")) {
+            DrawTriggersTab();
+            UI::EndTabItem();
+        }
         if (UI::BeginTabItem("Collections")) {
             DrawCollectionsTab();
             UI::EndTabItem();
@@ -79,6 +83,22 @@ void DrawMinimapTab() {
 
 void DrawAnimationsTab() {
     UI::Text("NbPlayers: " + GetNbPlayers());
+    if (UI::TreeNode("textOverlayAnims")) {
+        for (uint i = 0; i < textOverlayAnims.Length; i++) {
+            auto anim = textOverlayAnims[i];
+            if (anim is null) continue;
+            UI::Text(anim.ToString(i));
+        }
+        UI::TreePop();
+    }
+    if (UI::TreeNode("subtitleAnims")) {
+        for (uint i = 0; i < subtitleAnims.Length; i++) {
+            auto anim = subtitleAnims[i];
+            if (anim is null) continue;
+            UI::Text(anim.ToString(i));
+        }
+        UI::TreePop();
+    }
     if (UI::TreeNode("statusAnimations")) {
         for (uint i = 0; i < statusAnimations.Length; i++) {
             auto anim = statusAnimations[i];

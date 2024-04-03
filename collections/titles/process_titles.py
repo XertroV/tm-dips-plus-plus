@@ -53,3 +53,4 @@ def proc_normal_titles(titles_p: Path):
 if __name__ == "__main__":
     proc_normal_titles(Path("Titles_Normal.txt"))
     proc_normal_titles(Path("Titles_Special.txt"))
+    proc_normal_titles(Path("Titles_GeepGip.txt"))

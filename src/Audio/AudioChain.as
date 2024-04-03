@@ -37,6 +37,17 @@ class AudioChain {
         samples.InsertLast(sample);
     }
 
+    uint optPlayDelay = 0;
+    void PlayDelayed(uint delayMs) {
+        optPlayDelay = delayMs;
+        startnew(CoroutineFunc(this.StartDelayedPlayCoro));
+    }
+
+    protected void StartDelayedPlayCoro() {
+        sleep(optPlayDelay);
+        Play();
+    }
+
     void Play() {
         startnew(CoroutineFunc(this.PlayLoop));
     }
@@ -44,7 +55,7 @@ class AudioChain {
     void PlayLoop() {
         bool done = false;
         while (true) {
-            if (voice is null) {
+            if (voice is null && startFadeOut == 0) {
                 if (queued.Length > 0) {
                     @voice = queued[0];
                     voice.Play();
@@ -54,14 +65,37 @@ class AudioChain {
                     break;
                 }
             }
+            if (voice is null) break;
             done = voice.GetPosition() >= voice.GetLength();
-            if (!done && voice !is null) {
+            if (!done) {
                 yield();
                 continue;
             }
-            if (done) {
-                @voice = null;
+            @voice = null;
+        }
+    }
+
+    uint startFadeOut = 0;
+    void StartFadeOutLoop() {
+        if (startFadeOut > 0) return;
+        startFadeOut = Time::Now;
+        startnew(CoroutineFunc(this.FadeOutCoro));
+    }
+
+    protected void FadeOutCoro() {
+        while (true) {
+            if (voice !is null) {
+                float t = (Time::Now - startFadeOut);
+                if (t >= VoiceFadeOutDurationMs) {
+                    voice.SetGain(0.0);
+                    @voice = null;
+                    break;
+                }
+                voice.SetGain(S_VolumeGain * Math::Sqrt(Math::Max(0.0, 1.0 - t / (float(VoiceFadeOutDurationMs) / 1000.0))));
             }
+            yield();
         }
     }
 }
+
+const uint VoiceFadeOutDurationMs = 500;

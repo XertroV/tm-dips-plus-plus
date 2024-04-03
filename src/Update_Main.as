@@ -19,12 +19,14 @@ namespace PS {
         auto cp = cast<CSmArenaClient>(GetApp().CurrentPlayground);
         guiPlayerMwId = GetViewedPlayerMwId(cp);
         SortPlayersAndUpdateVehicleIds(cp);
-        auto viss = UpdateVehicleStates();
+        UpdateVehicleStates();
         // when opponents are off
         if (nbPlayerVisStates <= 1) {
             TellArenaIfaceToGetPositionData();
             UpdatePlayersAsNeededFromCSmPlayer();
         }
+
+        TriggerCheck_Update();
     }
 
     void SortPlayersAndUpdateVehicleIds(CSmArenaClient@ cp) {
@@ -39,6 +41,9 @@ namespace PS {
 
         for (uint i = 0; i < nbPlayers; i++) {
             @gamePlayer = cast<CSmPlayer>(cp.Players[i]);
+            if (gamePlayer is null) {
+                continue;
+            }
             if (i >= players.Length) {
                 // must be a new player
                 @player = PlayerState(gamePlayer);

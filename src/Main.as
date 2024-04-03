@@ -17,11 +17,12 @@ void LoadFonts() {
 	@f_MonoSpace = UI::LoadFont("DroidSansMono.ttf");
 }
 
-void Main(){
+void Main() {
     startnew(LoadFonts);
     g_LocalPlayerMwId = GetLocalPlayerMwId();
     startnew(AwaitLocalPlayerMwId);
-    GenerateHeightStrings();
+    // GenerateHeightStrings();
+    InitDD2TriggerTree();
     sleep(500);
     // auto size = vec2(400, 100);
     // auto pos = vec2((Draw::GetWidth() - size.x) / 2.0, 200);
@@ -32,7 +33,11 @@ void Main(){
 void OnDestroyed() { _Unload(); }
 void OnDisabled() { _Unload(); }
 void _Unload() {
-
+    if (textOverlayAudio !is null) {
+        textOverlayAudio.StartFadeOutLoop();
+        @textOverlayAudio = null;
+    }
+    ClearAnimations();
 }
 
 
@@ -40,8 +45,10 @@ void _Unload() {
 
 bool g_Active = false;
 vec2 g_screen;
+bool IsVehicleActionMap;
 
 void RenderEarly() {
+    IsVehicleActionMap = UI::CurrentActionMap() == "Vehicle";
     g_screen = vec2(Draw::GetWidth(), Draw::GetHeight());
     RenderEarlyInner();
     UpdateDownloads();
@@ -51,6 +58,8 @@ void RenderEarly() {
 void Render() {
     DownloadProgress::Draw();
     RenderTitleScreenAnims();
+    RenderSubtitles();
+    RenderTextOveralys();
     RenderAnimations();
     RenderDebugWindow();
     Minimap::Render();
@@ -63,10 +72,13 @@ bool RenderEarlyInner() {
     if (!S_Enabled) return Inactive(wasActive);
     auto app = GetApp();
     if (app.RootMap is null) return Inactive(wasActive);
+    // ! uncomment this to enable map UID check
     // if (!MapMatches(app.RootMap)) return Inactive(wasActive);
     if (app.CurrentPlayground is null) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals.Length == 0) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals[0].ControlledPlayer is null) return Inactive(wasActive);
+    if (app.CurrentPlayground.UIConfigs.Length == 0) return Inactive(wasActive);
+    if (app.CurrentPlayground.UIConfigs[0].UISequence != CGamePlaygroundUIConfig::EUISequence::Playing) return Inactive(wasActive);
     if (!wasActive) EmitGoingActive(true);
     g_Active = true;
     PS::UpdatePlayers();
@@ -93,7 +105,22 @@ bool g_ShowFalls = true;
 
 
 
+void RenderSubtitles() {
 
+}
+
+void RenderTextOveralys() {
+    if (textOverlayAnims.Length == 0) return;
+    for (uint i = 0; i < textOverlayAnims.Length; i++) {
+        if (textOverlayAnims[i].Update()) {
+            textOverlayAnims[i].Draw();
+        } else {
+            textOverlayAnims.RemoveAt(i);
+            i--;
+        }
+    }
+
+}
 
 void RenderTitleScreenAnims() {
     if (titleScreenAnimations.Length == 0) return;
@@ -183,9 +210,21 @@ bool EmitGoingActive(bool val) {
     if (!val) {
         PS::ClearPlayers();
         ClearAnimations();
+    } else {
+        startnew(OnGoingActive);
     }
     return val;
 }
+
+
+void OnGoingActive() {
+    // while (g_Active) {
+    //     // actions we need to take each active frame
+    //     yield();
+    // }
+}
+
+
 
 
 uint g_LocalPlayerMwId = -1;

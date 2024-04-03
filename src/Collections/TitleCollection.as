@@ -20,6 +20,7 @@ class TitleCollection : Collection {
         LoadSpecialTitleData();
     }
     void LoadSpecialTitleData() {
+        auto initLen = items.Length;
         IO::FileSource file("Collections/titles_special.psv");
         string line;
         while ((line = file.ReadLine()).Length > 0) {
@@ -30,7 +31,21 @@ class TitleCollection : Collection {
             }
             AddItem(TitleCollectionItem_Special(parts[0], parts[1]));
         }
-        print("Loaded " + items.Length + " special titles");
+        print("Loaded " + (items.Length - initLen) + " special titles");
+    }
+    void LoadGeepGipTitleData() {
+        auto initLen = items.Length;
+        IO::FileSource file("Collections/titles_geepgip.psv");
+        string line;
+        while ((line = file.ReadLine()).Length > 0) {
+            auto@ parts = line.Split("|");
+            if (parts.Length < 2) {
+                warn("Invalid title line: " + line);
+                continue;
+            }
+            AddItem(TitleCollectionItem_GeepGip(parts[0], parts[1]));
+        }
+        print("Loaded " + (items.Length - initLen) + " special titles");
     }
 }
 
@@ -106,9 +121,17 @@ class TitleCollectionItem_Norm : TitleCollectionItem {
         this.audioFile = audio;
     }
 
+    const string get_MainTitlePath() {
+        return DEF_TITLE_AUDIO;
+    }
+
+    const string get_MainTitleText() {
+        return DEF_TITLE;
+    }
+
     void PlayItem() override {
         CollectTitleSoon();
-        AddTitleScreenAnimation(MainTitleScreenAnim(DEF_TITLE, title, AudioChain({DEF_TITLE_AUDIO, audioFile})));
+        AddTitleScreenAnimation(MainTitleScreenAnim(MainTitleText, title, AudioChain({MainTitlePath, audioFile})));
     }
 
     void DrawDebug() override {
@@ -125,5 +148,19 @@ class TitleCollectionItem_Norm : TitleCollectionItem {
         } else {
             UI::Text("\\$e44" + Icons::Times);
         }
+    }
+}
+
+class TitleCollectionItem_GeepGip : TitleCollectionItem_Norm {
+    TitleCollectionItem_GeepGip(const string &in title, const string &in audio) {
+        super(title, audio);
+    }
+
+    const string get_MainTitlePath() override {
+        return "gg/geep_gip_2.mp3";
+    }
+
+    const string get_MainTitleText() override {
+        return "Geep Gip 2";
     }
 }

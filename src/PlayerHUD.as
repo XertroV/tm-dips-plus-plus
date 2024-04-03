@@ -8,6 +8,10 @@ namespace HUD {
         if (player is null) {
             return;
         }
+        if (player.pos.y > 100000 || player.pos.y < -100000) {
+            // we read some bad data
+            return;
+        }
 
         vec2 pos = S_HudPos * Minimap::vScale;
         float h = S_HudHeight * Minimap::vScale;

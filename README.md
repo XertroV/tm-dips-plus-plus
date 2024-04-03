@@ -12,19 +12,23 @@ GL HF
 
 
 
+- detect mediatracker triggering
+
 - floor names, how to nicely animate with the MT stuff / integrate
 
 - minimap - floor indicators, alternating colors on mm bg.
 - dedicated player height thing (like heightometer)
 - geep gip for ridiculous falls
 - track mb heights / map stats / pb
+- start room with map base config
+
 
 - hover side to bring out per player stats
   - draw 1 minimap per player and move player to each. Hovering each column brings up stats for that player.
 
 - unbind reminders?
 
-
+- stats for time spent on each floor
 
 
 if someone stays on a floor for some time but didn't trigger the floor intro thing, show it anyway?
