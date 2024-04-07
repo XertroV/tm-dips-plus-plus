@@ -5,8 +5,8 @@ enum GameTriggerTy {
 }
 
 class GameTrigger : OctTreeRegion {
-    // string name;
     mat4 mat;
+    bool resetOnLeave = false;
 
     GameTrigger(vec3 &in min, vec3 &in max, const string &in name) {
         super(min, max);
@@ -15,7 +15,6 @@ class GameTrigger : OctTreeRegion {
     }
 
     vec4 debug_strokeColor = vec4(1, 0, 0, 1);
-
     vec3 screenPos;
 
     void Debug_NvgDrawTrigger() {
@@ -82,6 +81,7 @@ class VoiceLineTrigger : GameTrigger {
     VoiceLineTrigger(vec3 &in min, vec3 &in max, const string &in name) {
         super(min, max, name);
         debug_strokeColor = vec4(Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), 1.0);
+        resetOnLeave = true;
     }
 }
 
@@ -92,14 +92,14 @@ class MainVLineTrigger : VoiceLineTrigger {
     }
 
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
-        Notify("Floor gang entered.");
+        Notify(name + " entered.");
         if (NewTitleGagOkay()) {
             SelectNewTitleGagAnimationAndCollect();
         }
     }
 
     void OnLeftTrigger(OctTreeRegion@ newTrigger) override {
-        Notify("Floor gang left.");
+        Notify(name + " left.");
         if (newTrigger is null) {
             @lastTriggerHit = null;
             lastTriggerName = "";
@@ -117,11 +117,44 @@ class MainVLineTrigger : VoiceLineTrigger {
     }
 }
 
+class GG_VLineTrigger : AntiCylinderTrigger {
+    GG_VLineTrigger(float radius, vec2 &in center, vec2 &in minMaxHeight, const string &in name) {
+        super(radius, center, minMaxHeight, name);
+        resetOnLeave = true;
+    }
+
+    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+        Notify(name + " entered.");
+        if (NewTitleGagOkay()) {
+            SelectNewTitleGagAnimationAndCollect();
+        }
+    }
+
+    void OnLeftTrigger(OctTreeRegion@ newTrigger) override {
+        Notify(name + " left.");
+        if (newTrigger is null) {
+            @lastTriggerHit = null;
+            lastTriggerName = "";
+        }
+    }
+
+    protected void SelectNewTitleGagAnimationAndCollect() {
+        auto gag = GLOBAL_GG_TITLE_COLLECTION.SelectOneUncollected();
+        if (gag !is null) {
+            gag.PlayItem();
+            TitleGag::MarkWaiting();
+        } else {
+            Notify("No GG title gags left to select.");
+        }
+    }
+}
+
 
 class TextOverlayTrigger : GameTrigger {
     TextOverlayTrigger(vec3 &in min, vec3 &in max, const string &in name) {
         super(min, max, name);
         debug_strokeColor = vec4(Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), 1.0);
+        resetOnLeave = true;
     }
 }
 
@@ -222,7 +255,7 @@ GameTrigger@[]@ generateMonumentTriggers() {
 
 GameTrigger@[]@ genSpecialTriggers() {
     GameTrigger@[] ret;
-    ret.InsertLast(AntiCylinderTrigger(380, vec2(768, 768), vec2(169, 2000.0), "Geep Gip"));
+    ret.InsertLast(GG_VLineTrigger(360, vec2(768, 768), vec2(169, 2000.0), "Geep Gip"));
     return ret;
 }
 
@@ -269,15 +302,20 @@ void TriggerCheck_Update() {
         if (currTriggerHit !is null) {
             OnLeaveTrigger(currTriggerHit, t);
         }
-        @currTriggerHit = t;
         currTriggerName = t is null ? "" : t.name;
+        @currTriggerHit = t;
+    }
+
+    if (t is null && lastTriggerHit !is null && lastTriggerHit.resetOnLeave) {
+        @lastTriggerHit = null;
+        lastTriggerName = "";
     }
 
     if (updateLast) {
+        if (t.name != lastTriggerName) {
+            OnNewTriggerHit(lastTriggerHit, t);
+        }
         lastTriggerName = t.name;
-        OnNewTriggerHit(lastTriggerHit, t);
-        // if (t.name != lastTriggerName) {
-        // }
         @lastTriggerHit = t;
     }
 }
@@ -313,12 +351,21 @@ void OnNewTriggerHit(GameTrigger@ lastTriggerHit, GameTrigger@ newTrigger) {
 // DEBUG
 
 bool m_debugDrawTriggers = false;
+bool m_debugDrawRegions = false;
 
 void DrawTriggersTab() {
     if (voiceLineTriggers is null || dd2TriggerTree is null) return;
 
+    bool hasGameScene = GetApp().GameScene !is null;
+
     m_debugDrawTriggers = UI::Checkbox("(Debug) Draw Triggers", m_debugDrawTriggers);
-    if (m_debugDrawTriggers && GetApp().GameScene !is null) {
+
+    // m_debugDrawRegions = UI::Checkbox("(Debug) Draw Trigger Regions", m_debugDrawRegions);
+    // if (m_debugDrawRegions && hasGameScene) {
+    //     dd2TriggerTree.root.Debug_NvgDrawRegions();
+    // }
+
+    if (m_debugDrawTriggers && hasGameScene) {
         for (uint i = 0; i < voiceLineTriggers.Length; i++) {
             voiceLineTriggers[i].Debug_NvgDrawTrigger();
         }

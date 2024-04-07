@@ -65,16 +65,22 @@ string GetNbPlayers() {
 
 void DrawCollectionsTab() {
     if (GLOBAL_TITLE_COLLECTION !is null && UI::TreeNode("Titles")) {
-
         for (uint i = 0; i < GLOBAL_TITLE_COLLECTION.items.Length; i++) {
             auto title = cast<TitleCollectionItem>(GLOBAL_TITLE_COLLECTION.items[i]);
             if (title is null) continue;
             title.DrawDebug();
         }
-
         UI::TreePop();
     }
 
+    if (GLOBAL_GG_TITLE_COLLECTION !is null && UI::TreeNode("GG Titles")) {
+        for (uint i = 0; i < GLOBAL_GG_TITLE_COLLECTION.items.Length; i++) {
+            auto title = cast<TitleCollectionItem>(GLOBAL_GG_TITLE_COLLECTION.items[i]);
+            if (title is null) continue;
+            title.DrawDebug();
+        }
+        UI::TreePop();
+    }
 }
 
 void DrawMinimapTab() {

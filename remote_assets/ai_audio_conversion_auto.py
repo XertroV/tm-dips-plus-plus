@@ -23,9 +23,9 @@ driver.execute_script(f"window.localStorage.setItem('voice-dropdown', '{ls_val}'
 # valantino
 driver.execute_script(f"window.localStorage.setItem('xi:selected-voice-id', '7dYEhp5uUI7fL30Im2Ks');")
 # phoebe
-driver.execute_script(f"window.localStorage.setItem('xi:selected-voice-id', 'tRHw88OXJFlj5KrSC7xX');")
+# driver.execute_script(f"window.localStorage.setItem('xi:selected-voice-id', 'tRHw88OXJFlj5KrSC7xX');")
 
-driver.get('https://elevenlabs.io/speech-synthesis')
+driver.get('https://elevenlabs.io/app/speech-synthesis')
 
 
 def wait_for_voice_settings():
@@ -35,18 +35,23 @@ def wait_for_voice_settings():
     )
     print(f"Voice settings loaded!")
 
-wait_for_voice_settings()
+# wait_for_voice_settings()
 time.sleep(0.2)
 
 def switch_to_speech_to_speech_mode():
     # Find and click the 'Speech to Speech' mode button
-    speech_to_speech_button = driver.find_element(By.XPATH, '//span[text()="Speech to Speech"]')
+    speech_to_speech_button = driver.find_element(By.XPATH, '//button[text()="Speech to speech"]')
     speech_to_speech_button.click()
     print(f"Clicked: {speech_to_speech_button}")
 
 def reset_form_to_text_to_speech():
-    # Find and click the 'Text to Speech' button to reset the form
-    text_to_speech_button = driver.find_element(By.XPATH, '//span[text()="Text to Speech"]')
+    # Find trash icon and click it
+    trash_button = driver.find_element(By.XPATH, "/html/body/div[1]/div[3]/div[4]/div[2]/div/div/div/div/div/div[2]/div/div/button[2]")
+    if trash_button is not None:
+        trash_button.click()
+        print(f"Clicked: trash btn {trash_button}")
+    # # Find and click the 'Text to Speech' button to reset the form
+    text_to_speech_button = driver.find_element(By.XPATH, '//button[text()="Text to speech"]')
     text_to_speech_button.click()
     print(f"Clicked: {text_to_speech_button}")
 
@@ -60,7 +65,7 @@ def upload_file(file_path):
     # upload_area = driver.find_element(By.CSS_SELECTOR, 'upload_area_selector')
     # upload_area.click()
 
-    file_input = driver.find_element(By.CSS_SELECTOR, "input[type='file'][name='file-upload']")
+    file_input = driver.find_element(By.CSS_SELECTOR, "input[type='file']")
     file_input.send_keys(file_path)
     print(f"Set upload to: {file_path}")
 
@@ -71,7 +76,7 @@ def upload_file(file_path):
 
 def click_generate():
     # Find and click the 'Generate' button
-    generate_button = driver.find_element(By.XPATH, '//button[text()="Generate"]')
+    generate_button = driver.find_element(By.XPATH, '//button[text()="Generate speech"]')
     generate_button.click()
     print(f"Clicked: {generate_button}")
 
@@ -159,13 +164,16 @@ def process_files(folder_path, output_path):
             print(f"Processing {file_path}")
             # print(f"Press enter to continue")
             # input()
-            reset_form_to_text_to_speech()
+
+            # reset_form_to_text_to_speech()
+            time.sleep(1.0)
+
             # time.sleep(.1)  # Sleep for a short while to ensure the page has reset
             switch_to_speech_to_speech_mode()
-            # time.sleep(.1)
+            time.sleep(.3)
             upload_file(file_path)
             print(f"Set upload file")
-            time.sleep(0.2)
+            time.sleep(1.0)
             # input("set upload, Press enter to continue")
             click_generate()
             print(f"wating for generation to complete")
@@ -194,9 +202,9 @@ if not output_path.exists():
 
 print(f"Processing MP3 files in {folder_path} and saving to {output_path}")
 print(f"Please ensure the browser is open and on the correct page")
-print(f"\nSet up any voice settings and things now")
-print(f"\nPress enter to continue or Ctrl+C to cancel")
-input()
+# print(f"\nSet up any voice settings and things now")
+# print(f"\nPress enter to continue or Ctrl+C to cancel")
+# input()
 
 
 process_files(folder_path, output_path)

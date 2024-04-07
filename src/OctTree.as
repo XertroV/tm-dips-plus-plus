@@ -54,12 +54,14 @@ class OctTreeRegion {
     vec3 size;
     bool isNode = false;
     string name;
+    // mat4 mat;
 
     OctTreeRegion(vec3 &in min, vec3 &in max) {
         this.min = min;
         this.max = max;
         this.size = max - min;
         midp = (max + min) / 2.;
+        name = "unnamed region";
     }
 
     string ToString() {
@@ -81,6 +83,12 @@ class OctTreeRegion {
         return region.max.x >= min.x && region.max.y >= min.y && region.max.z >= min.z &&
             region.min.x <= max.x && region.min.y <= max.y && region.min.z <= max.z;
     }
+
+    // separate into 1-8 regions split at midpoint
+    // OctTreeRegion@[] SubdivideAround(vec3 &in parentMidP) {
+    //     OctTreeRegion@[] regions;
+    //     return regions;
+    // }
 }
 
 class OctTreeNode : OctTreeRegion {
@@ -229,6 +237,14 @@ class OctTreeNode : OctTreeRegion {
                 }
             }
         }
+        // // subdivide and insert the remaining regions
+        // for (uint i = 0; i < regions.Length; i++) {
+        //     auto subregions = regions[i].SubdivideAround(midp);
+        //     for (uint j = 0; j < subregions.Length; j++) {
+        //         children[PointToIx(subregions[j].midp)].Insert(subregions[j]);
+        //     }
+        // }
+        // regions.Resize(0);
     }
 
     bool get_ShouldSubdivide() {
@@ -268,6 +284,10 @@ class OctTreeNode : OctTreeRegion {
                 }
             }
             if (!inserted) {
+                // auto subregions = region.SubdivideAround(midp);
+                // for (uint i = 0; i < subregions.Length; i++) {
+                //     children[PointToIx(subregions[i].midp)].Insert(subregions[i]);
+                // }
                 regions.InsertLast(region);
             }
         }
@@ -360,4 +380,14 @@ class OctTreeNode : OctTreeRegion {
         }
         return sum;
     }
+
+    // void Debug_NvgDrawRegions() {
+    //     for (uint i = 0; i < regions.Length; i++) {
+    //         regions[i].Debug_NvgDrawTrigger();
+    //         regions[i].Debug_NvgDrawTriggerName();
+    //     }
+    //     for (uint i = 0; i < children.Length; i++) {
+    //         children[i].Debug_NvgDrawRegions();
+    //     }
+    // }
 }

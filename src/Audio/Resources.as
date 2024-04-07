@@ -7,6 +7,16 @@ string Audio_GetPath(const string &in name) {
     return AudioBaseDir + name;
 }
 
+bool AudioFilesExist(const string[]@ names, bool warnIfMissing = true) {
+    for (uint i = 0; i < names.Length; i++) {
+        if (!IO::FileExists(Audio_GetPath(names[i]))) {
+            warn("Missing audio file: " + names[i]);
+            return false;
+        }
+    }
+    return true;
+}
+
 
 void RefreshAssets() {
     if (!IO::FolderExists(AudioBaseDir)) {

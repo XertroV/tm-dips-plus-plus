@@ -1,13 +1,17 @@
 TitleCollection@ GLOBAL_TITLE_COLLECTION = TitleCollection();
+TitleCollection@ GLOBAL_GG_TITLE_COLLECTION = GG_TitleCollection();
 
 class TitleCollection : Collection {
     bool isGeepGip = false;
-    TitleCollection() {
+    TitleCollection(bool isGeepGip = false) {
+        this.isGeepGip = isGeepGip;
         if (isGeepGip) {
+            trace('loading GG titles');
             startnew(CoroutineFunc(LoadGeepGipTitleData));
         } else {
+            trace('loading normal titles');
             startnew(CoroutineFunc(LoadTitleData));
-            startnew(CoroutineFunc(LoadSpecialTitleData));
+            // startnew(CoroutineFunc(LoadSpecialTitleData));
         }
     }
 
@@ -49,9 +53,16 @@ class TitleCollection : Collection {
                 warn("Invalid title line: " + line);
                 continue;
             }
-            AddItem(TitleCollectionItem_GeepGip(parts[0], parts[1]));
+            AddItem(TitleCollectionItem_GeepGip(parts[0], "gg/" + parts[1]));
         }
-        print("Loaded " + (items.Length - initLen) + " special titles");
+        print("Loaded " + (items.Length - initLen) + " gg titles");
+    }
+}
+
+class GG_TitleCollection : TitleCollection {
+    GG_TitleCollection() {
+        this.isGeepGip = true;
+        super(true);
     }
 }
 
@@ -85,6 +96,9 @@ class TitleCollectionItem_Special : TitleCollectionItem {
     }
 
     void PlayItem() override {
+        if (!AudioFilesExist({audioFile}, true)) {
+            return;
+        }
         CollectTitleSoon();
         if (titleLines.Length == 1) {
             AddTitleScreenAnimation(MainTitleScreenAnim(titleLines[0], AudioChain({audioFile})));
@@ -132,6 +146,9 @@ class TitleCollectionItem_Norm : TitleCollectionItem {
     }
 
     void PlayItem() override {
+        if (!AudioFilesExist({MainTitlePath, audioFile}, false)) {
+            return;
+        }
         CollectTitleSoon();
         AddTitleScreenAnimation(MainTitleScreenAnim(MainTitleText, title, AudioChain({MainTitlePath, audioFile})));
     }

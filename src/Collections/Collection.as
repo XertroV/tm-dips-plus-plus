@@ -6,6 +6,8 @@ class Collection {
         items.InsertLast(item);
         if (!item.collected) {
             uncollected.InsertLast(item);
+        } else {
+            warn("duplicate added: " + item.name);
         }
     }
 

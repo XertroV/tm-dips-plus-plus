@@ -97,7 +97,7 @@ for filename in os.listdir(directory_path):
 
         outpath = file_path.with_name(f"{out_filename}")
         print(f"Saving to {outpath}")
-        input("Press enter to save")
+        # input("Press enter to save")
 
         print(f"Length before: {len(audio)}")
         print(f"Length after:  {len(trimmed_audio)}\n\n")
