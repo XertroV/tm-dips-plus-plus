@@ -1,8 +1,36 @@
 class Collection {
     CollectionItem@[] items;
+    CollectionItem@[] uncollected;
 
     void AddItem(CollectionItem@ item) {
         items.InsertLast(item);
+        if (!item.collected) {
+            uncollected.InsertLast(item);
+        }
+    }
+
+    CollectionItem@ SelectOne() {
+        if (items.Length == 0) {
+            return null;
+        }
+        return items[Math::Rand(0, items.Length)];
+    }
+
+    CollectionItem@ SelectOneUncollected() {
+        UpdateUncollected();
+        if (uncollected.Length == 0) {
+            return null;
+        }
+        return uncollected[Math::Rand(0, uncollected.Length)];
+    }
+
+    void UpdateUncollected() {
+        uncollected = {};
+        for (uint i = 0; i < items.Length; i++) {
+            if (!items[i].collected) {
+                uncollected.InsertLast(items[i]);
+            }
+        }
     }
 }
 
@@ -21,6 +49,11 @@ class CollectionItem {
     CollectionItem(Json::Value@ spec) {
         FromSpecJson(spec);
     }
+
+    // this should collect it at some point
+    void PlayItem() { throw("Not implemented"); }
+
+    void DrawDebug() { throw("Not implemented"); }
 
     void CollectSoonAsync(uint64 sleepTime) {
         if (!collected) {

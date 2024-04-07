@@ -85,6 +85,39 @@ class VoiceLineTrigger : GameTrigger {
     }
 }
 
+
+class MainVLineTrigger : VoiceLineTrigger {
+    MainVLineTrigger(vec3 &in min, vec3 &in max, const string &in name) {
+        super(min, max, name);
+    }
+
+    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+        Notify("Floor gang entered.");
+        if (NewTitleGagOkay()) {
+            SelectNewTitleGagAnimationAndCollect();
+        }
+    }
+
+    void OnLeftTrigger(OctTreeRegion@ newTrigger) override {
+        Notify("Floor gang left.");
+        if (newTrigger is null) {
+            @lastTriggerHit = null;
+            lastTriggerName = "";
+        }
+    }
+
+    protected void SelectNewTitleGagAnimationAndCollect() {
+        auto gag = GLOBAL_TITLE_COLLECTION.SelectOneUncollected();
+        if (gag !is null) {
+            gag.PlayItem();
+            TitleGag::MarkWaiting();
+        } else {
+            Notify("No title gags left to select.");
+        }
+    }
+}
+
+
 class TextOverlayTrigger : GameTrigger {
     TextOverlayTrigger(vec3 &in min, vec3 &in max, const string &in name) {
         super(min, max, name);
@@ -151,7 +184,9 @@ Floor Gang,		vec3(298.5513916015625, 7, 421),	vec3(1101, 56, 1086)
 GameTrigger@[]@ generateVoiceLineTriggers() {
     GameTrigger@[] ret;
     ret.InsertLast(VoiceLineTrigger(vec3(160, 33, 672),	vec3(192, 42, 704), "VL Intro"));
-    ret.InsertLast(VoiceLineTrigger(vec3(298, 7, 421),	vec3(1101, 56, 1086), "Floor Gang"));
+    // 420 min x = late on bridge
+    ret.InsertLast(MainVLineTrigger(vec3(424, 7, 424),	vec3(1100, 56, 1100), "Floor Gang"));
+    ret.InsertLast(MainVLineTrigger(vec3(384, 7, 760),	vec3(424, 56, 776), "Floor Gang"));
     ret.InsertLast(VoiceLineTrigger(vec3(697, 169, 800), vec3(725, 178, 832), "VL Floor 1 - Majijej"));
     ret.InsertLast(VoiceLineTrigger(vec3(518, 241, 640), vec3(538, 247, 671), "VL Floor 2 - Lentillion"));
     ret.InsertLast(VoiceLineTrigger(vec3(640, 337, 576), vec3(672, 346, 608), "VL Floor 3 - MaxChess"));
@@ -178,7 +213,7 @@ GameTrigger@[]@ generateMonumentTriggers() {
     // ret.InsertLast(MonumentTrigger(vec3(400, 9, 818), vec3(405, 21, 835), "Bren Monument", MonumentSubject::Bren));
     // ret.InsertLast(MonumentTrigger(vec3(400, 9, 799), vec3(420, 21, 818), "Jave Monument", MonumentSubject::Jave));
     // far from water
-    ret.InsertLast(MonumentTrigger(vec3(380, 9, 818), vec3(405, 21, 838), "Bren Monument", MonumentSubject::Bren));
+    ret.InsertLast(MonumentTrigger(vec3(380, 9, 818), vec3(405, 21, 842), "Bren Monument", MonumentSubject::Bren));
     // water side bren
     ret.InsertLast(MonumentTrigger(vec3(380, 9, 800), vec3(400, 21, 818), "Bren Monument", MonumentSubject::Bren));
     ret.InsertLast(MonumentTrigger(vec3(400, 9, 800), vec3(424, 21, 818), "Jave Monument", MonumentSubject::Jave));
@@ -209,6 +244,13 @@ void InitDD2TriggerTree() {
     }
 }
 
+void TriggerCheck_Reset() {
+    @lastTriggerHit = null;
+    lastTriggerName = "";
+    @currTriggerHit = null;
+    currTriggerName = "";
+    triggerHit = false;
+}
 
 GameTrigger@ lastTriggerHit;
 string currTriggerName;
@@ -231,13 +273,11 @@ void TriggerCheck_Update() {
         currTriggerName = t is null ? "" : t.name;
     }
 
-    if (t is null) return;
-
     if (updateLast) {
-        if (t.name != lastTriggerName) {
-            lastTriggerName = t.name;
-            OnNewTriggerHit(lastTriggerHit, t);
-        }
+        lastTriggerName = t.name;
+        OnNewTriggerHit(lastTriggerHit, t);
+        // if (t.name != lastTriggerName) {
+        // }
         @lastTriggerHit = t;
     }
 }
@@ -247,6 +287,7 @@ void OnLeaveTrigger(GameTrigger@ prevTrigger, GameTrigger@ newTrigger) {
 }
 
 void OnNewTriggerHit(GameTrigger@ lastTriggerHit, GameTrigger@ newTrigger) {
+    trace('OnNewTriggerHit');
     // Notify("Hit trigger: " + newTrigger.name);
     // AddTitleScreenAnimation(MainTitleScreenAnim(newTrigger.name, "test", null));
     // NotifyWarning("Added title screen anim");
@@ -314,6 +355,7 @@ void DrawTriggersTab() {
             UI::Text("Trigger: "+ts[i].name);
         }
         UI::Unindent();
+        UI::Text("Title Gag State: " + tostring(TitleGag::state));
     } else {
         UI::Text("Local Player Pos: <None>");
     }

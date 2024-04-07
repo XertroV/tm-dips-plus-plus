@@ -1,8 +1,14 @@
 TitleCollection@ GLOBAL_TITLE_COLLECTION = TitleCollection();
 
 class TitleCollection : Collection {
+    bool isGeepGip = false;
     TitleCollection() {
-        startnew(CoroutineFunc(LoadTitleData));
+        if (isGeepGip) {
+            startnew(CoroutineFunc(LoadGeepGipTitleData));
+        } else {
+            startnew(CoroutineFunc(LoadTitleData));
+            startnew(CoroutineFunc(LoadSpecialTitleData));
+        }
     }
 
     void LoadTitleData() {
@@ -56,10 +62,6 @@ class TitleCollectionItem : CollectionItem {
         super(title, true);
         this.title = title;
     }
-
-    void PlayItem() { throw("Not implemented"); }
-
-    void DrawDebug() { throw("Not implemented"); }
 
     void CollectTitleSoon() {
         CollectSoonTrigger(1200);

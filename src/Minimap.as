@@ -15,7 +15,7 @@ namespace Minimap {
     float vScale;
     uint lastMapMwId;
     vec2 lastScreenSize;
-    vec2 mapMinMax = vec2(0, 2000);
+    vec2 mapMinMax = vec2(8, 2000);
     float mapHeightDelta = 2000;
     vec2 mmPadding = vec2(50.0, 150);
     const float stdHeightPx = 1440.0;
@@ -76,7 +76,8 @@ namespace Minimap {
         if (lastMapMwId != GetMapMwIdVal(GetApp().RootMap)) return;
         mapMinMax = GetMinMaxHeight(cp);
         mapHeightDelta = Math::Max(mapMinMax.y - mapMinMax.x, 8.0);
-        mapMinMax += vec2(-0.02, 0.02) * mapHeightDelta;
+        // -0.013, 0.01 perfect for dd2
+        mapMinMax += vec2(-0.013, 0.01) * mapHeightDelta;
         mapHeightDelta *= 1.04;
         updateMatrices = true;
     }

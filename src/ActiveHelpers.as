@@ -8,4 +8,4 @@ bool MapMatches(CGameCtnChallenge@ map) {
 }
 
 [Setting hidden]
-string S_ActiveForMapUids = "*";
+string S_ActiveForMapUids = "";

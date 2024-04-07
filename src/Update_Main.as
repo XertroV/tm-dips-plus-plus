@@ -58,7 +58,7 @@ namespace PS {
                 throw("null player");
             }
 
-            playerMwId = gamePlayer.Score.Id.Value;
+            playerMwId = gamePlayer.User.Id.Value;
             if (player.playerScoreMwId != playerMwId) {
                 // need to reorder
                 bool fixedReorder = false;

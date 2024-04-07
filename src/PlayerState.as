@@ -24,8 +24,8 @@ class PlayerState {
     PlayerState(CSmPlayer@ player) {
         @this.player = player;
         // bots have no score. players sometimes too on init
-        if (player.Score is null) return;
-        playerScoreMwId = player.Score.Id.Value;
+        if (player.User is null) return;
+        playerScoreMwId = player.User.Id.Value;
         playerName = player.User.Name;
         playerLogin = player.User.Login;
         color = vec4(player.LinearHueSrgb, 1.0);
@@ -222,6 +222,19 @@ class PlayerState {
                 fallStartTs = Time::Now;
             } else {
                 fallStart = vec3();
+            }
+        }
+
+        AfterUpdate();
+    }
+
+    void AfterUpdate() {
+        if (isLocal) {
+            if (updatedThisFrame & UpdatedFlags::DiscontinuityCount > 0) {
+                EmitOnPlayerRespawn(this);
+            }
+            if (!TitleGag::IsReady() && this.pos.y >= 169.0) {
+                TitleGag::OnReachFloorOne();
             }
         }
     }

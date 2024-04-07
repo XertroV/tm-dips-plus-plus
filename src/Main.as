@@ -52,18 +52,22 @@ void RenderEarly() {
     g_screen = vec2(Draw::GetWidth(), Draw::GetHeight());
     RenderEarlyInner();
     UpdateDownloads();
-    Minimap::RenderEarly();
+    if (g_Active) {
+        Minimap::RenderEarly();
+    }
 }
 
 void Render() {
     DownloadProgress::Draw();
-    RenderTitleScreenAnims();
-    RenderSubtitles();
-    RenderTextOveralys();
-    RenderAnimations();
+    if (g_Active) {
+        RenderTitleScreenAnims();
+        RenderSubtitles();
+        RenderTextOveralys();
+        RenderAnimations();
+        Minimap::Render();
+        HUD::Render(PS::viewedPlayer);
+    }
     RenderDebugWindow();
-    Minimap::Render();
-    HUD::Render(PS::viewedPlayer);
 }
 
 bool RenderEarlyInner() {
@@ -72,13 +76,13 @@ bool RenderEarlyInner() {
     if (!S_Enabled) return Inactive(wasActive);
     auto app = GetApp();
     if (app.RootMap is null) return Inactive(wasActive);
-    // ! uncomment this to enable map UID check
-    // if (!MapMatches(app.RootMap)) return Inactive(wasActive);
     if (app.CurrentPlayground is null) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals.Length == 0) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals[0].ControlledPlayer is null) return Inactive(wasActive);
     if (app.CurrentPlayground.UIConfigs.Length == 0) return Inactive(wasActive);
     if (app.CurrentPlayground.UIConfigs[0].UISequence != CGamePlaygroundUIConfig::EUISequence::Playing) return Inactive(wasActive);
+    // ! uncomment this to enable map UID check
+    if (!MapMatches(app.RootMap)) return Inactive(wasActive);
     if (!wasActive) EmitGoingActive(true);
     g_Active = true;
     PS::UpdatePlayers();
@@ -96,6 +100,20 @@ void RenderMenu() {
     }
     if (UI::MenuItem(PluginName + ": Debug Window", "", g_DebugOpen)) {
         g_DebugOpen = !g_DebugOpen;
+    }
+    if (UI::MenuItem(PluginName + ": Show Minimap", "", S_ShowMinimap)) {
+        S_ShowMinimap = !S_ShowMinimap;
+    }
+    if (UI::MenuItem(PluginName + ": Activate for this map")) {
+        auto map = GetApp().RootMap;
+        if (map is null) {
+            NotifyError("No map found");
+        } else {
+            S_ActiveForMapUids = map.EdChallengeId;
+        }
+    }
+    if (UI::MenuItem(PluginName + ": Deactivate for this map")) {
+        S_ActiveForMapUids = "";
     }
 }
 
@@ -210,6 +228,8 @@ bool EmitGoingActive(bool val) {
     if (!val) {
         PS::ClearPlayers();
         ClearAnimations();
+        TriggerCheck_Reset();
+        TitleGag::Reset();
     } else {
         startnew(OnGoingActive);
     }
@@ -224,6 +244,10 @@ void OnGoingActive() {
     // }
 }
 
+
+void EmitOnPlayerRespawn(PlayerState@ ps) {
+    TitleGag::OnPlayerRespawn();
+}
 
 
 
