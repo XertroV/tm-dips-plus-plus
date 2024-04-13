@@ -13,6 +13,8 @@ class PlayerState {
     vec4 color;
     bool isLocal = false;
     bool isViewed = false;
+    FallTracker@ fallTracker;
+    FallTracker@ lastFall;
 
     // changed flags, type: union of UpdatedFlags
     int updatedThisFrame = UpdatedFlags::None;
@@ -233,8 +235,22 @@ class PlayerState {
             if (updatedThisFrame & UpdatedFlags::DiscontinuityCount > 0) {
                 EmitOnPlayerRespawn(this);
             }
+            if (updatedThisFrame & UpdatedFlags::Falling) {
+                AfterUpdate_FallTracker();
+            }
             if (!TitleGag::IsReady() && this.pos.y >= 169.0) {
                 TitleGag::OnReachFloorOne();
+            }
+        }
+    }
+
+    void AfterUpdate_FallTracker() {
+        if (isFalling) @fallTracker = FallTracker(pos.y);
+        else {
+            @lastFall = fallTracker;
+            if (fallTracker !is null) {
+                fallTracker.OnEndFall();
+                @fallTracker = null;
             }
         }
     }

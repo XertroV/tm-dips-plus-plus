@@ -34,14 +34,21 @@ GL HF
 if someone stays on a floor for some time but didn't trigger the floor intro thing, show it anyway?
 
 
+todo:
+- [ ] player fall counter
+- [ ] high scores: PlayerStats namespace
+- [ ] persistence for player stuff
+- [ ] <https://discord.com/channels/888468779238055947/1203420891438907443/1227904293626052628> if we want to avoid this, I can add a check for where the fall started. And only if the player isn't falling or the fall started on floor 4 will it trigger.
+- [ ] proximity voice chat
+- [ ] notification for achievements / collections
 
-
-rough idea:
- - need to monitor all vehicles and players
- - need to map between the two
- - need to update every frame
- -
-
+- [ ] deep dip 2 first title to sync with tutorial voice line
+- [ ] vaelyn cute image in plugin credits
+  - little popup of avatar when voice lines speaking, next to subtitles
+- [ ] vaelyn credit in credits for voice line
+  - during intro voice lines, show writen and voiced by vaelyn (show for full time)
+- [ ] !!! subtitles
+- [ ] totd + lobby map easter eggs
 
 frame:
 - check in map

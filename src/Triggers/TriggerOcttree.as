@@ -42,6 +42,13 @@ class GameTrigger : OctTreeRegion {
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) {
         // implement via overrides
     }
+
+    void ClearLastTriggerIfNewNull(OctTreeRegion@ newTrigger) {
+        if (newTrigger is null) {
+            @lastTriggerHit = null;
+            lastTriggerName = "";
+        }
+    }
 }
 
 // triggers when the point is > radius away from center, and height is between min and max heights
@@ -86,24 +93,71 @@ class VoiceLineTrigger : GameTrigger {
 }
 
 
+class PlaySoundTrigger : GameTrigger {
+    string audioFile;
+    AudioChain@ audioChain;
+
+    PlaySoundTrigger(vec3 &in min, vec3 &in max, const string &in name, const string &in audioFile) {
+        super(min, max, name);
+        debug_strokeColor = vec4(Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), 1.0);
+        resetOnLeave = true;
+        this.audioFile = audioFile;
+    }
+
+    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+        Dev_Notify(name + " entered.");
+        PlayItem();
+        PlayerStats::LogTriggeredSound(name, audioFile);
+    }
+
+    void OnLeftTrigger(OctTreeRegion@ newTrigger) override {
+        Dev_Notify(name + " left.");
+        if (resetOnLeave) {
+            ClearLastTriggerIfNewNull(newTrigger);
+        }
+    }
+
+    void PlayItem() {
+        if (audioChain !is null) {
+            audioChain.StartFadeOutLoop();
+            @audioChain = null;
+        }
+        if (!AudioFilesExist({audioFile}, false)) {
+            warn("Audio file not found: " + audioFile);
+            return;
+        }
+        @audioChain = AudioChain({audioFile});
+        audioChain.Play();
+    }
+}
+
+
+class FloorVLTrigger : PlaySoundTrigger {
+    int floor;
+    string voiceLineFile;
+    FloorVLTrigger(vec3 &in min, vec3 &in max, const string &in name, int floor) {
+        super(min, max, name, "vl/Level_" + floor + "_final.mp3");
+        this.floor = floor;
+        debug_strokeColor = vec4(Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), 1.0);
+        resetOnLeave = false;
+    }
+}
+
 class MainVLineTrigger : VoiceLineTrigger {
     MainVLineTrigger(vec3 &in min, vec3 &in max, const string &in name) {
         super(min, max, name);
     }
 
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
-        Notify(name + " entered.");
+        Dev_Notify(name + " entered.");
         if (NewTitleGagOkay()) {
             SelectNewTitleGagAnimationAndCollect();
         }
     }
 
     void OnLeftTrigger(OctTreeRegion@ newTrigger) override {
-        Notify(name + " left.");
-        if (newTrigger is null) {
-            @lastTriggerHit = null;
-            lastTriggerName = "";
-        }
+        Dev_Notify(name + " left.");
+        ClearLastTriggerIfNewNull(newTrigger);
     }
 
     protected void SelectNewTitleGagAnimationAndCollect() {
@@ -216,26 +270,26 @@ Floor Gang,		vec3(298.5513916015625, 7, 421),	vec3(1101, 56, 1086)
 
 GameTrigger@[]@ generateVoiceLineTriggers() {
     GameTrigger@[] ret;
-    ret.InsertLast(VoiceLineTrigger(vec3(160, 33, 672),	vec3(192, 42, 704), "VL Intro"));
+    ret.InsertLast(VoiceLineTrigger(vec3(168, 24, 672),	vec3(192, 42, 740), "VL Intro"));
     // 420 min x = late on bridge
     ret.InsertLast(MainVLineTrigger(vec3(424, 7, 424),	vec3(1100, 56, 1100), "Floor Gang"));
     ret.InsertLast(MainVLineTrigger(vec3(384, 7, 760),	vec3(424, 56, 776), "Floor Gang"));
-    ret.InsertLast(VoiceLineTrigger(vec3(697, 169, 800), vec3(725, 178, 832), "VL Floor 1 - Majijej"));
-    ret.InsertLast(VoiceLineTrigger(vec3(518, 241, 640), vec3(538, 247, 671), "VL Floor 2 - Lentillion"));
-    ret.InsertLast(VoiceLineTrigger(vec3(640, 337, 576), vec3(672, 346, 608), "VL Floor 3 - MaxChess"));
-    ret.InsertLast(VoiceLineTrigger(vec3(887, 458, 604), vec3(920, 470, 640), "VL Floor 4 - SparklingW"));
-    ret.InsertLast(VoiceLineTrigger(vec3(826, 546, 800), vec3(863, 554, 832), "VL Floor 5 - Jakah"));
-    ret.InsertLast(VoiceLineTrigger(vec3(581, 627, 926), vec3(630, 634, 961), "VL Floor 6 - Classic"));
-    ret.InsertLast(VoiceLineTrigger(vec3(867, 800, 673), vec3(929, 807, 707), "VL Floor 7 - Tekky"));
-    ret.InsertLast(VoiceLineTrigger(vec3(768, 871, 993), vec3(801, 879, 1025), "VL Floor 8 - Doondy"));
-    ret.InsertLast(VoiceLineTrigger(vec3(608, 1026, 935), vec3(640, 1041, 960), "VL Floor 9 - Rioyter"));
-    ret.InsertLast(VoiceLineTrigger(vec3(735, 1074, 511), vec3(772, 1084, 545), "VL Floor 10 - Maverick"));
-    ret.InsertLast(VoiceLineTrigger(vec3(830, 1161, 608), vec3(864, 1171, 640), "VL Floor 11 - sightorld"));
-    ret.InsertLast(VoiceLineTrigger(vec3(864, 1311, 762), vec3(895, 1320, 801), "VL Floor 12 - Whiskey"));
-    ret.InsertLast(VoiceLineTrigger(vec3(992, 1383, 746), vec3(1024, 1389, 782), "VL Floor 13 - Plaxity"));
-    ret.InsertLast(VoiceLineTrigger(vec3(529, 1553, 544), vec3(610, 1564, 608), "VL Floor 14 - Viiru"));
-    ret.InsertLast(VoiceLineTrigger(vec3(799, 1640, 610), vec3(835, 1647, 636), "VL Floor 15 - Kubas"));
-    ret.InsertLast(VoiceLineTrigger(vec3(796, 1691, 546), vec3(860, 1700, 576), "VL Floor 16 - Jumper471"));
+    ret.InsertLast(FloorVLTrigger(vec3(697, 169, 800), vec3(725, 178, 832), "VL Floor 1 - Majijej", 1));
+    ret.InsertLast(FloorVLTrigger(vec3(518, 241, 640), vec3(538, 247, 671), "VL Floor 2 - Lentillion", 2));
+    ret.InsertLast(FloorVLTrigger(vec3(640, 337, 576), vec3(672, 346, 608), "VL Floor 3 - MaxChess", 3));
+    ret.InsertLast(FloorVLTrigger(vec3(887, 458, 604), vec3(920, 470, 640), "VL Floor 4 - SparklingW", 4));
+    ret.InsertLast(FloorVLTrigger(vec3(826, 546, 800), vec3(863, 554, 832), "VL Floor 5 - Jakah", 5));
+    ret.InsertLast(FloorVLTrigger(vec3(581, 627, 926), vec3(630, 634, 961), "VL Floor 6 - Classic", 6));
+    ret.InsertLast(FloorVLTrigger(vec3(867, 800, 673), vec3(929, 807, 707), "VL Floor 7 - Tekky", 7));
+    ret.InsertLast(FloorVLTrigger(vec3(768, 871, 993), vec3(801, 879, 1025), "VL Floor 8 - Doondy", 8));
+    ret.InsertLast(FloorVLTrigger(vec3(936, 1042, 843), vec3(977, 1050, 885), "VL Floor 9 - Rioyter", 9));
+    ret.InsertLast(FloorVLTrigger(vec3(735, 1074, 511), vec3(772, 1084, 545), "VL Floor 10 - Maverick", 10));
+    ret.InsertLast(FloorVLTrigger(vec3(830, 1161, 608), vec3(864, 1171, 640), "VL Floor 11 - sightorld", 11));
+    ret.InsertLast(FloorVLTrigger(vec3(864, 1311, 762), vec3(895, 1320, 801), "VL Floor 12 - Whiskey", 12));
+    ret.InsertLast(FloorVLTrigger(vec3(992, 1383, 746), vec3(1024, 1389, 782), "VL Floor 13 - Plaxity", 13));
+    ret.InsertLast(FloorVLTrigger(vec3(529, 1553, 544), vec3(610, 1564, 608), "VL Floor 14 - Viiru", 14));
+    ret.InsertLast(FloorVLTrigger(vec3(799, 1640, 610), vec3(835, 1647, 636), "VL Floor 15 - Kubas", 15));
+    ret.InsertLast(FloorVLTrigger(vec3(796, 1691, 546), vec3(860, 1700, 576), "VL Floor 16 - Jumper471", 16));
     // ret.InsertLast(VoiceLineTrigger(vec3(), vec3(), "Finish"));
     return ret;
 }
@@ -259,9 +313,16 @@ GameTrigger@[]@ genSpecialTriggers() {
     return ret;
 }
 
+GameTrigger@[]@ genEasterEggTriggers() {
+    GameTrigger@[] ret;
+    ret.InsertLast(PlaySoundTrigger(vec3(916.0, 382.0, 769.15), vec3(970.0, 408.0, 780.0), "Mario: Bye Bye", "ee/mario-byebye.mp3"));
+    return ret;
+}
+
 GameTrigger@[]@ specialTriggers = genSpecialTriggers();
 GameTrigger@[]@ voiceLineTriggers = generateVoiceLineTriggers();
 GameTrigger@[]@ monumentTriggers = generateMonumentTriggers();
+GameTrigger@[]@ easterEggTriggers = genEasterEggTriggers();
 
 OctTree@ dd2TriggerTree = OctTree();
 
@@ -274,6 +335,9 @@ void InitDD2TriggerTree() {
     }
     for (uint i = 0; i < specialTriggers.Length; i++) {
         dd2TriggerTree.Insert(specialTriggers[i]);
+    }
+    for (uint i = 0; i < easterEggTriggers.Length; i++) {
+        dd2TriggerTree.Insert(easterEggTriggers[i]);
     }
 }
 
@@ -375,6 +439,9 @@ void DrawTriggersTab() {
         for (uint i = 0; i < specialTriggers.Length; i++) {
             specialTriggers[i].Debug_NvgDrawTrigger();
         }
+        for (uint i = 0; i < easterEggTriggers.Length; i++) {
+            easterEggTriggers[i].Debug_NvgDrawTrigger();
+        }
         for (uint i = 0; i < voiceLineTriggers.Length; i++) {
             voiceLineTriggers[i].Debug_NvgDrawTriggerName();
         }
@@ -383,6 +450,9 @@ void DrawTriggersTab() {
         }
         for (uint i = 0; i < specialTriggers.Length; i++) {
             specialTriggers[i].Debug_NvgDrawTriggerName();
+        }
+        for (uint i = 0; i < easterEggTriggers.Length; i++) {
+            easterEggTriggers[i].Debug_NvgDrawTriggerName();
         }
     }
 
@@ -434,6 +504,14 @@ void DrawTriggersTab() {
     UI::Indent();
     for (uint i = 0; i < specialTriggers.Length; i++) {
         UI::Text(specialTriggers[i].name);
+    }
+    UI::Unindent();
+
+    UI::AlignTextToFramePadding();
+    UI::Text("Easter Egg Triggers: ("+easterEggTriggers.Length+")");
+    UI::Indent();
+    for (uint i = 0; i < easterEggTriggers.Length; i++) {
+        UI::Text(easterEggTriggers[i].name);
     }
     UI::Unindent();
 }

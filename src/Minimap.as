@@ -360,27 +360,6 @@ namespace Minimap {
         }
     }
 
-    const float[] dd2Floors = {
-        4.0,
-        104.0, // 01
-        208.0, // 02
-        312.0, // 03
-        416.0, // 04
-        520.0, // 05
-        624.0, // 06
-        728.0, // 07
-        832.0, // 08
-        936.0, // 09
-        1040.0, // 10
-        1144.0, // 11
-        1264.0, // 12 -- 48 -> 64
-        1376.0, // 13 -- 52 -> 76
-        1480.0, // 14 -- 56 -> 80
-        1584.0, // 15 -- 60 -> 84
-        1688.0, // 16 -- 64 -> 88
-        1910.0  // 17
-    };
-
     void RenderMinimapFloors() {
         // use reverse labels for floors (drawLabelBackgroundTagLinesRev)
         nvg::Reset();
@@ -391,8 +370,8 @@ namespace Minimap {
         vec2 textBounds = nvg::TextBounds("00") + vec2(textPad * 2.0, 0);
 
         vec2 pos = vec2(minimapCenterPos.x, 0);
-        for (uint i = 0; i < dd2Floors.Length; i++) {
-            pos.y = HeightToMinimapY(dd2Floors[i]);
+        for (uint i = 0; i < DD2_FLOOR_HEIGHTS.Length; i++) {
+            pos.y = HeightToMinimapY(DD2_FLOOR_HEIGHTS[i]);
             nvg::BeginPath();
             nvg::LineCap(nvg::LineCapType::Round);
             drawLabelBackgroundTagLinesRev(pos, floorNumberBaseHeight, stdTriHeight * .75, textBounds);
@@ -468,3 +447,25 @@ uint GetMapMwIdVal(CGameCtnChallenge@ map) {
     if (map is null) return -1;
     return map.Id.Value;
 }
+
+
+const float[] DD2_FLOOR_HEIGHTS = {
+    4.0,
+    104.0, // 01
+    208.0, // 02
+    312.0, // 03
+    416.0, // 04
+    520.0, // 05
+    624.0, // 06
+    728.0, // 07
+    832.0, // 08
+    936.0, // 09
+    1040.0, // 10
+    1144.0, // 11
+    1264.0, // 12 -- 48 -> 64
+    1376.0, // 13 -- 52 -> 76
+    1480.0, // 14 -- 56 -> 80
+    1584.0, // 15 -- 60 -> 84
+    1688.0, // 16 -- 64 -> 88
+    1910.0  // 17 fin
+};

@@ -291,6 +291,12 @@ void Notify(const string &in msg) {
     UI::ShowNotification(Meta::ExecutingPlugin().Name, msg);
     trace("Notified: " + msg);
 }
+void Dev_Notify(const string &in msg) {
+#if DEV
+    UI::ShowNotification(Meta::ExecutingPlugin().Name, msg);
+    trace("Notified: " + msg);
+#endif
+}
 
 void NotifySuccess(const string &in msg) {
     UI::ShowNotification(Meta::ExecutingPlugin().Name, msg, vec4(.4, .7, .1, .3), 10000);
