@@ -232,6 +232,9 @@ class PlayerState {
 
     void AfterUpdate() {
         if (isLocal) {
+            if (isFalling && fallTracker !is null) {
+                fallTracker.Update(pos.y);
+            }
             if (updatedThisFrame & UpdatedFlags::DiscontinuityCount > 0) {
                 EmitOnPlayerRespawn(this);
             }

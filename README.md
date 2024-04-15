@@ -50,6 +50,8 @@ todo:
 - [ ] !!! subtitles
 - [ ] totd + lobby map easter eggs
 
+- [ ] finish stuff, detect chat and hide main GZ overlay
+
 frame:
 - check in map
   - no map -> deactivate

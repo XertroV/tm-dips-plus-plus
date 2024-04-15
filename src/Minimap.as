@@ -1,5 +1,7 @@
+const uint AFTER_FALL_MINIMAP_SHOW_DURATION = 10000;
+
 /// A vertical minimap for showing falls in real time
-/// Rotates in 3d depending on camera orientation
+/// ~~Rotates in 3d depending on camera orientation~~
 namespace Minimap {
     vec3 camPos;
     mat4 camProjMat;
@@ -76,7 +78,7 @@ namespace Minimap {
         if (lastMapMwId != GetMapMwIdVal(GetApp().RootMap)) return;
         mapMinMax = GetMinMaxHeight(cp);
         mapHeightDelta = Math::Max(mapMinMax.y - mapMinMax.x, 8.0);
-        // -0.013, 0.01 perfect for dd2
+        // (-0.013, 0.01) and 1.04 perfect for dd2
         mapMinMax += vec2(-0.013, 0.01) * mapHeightDelta;
         mapHeightDelta *= 1.04;
         updateMatrices = true;
@@ -293,7 +295,7 @@ namespace Minimap {
             textPos = pos + textPosOff;
             origPos = pos;
             isFalling = p.isFalling;
-            afterFall = !isFalling && Time::Now - lastFalling < 3000;
+            afterFall = !isFalling && Time::Now - lastFalling < AFTER_FALL_MINIMAP_SHOW_DURATION;
             if (isFalling || afterFall) {
                 if (!afterFall) {
                     fallDist = p.FallYDistance();
