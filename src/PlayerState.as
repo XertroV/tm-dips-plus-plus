@@ -15,6 +15,7 @@ class PlayerState {
     bool isViewed = false;
     FallTracker@ fallTracker;
     FallTracker@ lastFall;
+    uint lastRespawn;
 
     // changed flags, type: union of UpdatedFlags
     int updatedThisFrame = UpdatedFlags::None;
@@ -231,16 +232,22 @@ class PlayerState {
     }
 
     void AfterUpdate() {
+        if (updatedThisFrame & UpdatedFlags::DiscontinuityCount > 0) {
+            EmitOnPlayerRespawn(this);
+            @fallTracker = null;
+            @lastFall = null;
+            lastRespawn = Time::Now;
+        }
+        if (isFalling && fallTracker !is null) {
+            fallTracker.Update(pos.y);
+        }
+        if (!isFalling && lastFall !is null && lastFall.HasExpired()) {
+            @lastFall = null;
+        }
+        if (updatedThisFrame & UpdatedFlags::Falling > 0) {
+            AfterUpdate_FallTracker();
+        }
         if (isLocal) {
-            if (isFalling && fallTracker !is null) {
-                fallTracker.Update(pos.y);
-            }
-            if (updatedThisFrame & UpdatedFlags::DiscontinuityCount > 0) {
-                EmitOnPlayerRespawn(this);
-            }
-            if (updatedThisFrame & UpdatedFlags::Falling) {
-                AfterUpdate_FallTracker();
-            }
             if (!TitleGag::IsReady() && this.pos.y >= 169.0) {
                 TitleGag::OnReachFloorOne();
             }
@@ -248,8 +255,18 @@ class PlayerState {
     }
 
     void AfterUpdate_FallTracker() {
-        if (isFalling) @fallTracker = FallTracker(pos.y);
-        else {
+        if (lastRespawn + 3000 > Time::Now) {
+            // don't count the slight fall at respawn.
+            return;
+        }
+        if (isFalling) {
+            if (lastFall !is null && lastFall.endTime + AFTER_FALL_MINIMAP_SHOW_DURATION > Time::Now) {
+                @fallTracker = lastFall;
+                @lastFall = null;
+            } else {
+                @fallTracker = FallTracker(pos.y, this);
+            }
+        } else {
             @lastFall = fallTracker;
             if (fallTracker !is null) {
                 fallTracker.OnEndFall();
@@ -276,6 +293,7 @@ class PlayerState {
 
     float FallYDistance() {
         if (!isFalling) return 0.;
+        if (fallTracker !is null) return fallTracker.HeightFallen();
         return fallStart.y - pos.y;
         // return flyStart.y - pos.y;
     }
@@ -394,6 +412,9 @@ class PlayerState {
     void DrawDebugTree(uint i) {
         UI::PushID(i);
         if (UI::TreeNode("Player "+Text::Format("0x%x", i)+": " + this.playerName + "##debug")) {
+
+            CopiableLabeledValue("Fall Tracker", this.fallTracker is null ? "null" : this.fallTracker.ToString());
+            CopiableLabeledValue("Last Fall", this.lastFall is null ? "null" : this.lastFall.ToString());
             CopiableLabeledValue("Vehicle ID", Text::Format("0x%08x", this.lastVehicleId));
             CopiableLabeledValue("Login", this.playerLogin);
             CopiableLabeledValue("Score.Id.Value", tostring(this.playerScoreMwId));

@@ -42,8 +42,8 @@ namespace DownloadProgress {
 
         UI::SetNextWindowPos(Draw::GetWidth() * 9 / 20, Draw::GetHeight() * 4 / 20, UI::Cond::Appearing);
         if (UI::Begin(currLabel + " Progress", UI::WindowFlags::AlwaysAutoResize | UI::WindowFlags::NoCollapse | UI::WindowFlags::NoCollapse)) {
-            UI::Text(currLabel + " Progress: ");
-            UI::ProgressBar(float(done) / float(count), vec2(UI::GetContentRegionAvail().x, 40), tostring(done) + " / " + tostring(count) + (errored > 0 ? " / Errored: " + errored : ""));
+            UI::Text(currLabel + " Progress:          ");
+            UI::ProgressBar(float(done) / float(count), vec2(UI::GetContentRegionAvail().x, 40), tostring(done) + " / " + tostring(count) + (errored > 0 ? " / Err: " + errored : ""));
         }
         UI::End();
     }

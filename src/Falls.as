@@ -27,11 +27,23 @@ class FallTracker {
     float currentHeight;
     uint startTime;
     uint endTime;
+    // implies player is local
+    bool recordStats;
 
-    FallTracker(float initHeight) {
+    FallTracker(float initHeight, PlayerState@ player) {
         startHeight = initHeight;
         startFloor = HeightToFloor(initHeight);
         startTime = Time::Now;
+        recordStats = player.isLocal;
+        if (recordStats) {
+            Stats::LogFallStart();
+        }
+    }
+
+    ~FallTracker() {
+        if (recordStats) {
+            Stats::AddFloorsFallen(Math::Max(0, FloorsFallen()));
+        }
     }
 
     void Update(float height) {
@@ -55,6 +67,14 @@ class FallTracker {
     // inclusive, so more than 1 floor will be true as soon as you hit the next floor, and 0 floors will be true if you're on the same floor
     bool HasMoreThanXFloors(int x) {
         return FloorsFallen() >= x;
+    }
+
+    bool HasExpired() {
+        return endTime + AFTER_FALL_MINIMAP_SHOW_DURATION < Time::Now;
+    }
+
+    string ToString() {
+        return "Fell " + Text::Format("%.0f m / ", fallDist) + FloorsFallen() + " floors";
     }
 }
 

@@ -12,6 +12,11 @@ int f_Nvg_ExoMediumItalic = nvg::LoadFont("Fonts/Exo-MediumItalic.ttf", true, tr
 int f_Nvg_ExoBold = nvg::LoadFont("Fonts/Exo-Bold.ttf", true, true);
 // int g_nvgFont = nvg::LoadFont("RobotoSans.ttf", true, true);
 
+#if DEV
+bool DEV_MODE = true;
+#elif
+bool DEV_MODE = false;
+#endif
 
 void LoadFonts() {
 	@f_MonoSpace = UI::LoadFont("DroidSansMono.ttf");
@@ -59,8 +64,11 @@ void RenderEarly() {
 
 void Render() {
     DownloadProgress::Draw();
-    if (g_Active) {
+    // dev mode => render in menus
+    if (g_Active || DEV_MODE) {
         RenderTitleScreenAnims();
+    }
+    if (g_Active) {
         RenderSubtitles();
         RenderTextOveralys();
         RenderAnimations();
@@ -246,7 +254,9 @@ void OnGoingActive() {
 
 
 void EmitOnPlayerRespawn(PlayerState@ ps) {
-    TitleGag::OnPlayerRespawn();
+    if (ps.isLocal) {
+        TitleGag::OnPlayerRespawn();
+    }
 }
 
 

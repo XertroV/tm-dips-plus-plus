@@ -107,7 +107,7 @@ class PlaySoundTrigger : GameTrigger {
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
         Dev_Notify(name + " entered.");
         PlayItem();
-        PlayerStats::LogTriggeredSound(name, audioFile);
+        Stats::LogTriggeredSound(name, audioFile);
     }
 
     void OnLeftTrigger(OctTreeRegion@ newTrigger) override {
