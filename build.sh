@@ -10,6 +10,9 @@ set -e
 # https://greengumdrops.net/index.php/colorize-your-bash-scripts-bash-color-library/
 source ./vendor/_colors.bash
 
+# mkdir -p src/subtitles/
+# cp -av ./voice_lines/subtitles/* ./src/subtitles/
+
 _build_mode=${1:-dev}
 
 case $_build_mode in

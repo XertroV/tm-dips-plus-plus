@@ -1,0 +1,6 @@
+0: Failure isn't final.
+2804: You've taken many fails while trying to get here,
+5650: but you made it up here anyway.
+7474: Failure is just another word for learning.
+10376: I bet you've learned a lot.
+12000:

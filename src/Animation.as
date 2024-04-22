@@ -13,6 +13,10 @@ class Animation {
         return id == other.id;
     }
 
+    // override for custom on end behavior
+    void OnEndAnim() {
+    }
+
     // Return false when done. `Draw` will be called if this returns true. This method should be overridden
     bool Update() {
         return false;
@@ -43,6 +47,10 @@ void ClearAnimations() {
 
 void AddTitleScreenAnimation(Animation@ anim) {
     titleScreenAnimations.InsertLast(anim);
+}
+
+void AddSubtitleAnimation(Animation@ anim) {
+    subtitleAnims.InsertLast(anim);
 }
 
 void EmitStatusAnimation(Animation@ anim) {

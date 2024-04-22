@@ -73,6 +73,7 @@ class TextOverlayAnim : Animation {
         float alpha = prog;
         float fs = g_screen.y / 40.0;
         vec2 centerPos = g_screen * vec2(.5, .65);
+        maxWidth = g_screen.x * .5;
 
         nvg::Reset();
         nvg::FontFace(f_Nvg_ExoMediumItalic);

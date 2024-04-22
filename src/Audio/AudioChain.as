@@ -31,6 +31,11 @@ class AudioChain {
         }
         samples.RemoveRange(0, samples.Length);
         queued.RemoveRange(0, queued.Length);
+        if (voice !is null) {
+            voice.SetGain(0);
+            if (voice.IsPaused()) voice.Play();
+            @voice = null;
+        }
     }
 
     void AppendSample(Audio::Sample@ sample) {
@@ -55,6 +60,11 @@ class AudioChain {
     void PlayLoop() {
         bool done = false;
         while (true) {
+            if (IsPauseMenuOpen() && voice !is null) {
+                voice.Pause();
+                while (IsPauseMenuOpen()) yield();
+                voice.Play();
+            }
             if (voice is null && startFadeOut == 0) {
                 if (queued.Length > 0) {
                     @voice = queued[0];

@@ -7,6 +7,7 @@ const vec4 cBlue =  vec4(0, 0, 1, 1);
 const vec4 cRed =   vec4(1, 0, 0, 1);
 const vec4 cOrange = vec4(1, .4, .05, 1);
 const vec4 cBlack =  vec4(0,0,0, 1);
+const vec4 cBlack50 =  vec4(0,0,0, .5);
 const vec4 cBlack75 =  vec4(0,0,0, .75);
 const vec4 cBlack85 =  vec4(0,0,0, .85);
 const vec4 cGray =  vec4(.5, .5, .5, 1);

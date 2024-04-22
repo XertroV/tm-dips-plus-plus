@@ -132,7 +132,7 @@ bool g_ShowFalls = true;
 
 
 void RenderSubtitles() {
-
+    RenderSubtitleAnims();
 }
 
 void RenderTextOveralys() {
@@ -141,11 +141,24 @@ void RenderTextOveralys() {
         if (textOverlayAnims[i].Update()) {
             textOverlayAnims[i].Draw();
         } else {
+            textOverlayAnims[i].OnEndAnim();
             textOverlayAnims.RemoveAt(i);
             i--;
         }
     }
+}
 
+void RenderSubtitleAnims() {
+    if (subtitleAnims.Length == 0) return;
+    for (uint i = 0; i < subtitleAnims.Length; i++) {
+        if (subtitleAnims[i].Update()) {
+            subtitleAnims[i].Draw();
+        } else {
+            subtitleAnims[i].OnEndAnim();
+            subtitleAnims.RemoveAt(i);
+            i--;
+        }
+    }
 }
 
 void RenderTitleScreenAnims() {
@@ -153,7 +166,8 @@ void RenderTitleScreenAnims() {
     if (titleScreenAnimations[0].Update()) {
         titleScreenAnimations[0].Draw();
     } else {
-        trace("Removing title anim: " + titleScreenAnimations[0].ToString());
+        titleScreenAnimations[0].OnEndAnim();
+        // trace("Removing title anim: " + titleScreenAnimations[0].ToString());
         titleScreenAnimations.RemoveAt(0);
     }
     // for (uint i = 0; i < titleScreenAnimations.Length; i++) {
@@ -192,6 +206,7 @@ void RenderAnimations() {
             // }
             if (y > 0.05) nvg::Translate(vec2(0, y));
         } else {
+            anim.OnEndAnim();
             toRem.InsertLast(i);
         }
     }
@@ -228,6 +243,13 @@ float g_DT;
 */
 void Update(float dt) {
     g_DT = dt;
+}
+
+
+vec2 SmoothLerp(vec2 from, vec2 to, float t) {
+    // drawAtWorldPos = Math::Lerp(lastDrawWorldPos, drawAtWorldPos, 1. - Math::Exp(animLambda * lastDt * 0.001));
+    // animLambda: more negative => faster movement
+    return Math::Lerp(from, to, 1. - Math::Exp(-6.0 * g_DT * 0.001));
 }
 
 
@@ -294,6 +316,10 @@ MemoryBuffer@ ReadToBuf(const string &in path) {
 }
 
 
+
+vec4 GenRandomColor(float alpha = 1.0) {
+    return vec4(vec3(Math::Rand(0.1, 1.0), Math::Rand(0.1, 1.0), Math::Rand(0.1, 1.0)).Normalized(), alpha);
+}
 
 
 

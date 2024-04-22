@@ -84,10 +84,10 @@ class AntiCylinderTrigger : GameTrigger {
     }
 }
 
-class VoiceLineTrigger : GameTrigger {
-    VoiceLineTrigger(vec3 &in min, vec3 &in max, const string &in name) {
+class GagVoiceLineTrigger : GameTrigger {
+    GagVoiceLineTrigger(vec3 &in min, vec3 &in max, const string &in name) {
         super(min, max, name);
-        debug_strokeColor = vec4(Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), 1.0);
+        debug_strokeColor = GenRandomColor();
         resetOnLeave = true;
     }
 }
@@ -99,7 +99,7 @@ class PlaySoundTrigger : GameTrigger {
 
     PlaySoundTrigger(vec3 &in min, vec3 &in max, const string &in name, const string &in audioFile) {
         super(min, max, name);
-        debug_strokeColor = vec4(Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), 1.0);
+        debug_strokeColor = GenRandomColor();
         resetOnLeave = true;
         this.audioFile = audioFile;
     }
@@ -135,20 +135,34 @@ class PlaySoundTrigger : GameTrigger {
 class FloorVLTrigger : PlaySoundTrigger {
     int floor;
     string voiceLineFile;
+    string subtitlesFile;
+    SubtitlesAnim@ subtitles;
+
     FloorVLTrigger(vec3 &in min, vec3 &in max, const string &in name, int floor) {
-        super(min, max, name, "vl/Level_" + floor + "_final.mp3");
+        voiceLineFile = "vl/Level_" + floor + "_final.mp3";
+        if (floor == 0) {
+            voiceLineFile = "vl/Intro_Plugin_2.mp3";
+        } else if (floor == 17) {
+            voiceLineFile = "vl/Lvl_17_Finished.mp3";
+        }
+        subtitlesFile = "subtitles/" + voiceLineFile.Replace(".mp3", ".txt");
+        super(min, max, name, voiceLineFile);
         this.floor = floor;
-        debug_strokeColor = vec4(vec3(Math::Rand(0.1, 1.0), Math::Rand(0.1, 1.0), Math::Rand(0.1, 1.0)).Normalized(), 1.0);
+        debug_strokeColor = GenRandomColor();
         resetOnLeave = false;
+        @subtitles = SubtitlesAnim(subtitlesFile);
     }
 
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
         if (Stats::HasPlayedVoiceLine(floor)) return;
         PlaySoundTrigger::OnEnteredTrigger(prevTrigger);
+        if (subtitles !is null) {
+            AddSubtitleAnimation(subtitles);
+        }
     }
 }
 
-class TitleGagTrigger : VoiceLineTrigger {
+class TitleGagTrigger : GagVoiceLineTrigger {
     TitleGagTrigger(vec3 &in min, vec3 &in max, const string &in name) {
         super(min, max, name);
     }
@@ -212,13 +226,13 @@ class GG_VLineTrigger : AntiCylinderTrigger {
 class TextOverlayTrigger : GameTrigger {
     TextOverlayTrigger(vec3 &in min, vec3 &in max, const string &in name) {
         super(min, max, name);
-        debug_strokeColor = vec4(Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), 1.0);
+        debug_strokeColor = GenRandomColor();
         resetOnLeave = true;
     }
 }
 
 enum MonumentSubject {
-    Bren, Jave,
+    Bren = 0, Jave,
     Mapper_Maji, Mapper_Lent, Mapper_MaxChess, Mapper_SparklingW,
     Mapper_Jakah, Mapper_Classic, Mapper_Tekky, Mapper_Doondy,
     Mapper_Rioyter, Mapper_Maverick, Mapper_Sightorld, Mapper_Whiskey,
