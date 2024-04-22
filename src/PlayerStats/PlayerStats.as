@@ -29,11 +29,28 @@ namespace Stats {
         nbFloorsFallen += floors;
     }
 
+    void AddDistanceFallen(float dist) {
+
+    }
+
     int GetTotalFalls() {
         return nbFalls;
     }
 
     int GetTotalFloorsFallen() {
         return nbFloorsFallen;
+    }
+
+    // for when going up (don't add while falling)
+    void LogFloorReached(int floor) {
+        // reachedFloorCount[floor]++;
+    }
+
+    void SetVoiceLinePlayed(int floor) {
+
+    }
+
+    bool HasPlayedVoiceLine(int floor) {
+
     }
 }

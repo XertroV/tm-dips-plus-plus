@@ -138,13 +138,18 @@ class FloorVLTrigger : PlaySoundTrigger {
     FloorVLTrigger(vec3 &in min, vec3 &in max, const string &in name, int floor) {
         super(min, max, name, "vl/Level_" + floor + "_final.mp3");
         this.floor = floor;
-        debug_strokeColor = vec4(Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), Math::Rand(0.5, 1.0), 1.0);
+        debug_strokeColor = vec4(vec3(Math::Rand(0.1, 1.0), Math::Rand(0.1, 1.0), Math::Rand(0.1, 1.0)).Normalized(), 1.0);
         resetOnLeave = false;
+    }
+
+    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+        if (Stats::HasPlayedVoiceLine(floor)) return;
+        PlaySoundTrigger::OnEnteredTrigger(prevTrigger);
     }
 }
 
-class MainVLineTrigger : VoiceLineTrigger {
-    MainVLineTrigger(vec3 &in min, vec3 &in max, const string &in name) {
+class TitleGagTrigger : VoiceLineTrigger {
+    TitleGagTrigger(vec3 &in min, vec3 &in max, const string &in name) {
         super(min, max, name);
     }
 
@@ -180,7 +185,7 @@ class GG_VLineTrigger : AntiCylinderTrigger {
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
         Notify(name + " entered.");
         if (NewTitleGagOkay()) {
-            SelectNewTitleGagAnimationAndCollect();
+            SelectNewGGAnimationAndCollect();
         }
     }
 
@@ -192,7 +197,7 @@ class GG_VLineTrigger : AntiCylinderTrigger {
         }
     }
 
-    protected void SelectNewTitleGagAnimationAndCollect() {
+    protected void SelectNewGGAnimationAndCollect() {
         auto gag = GLOBAL_GG_TITLE_COLLECTION.SelectOneUncollected();
         if (gag !is null) {
             gag.PlayItem();
@@ -270,10 +275,10 @@ Floor Gang,		vec3(298.5513916015625, 7, 421),	vec3(1101, 56, 1086)
 
 GameTrigger@[]@ generateVoiceLineTriggers() {
     GameTrigger@[] ret;
-    ret.InsertLast(VoiceLineTrigger(vec3(168, 24, 672),	vec3(192, 42, 740), "VL Intro"));
+    ret.InsertLast(FloorVLTrigger(vec3(168, 24, 672),	vec3(192, 42, 740), "VL Intro", 0));
     // 420 min x = late on bridge
-    ret.InsertLast(MainVLineTrigger(vec3(424, 7, 424),	vec3(1100, 56, 1100), "Floor Gang"));
-    ret.InsertLast(MainVLineTrigger(vec3(384, 7, 760),	vec3(424, 56, 776), "Floor Gang"));
+    ret.InsertLast(TitleGagTrigger(vec3(424, 7, 424),	vec3(1100, 56, 1100), "Floor Gang"));
+    ret.InsertLast(TitleGagTrigger(vec3(384, 7, 760),	vec3(424, 56, 776), "Floor Gang"));
     ret.InsertLast(FloorVLTrigger(vec3(697, 169, 800), vec3(725, 178, 832), "VL Floor 1 - Majijej", 1));
     ret.InsertLast(FloorVLTrigger(vec3(518, 241, 640), vec3(538, 247, 671), "VL Floor 2 - Lentillion", 2));
     ret.InsertLast(FloorVLTrigger(vec3(640, 337, 576), vec3(672, 346, 608), "VL Floor 3 - MaxChess", 3));
@@ -290,7 +295,7 @@ GameTrigger@[]@ generateVoiceLineTriggers() {
     ret.InsertLast(FloorVLTrigger(vec3(529, 1553, 544), vec3(610, 1564, 608), "VL Floor 14 - Viiru", 14));
     ret.InsertLast(FloorVLTrigger(vec3(799, 1640, 610), vec3(835, 1647, 636), "VL Floor 15 - Kubas", 15));
     ret.InsertLast(FloorVLTrigger(vec3(796, 1691, 546), vec3(860, 1700, 576), "VL Floor 16 - Jumper471", 16));
-    // ret.InsertLast(VoiceLineTrigger(vec3(), vec3(), "Finish"));
+    // ret.InsertLast(FloorVLTrigger(vec3(), vec3(), "Finish"));
     return ret;
 }
 
