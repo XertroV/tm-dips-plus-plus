@@ -14,7 +14,7 @@ int f_Nvg_ExoBold = nvg::LoadFont("Fonts/Exo-Bold.ttf", true, true);
 
 #if DEV
 bool DEV_MODE = true;
-#elif
+#else
 bool DEV_MODE = false;
 #endif
 
