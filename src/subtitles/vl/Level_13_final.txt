@@ -1,1 +1,7 @@
-The goal of a journey isn't always the destination. It's how you got there and what you've experienced along the way. Take a minute to think back, what crazy things have happened to get you here? What crazy things might still happen? You're so close to the top, but before you reach it, you'll have even more stories to tell.
+0: The goal of a journey isn't always the destination.
+4966: It's how you got there and what you've experienced along the way.
+8800: Take a minute to think back, what crazy things have happened to get you here?
+13831: What crazy things might still happen?
+16525: You're so close to the top, but before you reach it,
+20060: you'll have even more stories to tell.
+22222:

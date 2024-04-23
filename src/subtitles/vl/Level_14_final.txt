@@ -1,1 +1,8 @@
-Are you stressed out yet? Getting nervous? Shaking in your boots? I bet you are. The trick is to keep it together. Take a deep breath, collect yourself. Your journey is not over.
+0: Are you stressed out yet?
+2357: Getting nervous?
+3675: Shaking in your boots?
+5723: I bet you are.
+7407: The trick is to keep it together.
+9258: Take a deep breath, collect yourself.
+11896: Your journey is not over.
+13800:

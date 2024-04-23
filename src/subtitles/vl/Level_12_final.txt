@@ -1,1 +1,5 @@
-The only way to succeed is to just give it one more try. The only way to fail is to give up. Every time you fall down, just tell yourself, just one more try. If you keep that up, you will succeed.
+0: The only way to succeed is to just give it one more try.
+5801: The only way to fail is to give up.
+9591: Every time you fall down, just tell yourself, just one more try.
+15100: If you keep that up, you will succeed.
+17600:

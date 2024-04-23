@@ -1,1 +1,8 @@
-Look up for a second. Can you smell it? Can you see it? The end, it's right there. One more push... maybe two, or more. Look, the point is that you're doing it. You, my friend, are still here.
+0: Look up for a second.
+1815: Can you smell it?
+3171: Can you see it?
+5106: The end, it's right there.
+7240: One more push... maybe two, or more.
+10630: Look, the point is that you're doing it.
+13402: You, my friend, are still here.
+15800:
