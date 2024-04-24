@@ -3,6 +3,7 @@ class SubtitlesAnim : Animation {
     uint[] startTimes;
     string[] lines;
     uint endTime;
+    DeepDip2LogoAnim@ dd2LogoAnim;
 
     SubtitlesAnim(const string &in file) {
         super(file);
@@ -22,6 +23,10 @@ class SubtitlesAnim : Animation {
             // for (uint i = 0; i < startTimes.Length; i++) {
             //     trace(startTimes[i] + " -> " + lines[i]);
             // }
+        }
+
+        if (file == "subtitles/vl/Intro_Plugin_2.txt") {
+            @dd2LogoAnim = DeepDip2LogoAnim();
         }
     }
 
@@ -75,6 +80,13 @@ class SubtitlesAnim : Animation {
     uint progressMs;
 
     bool Update() override {
+        if (dd2LogoAnim !is null) {
+            if (!dd2LogoAnim.Update()) {
+                dd2LogoAnim.OnEndAnim();
+                @dd2LogoAnim = null;
+            }
+        }
+
         time = Time::Now;
         if (lastUpdate == 0) {
             delta = 0;
@@ -111,6 +123,7 @@ class SubtitlesAnim : Animation {
     float currLineFadeProgress;
     float fontSize;
     float maxWidth;
+    float maxWidthTextOnly;
     vec2[] lineBounds;
     float textOffset;
 
@@ -172,6 +185,7 @@ class SubtitlesAnim : Animation {
     void GenerateTextBounds() {
         fontSize = g_screen.y / 40.0;
         maxWidth = g_screen.x * .5;
+        maxWidthTextOnly = maxWidth - Minimap::vScale * VAE_HEAD_SIZE / 3.;
         SetupNvgFonts();
         fullTextBounds = vec2(maxWidth, 0);
         lineBounds.RemoveRange(0, lineBounds.Length);
@@ -180,7 +194,7 @@ class SubtitlesAnim : Animation {
         for (uint i = 0; i < currLineIxs.Length; i++) {
             // todo: currLineIxs[i].Length == 0 check?
             auto ix = currLineIxs[i];
-            auto bounds = nvg::TextBoxBounds(maxWidth, lines[ix]);
+            auto bounds = nvg::TextBoxBounds(maxWidthTextOnly, lines[ix]);
             if (bounds.y > 0) {
                 bounds.y += fontSize * .2;
             }
@@ -220,6 +234,13 @@ class SubtitlesAnim : Animation {
     vec2 currTextBounds;
 
     vec2 Draw() override {
+        if (dd2LogoAnim !is null) {
+            dd2LogoAnim.Draw();
+            // if (progressMs > DD2LOGO_ANIM_WAIT) {
+            //     trace('drawing dd2 logo: ' + dd2LogoAnim.progressMs);
+            // }
+        }
+
         nvg::Reset();
         SetupNvgFonts();
         auto alpha = globalFadeIn * globalFadeOut;
@@ -267,7 +288,7 @@ class SubtitlesAnim : Animation {
             textAlpha = fadingIn ? currLineFadeProgress : fadingOut ? 1.0 - currLineFadeProgress : 1.0;
             nvg::FillColor(cWhite * vec4(1, 1, 1, textAlpha));
             auto ix = currLineIxs[i];
-            nvg::TextBox(textTL + vec2(0, yOff - textOffset), maxWidth, lines[ix]);
+            nvg::TextBox(textTL + vec2(0, yOff - textOffset), maxWidthTextOnly, lines[ix]);
             yOff += lineBounds[i].y;
         }
     }
@@ -291,3 +312,125 @@ class SubtitlesAnim : Animation {
 }
 
 const float VAE_HEAD_SIZE = 300.0;
+
+
+const uint DD2LOGO_ANIM_WAIT = 35800;
+const uint DD2LOGO_ANIM_DURATION = 4000;
+
+const float DD2_LOGO_WIDTH = 996;
+
+class DeepDip2LogoAnim : Animation {
+    DTexture@ tex;
+    DeepDip2LogoAnim() {
+        super("dd2 logo");
+        @tex = DD2_Logo;
+        startTime = DD2LOGO_ANIM_WAIT;
+        endTime = startTime + DD2LOGO_ANIM_DURATION;
+    }
+
+    void OnEndAnim() override {
+        lastUpdate = 0;
+        time = 0;
+        delta = 0;
+        progressMs = 0;
+    }
+
+    uint startTime;
+    uint endTime;
+    uint delta;
+    uint time;
+    uint lastUpdate;
+    uint progressMs;
+
+    bool Update() override {
+        time = Time::Now;
+        if (lastUpdate == 0) {
+            delta = 0;
+        } else {
+            delta = time - lastUpdate;
+        }
+        if (!IsPauseMenuOpen()) {
+            progressMs += delta;
+            UpdateInner();
+        }
+        lastUpdate = time;
+        return progressMs < endTime;
+    }
+
+    void UpdateInner() {
+
+    }
+
+    vec2 Draw() override {
+        auto logo = tex.Get();
+        if (progressMs < startTime) return vec2(0, 0);
+        nvg::Reset();
+        nvg::GlobalAlpha(1.0);
+        auto t = Math::Clamp(float(progressMs - startTime) / float(DD2LOGO_ANIM_DURATION), 0., 1.);
+
+        auto pos = g_screen * vec2(.5, .5);
+
+
+        nvg::BeginPath();
+        DrawLightningBoltShape(t);
+
+        auto logoSize = logo.GetSize();
+        auto size = logo.GetSize() / logoSize.y * 650 * Minimap::vScale;
+        auto tl = pos - size * .5;
+        auto paint = tex.GetPaint(tl, size, 0.0);
+
+        nvg::FillPaint(paint);
+        nvg::Fill();
+        nvg::StrokeColor(cWhite);
+        nvg::Stroke();
+        nvg::ClosePath();
+        return size;
+    }
+
+    float finalHalfWidth = DD2_LOGO_WIDTH * .65;
+
+    // start above screen and end at bottom of screen.
+    // trace lightning bolt shape down, then trace up.
+    // as t increases, move the left and right edge of the bolt out towards edge of screen, then fade out when beyond DD2 logo width
+    // the logo will be drawn on the inside of the shape.
+    void DrawLightningBoltShape(float t) {
+
+        auto midTop = g_screen * vec2(.5, 0) - vec2(0, 6);
+        auto midBot = g_screen * vec2(.5, 1) + vec2(0, 6);
+        auto boltLeftStart = midTop - vec2(0, finalHalfWidth * t);
+        auto boltRightStart = midTop + vec2(0, finalHalfWidth * t);
+        nvg::PathWinding(nvg::Winding::CCW);
+        nvg::MoveTo(boltLeftStart);
+        for (int i = 0; i < ligntingPattern.Length; i++) {
+            auto p = ligntingPattern[i];
+            auto left = Math::Lerp(boltLeftStart, boltRightStart, p.x);
+            auto right = Math::Lerp(boltRightStart, boltLeftStart, p.x);
+            auto mid = Math::Lerp(midTop, midBot, p.y);
+            nvg::BezierTo(left, mid, right);
+        }
+        for (int i = ligntingPattern.Length-1; i >= 0; i--) {
+            auto p = ligntingPattern[i];
+            auto left = Math::Lerp(boltLeftStart, boltRightStart, p.x);
+            auto right = Math::Lerp(boltRightStart, boltLeftStart, p.x);
+            auto mid = Math::Lerp(midTop, midBot, p.y);
+            nvg::BezierTo(right, mid, left);
+        }
+        nvg::LineTo(boltRightStart);
+        nvg::LineTo(boltLeftStart);
+    }
+}
+
+// too zigzaggy
+vec2[]@ ligntingPattern = {
+    vec2(0.5, 0.0),
+    vec2(0.5, 0.1),
+    vec2(0.4, 0.2),
+    vec2(0.6, 0.3),
+    vec2(0.4, 0.4),
+    vec2(0.6, 0.5),
+    vec2(0.4, 0.6),
+    vec2(0.6, 0.7),
+    vec2(0.4, 0.8),
+    vec2(0.6, 0.9),
+    vec2(0.5, 1.0),
+};
