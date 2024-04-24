@@ -35,6 +35,7 @@ void MTWatcherForMap() {
         yield();
     }
     lastMtClipName = "";
+    trace('MTWatcherForMap ending');
 }
 
 void OnMtClipGoneNull() {
@@ -43,5 +44,50 @@ void OnMtClipGoneNull() {
 
 void OnMtClipChanged(const string &in clipName) {
     // check for voice lines
+    trace("Active MT Clip became: " + clipName);
+    if (clipName.StartsWith("VAE")) {
+        CheckSilenceVoiceLine();
+    }
+}
 
+void CheckSilenceVoiceLine() {
+    auto @clipPlayer = GetApp().CurrentPlayground.GameTerminals[0].MediaClipPlayer;
+    if (clipPlayer.Clip is null) return;
+    auto @clip = clipPlayer.Clip;
+    for (uint i = 0; i < clip.Tracks.Length; i++) {
+        CheckSilenceVoiceLineTrack(clip.Tracks[i]);
+    }
+}
+
+void CheckSilenceVoiceLineTrack(CGameCtnMediaTrack@ track) {
+    for (uint i = 0; i < track.Blocks.Length; i++) {
+        CheckSilenceVoiceLineBlock(track.Blocks[i]);
+    }
+}
+
+void CheckSilenceVoiceLineBlock(CGameCtnMediaBlock@ block) {
+    auto text = cast<CGameCtnMediaBlockText>(block);
+    auto tris2d = cast<CGameCtnMediaBlockTriangles2D>(block);
+    auto sound = cast<CGameCtnMediaBlockSound>(block);
+    if (text !is null) {
+        trace('silencing VL text, was: ' + text.Text);
+        text.Text = "";
+    } else if (tris2d !is null) {
+        trace('silencing VL tris2d');
+        auto timesOffset = GetOffset(tris2d, 'Mobil') + 0x8;
+        auto timesPtr = Dev::GetOffsetUint64(tris2d, timesOffset);
+        if (timesPtr > 0xFFFFFFFF && timesPtr % 8 == 0) {
+            trace("Setting tris2d mid/end to start at " + Text::FormatPointer(timesPtr));
+            Dev::Write(timesPtr + 0x4, float(tris2d.Start));
+            Dev::Write(timesPtr + 0x8, float(tris2d.Start));
+        }
+        // Dev::SetOffset(tris2d, GetOffset(tris2d, 'End'), tris2d.Start);
+        // tris2d.End = tris2d.Start;
+    } else if (sound !is null) {
+        trace('silencing VL sound');
+        sound.PlayCount = 0;
+        if (sound.AudioSource !is null) {
+            sound.AudioSource.VolumedB = -100;
+        }
+    }
 }

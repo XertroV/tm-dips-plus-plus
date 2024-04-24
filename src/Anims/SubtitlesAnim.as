@@ -18,10 +18,10 @@ class SubtitlesAnim : Animation {
             LoadSubtitles();
             // delay slightly to avoid fading out too fast
             endTime = startTimes[startTimes.Length - 1] + 350;
-            trace('Subtitles duration: ' + endTime);
-            for (uint i = 0; i < startTimes.Length; i++) {
-                trace(startTimes[i] + " -> " + lines[i]);
-            }
+            // trace('Subtitles duration: ' + endTime);
+            // for (uint i = 0; i < startTimes.Length; i++) {
+            //     trace(startTimes[i] + " -> " + lines[i]);
+            // }
         }
     }
 
@@ -80,9 +80,9 @@ class SubtitlesAnim : Animation {
             delta = 0;
         } else {
             delta = time - lastUpdate;
-            if (delta > 100) {
-                warn("[subtitles] Large delta: " + delta);
-            }
+            // if (delta > 100) {
+            //     warn("[subtitles] Large delta: " + delta);
+            // }
         }
         if (!IsPauseMenuOpen()) {
             progressMs += delta;
@@ -227,6 +227,7 @@ class SubtitlesAnim : Animation {
 
         DrawBackgroundBox(alpha);
         DrawSubtitleLines();
+        DrawVae();
 
         nvg::GlobalAlpha(1.0);
 
@@ -235,13 +236,18 @@ class SubtitlesAnim : Animation {
 
     vec2 centerPos;
     vec2 textTL;
+    vec2 textVaePos;
+    vec2 vaeSize = vec2(VAE_HEAD_SIZE);
 
     void DrawBackgroundBox(float alpha) {
         float round = g_screen.y * .03;
         vec2 pad = vec2(round, round / 2.);
         auto yPosOff = 0.0; // g_screen.y * .1 * (1.0 - alpha);
         textTL = centerPos - currTextBounds * .5 + vec2(0, yPosOff);
-        auto tl = textTL + vec2(round / 5., fontSize * -0.65) - pad;
+        vaeSize = vec2(Minimap::vScale * VAE_HEAD_SIZE);
+        auto nonTextOff = fontSize * -0.75;
+        textVaePos = centerPos + currTextBounds * vec2(.5, 0) + vec2(vaeSize.x * .25, nonTextOff + pad.y);
+        auto tl = textTL + vec2(round / 5., nonTextOff) - pad;
         auto bgSize = currTextBounds + vec2(round) + pad * 2.0;
         nvg::BeginPath();
         nvg::FillColor(cBlack75);
@@ -265,4 +271,23 @@ class SubtitlesAnim : Animation {
             yOff += lineBounds[i].y;
         }
     }
+
+
+    void DrawVae() {
+        if (Vae_Head is null) return;
+        auto paint = Vae_Head.GetPaint(textVaePos - vaeSize.x * .5, vaeSize, 0.0);
+        nvg::BeginPath();
+        nvg::ShapeAntiAlias(true);
+        nvg::Circle(textVaePos, vaeSize.x * .5);
+        nvg::StrokeColor(cWhite75);
+        nvg::StrokeWidth(3.0 * Minimap::vScale);
+        nvg::FillColor(cBlack50);
+        nvg::Fill();
+        nvg::FillPaint(paint);
+        nvg::Fill();
+        nvg::Stroke();
+        nvg::ClosePath();
+    }
 }
+
+const float VAE_HEAD_SIZE = 300.0;

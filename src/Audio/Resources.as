@@ -1,6 +1,7 @@
 const string AudioBaseDir = IO::FromStorageFolder("Audio/");
 // const string AudioS3SourceUrl = "https://xert.s3.us-east-1.wasabisys.com/d++/audio/";
 const string AudioS3SourceUrl = "https://assets.xk.io/d++/audio/";
+const string AssetsS3SourceUrl = "https://assets.xk.io/d++/";
 
 string Audio_GetPath(const string &in name) {
     if (name.Contains(AudioBaseDir)) return name;
@@ -17,6 +18,9 @@ bool AudioFilesExist(const string[]@ names, bool warnIfMissing = true) {
     return true;
 }
 
+bool StorageFileExists(const string &in name) {
+    return IO::FileExists(IO::FromStorageFolder(name));
+}
 
 void RefreshAssets() {
     if (!IO::FolderExists(AudioBaseDir)) {
@@ -68,6 +72,13 @@ void RefreshAssets() {
 
     PushAssetDownloads(newAssets);
     DeleteAssets(remAssets);
+    // AddArbitraryAssetDownload("img/dd2-ad.png");
+    // AddArbitraryAssetDownload("img/dd2-c1.png");
+    AddArbitraryAssetDownload("img/Deep_dip_2_logo.png");
+    AddArbitraryAssetDownload("img/vae_square.png");
+    AddArbitraryAssetDownload("img/vae.png");
+    // AddArbitraryAssetDownload("img/dd2-c3.png");
+    // AddArbitraryAssetDownload("img/dd2-c2.png");
 }
 
 string[] GetAudioAssetsRepositoryFiles() {
@@ -169,6 +180,15 @@ void PushAssetDownloads(const string[] &in urls) {
         auto download = AssetDownload(url, path);
         g_ActiveDownloads.InsertLast(download);
     }
+}
+
+void AddArbitraryAssetDownload(const string &in pathRelativeToStorage, bool force = false) {
+    if (!force && StorageFileExists(pathRelativeToStorage)) {
+        return;
+    }
+    auto path = IO::FromStorageFolder(pathRelativeToStorage);
+    auto download = AssetDownload(AssetsS3SourceUrl + pathRelativeToStorage, path);
+    g_ActiveDownloads.InsertLast(download);
 }
 
 void DeleteAssets(const string[] &in paths) {

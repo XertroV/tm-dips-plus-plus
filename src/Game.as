@@ -12,3 +12,7 @@ bool IsPauseMenuOpen(bool requireFocused = true) {
     if (psapi is null) return false;
     return psapi.IsInGameMenuDisplayed;
 }
+
+bool PlaygroundExists() {
+    return GetApp().CurrentPlayground !is null;
+}

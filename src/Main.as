@@ -272,6 +272,7 @@ void OnGoingActive() {
     //     // actions we need to take each active frame
     //     yield();
     // }
+    startnew(MTWatcherForMap);
 }
 
 

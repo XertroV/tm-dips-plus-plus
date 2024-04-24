@@ -156,6 +156,7 @@ class FloorVLTrigger : PlaySoundTrigger {
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
         if (Stats::HasPlayedVoiceLine(floor)) return;
         PlaySoundTrigger::OnEnteredTrigger(prevTrigger);
+        Stats::SetVoiceLinePlayed(floor);
         if (subtitles !is null) {
             AddSubtitleAnimation(subtitles);
         }
@@ -298,7 +299,7 @@ GameTrigger@[]@ generateVoiceLineTriggers() {
     ret.InsertLast(FloorVLTrigger(vec3(640, 337, 576), vec3(672, 346, 608), "VL Floor 3 - MaxChess", 3));
     ret.InsertLast(FloorVLTrigger(vec3(887, 458, 604), vec3(920, 470, 640), "VL Floor 4 - SparklingW", 4));
     ret.InsertLast(FloorVLTrigger(vec3(826, 546, 800), vec3(863, 554, 832), "VL Floor 5 - Jakah", 5));
-    ret.InsertLast(FloorVLTrigger(vec3(581, 627, 926), vec3(630, 634, 961), "VL Floor 6 - Classic", 6));
+    ret.InsertLast(FloorVLTrigger(vec3(581, 626, 926), vec3(630, 634, 961), "VL Floor 6 - Classic", 6));
     ret.InsertLast(FloorVLTrigger(vec3(867, 800, 673), vec3(929, 807, 707), "VL Floor 7 - Tekky", 7));
     ret.InsertLast(FloorVLTrigger(vec3(768, 871, 993), vec3(801, 879, 1025), "VL Floor 8 - Doondy", 8));
     ret.InsertLast(FloorVLTrigger(vec3(936, 1042, 843), vec3(977, 1050, 885), "VL Floor 9 - Rioyter", 9));
@@ -307,8 +308,8 @@ GameTrigger@[]@ generateVoiceLineTriggers() {
     ret.InsertLast(FloorVLTrigger(vec3(864, 1311, 762), vec3(895, 1320, 801), "VL Floor 12 - Whiskey", 12));
     ret.InsertLast(FloorVLTrigger(vec3(992, 1383, 746), vec3(1024, 1389, 782), "VL Floor 13 - Plaxity", 13));
     ret.InsertLast(FloorVLTrigger(vec3(529, 1553, 544), vec3(610, 1564, 608), "VL Floor 14 - Viiru", 14));
-    ret.InsertLast(FloorVLTrigger(vec3(799, 1640, 610), vec3(835, 1647, 636), "VL Floor 15 - Kubas", 15));
-    ret.InsertLast(FloorVLTrigger(vec3(796, 1691, 546), vec3(860, 1700, 576), "VL Floor 16 - Jumper471", 16));
+    ret.InsertLast(FloorVLTrigger(vec3(800, 1640, 610), vec3(833, 1647, 637), "VL Floor 15 - Kubas", 15));
+    ret.InsertLast(FloorVLTrigger(vec3(796, 1690, 544), vec3(860, 1700, 576), "VL Floor 16 - Jumper471", 16));
     // ret.InsertLast(FloorVLTrigger(vec3(), vec3(), "Finish"));
     return ret;
 }
@@ -408,7 +409,7 @@ void OnLeaveTrigger(GameTrigger@ prevTrigger, GameTrigger@ newTrigger) {
 }
 
 void OnNewTriggerHit(GameTrigger@ lastTriggerHit, GameTrigger@ newTrigger) {
-    trace('OnNewTriggerHit');
+    trace('OnNewTriggerHit @ ' + PS::localPlayer.pos.ToString());
     // Notify("Hit trigger: " + newTrigger.name);
     // AddTitleScreenAnimation(MainTitleScreenAnim(newTrigger.name, "test", null));
     // NotifyWarning("Added title screen anim");

@@ -7,7 +7,7 @@ class AudioChain {
 
     AudioChain(string[]@ samplePaths) {
         for (uint i = 0; i < samplePaths.Length; i++) {
-            auto sample = Audio::LoadSampleFromAbsolutePath(Audio_GetPath(samplePaths[i]));
+            auto sample = Audio::LoadSampleFromAbsolutePath(Audio_GetPath(samplePaths[i]), true);
             // MemoryBuffer@ buf = ReadToBuf(Audio_GetPath(samplePaths[i]));
             // Audio::Sample@ sample = Audio::LoadSample(buf, false);
             samples.InsertLast(sample);
@@ -75,6 +75,14 @@ class AudioChain {
                     break;
                 }
             }
+#if DEVx
+#else
+            // If we exit the map, stop playing sounds
+            if (GetApp().RootMap is null || !PlaygroundExists()) {
+                StartFadeOutLoop();
+                break;
+            }
+#endif
             if (voice is null) break;
             done = voice.GetPosition() >= voice.GetLength();
             if (!done) {
@@ -82,6 +90,7 @@ class AudioChain {
                 continue;
             }
             @voice = null;
+            yield();
         }
     }
 
@@ -101,7 +110,8 @@ class AudioChain {
                     @voice = null;
                     break;
                 }
-                voice.SetGain(S_VolumeGain * Math::Sqrt(Math::Max(0.0, 1.0 - t / (float(VoiceFadeOutDurationMs) / 1000.0))));
+                t = Math::Max(0.0, 1.0 - t / (float(VoiceFadeOutDurationMs) / 1000.0));
+                voice.SetGain(S_VolumeGain * t); // Math::Sqrt(t))
             }
             yield();
         }
