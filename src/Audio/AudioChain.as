@@ -4,10 +4,16 @@ class AudioChain {
     Audio::Voice@ voice;
     Audio::Voice@[] queued;
     float totalDuration;
+    string[]@ samplePaths;
 
     AudioChain(string[]@ samplePaths) {
+        @this.samplePaths = samplePaths;
+        startnew(CoroutineFunc(this.LoadSamples));
+    }
+
+    void LoadSamples() {
         for (uint i = 0; i < samplePaths.Length; i++) {
-            auto sample = Audio::LoadSampleFromAbsolutePath(Audio_GetPath(samplePaths[i]), true);
+            auto sample = Audio_LoadFromCache_Async(samplePaths[i]);
             // MemoryBuffer@ buf = ReadToBuf(Audio_GetPath(samplePaths[i]));
             // Audio::Sample@ sample = Audio::LoadSample(buf, false);
             samples.InsertLast(sample);
@@ -53,11 +59,16 @@ class AudioChain {
         Play();
     }
 
+    bool isPlaying = false;
+
     void Play() {
+        if (isPlaying) return;
+        isPlaying = true;
         startnew(CoroutineFunc(this.PlayLoop));
     }
 
     void PlayLoop() {
+        while (samplePaths.Length != samples.Length) yield();
         bool done = false;
         while (true) {
             if (IsPauseMenuOpen() && voice !is null) {
@@ -92,6 +103,7 @@ class AudioChain {
             @voice = null;
             yield();
         }
+        isPlaying = false;
     }
 
     uint startFadeOut = 0;

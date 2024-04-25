@@ -8,6 +8,24 @@ string Audio_GetPath(const string &in name) {
     return AudioBaseDir + name;
 }
 
+dictionary _CachedAudioSamples;
+
+Audio::Sample@ Audio_LoadFromCache_Async(const string &in path) {
+    while (!IO::FileExists(Audio_GetPath(path))) {
+        yield();
+    }
+    if (!_CachedAudioSamples.Exists(path)) {
+        @_CachedAudioSamples[path] = null;
+        @_CachedAudioSamples[path] = Audio::LoadSampleFromAbsolutePath(Audio_GetPath(path));
+    }
+    while (cast<Audio::Sample>(_CachedAudioSamples[path]) is null) {
+        yield();
+    }
+    // add a yield so we find out where it is called from UI code
+    yield();
+    return cast<Audio::Sample>(_CachedAudioSamples[path]);
+}
+
 bool AudioFilesExist(const string[]@ names, bool warnIfMissing = true) {
     for (uint i = 0; i < names.Length; i++) {
         if (!IO::FileExists(Audio_GetPath(names[i]))) {
@@ -215,4 +233,28 @@ void UpdateDownloads() {
             dl.Start();
         }
     }
+}
+
+
+void PreloadCriticalSounds() {
+    Audio_LoadFromCache_Async("vl/Intro_Plugin_2.mp3");
+    Audio_LoadFromCache_Async("vl/Level_1_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_2_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_3_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_4_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_5_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_6_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_7_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_8_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_9_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_10_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_11_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_12_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_13_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_14_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_15_final.mp3");
+    Audio_LoadFromCache_Async("vl/Level_16_final.mp3");
+    Audio_LoadFromCache_Async("vl/Lvl_17_Finished.mp3");
+    Audio_LoadFromCache_Async("deep_dip_2.mp3");
+    Audio_LoadFromCache_Async("geep_gip_2.mp3");
 }

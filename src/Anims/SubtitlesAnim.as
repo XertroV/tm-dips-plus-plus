@@ -322,19 +322,27 @@ const float DD2_LOGO_WIDTH = 1000;
 
 class DeepDip2LogoAnim : Animation {
     DTexture@ tex;
+    AudioChain@ audio;
 
     DeepDip2LogoAnim() {
         super("dd2 logo");
         @tex = DD2_Logo;
         startTime = DD2LOGO_ANIM_WAIT;
         endTime = startTime + DD2LOGO_ANIM_DURATION;
-
+        startnew(CoroutineFunc(this.LoadAudio));
         if (boltsExtraPairs.Length == 0) {
             AddBoltExtraPoints(Math::Lerp(lightningSegments[0], lightningSegments[1], .6), vec2(.75, .4));
             AddBoltExtraPoints(Math::Lerp(lightningSegments[1], lightningSegments[2], .25), vec2(.55, .73));
             AddBoltExtraPoints(Math::Lerp(lightningSegments[1], lightningSegments[2], .85), vec2(.27, .66));
             AddBoltExtraPoints(Math::Lerp(lightningSegments[2], lightningSegments[3], .35), vec2(.51, .95));
         }
+    }
+
+    void LoadAudio() {
+        while (!IO::FileExists(Audio_GetPath("lightning.mp3"))) {
+            yield();
+        }
+        @audio = AudioChain({"lightning.mp3"});
     }
 
     void OnEndAnim() override {
@@ -374,6 +382,9 @@ class DeepDip2LogoAnim : Animation {
         // ensure we load it early via .Get();
         tex.Get();
         if (progressMs < startTime) return vec2(0, 0);
+        if (!audio.isPlaying) {
+            audio.Play();
+        }
         nvg::Reset();
         nvg::GlobalAlpha(1.0);
         t = Math::Clamp(float(progressMs - startTime) / float(DD2LOGO_ANIM_DURATION), 0., 1.);
@@ -465,9 +476,6 @@ class DeepDip2LogoAnim : Animation {
         nvg::LineTo(c0 + boltsOffset);
         nvg::LineTo(c0 - boltsOffset);
 
-        // nvg::Scissor()
-
-        // nvg::FillColor(bgCol);
         nvg::FillPaint(paint);
         nvg::Fill();
 

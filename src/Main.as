@@ -24,6 +24,7 @@ void LoadFonts() {
 
 void Main() {
     startnew(LoadFonts);
+    startnew(PreloadCriticalSounds);
     g_LocalPlayerMwId = GetLocalPlayerMwId();
     startnew(AwaitLocalPlayerMwId);
     // GenerateHeightStrings();
