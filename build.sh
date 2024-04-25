@@ -59,7 +59,8 @@ for pluginSrc in ${pluginSources[@]}; do
   _colortext16 green "✅ Output file/folder name: ${PLUGIN_NAME}"
 
   BUILD_NAME=$PLUGIN_NAME-$(date +%s).zip
-  RELEASE_NAME=$PLUGIN_NAME-$PLUGIN_VERSION.op
+  # RELEASE_NAME=$PLUGIN_NAME-$PLUGIN_VERSION.op
+  RELEASE_NAME=$PLUGIN_NAME.op
   PLUGINS_DIR=${PLUGINS_DIR:-$HOME/win/OpenplanetNext/Plugins}
   PLUGIN_DEV_LOC=$PLUGINS_DIR/$PLUGIN_NAME
   PLUGIN_RELEASE_LOC=$PLUGINS_DIR/$RELEASE_NAME
@@ -69,6 +70,7 @@ for pluginSrc in ${pluginSources[@]}; do
     7z a ./$BUILD_NAME ./$pluginSrc/* ./LICENSE ./README.md
 
     cp -v $BUILD_NAME $RELEASE_NAME
+    mv $RELEASE_NAME
 
     _colortext16 green "\n✅ Built plugin as ${BUILD_NAME} and copied to ./${RELEASE_NAME}.\n"
   }
