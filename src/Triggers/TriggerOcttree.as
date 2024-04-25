@@ -106,7 +106,7 @@ class PlaySoundTrigger : GameTrigger {
 
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
         Dev_Notify(name + " entered.");
-        PlayItem();
+        startnew(CoroutineFunc(PlayItem));
         Stats::LogTriggeredSound(name, audioFile);
     }
 
@@ -121,6 +121,9 @@ class PlaySoundTrigger : GameTrigger {
         if (audioChain !is null) {
             audioChain.StartFadeOutLoop();
             @audioChain = null;
+        }
+        while (!AudioFilesExist({audioFile})) {
+            yield();
         }
         if (!AudioFilesExist({audioFile}, false)) {
             warn("Audio file not found: " + audioFile);
@@ -153,9 +156,17 @@ class FloorVLTrigger : PlaySoundTrigger {
         @subtitles = SubtitlesAnim(subtitlesFile);
     }
 
+
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
         if (Stats::HasPlayedVoiceLine(floor)) return;
-        PlaySoundTrigger::OnEnteredTrigger(prevTrigger);
+        startnew(CoroutineFunc(this.RunTrigger));
+    }
+
+    void RunTrigger() {
+        PlaySoundTrigger::OnEnteredTrigger(null);
+        while (audioChain is null || !audioChain.isPlaying) {
+            yield();
+        }
         Stats::SetVoiceLinePlayed(floor);
         if (subtitles !is null) {
             AddSubtitleAnimation(subtitles);
