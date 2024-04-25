@@ -264,7 +264,7 @@ class PlayerState {
                 @fallTracker = lastFall;
                 @lastFall = null;
             } else {
-                @fallTracker = FallTracker(pos.y, this);
+                @fallTracker = FallTracker(pos.y, flyStart.y, this);
             }
         } else {
             @lastFall = fallTracker;

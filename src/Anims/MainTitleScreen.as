@@ -11,11 +11,8 @@ class MainTitleScreenAnim : FloorTitleGeneric {
         super(titleName, ps.xy, ps.zw);
         this.secLine = secLine;
         @this.audio = audioArg;
-
-        // sub 0.8 to account for starting to play early
-        if (this.audio !is null) {
-            this.SetStageTime(MainTextStageIx, this.audio.totalDuration - 0.8);
-        }
+        trace("Created main title anim: " + titleName);
+        startnew(CoroutineFunc(this.SetStageTimesFromAudio));
     }
 
     MainTitleScreenAnim(const string &in titleName, AudioChain@ audio) {
@@ -25,6 +22,20 @@ class MainTitleScreenAnim : FloorTitleGeneric {
         titleHeight = 0.7;
         secHeight = 0.0;
         gapPartitions = 4;
+    }
+
+    ~MainTitleScreenAnim() {
+        trace('destroying MainTitleScreenAnim: ' + titleName + " / " + secLine);
+    }
+
+    // only used with secondary lines
+    void SetStageTimesFromAudio() {
+        // sub 0.8 to account for starting to play early
+        if (this.audio !is null) {
+            trace('set stage time');
+            while (this.audio.IsLoading) yield();
+            this.SetStageTime(MainTextStageIx, this.audio.totalDuration - 0.8);
+        }
     }
 
     vec4 GetPosSize() {
@@ -37,6 +48,7 @@ class MainTitleScreenAnim : FloorTitleGeneric {
 
     bool Update() override {
         bool ret = FloorTitleGeneric::Update();
+        if (!ret) trace('main title update: false');
         auto ps = GetPosSize();
         pos = ps.xy;
         size = ps.zw;

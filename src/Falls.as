@@ -22,6 +22,7 @@ enum MapFloor {
 class FallTracker {
     float startHeight;
     float fallDist;
+    float startFlyingHeight;
     MapFloor startFloor;
     MapFloor currentFloor;
     float currentHeight;
@@ -30,11 +31,12 @@ class FallTracker {
     // implies player is local
     bool recordStats;
 
-    FallTracker(float initHeight, PlayerState@ player) {
+    FallTracker(float initHeight, float startFlyingHeight, PlayerState@ player) {
         startHeight = initHeight;
         startFloor = HeightToFloor(initHeight);
         startTime = Time::Now;
         recordStats = player.isLocal;
+        this.startFlyingHeight = startFlyingHeight;
         if (recordStats) {
             Stats::LogFallStart();
         }
@@ -58,6 +60,10 @@ class FallTracker {
 
     float HeightFallen() {
         return startHeight - currentHeight;
+    }
+
+    float HeightFallenFromFlying() {
+        return startFlyingHeight - currentHeight;
     }
 
     void OnEndFall() {

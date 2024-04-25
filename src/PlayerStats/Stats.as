@@ -50,6 +50,10 @@ namespace Stats {
         return nbFloorsFallen;
     }
 
+    float GetTotalDistanceFallen() {
+        return totalDistFallen;
+    }
+
     // for when going up (don't add while falling)
     void LogFloorReached(int floor) {
         reachedFloorCount[floor]++;

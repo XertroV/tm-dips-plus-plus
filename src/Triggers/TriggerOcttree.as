@@ -122,6 +122,9 @@ class PlaySoundTrigger : GameTrigger {
             audioChain.StartFadeOutLoop();
             @audioChain = null;
         }
+        if (!AudioFilesExist({audioFile})) {
+            warn("Audio file not found, waiting for it to exist: " + audioFile);
+        }
         while (!AudioFilesExist({audioFile})) {
             yield();
         }
@@ -156,14 +159,15 @@ class FloorVLTrigger : PlaySoundTrigger {
         @subtitles = SubtitlesAnim(subtitlesFile);
     }
 
-
+    OctTreeRegion@ _tmpPrevTrigger;
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
         if (Stats::HasPlayedVoiceLine(floor)) return;
+        @_tmpPrevTrigger = prevTrigger;
         startnew(CoroutineFunc(this.RunTrigger));
     }
 
     void RunTrigger() {
-        PlaySoundTrigger::OnEnteredTrigger(null);
+        PlaySoundTrigger::OnEnteredTrigger(_tmpPrevTrigger);
         while (audioChain is null || !audioChain.isPlaying) {
             yield();
         }

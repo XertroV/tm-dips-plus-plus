@@ -32,21 +32,23 @@ namespace HUD {
         mainHudLabel = Text::Format("Height: %04.0f m", Math::Round(yPos)) + Text::Format(" (%.1f %%)", heightPct);
         DrawHudLabel(h, pos, mainHudLabel, cWhite);
         int currFallFloors = 0;
+        float distFallen = 0;
+        float absDistFallen = 0;
         bool fallTrackerActive = player.fallTracker !is null;
         auto fallTracker = fallTrackerActive ? player.fallTracker : player.lastFall;
         if (fallTracker !is null) {
             currFallFloors = fallTracker.FloorsFallen();
-            auto fallDist = fallTracker.HeightFallen();
-            fallingHudLabel = "Fell " + Text::Format("%.0f m / ", fallDist) + fallTracker.FloorsFallen() + " floors";
+            distFallen = fallTracker.HeightFallen();
+            absDistFallen = fallTracker.HeightFallenFromFlying();
+            fallingHudLabel = "Fell " + Text::Format("%.0f m / ", distFallen) + fallTracker.FloorsFallen() + " floors";
             float alpha = fallTrackerActive ? 1.0 : 0.5;
             DrawHudLabel(h, fallingPos, fallingHudLabel, cWhite, nvg::Align::Right | nvg::Align::Top, globalAlpha: alpha);
         }
         if (player.isLocal) {
-            if (player.lastFall !is null) {
-                currFallFloors += player.lastFall.FloorsFallen();
-            }
-
-            fallsHudLabel = "Falls: " + Stats::GetTotalFalls() + " / Floors: " + (Stats::GetTotalFloorsFallen() + currFallFloors);
+            fallsHudLabel = "Falls: " + Stats::GetTotalFalls() + " / Floors: " + (Stats::GetTotalFloorsFallen() + currFallFloors)
+                + Text::Format(" / m: %.1f", Stats::GetTotalDistanceFallen() + distFallen)
+                + Text::Format(" / abs m: %.1f", absDistFallen);
+                ;
             DrawHudLabel(h, fallsPos, fallsHudLabel, cWhite);
         }
     }

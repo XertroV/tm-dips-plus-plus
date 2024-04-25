@@ -47,6 +47,7 @@ void ClearAnimations() {
 
 void AddTitleScreenAnimation(Animation@ anim) {
     titleScreenAnimations.InsertLast(anim);
+    trace('added to titleScreenAnimations: ' + anim.ToString());
 }
 
 void AddSubtitleAnimation(Animation@ anim) {

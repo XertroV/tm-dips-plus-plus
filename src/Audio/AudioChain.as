@@ -5,9 +5,11 @@ class AudioChain {
     Audio::Voice@[] queued;
     float totalDuration;
     string[]@ samplePaths;
+    string samplesStr;
 
     AudioChain(string[]@ samplePaths) {
         @this.samplePaths = samplePaths;
+        samplesStr = Json::Write(samplePaths.ToJson());
         startnew(CoroutineFunc(this.LoadSamples));
     }
 
@@ -67,8 +69,14 @@ class AudioChain {
         startnew(CoroutineFunc(this.PlayLoop));
     }
 
+    bool get_IsLoading() {
+        return samplePaths.Length != samples.Length;
+    }
+
     void PlayLoop() {
-        while (samplePaths.Length != samples.Length) yield();
+        trace("Awaiting audio " + this.samplesStr);
+        while (IsLoading) yield();
+        trace("Starting audio " + this.samplesStr);
         bool done = false;
         while (true) {
             if (IsPauseMenuOpen() && voice !is null) {

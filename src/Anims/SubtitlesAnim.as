@@ -552,9 +552,9 @@ class DeepDip2LogoAnim : Animation {
 
 vec2[] lightningSegments = {
     vec2(0.69, 0),
-    vec2(0.58, 0.3),
+    vec2(0.635, 0.3),
     vec2(0.45, 0.6),
-    vec2(0.4, 1)
+    vec2(0.35, 1)
 };
 
 vec2[] boltsExtraPairs  = {};

@@ -168,7 +168,7 @@ void RenderTitleScreenAnims() {
         titleScreenAnimations[0].Draw();
     } else {
         titleScreenAnimations[0].OnEndAnim();
-        // trace("Removing title anim: " + titleScreenAnimations[0].ToString());
+        trace("Removing title anim: " + titleScreenAnimations[0].ToString());
         titleScreenAnimations.RemoveAt(0);
     }
     // for (uint i = 0; i < titleScreenAnimations.Length; i++) {
@@ -243,6 +243,10 @@ float g_DT;
 /** Called every frame. `dt` is the delta time (milliseconds since last frame).
 */
 void Update(float dt) {
+    // hack for when loading plugin
+    if (dt > 500) {
+        dt = 50;
+    }
     g_DT = dt;
 }
 
