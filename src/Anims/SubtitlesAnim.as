@@ -315,17 +315,26 @@ const float VAE_HEAD_SIZE = 300.0;
 
 
 const uint DD2LOGO_ANIM_WAIT = 35800;
+//const uint DD2LOGO_ANIM_WAIT = 3580;
 const uint DD2LOGO_ANIM_DURATION = 4000;
 
-const float DD2_LOGO_WIDTH = 996;
+const float DD2_LOGO_WIDTH = 1000;
 
 class DeepDip2LogoAnim : Animation {
     DTexture@ tex;
+
     DeepDip2LogoAnim() {
         super("dd2 logo");
         @tex = DD2_Logo;
         startTime = DD2LOGO_ANIM_WAIT;
         endTime = startTime + DD2LOGO_ANIM_DURATION;
+
+        if (boltsExtraPairs.Length == 0) {
+            AddBoltExtraPoints(Math::Lerp(lightningSegments[0], lightningSegments[1], .6), vec2(.75, .4));
+            AddBoltExtraPoints(Math::Lerp(lightningSegments[1], lightningSegments[2], .25), vec2(.55, .73));
+            AddBoltExtraPoints(Math::Lerp(lightningSegments[1], lightningSegments[2], .85), vec2(.27, .66));
+            AddBoltExtraPoints(Math::Lerp(lightningSegments[2], lightningSegments[3], .35), vec2(.51, .95));
+        }
     }
 
     void OnEndAnim() override {
@@ -362,75 +371,375 @@ class DeepDip2LogoAnim : Animation {
     }
 
     vec2 Draw() override {
-        auto logo = tex.Get();
+        // ensure we load it early via .Get();
+        tex.Get();
         if (progressMs < startTime) return vec2(0, 0);
         nvg::Reset();
         nvg::GlobalAlpha(1.0);
-        auto t = Math::Clamp(float(progressMs - startTime) / float(DD2LOGO_ANIM_DURATION), 0., 1.);
-
-        auto pos = g_screen * vec2(.5, .5);
-
-
-        nvg::BeginPath();
-        DrawLightningBoltShape(t);
-
-        auto logoSize = logo.GetSize();
-        auto size = logo.GetSize() / logoSize.y * 650 * Minimap::vScale;
-        auto tl = pos - size * .5;
-        auto paint = tex.GetPaint(tl, size, 0.0);
-
-        nvg::FillPaint(paint);
-        nvg::Fill();
-        nvg::StrokeColor(cWhite);
-        nvg::Stroke();
-        nvg::ClosePath();
-        return size;
+        t = Math::Clamp(float(progressMs - startTime) / float(DD2LOGO_ANIM_DURATION), 0., 1.);
+        DrawMainLogoAnim();
+        return g_screen;
     }
 
-    float finalHalfWidth = DD2_LOGO_WIDTH * .65;
+    float finalHalfWidth = DD2_LOGO_WIDTH * .5;
 
-    // start above screen and end at bottom of screen.
-    // trace lightning bolt shape down, then trace up.
-    // as t increases, move the left and right edge of the bolt out towards edge of screen, then fade out when beyond DD2 logo width
-    // the logo will be drawn on the inside of the shape.
-    void DrawLightningBoltShape(float t) {
+    float t;
+    float gapWidth = 700;
+    float bgMoveT;
+    float bgFlashT;
+    float bgColorFadeT;
+    float boltsT;
+    float boltsExtraFadeT;
+    float globalFadeT;
+    vec4 bgCol;
+    vec2 boltsOffset;
+    float boltStrokeWidth = 16.;
 
-        auto midTop = g_screen * vec2(.5, 0) - vec2(0, 6);
-        auto midBot = g_screen * vec2(.5, 1) + vec2(0, 6);
-        auto boltLeftStart = midTop - vec2(0, finalHalfWidth * t);
-        auto boltRightStart = midTop + vec2(0, finalHalfWidth * t);
-        nvg::PathWinding(nvg::Winding::CCW);
-        nvg::MoveTo(boltLeftStart);
-        for (int i = 0; i < ligntingPattern.Length; i++) {
-            auto p = ligntingPattern[i];
-            auto left = Math::Lerp(boltLeftStart, boltRightStart, p.x);
-            auto right = Math::Lerp(boltRightStart, boltLeftStart, p.x);
-            auto mid = Math::Lerp(midTop, midBot, p.y);
-            nvg::BezierTo(left, mid, right);
+    void DrawMainLogoAnim() {
+        bgFlashT = Math::Clamp(t / 0.0125, 0., 1.);
+        bgMoveT = EaseOutQuad(Math::Clamp((t - 0.025) / 0.975, 0., 1.));
+        bgColorFadeT = Math::Clamp((t - 0.0125) / 0.15, 0., 1.);
+        globalFadeT = 1. - Math::Clamp((t - 0.8) / 0.2, 0., 1.);
+
+        bool drawBolts = t > 0.0125;
+        boltsT = t > 0.0125 ? 1.0 : 0.0;
+        boltsExtraFadeT = boltsT * Math::Clamp(1. - (t - 0.0125) / 0.9, 0., 1.);
+        boltsOffset = vec2(gapWidth * bgMoveT, 0);
+
+        bgCol = bgColorFadeT <= 0. ? vec4(1, 1, 1, bgFlashT) : Math::Lerp(cWhite, cBlack85, bgColorFadeT);
+        boltStrokeWidth = 16.;
+
+        nvg::Reset();
+        nvg::GlobalAlpha(globalFadeT);
+
+        DrawBg(int2(0, 0));
+        DrawBg(int2(0, 1));
+        DrawBg(int2(0, 2));
+        DrawBg(int2(1, 0));
+        DrawBg(int2(1, 1));
+        DrawBg(int2(1, 2));
+
+        if (drawBolts) {
+            DrawBgLogo();
+            DrawBoltsMain(-1.);
+            DrawBoltsMain(1.);
+            nvg::LineJoin(nvg::LineCapType::Round);
+            DrawBoltsExtra();
         }
-        for (int i = ligntingPattern.Length-1; i >= 0; i--) {
-            auto p = ligntingPattern[i];
-            auto left = Math::Lerp(boltLeftStart, boltRightStart, p.x);
-            auto right = Math::Lerp(boltRightStart, boltLeftStart, p.x);
-            auto mid = Math::Lerp(midTop, midBot, p.y);
-            nvg::BezierTo(right, mid, left);
+
+        nvg::GlobalAlpha(1.0);
+    }
+
+    vec2 logoPos;
+    vec2 logoPosTL;
+    // actual texture size
+    vec2 logoSizePx;
+    // drawing size
+    vec2 logoSize;
+
+    void DrawBgLogo() {
+        auto logo = tex.Get();
+        if (logo is null) return;
+        logoPos = g_screen * vec2(.5, .5);
+        logoSizePx = logo.GetSize();
+        logoSize = logoSizePx / logoSizePx.y * 550 * Minimap::vScale;
+        logoPosTL = logoPos - logoSize * .5;
+        auto paint = nvg::TexturePattern(logoPosTL, logoSize, 0.0, logo, 1.0);
+
+        nvg::Scissor(logoPosTL.x, logoPosTL.y, logoSize.x, logoSize.y);
+        // need to draw paint for all 3 sections
+        DrawBgLogoSection(0, paint);
+        DrawBgLogoSection(1, paint);
+        DrawBgLogoSection(2, paint);
+        nvg::ResetScissor();
+    }
+
+    void DrawBgLogoSection(int section, nvg::Paint paint) {
+        vec2 c0 = lightningSegments[section] * g_screen;
+        vec2 c1 = lightningSegments[section + 1] * g_screen;
+
+        nvg::BeginPath();
+        nvg::MoveTo(c0 - boltsOffset);
+        nvg::LineTo(c1 - boltsOffset);
+        nvg::LineTo(c1 + boltsOffset);
+        nvg::LineTo(c0 + boltsOffset);
+        nvg::LineTo(c0 - boltsOffset);
+
+        // nvg::Scissor()
+
+        // nvg::FillColor(bgCol);
+        nvg::FillPaint(paint);
+        nvg::Fill();
+
+        nvg::ClosePath();
+    }
+
+    void DrawBoltsMain(float sign) {
+        nvg::BeginPath();
+        nvg::MoveTo(lightningSegments[0] * g_screen + sign * boltsOffset);
+        for (int i = 1; i < lightningSegments.Length; i++) {
+            nvg::LineTo(lightningSegments[i] * g_screen + sign * boltsOffset);
         }
-        nvg::LineTo(boltRightStart);
-        nvg::LineTo(boltLeftStart);
+
+        nvg::StrokeWidth(boltStrokeWidth);
+        nvg::StrokeColor(cWhite);
+        nvg::Stroke();
+
+        nvg::ClosePath();
+    }
+
+    void DrawBoltsExtra() {
+        // right, r, l, r
+        for (int i = 0; i < boltsExtraPairs.Length; i += 4) {
+            float sign = i == 8 ? -1. : 1.;
+            vec2 p0 = boltsExtraPairs[i] * g_screen + sign * boltsOffset;
+            vec2 p1 = boltsExtraPairs[i + 1] * g_screen + sign * boltsOffset;
+            vec2 p2 = boltsExtraPairs[i + 2] * g_screen + sign * boltsOffset;
+            vec2 p3 = boltsExtraPairs[i + 3] * g_screen + sign * boltsOffset;
+
+            nvg::BeginPath();
+            nvg::MoveTo(p0);
+            nvg::LineTo(p1);
+            nvg::LineTo(p2);
+            nvg::LineTo(p3);
+            // nvg::LineTo(Math::Lerp(p0, p1, 1.1) + vec2(0, Math::Rand(0., 1.) * 20. * sign));
+
+            nvg::StrokeWidth(boltStrokeWidth * .7 * boltsExtraFadeT + boltStrokeWidth * .3);
+            nvg::StrokeColor(vec4(1, 1, 1, boltsExtraFadeT));
+            nvg::Stroke();
+
+            nvg::ClosePath();
+        }
+    }
+
+    void DrawBg(int2 coord) {
+        bool left = coord.x < 1;
+        float gapSign = left ? -1. : 1.;
+
+        float pastScreenEdge = left ? -g_screen.x : 2. * g_screen.x;
+
+        vec2 p1 = lightningSegments[coord.y] * g_screen + boltsOffset * gapSign;
+        vec2 p0 = vec2(pastScreenEdge, p1.y);
+        vec2 p2 = lightningSegments[coord.y + 1] * g_screen + boltsOffset * gapSign;
+        vec2 p3 = vec2(pastScreenEdge, p2.y);
+        nvg::PathWinding(left ? nvg::Winding::CW : nvg::Winding::CCW);
+        nvg::BeginPath();
+        nvg::MoveTo(p0);
+        nvg::LineTo(p1);
+        nvg::LineTo(p2);
+        nvg::LineTo(p3);
+        nvg::LineTo(p0);
+
+        nvg::FillColor(bgCol);
+        nvg::Fill();
+
+        nvg::ClosePath();
     }
 }
 
-// too zigzaggy
-vec2[]@ ligntingPattern = {
-    vec2(0.5, 0.0),
-    vec2(0.5, 0.1),
-    vec2(0.4, 0.2),
-    vec2(0.6, 0.3),
-    vec2(0.4, 0.4),
-    vec2(0.6, 0.5),
-    vec2(0.4, 0.6),
-    vec2(0.6, 0.7),
-    vec2(0.4, 0.8),
-    vec2(0.6, 0.9),
-    vec2(0.5, 1.0),
+
+
+
+
+
+vec2[] lightningSegments = {
+    vec2(0.69, 0),
+    vec2(0.58, 0.3),
+    vec2(0.45, 0.6),
+    vec2(0.4, 1)
 };
+
+vec2[] boltsExtraPairs  = {};
+
+
+// flash to 0.0125
+// fade to 0.125
+// move to 0.9;
+// fade out to 1.0;
+
+/*
+class LightningStrike {
+    float t;
+    float gapWidth = 700;
+    float bgMoveT;
+    float bgFlashT;
+    float bgColorFadeT;
+    float boltsT;
+    float boltsExtraFadeT;
+    float globalFadeT;
+    vec4 bgCol;
+    vec2 boltsOffset;
+    float boltStrokeWidth = 16.;
+
+    nvg::Texture@ logo;
+
+    LightningStrike() {
+        if (boltsExtraPairs.Length == 0) {
+            AddBoltExtraPoints(Math::Lerp(lightningSegments[0], lightningSegments[1], .6), vec2(.75, .4));
+            AddBoltExtraPoints(Math::Lerp(lightningSegments[1], lightningSegments[2], .25), vec2(.55, .73));
+            AddBoltExtraPoints(Math::Lerp(lightningSegments[1], lightningSegments[2], .85), vec2(.27, .66));
+            AddBoltExtraPoints(Math::Lerp(lightningSegments[2], lightningSegments[3], .35), vec2(.51, .95));
+        }
+        IO::File f("C:/users/xertrov/OpenplanetNext/PluginStorage/dips++-dev/img/Deep_dip_2_logo.png", IO::FileMode::Read);
+        @logo = nvg::LoadTexture(f.Read(f.Size()));
+    }
+
+    void Draw(float t) {
+        // trace("t: " + t);
+        this.t = t;
+        bgFlashT = Math::Clamp(t / 0.0125, 0., 1.);
+        bgMoveT = EaseOutQuad(Math::Clamp((t - 0.025) / 0.975, 0., 1.));
+        bgColorFadeT = Math::Clamp((t - 0.0125) / 0.15, 0., 1.);
+        globalFadeT = 1. - Math::Clamp((t - 0.8) / 0.2, 0., 1.);
+
+        bool drawBolts = t > 0.0125;
+        boltsT = t > 0.0125 ? 1.0 : 0.0;
+        boltsExtraFadeT = boltsT * Math::Clamp(1. - (t - 0.0125) / 0.9, 0., 1.);
+        boltsOffset = vec2(gapWidth * bgMoveT, 0);
+
+        bgCol = bgColorFadeT <= 0. ? vec4(1, 1, 1, bgFlashT) : Math::Lerp(cWhite, cBlack85, bgColorFadeT);
+        boltStrokeWidth = 16.;
+
+        nvg::Reset();
+        nvg::GlobalAlpha(globalFadeT);
+
+        DrawBg(int2(0, 0));
+        DrawBg(int2(0, 1));
+        DrawBg(int2(0, 2));
+        DrawBg(int2(1, 0));
+        DrawBg(int2(1, 1));
+        DrawBg(int2(1, 2));
+
+        if (drawBolts) {
+            DrawBgLogo();
+            DrawBoltsMain(-1.);
+            DrawBoltsMain(1.);
+            nvg::LineJoin(nvg::LineCapType::Round);
+            DrawBoltsExtra();
+        }
+
+        nvg::GlobalAlpha(1.0);
+    }
+
+    vec2 logoPos;
+    vec2 logoPosTL;
+    // actual texture size
+    vec2 logoSizePx;
+    // drawing size
+    vec2 logoSize;
+
+    void DrawBgLogo() {
+        logoPos = g_screen * vec2(.5, .5);
+        logoSizePx = logo.GetSize();
+        logoSize = logoSizePx / logoSizePx.y * 550 * Minimap::vScale;
+        logoPosTL = logoPos - logoSize * .5;
+        auto paint = nvg::TexturePattern(logoPosTL, logoSize, 0.0, logo, 1.0);
+
+        nvg::Scissor(logoPosTL.x, logoPosTL.y, logoSize.x, logoSize.y);
+        // need to draw paint for all 3 sections
+        DrawBgLogoSection(0, paint);
+        DrawBgLogoSection(1, paint);
+        DrawBgLogoSection(2, paint);
+        nvg::ResetScissor();
+    }
+
+    void DrawBgLogoSection(int section, nvg::Paint paint) {
+        vec2 c0 = lightningSegments[section] * g_screen;
+        vec2 c1 = lightningSegments[section + 1] * g_screen;
+
+        nvg::BeginPath();
+        nvg::MoveTo(c0 - boltsOffset);
+        nvg::LineTo(c1 - boltsOffset);
+        nvg::LineTo(c1 + boltsOffset);
+        nvg::LineTo(c0 + boltsOffset);
+        nvg::LineTo(c0 - boltsOffset);
+
+        // nvg::Scissor()
+
+        // nvg::FillColor(bgCol);
+        nvg::FillPaint(paint);
+        nvg::Fill();
+
+        nvg::ClosePath();
+    }
+
+    void DrawBoltsMain(float sign) {
+        nvg::BeginPath();
+        nvg::MoveTo(lightningSegments[0] * g_screen + sign * boltsOffset);
+        for (int i = 1; i < lightningSegments.Length; i++) {
+            nvg::LineTo(lightningSegments[i] * g_screen + sign * boltsOffset);
+        }
+
+        nvg::StrokeWidth(boltStrokeWidth);
+        nvg::StrokeColor(cWhite);
+        nvg::Stroke();
+
+        nvg::ClosePath();
+    }
+
+    void DrawBoltsExtra() {
+        // right, r, l, r
+        for (int i = 0; i < boltsExtraPairs.Length; i += 4) {
+            float sign = i == 8 ? -1. : 1.;
+            vec2 p0 = boltsExtraPairs[i] * g_screen + sign * boltsOffset;
+            vec2 p1 = boltsExtraPairs[i + 1] * g_screen + sign * boltsOffset;
+            vec2 p2 = boltsExtraPairs[i + 2] * g_screen + sign * boltsOffset;
+            vec2 p3 = boltsExtraPairs[i + 3] * g_screen + sign * boltsOffset;
+
+            nvg::BeginPath();
+            nvg::MoveTo(p0);
+            nvg::LineTo(p1);
+            nvg::LineTo(p2);
+            nvg::LineTo(p3);
+            // nvg::LineTo(Math::Lerp(p0, p1, 1.1) + vec2(0, Math::Rand(0., 1.) * 20. * sign));
+
+            nvg::StrokeWidth(boltStrokeWidth * .7 * boltsExtraFadeT + boltStrokeWidth * .3);
+            nvg::StrokeColor(vec4(1, 1, 1, boltsExtraFadeT));
+            nvg::Stroke();
+
+            nvg::ClosePath();
+        }
+    }
+
+    void DrawBg(int2 coord) {
+        bool left = coord.x < 1;
+        float gapSign = left ? -1. : 1.;
+
+        float pastScreenEdge = left ? -g_screen.x : 2. * g_screen.x;
+
+        vec2 p1 = lightningSegments[coord.y] * g_screen + boltsOffset * gapSign;
+        vec2 p0 = vec2(pastScreenEdge, p1.y);
+        vec2 p2 = lightningSegments[coord.y + 1] * g_screen + boltsOffset * gapSign;
+        vec2 p3 = vec2(pastScreenEdge, p2.y);
+        nvg::PathWinding(left ? nvg::Winding::CW : nvg::Winding::CCW);
+        nvg::BeginPath();
+        nvg::MoveTo(p0);
+        nvg::LineTo(p1);
+        nvg::LineTo(p2);
+        nvg::LineTo(p3);
+        nvg::LineTo(p0);
+
+        nvg::FillColor(bgCol);
+        nvg::Fill();
+
+        nvg::ClosePath();
+    }
+}
+*/
+
+void AddBoltExtraPoints(vec2 start, vec2 end) {
+    boltsExtraPairs.InsertLast(start);
+    boltsExtraPairs.InsertLast(Math::Lerp(start, end, Math::Rand(.1, .4)) + RandVec2(-.02, .02));
+    boltsExtraPairs.InsertLast(Math::Lerp(start, end, Math::Rand(.6, .9)) + RandVec2(-.02, .02));
+    boltsExtraPairs.InsertLast(end);
+}
+
+vec2 RandVec2(float min, float max) {
+    return vec2(Math::Rand(min, max), Math::Rand(min, max));
+}
+
+float EaseOutQuad(float x) {
+    return 1. - (1. - x) * (1. - x);
+}
+
+

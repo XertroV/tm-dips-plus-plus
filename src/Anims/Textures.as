@@ -2,6 +2,7 @@ class DTexture {
     string path;
     bool fileExists;
     nvg::Texture@ tex;
+    vec2 dims;
 
     DTexture(const string &in path) {
         this.path = path;
@@ -27,7 +28,9 @@ class DTexture {
             return null;
         }
         IO::File f(path, IO::FileMode::Read);
-        @tex = nvg::LoadTexture(f.Read(f.Size()));
+
+        @tex = nvg::LoadTexture(f.Read(f.Size()), nvg::TextureFlags::None);
+        dims = tex.GetSize();
         return tex;
     }
 
