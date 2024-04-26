@@ -387,7 +387,7 @@ class DeepDip2LogoAnim : Animation {
         }
         nvg::Reset();
         nvg::GlobalAlpha(1.0);
-        t = Math::Clamp(float(progressMs - startTime) / float(DD2LOGO_ANIM_DURATION), 0., 1.);
+        t = Math::Clamp(float(progressMs - startTime) / float(endTime - startTime), 0., 1.);
         DrawMainLogoAnim();
         return g_screen;
     }

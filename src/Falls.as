@@ -47,14 +47,17 @@ class FallTracker {
     ~FallTracker() {
         if (recordStats) {
             // todo: only record stats permanently if the fall was greater than the min limit
-            auto fd = HeightFallenSafe();
-            if (Math::Abs(fd) >= MIN_FALL_HEIGHT_FOR_STATS) {
+            if (IsFallPastMinFall()) {
                 Stats::AddFloorsFallen(Math::Max(0, FloorsFallen()));
-                Stats::AddDistanceFallen(fd);
+                Stats::AddDistanceFallen(HeightFallenSafe());
             } else {
                 Stats::LogFallEndedLessThanMin();
             }
         }
+    }
+
+    bool IsFallPastMinFall() {
+        return Math::Max(0.0, HeightFallenFromFlying()) >= MIN_FALL_HEIGHT_FOR_STATS;
     }
 
     void Update(float height) {

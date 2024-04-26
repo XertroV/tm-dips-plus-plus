@@ -16,7 +16,7 @@ class DTexture {
         while (!IO::FileExists(path)) {
             yield();
         }
-        trace("Found texture: " + path);
+        dev_trace("Found texture: " + path);
         fileExists = true;
     }
 

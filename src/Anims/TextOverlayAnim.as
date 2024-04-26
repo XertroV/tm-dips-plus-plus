@@ -11,6 +11,11 @@ class TextOverlayAnim : Animation {
         super(triggerName);
         this.text = text;
         @this.audio = audio;
+        startnew(CoroutineFunc(AwaitVoiceLinesEndedThenPlayAudio));
+    }
+
+    void AwaitVoiceLinesEndedThenPlayAudio() {
+        while (IsVoiceLinePlaying()) yield();
         SetTextOverlayAudio(audio);
     }
 
@@ -31,6 +36,7 @@ class TextOverlayAnim : Animation {
     }
 
     bool Update() override {
+        if (IsVoiceLinePlaying()) return true;
         if (fadingOut || !StillInTrigger) {
             if (!fadingOut) audio.StartFadeOutLoop();
             fadingOut = true;

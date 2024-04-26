@@ -10,6 +10,8 @@ int f_Nvg_ExoRegular = nvg::LoadFont("Fonts/Exo-Regular.ttf", true, true);
 int f_Nvg_ExoMedium = nvg::LoadFont("Fonts/Exo-Medium.ttf", true, true);
 int f_Nvg_ExoMediumItalic = nvg::LoadFont("Fonts/Exo-MediumItalic.ttf", true, true);
 int f_Nvg_ExoBold = nvg::LoadFont("Fonts/Exo-Bold.ttf", true, true);
+int f_Nvg_ExoExtraBold = nvg::LoadFont("Fonts/Exo-ExtraBold.ttf", true, true);
+int f_Nvg_ExoExtraBoldItalic = nvg::LoadFont("Fonts/Exo-ExtraBoldItalic.ttf", true, true);
 // int g_nvgFont = nvg::LoadFont("RobotoSans.ttf", true, true);
 
 #if DEV
@@ -66,15 +68,15 @@ void RenderEarly() {
 void Render() {
     DownloadProgress::Draw();
     // dev mode => render in menus
+    if (g_Active) {
+        HUD::Render(PS::viewedPlayer);
+        RenderAnimations();
+        RenderTextOveralys();
+        RenderSubtitles();
+        Minimap::Render();
+    }
     if (g_Active || DEV_MODE) {
         RenderTitleScreenAnims();
-    }
-    if (g_Active) {
-        RenderSubtitles();
-        RenderTextOveralys();
-        RenderAnimations();
-        Minimap::Render();
-        HUD::Render(PS::viewedPlayer);
     }
     RenderDebugWindow();
 }
@@ -192,7 +194,6 @@ void RenderAnimations() {
     for (uint i = 0; i < statusAnimations.Length; i++) {
         @anim = statusAnimations[i];
         if (anim !is null && anim.Update()) {
-            if (!g_ShowFalls) continue;
             s = Time::Now;
             auto y = anim.Draw().y;
             if (Time::Now - s > 1) {
@@ -353,6 +354,13 @@ void NotifyError(const string &in msg) {
 void NotifyWarning(const string &in msg) {
     warn(msg);
     UI::ShowNotification(Meta::ExecutingPlugin().Name + ": Warning", msg, vec4(.9, .6, .2, .3), 15000);
+}
+
+
+void dev_trace(const string &in msg) {
+#if DEV
+    trace(msg);
+#endif
 }
 
 

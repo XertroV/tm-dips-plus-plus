@@ -35,7 +35,7 @@ class Animation {
 Animation@[] subtitleAnims;
 Animation@[] textOverlayAnims;
 Animation@[] statusAnimations;
-Animation@[] titleScreenAnimations;
+FloorTitleGeneric@[] titleScreenAnimations;
 
 
 void ClearAnimations() {
@@ -45,7 +45,15 @@ void ClearAnimations() {
     titleScreenAnimations.Resize(0);
 }
 
-void AddTitleScreenAnimation(Animation@ anim) {
+bool IsVoiceLinePlaying() {
+    return subtitleAnims.Length > 0;
+}
+
+bool IsTitleGagPlaying() {
+    return titleScreenAnimations.Length > 0;
+}
+
+void AddTitleScreenAnimation(FloorTitleGeneric@ anim) {
     titleScreenAnimations.InsertLast(anim);
     trace('added to titleScreenAnimations: ' + anim.ToString());
 }

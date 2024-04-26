@@ -248,8 +248,11 @@ class PlayerState {
             AfterUpdate_FallTracker();
         }
         if (isLocal) {
-            if (!TitleGag::IsReady() && this.pos.y >= 169.0) {
+            if (!TitleGag::IsReady() && this.pos.y >= 106.0) {
                 TitleGag::OnReachFloorOne();
+            }
+            if (updatedThisFrame & UpdatedFlags::Position > 0) {
+                Stats::OnLocalPlayerPosUpdate(this);
             }
         }
     }
@@ -554,6 +557,7 @@ class PlayerFlyingAnim : Animation {
     }
 
     bool Update() override {
+        if (!g_ShowFalls) return false;
         if (delegate !is null) return delegate.Update();
         if (!wasFlying || player.isIdle || player.hasLeftGame) {
             return false;

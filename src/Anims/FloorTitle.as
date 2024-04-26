@@ -1,4 +1,4 @@
-NvgFillable@ testFillable = NvgFillableLinGradY({
+NvgFillable@ testFillable = NvgFillableLinGrad({
     vec4(1.0, 0.0, 0.0, 1.0),
     vec4(0.0, 1.0, 0.0, 1.0),
     vec4(0.0, 0.0, 1.0, 1.0),
@@ -8,7 +8,7 @@ NvgFillable@ testFillable = NvgFillableLinGradY({
     vec4(1.0, 1.0, 1.0, 1.0)
 }, {0.0, 0.1, 0.3, 0.4, 0.6, 0.7, 1.0});
 
-NvgFillable@ subtleBlackGradientBg = NvgFillableLinGradY({
+NvgFillable@ subtleBlackGradientBg = NvgFillableLinGrad({
     vec4(0),
     vec4(0, 0, 0, .4),
     vec4(0, 0, 0, .85),
@@ -68,6 +68,7 @@ class FloorTitleGeneric : Animation {
 
 	bool Update() override {
         // frame 1 glitch?
+        if (IsPauseMenuOpen()) return true;
         currTime += g_DT * 0.001;
         for (uint i = stage; i < keyframes.Length; i++) {
             if (currTime >= keyframes[i]) {
@@ -187,7 +188,7 @@ class FloorTitleGeneric : Animation {
 
     // can be overridden
     void DrawText(float t) {
-        nvg::FontFace(f_Nvg_ExoRegularItalic);
+        nvg::FontFace(f_Nvg_ExoMediumItalic);
         nvg::TextAlign(nvg::Align::Center | nvg::Align::Middle);
         auto fontSize = size.y / 2.;
         nvg::FontSize(fontSize);
@@ -196,11 +197,11 @@ class FloorTitleGeneric : Animation {
             fontSize *= (size.x - 20.0) / textSize.x;
             nvg::FontSize(fontSize);
         }
-        nvg::FontFace(f_Nvg_ExoRegularItalic);
+        nvg::FontFace(f_Nvg_ExoMediumItalic);
         nvg::Text(pos.x + size.x / 2, pos.y + size.y / 2, titleName);
     }
 
-    string ToString(int i) override {
+    string ToString(int i = -1) override {
         return "FloorTitleGeneric: " + titleName + ", stage: " + stage + ", stageT: " + stageT + ", currTime: " + currTime + " / " + durationSec;
     }
 
@@ -220,16 +221,16 @@ class NvgFillable {
     }
 }
 
-class NvgFillableLinGradY : NvgFillable {
+class NvgFillableLinGrad : NvgFillable {
     // the color at each boundary in the gradient
     vec4[]@ colors;
     // 0.0 to 1.0, should correspond to how far along the linear gradient they are. first and last MUST be 0.0 and 1.0
     float[]@ positions;
 
-    NvgFillableLinGradY(vec4[]@ colors, float[]@ positions) {
+    NvgFillableLinGrad(vec4[]@ colors, float[]@ positions) {
         if (colors.Length != positions.Length) throw("NvgFillableLinGrad: colors and positions must be the same length");
         if (colors.Length < 2) throw("NvgFillableLinGrad: colors and positions must have at least 2 elements");
-        if (positions[0] != 0.0 || positions[positions.Length - 1] != 1.0) throw("NvgFillableLinGrad: positions must start at 0.0 and end at 1.0");
+        if (positions[0] != 0.0 || positions[positions.Length - 1] != 1.0) throw("NvgFillableLinGrad: positions must start at 0.0 and end at 1.0, got " + positions[0] + " and " + positions[positions.Length - 1]);
         @this.colors = colors;
         @this.positions = positions;
         this.isLinearGradient = true;
@@ -253,7 +254,105 @@ class NvgFillableLinGradY : NvgFillable {
         }
         // nvg::Fill();
     }
+
+    void RunFillX(vec4 full_rect) {
+        float start, stop;
+        vec4 rect;
+        float lastEndPos = 0.0;
+        for (uint i = 0; i < colors.Length - 1; i++) {
+            // between 0 and 1
+            start = positions[i];
+            stop = positions[i + 1];
+            rect = vec4(full_rect.x + lastEndPos, full_rect.y, Math::Round(full_rect.z * stop - lastEndPos), full_rect.w);
+            lastEndPos += rect.z;
+            PushScissor(rect);
+            nvg::FillPaint(nvg::LinearGradient(rect.xy, vec2(rect.x + rect.z, rect.y), colors[i], colors[i + 1]));
+            nvg::Fill();
+            PopScissor();
+        }
+    }
 }
+
+
+
+class NvgFillableLinGradCycle : NvgFillableLinGrad {
+    float freq;
+    float period;
+    NvgFillableLinGradCycle(vec4[]@ colors, float[]@ positions, float freq) {
+        super(colors, positions);
+        auto nbCols = colors.Length;
+        for (uint i = 0; i < nbCols; i++) {
+            colors.InsertLast(colors[i]);
+            positions.InsertLast(positions[i] + 1.0);
+        }
+        // nbCols *= 2;
+        // for (uint i = 0; i < nbCols; i++) {
+        //     positions[i] /= 2.0;
+        // }
+        this.freq = freq;
+        this.period = 1.0 / freq;
+        // isVertical = true;
+    }
+
+    bool isVertical = false;
+
+    void RunFillAnim(const vec4 &in fullRect, const vec4 &in activeRect, CoroutineFunc@ runFill = null, bool isText = false, bool otherDir = false) {
+        float start, stop;
+        vec4 rect;
+        float lastEndPos = 0.0;
+        // float(Time::Now) / 1000.;
+        float offset = float(Time::Now % int(period * 1000)) / (period * 1000);
+        for (uint i = 0; i < colors.Length - 1; i++) {
+            // between 0 and 1
+            stop = positions[i + 1];
+            start = positions[i];
+            if (!otherDir) {
+                start -= offset;
+                stop -= offset;
+            } else {
+                start += offset - 1.0;
+                stop += offset - 1.0;
+            }
+            if (stop < 0.0) {
+                continue;
+            }
+            if (start > 1.0) break;
+            if (isVertical) {
+                lastEndPos = start * fullRect.w;
+                rect = vec4(fullRect.x, fullRect.y + lastEndPos, fullRect.z, Math::Round(fullRect.w * stop - lastEndPos));
+            } else {
+                // lastEndPos = start * fullRect.z;
+                rect = vec4(fullRect.x + Math::Floor(fullRect.z * start), fullRect.y, Math::Ceil(fullRect.z * (stop - start)), fullRect.w);
+                // nvg::BeginPath();
+                // nvg::Rect(rect.xy, rect.zw);
+                // nvg::Stroke();
+                // nvg::FillPaint(nvg::LinearGradient(rect.xy, vec2(rect.x + rect.z, rect.y), colors[i], colors[i + 1]));
+                // nvg::Fill();
+            }
+            // check the current rect is within the active rect
+            if ((isVertical &&
+                (rect.y > activeRect.y + activeRect.w || rect.y + rect.w < activeRect.y)
+                ) || (rect.x + rect.z < activeRect.x || rect.x > activeRect.x + activeRect.z)) continue;
+            PushScissor(rect);
+            if (isText) {
+                nvg::FillColor(Math::Lerp(colors[i], colors[i + 1], 0.5));
+            } else if (isVertical) {
+                nvg::FillPaint(nvg::LinearGradient(rect.xy, vec2(rect.x, rect.y + rect.w), colors[i], colors[i + 1]));
+            } else {
+                nvg::FillPaint(nvg::LinearGradient(rect.xy, vec2(rect.x + rect.z, rect.y), colors[i], colors[i + 1]));
+            }
+            if (runFill is null) {
+                nvg::Fill();
+            } else {
+                runFill();
+            }
+            PopScissor();
+        }
+    }
+}
+
+
+
 
 class NvgFillableColor : NvgFillable {
     vec4 color;
@@ -267,3 +366,41 @@ class NvgFillableColor : NvgFillable {
         nvg::Fill();
     }
 }
+
+
+
+vec4[]@ genPbNotificationTextFillColors() {
+    vec4[] colors = {vec4(1.0, 0.0, 0.0, 1.0)};
+    colors.InsertLast(vec4(1.0, 0.5, 0.0, 1.0));
+    colors.InsertLast(vec4(1.0, 1.0, 0.0, 1.0));
+    colors.InsertLast(vec4(0.5, 1.0, 0.0, 1.0));
+    colors.InsertLast(vec4(0.0, 1.0, 0.0, 1.0));
+    colors.InsertLast(vec4(0.0, 1.0, 0.5, 1.0));
+    colors.InsertLast(vec4(0.0, 1.0, 1.0, 1.0));
+    colors.InsertLast(vec4(0.0, 0.5, 1.0, 1.0));
+    colors.InsertLast(vec4(0.0, 0.0, 1.0, 1.0));
+    colors.InsertLast(vec4(0.5, 0.0, 1.0, 1.0));
+    colors.InsertLast(vec4(1.0, 0.0, 1.0, 1.0));
+    colors.InsertLast(vec4(1.0, 0.0, 0.5, 1.0));
+    for (uint i = 0; i < colors.Length - 1; i++) {
+        colors.InsertAt(i + 1, Math::Lerp(colors[i], colors[i + 1], 0.5));
+        i++;
+    }
+    return colors;
+}
+
+float[]@ genPbNotificationTextFillPositions() {
+    float[] positions = {0.0};
+    auto nb = (12 * 2 - 1);
+    for (uint i = 1; i < nb; i++) {
+        positions.InsertLast(float(i) / float(nb - 1));
+    }
+    return positions;
+}
+
+NvgFillableLinGradCycle pbNotificationTextFill(
+    genPbNotificationTextFillColors(),
+    genPbNotificationTextFillPositions(),
+    0.5
+    // 0.1
+);

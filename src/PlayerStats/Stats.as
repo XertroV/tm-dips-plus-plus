@@ -5,6 +5,8 @@ namespace Stats {
     uint[] reachedFloorCount = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     uint nbResets = 0;
     float pbHeight;
+    MapFloor pbFloor = MapFloor::FloorGang;
+    uint lastPbSet = 0;
     float totalDistFallen;
     uint[] monumentTriggers = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     uint ggsTriggered = 0;
@@ -36,6 +38,28 @@ namespace Stats {
 
     void LogFallEndedLessThanMin() {
         nbFalls--;
+    }
+
+    // just after maji floor welcome sign
+    const float PB_START_ALERT_LIMIT = 112.;
+
+    void OnLocalPlayerPosUpdate(PlayerState@ player) {
+        auto pos = player.pos;
+        if (pos.y > pbHeight) {
+            bool lastPbWasAWhileAgo = pbHeight < PB_START_ALERT_LIMIT || Time::Now - lastPbSet > 180 * 1000;
+            auto floor = HeightToFloor(pos.y);
+            lastPbSet = Time::Now;
+            pbFloor = floor;
+            pbHeight = pos.y;
+            // 3 minutes
+            if (lastPbWasAWhileAgo && pbHeight > PB_START_ALERT_LIMIT) {
+                EmitNewHeightPB(player);
+            }
+        }
+    }
+
+    float GetPBHeight() {
+        return pbHeight;
     }
 
     void AddFloorsFallen(int floors) {
@@ -77,3 +101,12 @@ namespace Stats {
         return floorVoiceLinesPlayed[floor];
     }
 }
+
+
+
+void EmitNewHeightPB(PlayerState@ player) {
+    EmitStatusAnimation(PersonalBestStatusAnim(player));
+}
+
+
+

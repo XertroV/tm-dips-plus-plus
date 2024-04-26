@@ -83,7 +83,7 @@ class MainTitleScreenAnim : FloorTitleGeneric {
         // if (out2T > 0)
         //     slide2X = size.x * out2T;
 
-        nvg::FontFace(f_Nvg_ExoRegularItalic);
+        nvg::FontFace(f_Nvg_ExoMediumItalic);
         // want to have title as 45% height, and subtitle as 30% height, evenly spaced
         float gapH = size.y * (1.0 - titleHeight - secHeight) / gapPartitions;
         auto currPos = pos + vec2(0, gapH * 2.0);
@@ -97,7 +97,7 @@ class MainTitleScreenAnim : FloorTitleGeneric {
         }
 
         // PushScissor(pos + vec2(slide1X, 0), size + vec2());
-        DrawTextWithShadow(vec2(currPos.x + size.x / 2, currPos.y + size.y * titleHeight / 2.0), titleName, textColor, fontSize * 0.05);
+        DrawTextWithShadow(vec2(currPos.x + size.x / 2, currPos.y + size.y * titleHeight / 2.0), titleName, textColor, fontSize * 0.06);
         currPos.y += size.y * (titleHeight) + gapH;
         // PopScissor();
 
@@ -111,7 +111,7 @@ class MainTitleScreenAnim : FloorTitleGeneric {
             nvg::FontSize(fontSize);
         }
         // PushScissor(pos + vec2(slide2X, 0), size + vec2());
-        DrawTextWithShadow(vec2(currPos.x + size.x / 2, currPos.y + size.y * secHeight / 2.0), secLine, textColor, fontSize * 0.03);
+        DrawTextWithShadow(vec2(currPos.x + size.x / 2, currPos.y + size.y * secHeight / 2.0), secLine, textColor, fontSize * 0.05);
         // PopScissor();
     }
 }
