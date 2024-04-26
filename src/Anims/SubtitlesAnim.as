@@ -267,7 +267,7 @@ class SubtitlesAnim : Animation {
         textTL = centerPos - currTextBounds * .5 + vec2(0, yPosOff);
         vaeSize = vec2(Minimap::vScale * VAE_HEAD_SIZE);
         auto nonTextOff = fontSize * -0.75;
-        textVaePos = centerPos + currTextBounds * vec2(.5, 0) + vec2(vaeSize.x * .25, nonTextOff + pad.y);
+        textVaePos = centerPos + currTextBounds * vec2(.5, 0) + vec2(vaeSize.x * .5, nonTextOff + pad.y);
         auto tl = textTL + vec2(round / 5., nonTextOff) - pad;
         auto bgSize = currTextBounds + vec2(round) + pad * 2.0;
         nvg::BeginPath();
@@ -311,7 +311,7 @@ class SubtitlesAnim : Animation {
     }
 }
 
-const float VAE_HEAD_SIZE = 300.0;
+const float VAE_HEAD_SIZE = 200.0;
 
 
 const uint DD2LOGO_ANIM_WAIT = 35800;

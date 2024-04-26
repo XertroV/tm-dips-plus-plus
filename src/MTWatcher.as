@@ -6,6 +6,16 @@
 
 string lastMtClipName = "";
 
+const string DD2_MAP_UID = "aaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
+bool IsDD2Map() {
+    auto map = GetApp().RootMap;
+    if (map is null) return false;
+    return map.MapInfo !is null
+        ? map.MapInfo.MapUid == DD2_MAP_UID
+        : map.EdChallengeId == DD2_MAP_UID;
+}
+
 void MTWatcherForMap() {
     auto app = GetApp();
     if (app.RootMap is null) throw("map null");
@@ -43,6 +53,7 @@ void OnMtClipGoneNull() {
 }
 
 void OnMtClipChanged(const string &in clipName) {
+    if (!IsDD2Map()) return;
     // check for voice lines
     trace("Active MT Clip became: " + clipName);
     if (clipName.StartsWith("VAE")) {
@@ -51,6 +62,7 @@ void OnMtClipChanged(const string &in clipName) {
 }
 
 void CheckSilenceVoiceLine() {
+    if (!IsDD2Map()) return;
     auto @clipPlayer = GetApp().CurrentPlayground.GameTerminals[0].MediaClipPlayer;
     if (clipPlayer.Clip is null) return;
     auto @clip = clipPlayer.Clip;

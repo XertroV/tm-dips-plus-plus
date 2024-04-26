@@ -19,6 +19,8 @@ enum MapFloor {
     Finish = 17,
 }
 
+const float MIN_FALL_HEIGHT_FOR_STATS = 31.0;
+
 class FallTracker {
     float startHeight;
     float fallDist;
@@ -44,7 +46,14 @@ class FallTracker {
 
     ~FallTracker() {
         if (recordStats) {
-            Stats::AddFloorsFallen(Math::Max(0, FloorsFallen()));
+            // todo: only record stats permanently if the fall was greater than the min limit
+            auto fd = HeightFallenSafe();
+            if (Math::Abs(fd) >= MIN_FALL_HEIGHT_FOR_STATS) {
+                Stats::AddFloorsFallen(Math::Max(0, FloorsFallen()));
+                Stats::AddDistanceFallen(fd);
+            } else {
+                Stats::LogFallEndedLessThanMin();
+            }
         }
     }
 
@@ -55,11 +64,17 @@ class FallTracker {
     }
 
     int FloorsFallen() {
-        return int(startFloor) - int(currentFloor);
+        return Math::Max(0, int(startFloor) - int(currentFloor));
     }
 
+    // can be < 0
     float HeightFallen() {
         return startHeight - currentHeight;
+    }
+
+    // always > 0
+    float HeightFallenSafe() {
+        return Math::Max(0.0, startHeight - currentHeight);
     }
 
     float HeightFallenFromFlying() {

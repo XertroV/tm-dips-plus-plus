@@ -260,11 +260,12 @@ class PlayerState {
             return;
         }
         if (isFalling) {
-            if (lastFall !is null && lastFall.endTime + AFTER_FALL_MINIMAP_SHOW_DURATION > Time::Now) {
+            if (lastFall !is null && lastFall.endTime + AFTER_FALL_STABLE_AFTER > Time::Now) {
                 @fallTracker = lastFall;
                 @lastFall = null;
             } else {
                 @fallTracker = FallTracker(pos.y, flyStart.y, this);
+                @lastFall = null;
             }
         } else {
             @lastFall = fallTracker;

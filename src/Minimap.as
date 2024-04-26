@@ -1,4 +1,5 @@
 const uint AFTER_FALL_MINIMAP_SHOW_DURATION = 10000;
+const uint AFTER_FALL_STABLE_AFTER = 4000;
 
 /// A vertical minimap for showing falls in real time
 /// ~~Rotates in 3d depending on camera orientation~~
@@ -79,7 +80,7 @@ namespace Minimap {
         mapMinMax = GetMinMaxHeight(cp);
         mapHeightDelta = Math::Max(mapMinMax.y - mapMinMax.x, 8.0);
         // (-0.013, 0.01) and 1.04 perfect for dd2
-        mapMinMax += vec2(-0.013, 0.01) * mapHeightDelta;
+        mapMinMax += vec2(-0.013, 0.009) * mapHeightDelta;
         mapHeightDelta *= 1.04;
         updateMatrices = true;
     }
@@ -92,10 +93,10 @@ namespace Minimap {
         if (lastMapMwId == -1) return;
         RenderMinimapBg();
         RenderMinimapFloors();
-        auto editor = cast<CGameCtnEditorFree>(GetApp().Editor);
-        if (editor !is null) {
-            DrawEditorCameraTargetHeight(editor);
-        }
+        // auto editor = cast<CGameCtnEditorFree>(GetApp().Editor);
+        // if (editor !is null) {
+        //     DrawEditorCameraTargetHeight(editor);
+        // }
         auto nbPlayers = PS::players.Length;
         float h;
         vec2 screenPos = minimapCenterPos;

@@ -34,6 +34,10 @@ namespace Stats {
         nbFalls++;
     }
 
+    void LogFallEndedLessThanMin() {
+        nbFalls--;
+    }
+
     void AddFloorsFallen(int floors) {
         nbFloorsFallen += floors;
     }
