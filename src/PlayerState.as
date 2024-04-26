@@ -266,6 +266,7 @@ class PlayerState {
             if (lastFall !is null && lastFall.endTime + AFTER_FALL_STABLE_AFTER > Time::Now) {
                 @fallTracker = lastFall;
                 @lastFall = null;
+                fallTracker.SetSpeed(this);
             } else {
                 @fallTracker = FallTracker(pos.y, flyStart.y, this);
                 @lastFall = null;

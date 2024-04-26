@@ -40,12 +40,16 @@ class FallTracker {
         startFloor = HeightToFloor(initHeight);
         startTime = Time::Now;
         recordStats = player.isLocal;
-        startSpeed = player.vel.Length() * 3.6; // m/s to km/h
-        startVel = player.vel;
         this.startFlyingHeight = startFlyingHeight;
+        SetSpeed(player);
         if (recordStats) {
             Stats::LogFallStart();
         }
+    }
+
+    void SetSpeed(PlayerState@ p) {
+        startSpeed = p.vel.Length() * 3.6; // m/s to km/h
+        startVel = p.vel;
     }
 
     ~FallTracker() {

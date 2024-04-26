@@ -68,8 +68,11 @@ namespace HUD {
                 ;
             DrawHudLabel(h, fallsPos, fallsHudLabel, cWhite);
 
-            pbHeightLabel = Text::Format("PB: %4.0f m", Stats::GetPBHeight());
-            DrawHudLabel(h, pbHeightPos, pbHeightLabel, cWhite);
+            float pbHeight = Stats::GetPBHeight();
+            pbHeightLabel = Text::Format("PB: %4.0f m", pbHeight);
+            bool isPBing = player.pos.y + 16. > pbHeight;
+
+            DrawHudLabel(h, pbHeightPos, pbHeightLabel, isPBing ? cGoldLight : cWhite);
         }
     }
 

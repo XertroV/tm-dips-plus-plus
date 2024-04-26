@@ -122,7 +122,7 @@ class PersonalBestStatusAnim : ProgressAnim {
             }
             heightOffset = Math::Sin((t * -70. + float(currCharIx) / nbChars * 5.)) * heightOffsetMag;
             // activeRect = fullRect;
-            activeRect = vec4(tl.x + charWidth * currCharIx, tl.y + heightOffset, charWidth, textSize.y);
+            activeRect = vec4(tl.x + charWidth * currCharIx - 20, tl.y + heightOffset, charWidth + 40., textSize.y);
             pbNotificationTextFill.RunFillAnim(fullRect + vec4(0, heightOffset, 0, 0), activeRect, CoroutineFunc(this.DrawCurrChar), true, true);
         }
 

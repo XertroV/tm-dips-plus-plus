@@ -19,6 +19,8 @@ const vec4 cNone = vec4(0, 0, 0, 0);
 const vec4 cLightYellow = vec4(1, 1, 0.5, 1);
 const vec4 cSkyBlue = vec4(0.33, 0.66, 0.98, 1);
 const vec4 cLimeGreen = vec4(0.2, 0.8, 0.2, 1);
+const vec4 cGold = vec4(1, 0.84, 0, 1);
+const vec4 cGoldLight = vec4(1, 0.9, 0.25, 1);
 
 
 

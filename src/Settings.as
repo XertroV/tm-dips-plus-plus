@@ -11,4 +11,4 @@ float S_MinimapPlayerLabelFS = 24.0;
 bool S_ShowMinimap = true;
 
 [Setting hidden]
-float S_PBAlertFontSize = 64.0;
+float S_PBAlertFontSize = 82.0;

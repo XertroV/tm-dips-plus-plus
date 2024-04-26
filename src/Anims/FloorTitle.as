@@ -333,7 +333,7 @@ class NvgFillableLinGradCycle : NvgFillableLinGrad {
             if ((isVertical &&
                 (rect.y > activeRect.y + activeRect.w || rect.y + rect.w < activeRect.y)
                 ) || (rect.x + rect.z < activeRect.x || rect.x > activeRect.x + activeRect.z)) continue;
-            PushScissor(rect);
+            PushScissor(activeRect);
             if (isText) {
                 nvg::FillColor(Math::Lerp(colors[i], colors[i + 1], 0.5));
             } else if (isVertical) {
