@@ -33,8 +33,11 @@ namespace HUD {
         }
         float h = S_HudHeight * Minimap::vScale;
         vec2 lineHeightAdj = vec2(0, S_HudHeight * 1.18) * Minimap::vScale;
+
         vec2 fallsPos = pos + lineHeightAdj;
         vec2 pbHeightPos = fallsPos + lineHeightAdj;
+
+        vec2 jumpSpeedPos = fallingPos + lineHeightAdj;
 
         float carYPos = player.pos.y;
         float heightPct = (carYPos - Minimap::mapMinMax.x) / (Minimap::mapMinMax.y - Minimap::mapMinMax.x) * 100;
@@ -53,7 +56,8 @@ namespace HUD {
             absDistFallen = fallTracker.HeightFallenFromFlying();
             fallingHudLabel = "Fell " + Text::Format("%.0f m / ", distFallen) + currFallFloors + (currFallFloors == 1 ? " floor" : " floors");
             float alpha = fallTrackerActive ? 1.0 : 0.5;
-            DrawHudLabel(h, fallingPos, fallingHudLabel, cWhite, nvg::Align::Right | nvg::Align::Top, globalAlpha: alpha);
+            DrawHudLabel(h, fallingPos, fallingHudLabel, cWhite, nvg::Align::Right | nvg::Align::Top, cBlack85, alpha);
+            DrawHudLabel(h, jumpSpeedPos, Text::Format("%.1f km/h", fallTracker.startSpeed), cWhite, nvg::Align::Right | nvg::Align::Top, cBlack85, alpha);
         }
         if (player.isLocal) {
             fallsHudLabel = "Falls: " + (Stats::GetTotalFalls() + fallAdj) + " / Floors: " + (Stats::GetTotalFloorsFallen() + currFallFloors)

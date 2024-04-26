@@ -30,6 +30,8 @@ class FallTracker {
     float currentHeight;
     uint startTime;
     uint endTime;
+    float startSpeed;
+    vec3 startVel;
     // implies player is local
     bool recordStats;
 
@@ -38,6 +40,8 @@ class FallTracker {
         startFloor = HeightToFloor(initHeight);
         startTime = Time::Now;
         recordStats = player.isLocal;
+        startSpeed = player.vel.Length() * 3.6; // m/s to km/h
+        startVel = player.vel;
         this.startFlyingHeight = startFlyingHeight;
         if (recordStats) {
             Stats::LogFallStart();
