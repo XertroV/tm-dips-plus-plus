@@ -279,6 +279,15 @@ class PlayerState {
         }
     }
 
+    FallTracker@ GetFallTracker() {
+        if (fallTracker !is null) return fallTracker;
+        return lastFall;
+    }
+
+    bool HasFallTracker() {
+        return fallTracker !is null || lastFall !is null;
+    }
+
     vec2 lastMinimapPos;
 
     vec3 vel;

@@ -178,6 +178,8 @@ class FloorVLTrigger : PlaySoundTrigger {
     }
 }
 
+const uint TITLE_GAG_DELAY_AFTER_FALLING = 3000;
+
 class TitleGagTrigger : GagVoiceLineTrigger {
     TitleGagTrigger(vec3 &in min, vec3 &in max, const string &in name) {
         super(min, max, name);
@@ -186,7 +188,7 @@ class TitleGagTrigger : GagVoiceLineTrigger {
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
         Dev_Notify(name + " entered.");
         if (NewTitleGagOkay()) {
-            SelectNewTitleGagAnimationAndCollect();
+            startnew(CoroutineFunc(SelectNewTitleGagAnimationAndCollect));
         }
     }
 
@@ -198,8 +200,13 @@ class TitleGagTrigger : GagVoiceLineTrigger {
     protected void SelectNewTitleGagAnimationAndCollect() {
         auto gag = GLOBAL_TITLE_COLLECTION.SelectOneUncollected();
         if (gag !is null) {
-            gag.PlayItem();
             TitleGag::MarkWaiting();
+            // don't play immediately if we're falling
+            if (PS::localPlayer.fallTracker !is null) {
+                while (PS::localPlayer.fallTracker !is null) yield();
+                sleep(TITLE_GAG_DELAY_AFTER_FALLING);
+            }
+            gag.PlayItem();
         } else {
             Notify("No title gags left to select.");
         }
