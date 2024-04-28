@@ -95,11 +95,11 @@ class BetterSocket {
     RawMessage@ ReadMsg() {
         // read msg length
         // read msg data
+        while (Available < 4 && !IsClosed && !ServerDisconnected) yield();
         if (IsClosed || ServerDisconnected) {
             return null;
         }
         // wait for length
-        while (Available < 4) yield();
         uint len = s.ReadUint32();
         if (len > ONE_MEGABYTE) {
             error("Message too large: " + len + " bytes, max: 1 MB");
@@ -121,13 +121,14 @@ class BetterSocket {
 
     void WriteMsg(uint8 msgType, const string &in msgData) {
         if (IsClosed || ServerDisconnected) {
-            dev_trace("WriteMsg: dropping msg b/c socket closed/disconnected");
+            if (msgType != uint8(MessageResponseTypes::Ping))
+                dev_trace("WriteMsg: dropping msg b/c socket closed/disconnected");
             return;
         }
         s.Write(uint(5 + msgData.Length));
         s.Write(msgType);
         s.Write(msgData);
-        dev_trace("WriteMsg: " + uint(5 + msgData.Length) + " bytes");
+        // dev_trace("WriteMsg: " + uint(5 + msgData.Length) + " bytes");
     }
 }
 
@@ -154,15 +155,17 @@ class RawMessage {
             error("Failed to read message data with len: " + readStrLen);
             return;
         }
-        if (IsPing) {
-            @msgJson = null;
-            return;
-        }
         try {
             @msgJson = Json::Parse(msgData);
         } catch {
             error("Failed to parse message json: " + msgData);
             return;
+        }
+        string msgTypeStr = tostring(MessageResponseTypes(msgType));
+        if (!msgJson.HasKey(msgTypeStr)) {
+            error("Message type not found in json: " + msgTypeStr);
+        } else {
+            @msgJson = msgJson[msgTypeStr];
         }
     }
 

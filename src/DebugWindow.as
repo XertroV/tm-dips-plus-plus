@@ -25,6 +25,10 @@ void RenderDebugWindow() {
             DrawMinimapTab();
             UI::EndTabItem();
         }
+        if (UI::BeginTabItem("API Packets")) {
+            DrawAPIPacketsTab();
+            UI::EndTabItem();
+        }
         if (UI::BeginTabItem("Net Packets")) {
             DrawPlayersNetPacketsTab();
             UI::EndTabItem();
@@ -164,6 +168,28 @@ void DrawCurrentStatusesTab() {
         UI::Text(falling[i].playerName + ", " + falling[i].FallYDistance());
     }
     UI::Columns(1);
+}
+
+void DrawAPIPacketsTab() {
+    if (g_api !is null && UI::TreeNode("API Packets")) {
+        uint c;
+        UI::AlignTextToFramePadding();
+        UI::Text("Recv Counts");
+        for (uint i = 0; i < g_api.recvCount.Length; i++) {
+            c = g_api.recvCount[i];
+            if (c == 0) continue;
+            UI::Text("[" + tostring(MessageResponseTypes(i)) + "]: " + c);
+        }
+        UI::AlignTextToFramePadding();
+        UI::Text("Sent Counts");
+        for (uint i = 0; i < g_api.sendCount.Length; i++) {
+            c = g_api.sendCount[i];
+            if (c == 0) continue;
+            UI::Text("[" + tostring(MessageRequestTypes(i)) + "]: " + c);
+        }
+        UI::TreePop();
+    }
+
 }
 
 void DrawPlayersNetPacketsTab() {

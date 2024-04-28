@@ -71,7 +71,7 @@ OutgoingMsg@ ReportGameCamNodMsg() {
 }
 
 OutgoingMsg@ PingMsg() {
-    return OutgoingMsg(uint8(MessageRequestTypes::Ping), Json::Object());
+    return WrapMsgJson(Json::Object(), MessageRequestTypes::Ping);
 }
 
 OutgoingMsg@ ReportVehicleStateMsg(const iso4 &in state, const vec3 &in vel) {
