@@ -46,7 +46,7 @@ namespace Stats {
     void OnLocalPlayerPosUpdate(PlayerState@ player) {
         auto pos = player.pos;
         if (pos.y > pbHeight) {
-            bool lastPbWasAWhileAgo = pbHeight < PB_START_ALERT_LIMIT || Time::Now - lastPbSet > 180 * 1000;
+            bool lastPbWasAWhileAgo = pbHeight < PB_START_ALERT_LIMIT || (Time::Now - lastPbSet > 180 * 1000);
             auto floor = HeightToFloor(pos.y);
             lastPbSet = Time::Now;
             pbFloor = floor;
@@ -105,8 +105,6 @@ namespace Stats {
 
 
 void EmitNewHeightPB(PlayerState@ player) {
+    dev_trace("New PB at " + Stats::pbHeight + " on floor " + Stats::pbFloor);
     EmitStatusAnimation(PersonalBestStatusAnim(player));
 }
-
-
-

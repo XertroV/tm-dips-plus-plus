@@ -53,7 +53,7 @@ class CollectionItem {
     }
 
     // this should collect it at some point
-    void PlayItem() { throw("Not implemented"); }
+    void PlayItem(bool collect = true) { throw("Not implemented"); }
 
     void DrawDebug() { throw("Not implemented"); }
 

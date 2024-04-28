@@ -166,6 +166,10 @@ class PlayerState {
     }
 
     void UpdatePlayerFromRawValues(const vec3 &in vel, const vec3 &in pos, const quat &in rot, bool anyWheelFlying, bool allWheelsFlying, uint newDiscontCount, bool newFrozen) {
+        if (Math::IsNaN(pos.y) || Math::IsInf(pos.y) || Math::Abs(pos.y > 3000.0)) {
+            dev_trace("Player " + playerName + " has NaN/Inf/oob pos.y: " + pos.y);
+            return;
+        }
         this.vel = vel;
         // simplify low velocities
         if (vel.LengthSquared() < 0.0000001) {

@@ -95,11 +95,13 @@ class TitleCollectionItem_Special : TitleCollectionItem {
         this.titleLines = title.Split(": ");
     }
 
-    void PlayItem() override {
+    void PlayItem(bool collect = true) override {
         if (!AudioFilesExist({audioFile}, true)) {
             return;
         }
-        CollectTitleSoon();
+        if (collect) {
+            CollectTitleSoon();
+        }
         if (titleLines.Length == 1) {
             AddTitleScreenAnimation(MainTitleScreenAnim(titleLines[0], AudioChain({audioFile})));
         } else if (titleLines.Length == 2) {
@@ -145,11 +147,13 @@ class TitleCollectionItem_Norm : TitleCollectionItem {
         return DEF_TITLE;
     }
 
-    void PlayItem() override {
+    void PlayItem(bool collect = true) override {
         if (!AudioFilesExist({MainTitlePath, audioFile}, false)) {
             return;
         }
-        CollectTitleSoon();
+        if (collect) {
+            CollectTitleSoon();
+        }
         AddTitleScreenAnimation(MainTitleScreenAnim(MainTitleText, title, AudioChain({MainTitlePath, audioFile})));
     }
 

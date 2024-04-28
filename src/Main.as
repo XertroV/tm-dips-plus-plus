@@ -91,7 +91,7 @@ bool RenderEarlyInner() {
     if (app.CurrentPlayground.GameTerminals.Length == 0) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals[0].ControlledPlayer is null) return Inactive(wasActive);
     if (app.CurrentPlayground.UIConfigs.Length == 0) return Inactive(wasActive);
-    if (app.CurrentPlayground.UIConfigs[0].UISequence != CGamePlaygroundUIConfig::EUISequence::Playing) return Inactive(wasActive);
+    if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
     // ! uncomment this to enable map UID check
     if (!MapMatches(app.RootMap)) return Inactive(wasActive);
     if (!wasActive) EmitGoingActive(true);
@@ -100,6 +100,11 @@ bool RenderEarlyInner() {
     return true;
 }
 
+
+bool GoodUISequence(CGamePlaygroundUIConfig::EUISequence seq) {
+    return seq == CGamePlaygroundUIConfig::EUISequence::Playing
+        || seq == CGamePlaygroundUIConfig::EUISequence::Finish;
+}
 
 
 /** Render function called every frame intended only for menu items in `UI`.

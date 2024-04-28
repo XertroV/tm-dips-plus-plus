@@ -198,15 +198,21 @@ class TitleGagTrigger : GagVoiceLineTrigger {
     }
 
     protected void SelectNewTitleGagAnimationAndCollect() {
-        auto gag = GLOBAL_TITLE_COLLECTION.SelectOneUncollected();
+        CollectionItem@ gag;
+        bool isLocalPlayer = PS::viewedPlayer.isLocal;
+        if (isLocalPlayer) {
+            @gag = GLOBAL_TITLE_COLLECTION.SelectOneUncollected();
+        } else {
+            @gag = GLOBAL_TITLE_COLLECTION.SelectOne();
+        }
         if (gag !is null) {
             TitleGag::MarkWaiting();
             // don't play immediately if we're falling
-            if (PS::localPlayer.fallTracker !is null) {
-                while (PS::localPlayer.fallTracker !is null) yield();
+            if (PS::viewedPlayer.fallTracker !is null) {
+                while (PS::viewedPlayer.fallTracker !is null) yield();
                 sleep(TITLE_GAG_DELAY_AFTER_FALLING);
             }
-            gag.PlayItem();
+            gag.PlayItem(isLocalPlayer);
         } else {
             Notify("No title gags left to select.");
         }
