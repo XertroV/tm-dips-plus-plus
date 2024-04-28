@@ -16,6 +16,7 @@ class PlayerState {
     FallTracker@ fallTracker;
     FallTracker@ lastFall;
     uint lastRespawn;
+    int raceTime;
 
     // changed flags, type: union of UpdatedFlags
     int updatedThisFrame = UpdatedFlags::None;
@@ -56,6 +57,9 @@ class PlayerState {
 
     void Update(CSmPlayer@ player) {
         @this.player = player;
+        if (cast<CSmScriptPlayer>(player.ScriptAPI) !is null) {
+            raceTime = GetRaceTimeFromStartTime(cast<CSmScriptPlayer>(player.ScriptAPI).StartTime);
+        }
         this.isViewed = PS::guiPlayerMwId == playerScoreMwId;
         auto entId = player.GetCurrentEntityID();
         if (entId != lastVehicleId) {
@@ -166,8 +170,8 @@ class PlayerState {
     }
 
     void UpdatePlayerFromRawValues(const vec3 &in vel, const vec3 &in pos, const quat &in rot, bool anyWheelFlying, bool allWheelsFlying, uint newDiscontCount, bool newFrozen) {
-        if (Math::IsNaN(pos.y) || Math::IsInf(pos.y) || Math::Abs(pos.y) > 3000.0) {
-            dev_trace("Player " + playerName + " has NaN/Inf/oob pos.y: " + pos.y);
+        if (Math::IsNaN(pos.y) || Math::IsInf(pos.y) || Math::Abs(pos.y) > 3000.0 || Math::Abs(pos.x) < 1. || Math::Abs(pos.z) < 1.) {
+            dev_trace("Player " + playerName + " has NaN/Inf/oob pos: " + pos.ToString());
             return;
         }
         this.vel = vel;

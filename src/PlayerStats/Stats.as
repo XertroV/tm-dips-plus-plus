@@ -1,3 +1,5 @@
+
+
 namespace Stats {
     uint nbFalls = 0;
     uint nbFloorsFallen = 0;
@@ -11,6 +13,8 @@ namespace Stats {
     uint[] monumentTriggers = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     uint ggsTriggered = 0;
     uint titleGagsTriggered = 0;
+
+    LBEntry@[] globalLB = {};
 
     void LogTriggeredSound(const string &in triggerName, const string &in audioFile) {
         // todo: player stats for triggering stuff
@@ -107,4 +111,14 @@ namespace Stats {
 void EmitNewHeightPB(PlayerState@ player) {
     dev_trace("New PB at " + Stats::pbHeight + " on floor " + Stats::pbFloor);
     EmitStatusAnimation(PersonalBestStatusAnim(player));
+}
+
+
+
+
+
+class LBEntry {
+    string name;
+    float height;
+    uint raceTimeAtHeight;
 }

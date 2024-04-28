@@ -16,3 +16,13 @@ bool IsPauseMenuOpen(bool requireFocused = true) {
 bool PlaygroundExists() {
     return GetApp().CurrentPlayground !is null;
 }
+
+uint GetGameTime() {
+    auto pg = GetApp().Network.PlaygroundInterfaceScriptHandler;
+    if (pg is null) return 0;
+    return pg.GameTime;
+}
+
+int GetRaceTimeFromStartTime(int startTime) {
+    return GetGameTime() - startTime;
+}
