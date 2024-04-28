@@ -12,9 +12,6 @@ class DD2API {
     uint[] sendCount;
 
     DD2API() {
-        while (msgHandlers.Length < 256) {
-            msgHandlers.InsertLast(null);
-        }
         InitMsgHandlers();
         @socket = BetterSocket("127.0.0.1", 17677);
         socket.StartConnect();
