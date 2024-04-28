@@ -56,11 +56,16 @@ class ProgressAnim : Animation {
 
 
 class PersonalBestStatusAnim : ProgressAnim {
-    PlayerState@ player;
+    // PlayerState@ player;
 
-    PersonalBestStatusAnim(PlayerState@ player) {
-        super("PB Status Anim", nat2(0, PB_ANIM_DURATION));
-        @this.player = player;
+    // PersonalBestStatusAnim(PlayerState@ player) {
+    PersonalBestStatusAnim() {
+        super(GetAnimName(), nat2(0, PB_ANIM_DURATION));
+        // @this.player = player;
+    }
+
+    string GetAnimName() const {
+        return "PB Status Anim";
     }
 
     void UpdateInner() override {
@@ -82,6 +87,10 @@ class PersonalBestStatusAnim : ProgressAnim {
     uint nbChars;
     float heightOffset;
 
+    string GetPbText() {
+        return Text::Format("NEW PB %.0f m", Stats::GetPBHeight());
+    }
+
     vec2 Draw() override {
         nvg::Reset();
         nvg::GlobalAlpha(gAlpha);
@@ -101,7 +110,7 @@ class PersonalBestStatusAnim : ProgressAnim {
 
         nvg::BeginPath();
 
-        pbText = Text::Format("NEW PB %.0f m", Stats::GetPBHeight());
+        pbText = GetPbText();
         nbChars = pbText.Length;
         textSize.y = S_PBAlertFontSize * Minimap::vScale;
         charWidth = textSize.y * .8;
@@ -137,5 +146,20 @@ class PersonalBestStatusAnim : ProgressAnim {
         // todo: height offset (sinusoidal)
         nvg::Text(pos + vec2(charWidth * float(currCharIx) - textSize.x / 2. + charWidth / 2., heightOffset), pbText.SubStr(currCharIx, 1));
         // nvg::Text(pos, pbText);
+    }
+}
+
+class RainbowStaticStatusMsg : PersonalBestStatusAnim {
+    string staticMsg;
+    RainbowStaticStatusMsg(const string &in msg) {
+        staticMsg = msg;
+    }
+
+    string GetAnimName() const override {
+        return "Rainbow: " + staticMsg;
+    }
+
+    string GetPbText() override {
+        return staticMsg;
     }
 }

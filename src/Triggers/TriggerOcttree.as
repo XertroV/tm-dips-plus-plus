@@ -69,6 +69,8 @@ class AntiCylinderTrigger : GameTrigger {
 
     bool PointInside(const vec3&in point) override {
         auto xz = vec2(point.x, point.z);
+        // sometimes fals positive where one coord is very close to zero
+        if (xz.x < 1. || xz.y < 1.) return false;
         if ((xz-center).LengthSquared() < radiusSq) return false;
         return point.y >= minMaxHeight.x && point.y <= minMaxHeight.y;
     }
@@ -380,6 +382,11 @@ GameTrigger@[]@ easterEggTriggers = genEasterEggTriggers();
 
 OctTree@ dd2TriggerTree = OctTree();
 
+
+GameTrigger@ f13_dropStart = GameTrigger(vec3(740.000, 1470.000, 964.000), vec3(764.000, 1477.000, 986.000), "F13Drop");
+GameTrigger@ f13_dropEnd   = GameTrigger(vec3(736.000, 1405.000, 929.000), vec3(768.000, 1411.000, 959.000), "F13Land");
+
+
 void InitDD2TriggerTree() {
     for (uint i = 0; i < voiceLineTriggers.Length; i++) {
         dd2TriggerTree.Insert(voiceLineTriggers[i]);
@@ -411,9 +418,12 @@ bool triggerHit = false;
 
 void TriggerCheck_Update() {
     triggerHit = false;
-    if (PS::localPlayer is null) return;
+    auto @player = PS::localPlayer;
+    if (player is null) return;
+    // don't trigger immediately after (re)spawn
+    if (player.lastRespawn + 100 > Time::Now) return;
 
-    auto t = cast<GameTrigger>(dd2TriggerTree.root.PointToDeepestRegion(PS::localPlayer.pos));
+    auto t = cast<GameTrigger>(dd2TriggerTree.root.PointToDeepestRegion(player.pos));
     bool updateCurr = t !is currTriggerHit;
     bool updateLast = t !is null && t !is lastTriggerHit;
     if (updateCurr) {

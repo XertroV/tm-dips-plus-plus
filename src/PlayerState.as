@@ -36,6 +36,7 @@ class PlayerState {
         @minimapLabel = Minimap::PlayerMinimapLabel(this);
         isLocal = playerScoreMwId == g_LocalPlayerMwId;
         startnew(CoroutineFunc(CheckUpdateIsLocal));
+        lastRespawn = Time::Now;
     }
 
     void CheckUpdateIsLocal() {
@@ -266,7 +267,7 @@ class PlayerState {
     }
 
     void AfterUpdate_FallTracker() {
-        if (lastRespawn + 3000 > Time::Now) {
+        if (lastRespawn + 200 > Time::Now) {
             // don't count the slight fall at respawn.
             return;
         }
@@ -274,7 +275,7 @@ class PlayerState {
             if (lastFall !is null && lastFall.endTime + AFTER_FALL_STABLE_AFTER > Time::Now) {
                 @fallTracker = lastFall;
                 @lastFall = null;
-                fallTracker.SetSpeed(this);
+                fallTracker.OnContinueFall(this);
             } else {
                 @fallTracker = FallTracker(pos.y, flyStart.y, this);
                 @lastFall = null;
@@ -282,8 +283,11 @@ class PlayerState {
         } else {
             @lastFall = fallTracker;
             if (fallTracker !is null) {
-                fallTracker.OnEndFall();
+                fallTracker.OnEndFall(this);
                 @fallTracker = null;
+                if (lastFall.ShouldIgnoreFall()) {
+                    @lastFall = null;
+                }
             }
         }
     }

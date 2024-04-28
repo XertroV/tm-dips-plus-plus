@@ -181,7 +181,8 @@ void UpdateStatsWaitLoop() {
 
 void EmitNewHeightPB(PlayerState@ player) {
     dev_trace("New PB at " + Stats::pbHeight + " on floor " + Stats::pbFloor);
-    EmitStatusAnimation(PersonalBestStatusAnim(player));
+    // EmitStatusAnimation(PersonalBestStatusAnim(player));
+    EmitStatusAnimation(PersonalBestStatusAnim());
 }
 
 

@@ -34,6 +34,8 @@ class FallTracker {
     vec3 startVel;
     // implies player is local
     bool recordStats;
+    bool f13DropStartCheck;
+    bool f13DropEndCheck;
 
     FallTracker(float initHeight, float startFlyingHeight, PlayerState@ player) {
         startHeight = initHeight;
@@ -44,7 +46,13 @@ class FallTracker {
         SetSpeed(player);
         if (recordStats) {
             Stats::LogFallStart();
+            f13DropStartCheck = f13_dropStart.PointInside(player.pos);
+            if (f13DropStartCheck) Dev_Notify("F13 drop start check passed");
         }
+    }
+
+    void OnContinueFall(PlayerState@ player) {
+        SetSpeed(player);
     }
 
     void SetSpeed(PlayerState@ p) {
@@ -65,7 +73,14 @@ class FallTracker {
     }
 
     bool IsFallPastMinFall() {
-        return Math::Max(0.0, HeightFallenFromFlying()) >= MIN_FALL_HEIGHT_FOR_STATS;
+        return Math::Max(0.0, HeightFallenFromFlying()) >= MIN_FALL_HEIGHT_FOR_STATS
+            && !(f13DropStartCheck && f13DropEndCheck);
+    }
+
+    // can be removed as a fall immediately
+    bool ShouldIgnoreFall() {
+        return HeightFallenFromFlying() < 4. ||
+            (f13DropStartCheck && f13DropEndCheck);
     }
 
     void Update(float height) {
@@ -92,8 +107,15 @@ class FallTracker {
         return startFlyingHeight - currentHeight;
     }
 
-    void OnEndFall() {
+    void OnEndFall(PlayerState@ player) {
         endTime = Time::Now;
+        if (f13DropStartCheck && !f13DropEndCheck) {
+            f13DropEndCheck = f13_dropEnd.PointInside(player.pos);
+            if (f13DropEndCheck) {
+                Dev_Notify("F13 drop end check passed");
+                EmitStatusAnimation(RainbowStaticStatusMsg("Good Job!"));
+            }
+        }
     }
 
     // inclusive, so more than 1 floor will be true as soon as you hit the next floor, and 0 floors will be true if you're on the same floor

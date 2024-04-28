@@ -111,7 +111,7 @@ class DD2API {
                 SendMsgNow(next);
             }
             queuedMsgs.RemoveRange(0, nbOutgoing);
-            if (nbOutgoing > 0) dev_trace("sent " + nbOutgoing + " messages");
+            // if (nbOutgoing > 0) dev_trace("sent " + nbOutgoing + " messages");
             yield();
         }
     }
@@ -126,7 +126,8 @@ class DD2API {
             sendCount.Resize(msg.type + 1);
         }
         sendCount[msg.type]++;
-        dev_trace("Sent message type: " + tostring(msg.getTy()));
+        if (msg.getTy() != MessageRequestTypes::Ping)
+            dev_trace("Sent message type: " + tostring(msg.getTy()));
     }
 
     protected void LogRecvType(RawMessage@ msg) {
