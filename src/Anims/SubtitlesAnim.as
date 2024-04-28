@@ -339,10 +339,10 @@ class DeepDip2LogoAnim : Animation {
     }
 
     void LoadAudio() {
-        while (!IO::FileExists(Audio_GetPath("lightning.mp3"))) {
+        while (!IO::FileExists(Audio_GetPath("lightning2.mp3"))) {
             yield();
         }
-        @audio = AudioChain({"lightning.mp3"});
+        @audio = AudioChain({"lightning2.mp3"});
     }
 
     void OnEndAnim() override {
@@ -749,5 +749,3 @@ vec2 RandVec2(float min, float max) {
 float EaseOutQuad(float x) {
     return 1. - (1. - x) * (1. - x);
 }
-
-
