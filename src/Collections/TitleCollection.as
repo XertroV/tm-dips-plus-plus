@@ -95,6 +95,10 @@ class TitleCollectionItem_Special : TitleCollectionItem {
         this.titleLines = title.Split(": ");
     }
 
+    void LogCollected() override {
+        Stats::LogTriggeredTitleSpecial(title);
+    }
+
     void PlayItem(bool collect = true) override {
         if (!AudioFilesExist({audioFile}, true)) {
             return;
@@ -157,6 +161,10 @@ class TitleCollectionItem_Norm : TitleCollectionItem {
         AddTitleScreenAnimation(MainTitleScreenAnim(MainTitleText, title, AudioChain({MainTitlePath, audioFile})));
     }
 
+    void LogCollected() override {
+        Stats::LogTriggeredTitle(title);
+    }
+
     void DrawDebug() override {
         UI::AlignTextToFramePadding();
         UI::Text(title);
@@ -177,6 +185,10 @@ class TitleCollectionItem_Norm : TitleCollectionItem {
 class TitleCollectionItem_GeepGip : TitleCollectionItem_Norm {
     TitleCollectionItem_GeepGip(const string &in title, const string &in audio) {
         super(title, audio);
+    }
+
+    void LogCollected() override {
+        Stats::LogTriggeredGG(title);
     }
 
     const string get_MainTitlePath() override {

@@ -294,6 +294,7 @@ class MonumentTrigger : TextOverlayTrigger {
         } else if (subject == MonumentSubject::Jave) {
             textOverlayAnims.InsertLast(Jave_TextOverlayAnim());
         }
+        if (PS::viewedPlayer.isLocal) Stats::LogTriggeredMonuments(subject);
     }
 }
 

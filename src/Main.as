@@ -24,7 +24,10 @@ void LoadFonts() {
 	@f_MonoSpace = UI::LoadFont("DroidSansMono.ttf");
 }
 
+DD2API@ g_api;
+
 void Main() {
+    @g_api = DD2API();
     startnew(LoadFonts);
     startnew(PreloadCriticalSounds);
     g_LocalPlayerMwId = GetLocalPlayerMwId();

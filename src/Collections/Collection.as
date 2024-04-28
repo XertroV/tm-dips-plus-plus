@@ -57,6 +57,9 @@ class CollectionItem {
 
     void DrawDebug() { throw("Not implemented"); }
 
+    // overload me
+    void LogCollected() {}
+
     void CollectSoonAsync(uint64 sleepTime) {
         if (!collected) {
             collectedAt = Time::Stamp;
@@ -108,4 +111,5 @@ class CollectionItem {
 
 void EmitCollected(CollectionItem@ item) {
     print("Collected " + item.name);
+    item.LogCollected();
 }
