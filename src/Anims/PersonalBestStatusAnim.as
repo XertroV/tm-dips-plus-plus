@@ -43,6 +43,11 @@ class ProgressAnim : Animation {
         if (!pauseWhenMenuOpen || !IsPauseMenuOpen()) {
             progressMs += delta;
             t = Math::Clamp(float(progressMs - startTime) / float(endTime - startTime), 0., 1.);
+            gAlpha = progressMs < fadeIn
+                ? float(progressMs) / fadeIn
+                : duration - progressMs <= fadeOut
+                    ? float(duration - progressMs) / fadeOut
+                    : 1.;
             UpdateInner();
         }
         lastUpdate = time;
@@ -69,12 +74,6 @@ class PersonalBestStatusAnim : ProgressAnim {
     }
 
     void UpdateInner() override {
-        // progressMs = 1500;
-        gAlpha = progressMs < fadeIn
-            ? float(progressMs) / fadeIn
-            : duration - progressMs <= fadeOut
-                ? float(duration - progressMs) / fadeOut
-                : 1.;
     }
 
     string pbText;

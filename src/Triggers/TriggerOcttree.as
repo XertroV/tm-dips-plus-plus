@@ -190,6 +190,7 @@ class TitleGagTrigger : GagVoiceLineTrigger {
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
         Dev_Notify(name + " entered.");
         if (NewTitleGagOkay()) {
+            startnew(WaitAndPlayFloorGangFrog);
             startnew(CoroutineFunc(SelectNewTitleGagAnimationAndCollect));
         }
     }
