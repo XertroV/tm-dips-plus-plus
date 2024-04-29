@@ -25,10 +25,11 @@ const vec4 cGoldLight = vec4(1, 0.9, 0.25, 1);
 
 
 // this does not seem to be expensive
-const float nTextStrokeCopies = 16;
+const float nTextStrokeCopies = 12;
 
 vec2 DrawTextWithStroke(const vec2 &in pos, const string &in text, vec4 textColor = vec4(1), float strokeWidth = 2., vec4 strokeColor = cBlack75) {
-    if (strokeWidth > 0.0) {
+    nvg::FontBlur(1.0);
+    if (strokeWidth > 0.1) {
         nvg::FillColor(strokeColor);
         for (float i = 0; i < nTextStrokeCopies; i++) {
             float angle = TAU * float(i) / nTextStrokeCopies;
@@ -36,6 +37,7 @@ vec2 DrawTextWithStroke(const vec2 &in pos, const string &in text, vec4 textColo
             nvg::Text(pos + offs, text);
         }
     }
+    nvg::FontBlur(0.0);
     nvg::FillColor(textColor);
     nvg::Text(pos, text);
     // don't return with +strokeWidth b/c it means we can't turn stroke on/off without causing readjustments in the UI
@@ -43,6 +45,7 @@ vec2 DrawTextWithStroke(const vec2 &in pos, const string &in text, vec4 textColo
 }
 
 vec2 DrawTextWithShadow(const vec2 &in pos, const string &in text, vec4 textColor = vec4(1), float strokeWidth = 2., vec4 strokeColor = vec4(0, 0, 0, 1)) {
+    nvg::FontBlur(1.0);
     if (strokeWidth > 0.0) {
         nvg::FillColor(strokeColor);
         float i = 1;
@@ -50,6 +53,7 @@ vec2 DrawTextWithShadow(const vec2 &in pos, const string &in text, vec4 textColo
         vec2 offs = vec2(Math::Sin(angle), Math::Cos(angle)) * strokeWidth;
         nvg::Text(pos + offs, text);
     }
+    nvg::FontBlur(0.0);
     nvg::FillColor(textColor);
     nvg::Text(pos, text);
     // don't return with +strokeWidth b/c it means we can't turn stroke on/off without causing readjustments in the UI

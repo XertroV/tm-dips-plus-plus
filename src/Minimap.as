@@ -16,12 +16,14 @@ namespace Minimap {
     // mat3 worldXYToUv;
     // mat3 worldXYToScreen;
     float vScale;
+    float widthScaleForRelative;
     uint lastMapMwId;
     vec2 lastScreenSize;
     vec2 mapMinMax = vec2(8, 2000);
     float mapHeightDelta = 2000;
     vec2 mmPadding = vec2(50.0, 150);
     const float stdHeightPx = 1440.0;
+    const float stdWidthPx = 2560.0;
     const float stdTriLableTextOffset = 16.0;
     bool updateMatrices = false;
 
@@ -47,6 +49,7 @@ namespace Minimap {
         if (updateMatrices || lastScreenSize != g_screen) {
             lastScreenSize = g_screen;
             vScale = g_screen.y / stdHeightPx;
+            widthScaleForRelative = Math::Max(g_screen.x / g_screen.y * stdHeightPx / stdWidthPx, 1.0);
             mmPadding = vec2(50.0, 150) * vec2(1.0, vScale);
             minimapSize.y = (stdHeightPx - 2.0 * mmPadding.y) * vScale;
             minimapCenterPos = mmPadding * vScale;

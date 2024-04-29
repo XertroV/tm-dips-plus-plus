@@ -1,6 +1,8 @@
 
 
 namespace Stats {
+    uint secondsSpentInMap = 0;
+    uint nbJumps = 0;
     uint nbFalls = 0;
     uint nbFloorsFallen = 0;
     bool[] floorVoiceLinesPlayed = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
@@ -20,6 +22,7 @@ namespace Stats {
 
     Json::Value@ GetStatsJson() {
         Json::Value@ stats;
+        stats["nb_jumps"] = nbJumps;
         stats["nb_falls"] = nbFalls;
         stats["nb_floors_fallen"] = nbFloorsFallen;
         stats["last_pb_set_ts"] = lastPbSetTs;
@@ -72,6 +75,10 @@ namespace Stats {
     void LogTriggeredMonuments(MonumentSubject subj) {
         monumentTriggers[int(subj)]++;
         UpdateStatsSoon();
+    }
+
+    void LogJumpStart() {
+        nbJumps++;
     }
 
     void LogFallStart() {

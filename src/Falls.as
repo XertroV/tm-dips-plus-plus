@@ -45,6 +45,7 @@ class FallTracker {
         this.startFlyingHeight = startFlyingHeight;
         SetSpeed(player);
         if (recordStats) {
+            Stats::LogJumpStart();
             Stats::LogFallStart();
             f13DropStartCheck = f13_dropStart.PointInside(player.pos);
             if (f13DropStartCheck) Dev_Notify("F13 drop start check passed");

@@ -15,6 +15,9 @@ string GetGameInfo() {
     auto platform = app.SystemPlatform;
     string[] infos;
     infos.InsertLast("ExeVersion:" + platform.ExeVersion);
+    infos.InsertLast("TimeNow:" + Time::Now);
+    infos.InsertLast("TimeSinceInit:" + app.TimeSinceInitMs);
+    infos.InsertLast("TS:" + Time::Stamp);
     infos.InsertLast("Timezone:" + platform.CurrentTimezoneTimeOffset);
     infos.InsertLast("ExtraTool_Info:" + platform.ExtraTool_Info);
     infos.InsertLast("ExtraTool_Data:" + platform.ExtraTool_Data);

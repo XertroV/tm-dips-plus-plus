@@ -61,12 +61,14 @@ OutgoingMsg@ ReportContextMsg() {
     throw("todo: ReportContextMsg");
     auto @j = Json::Object();
     // j["context"] = context;
+    // todo
     return WrapMsgJson(j, MessageRequestTypes::ReportContext);
 }
 
 OutgoingMsg@ ReportGameCamNodMsg() {
     throw("todo: ReportGameCamNodMsg");
     auto @j = Json::Object();
+    // todo
     return WrapMsgJson(j, MessageRequestTypes::ReportGameCamNod);
 }
 

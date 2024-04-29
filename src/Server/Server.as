@@ -1,5 +1,6 @@
 void PushStatsUpdateToServer() {
     auto sj = Stats::GetStatsJson();
+    g_api.QueueMsg(ReportStatsMsg(sj));
 }
 
 
@@ -92,7 +93,7 @@ class DD2API {
 
     protected OutgoingMsg@[] queuedMsgs;
 
-    protected void QueueMsg(OutgoingMsg@ msg) {
+    void QueueMsg(OutgoingMsg@ msg) {
         queuedMsgs.InsertLast(msg);
     }
     protected void QueueMsg(uint8 type, Json::Value@ payload) {

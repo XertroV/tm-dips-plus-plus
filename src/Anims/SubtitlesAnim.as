@@ -314,8 +314,8 @@ class SubtitlesAnim : Animation {
 const float VAE_HEAD_SIZE = 200.0;
 
 
-const uint DD2LOGO_ANIM_WAIT = 35800;
-//const uint DD2LOGO_ANIM_WAIT = 3580;
+const uint DD2LOGO_ANIM_WAIT = 35850;
+// const uint DD2LOGO_ANIM_WAIT = 3580;
 const uint DD2LOGO_ANIM_DURATION = 4000;
 
 const float DD2_LOGO_WIDTH = 1000;
@@ -395,7 +395,7 @@ class DeepDip2LogoAnim : Animation {
     float finalHalfWidth = DD2_LOGO_WIDTH * .5;
 
     float t;
-    float gapWidth = 700;
+    float gapWidth = 777;
     float bgMoveT;
     float bgFlashT;
     float bgColorFadeT;
@@ -415,7 +415,7 @@ class DeepDip2LogoAnim : Animation {
         bool drawBolts = t > 0.0125;
         boltsT = t > 0.0125 ? 1.0 : 0.0;
         boltsExtraFadeT = boltsT * Math::Clamp(1. - (t - 0.0125) / 0.9, 0., 1.);
-        boltsOffset = vec2(gapWidth * bgMoveT, 0);
+        boltsOffset = vec2(gapWidth * Minimap::vScale * Minimap::widthScaleForRelative * bgMoveT, 0);
 
         bgCol = bgColorFadeT <= 0. ? vec4(1, 1, 1, bgFlashT) : Math::Lerp(cWhite, cBlack85, bgColorFadeT);
         boltStrokeWidth = 16.;
@@ -552,9 +552,9 @@ class DeepDip2LogoAnim : Animation {
 
 vec2[] lightningSegments = {
     vec2(0.69, 0),
-    vec2(0.635, 0.3),
-    vec2(0.45, 0.6),
-    vec2(0.35, 1)
+    vec2(0.615, 0.3),
+    vec2(0.43, 0.6),
+    vec2(0.33, 1)
 };
 
 vec2[] boltsExtraPairs  = {};
