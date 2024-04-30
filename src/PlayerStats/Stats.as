@@ -22,6 +22,7 @@ namespace Stats {
 
     Json::Value@ GetStatsJson() {
         Json::Value@ stats;
+        stats["seconds_spent_in_map"] = secondsSpentInMap;
         stats["nb_jumps"] = nbJumps;
         stats["nb_falls"] = nbFalls;
         stats["nb_floors_fallen"] = nbFloorsFallen;

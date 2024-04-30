@@ -12,6 +12,7 @@ enum MessageRequestTypes {
     ReportFallStart = 35,
     ReportFallEnd = 36,
     ReportStats = 37,
+    // ReportMapLoad = 38,
 
     GetMyStats = 128,
     GetGlobalLB = 129,
@@ -46,6 +47,7 @@ OutgoingMsg@ AuthenticateMsg(const string &in token) {
     j["token"] = token;
     j["plugin_info"] = GetPluginInfo();
     j["game_info"] = GetGameInfo();
+    j["gamer_info"] = GetGameRunningInfo();
     return WrapMsgJson(j, MessageRequestTypes::Authenticate);
 }
 
@@ -54,6 +56,7 @@ OutgoingMsg@ ResumeSessionMsg(const string &in session_token) {
     j["session_token"] = session_token;
     j["plugin_info"] = GetPluginInfo();
     j["game_info"] = GetGameInfo();
+    j["gamer_info"] = GetGameRunningInfo();
     return WrapMsgJson(j, MessageRequestTypes::ResumeSession);
 }
 
@@ -83,19 +86,23 @@ OutgoingMsg@ ReportVehicleStateMsg(const iso4 &in state, const vec3 &in vel) {
     return WrapMsgJson(j, MessageRequestTypes::ReportVehicleState);
 }
 
-OutgoingMsg@ ReportRespawnMsg() {
-    return WrapMsgJson(Json::Object(), MessageRequestTypes::ReportRespawn);
+OutgoingMsg@ ReportRespawnMsg(uint raceTime) {
+    auto @j = Json::Object();
+    j["race_time"] = raceTime;
+    return WrapMsgJson(j, MessageRequestTypes::ReportRespawn);
 }
 
-OutgoingMsg@ ReportFinishMsg() {
-    return WrapMsgJson(Json::Object(), MessageRequestTypes::ReportFinish);
+OutgoingMsg@ ReportFinishMsg(uint raceTime) {
+    auto @j = Json::Object();
+    j["race_time"] = raceTime;
+    return WrapMsgJson(j, MessageRequestTypes::ReportFinish);
 }
 
 OutgoingMsg@ ReportFallStartMsg(uint8 floor, vec3 pos, vec3 vel, uint startTime) {
     auto @j = Json::Object();
     j["floor"] = floor;
     j["pos"] = Vec3ToJson(pos);
-    j["vel"] = Vec3ToJson(vel);
+    j["speed"] = vel.Length() * 3.6;
     j["start_time"] = startTime;
     return WrapMsgJson(j, MessageRequestTypes::ReportFallStart);
 }
@@ -114,12 +121,20 @@ OutgoingMsg@ ReportStatsMsg(Json::Value@ statsJson) {
     return WrapMsgJson(j, MessageRequestTypes::ReportStats);
 }
 
+// OutgoingMsg@ ReportMapLoad(const string &in uid) {
+//     auto @j = Json::Object();
+//     j["uid"] = uid;
+//     return WrapMsgJson(j, MessageRequestTypes::ReportMapLoad);
+// }
+
 OutgoingMsg@ GetMyStatsMsg() {
-    return OutgoingMsg(uint8(MessageRequestTypes::GetMyStats), Json::Object());
+    return WrapMsgJson(Json::Object(), MessageRequestTypes::GetMyStats);
+    // return OutgoingMsg(uint8(MessageRequestTypes::GetMyStats), Json::Object());
 }
 
 OutgoingMsg@ GetGlobalLBMsg() {
-    return OutgoingMsg(uint8(MessageRequestTypes::GetGlobalLB), Json::Object());
+    return WrapMsgJson(Json::Object(), MessageRequestTypes::GetGlobalLB);
+    // return OutgoingMsg(uint8(MessageRequestTypes::GetGlobalLB), Json::Object());
 }
 
 // takes WSIDs

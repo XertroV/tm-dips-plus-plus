@@ -1,7 +1,10 @@
 const string PLUGIN_NAME = Meta::ExecutingPlugin().Name;
-string MENU_LABEL = "                                ##"+PLUGIN_NAME;
+string MENU_LABEL = "                                ##"+PLUGIN_NAME; //
 
 void DrawPluginMenuItem(bool short = false) {
+    // if (dips_pp_logo_horiz_vsm !is null) {
+    //     UI::SetNextItemWidth(dips_pp_logo_horiz_vsm_dims.x);
+    // }
     if (UI::BeginMenu(MENU_LABEL, true)) {
         // DrawPluginMenuLabel();
         UI::Separator();

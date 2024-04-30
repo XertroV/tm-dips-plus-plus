@@ -38,6 +38,7 @@ class DD2API {
         while (socket.IsConnecting) yield();
         AuthenticateWithServer();
         if (socket.IsClosed || socket.ServerDisconnected) {
+            // sessionToken = "";
             warn("Failed to connect to DD2API server.");
             warn("Waiting 10s and trying again.");
             sleep(10000);

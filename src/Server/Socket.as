@@ -65,11 +65,7 @@ class BetterSocket {
             return s.CanRead() && s.Available() <= 0;
         }
         hasWaitingAvailable = _avail > 0 && _canRead;
-        // CanRead returns true twice for same availability only when server disconnects.
-        if (s.CanRead() && _avail == s.Available()) {
-            hasWaitingAvailable = false;
-            return true;
-        }
+        // don't return true if we still have data to read
         return false;
     }
 
