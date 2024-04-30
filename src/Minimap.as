@@ -48,11 +48,14 @@ namespace Minimap {
 
         if (updateMatrices || lastScreenSize != g_screen) {
             lastScreenSize = g_screen;
-            vScale = g_screen.y / stdHeightPx;
-            widthScaleForRelative = Math::Max(g_screen.x / g_screen.y * stdHeightPx / stdWidthPx, 1.0);
-            mmPadding = vec2(50.0, 150) * vec2(1.0, vScale);
-            minimapSize.y = (stdHeightPx - 2.0 * mmPadding.y) * vScale;
+            if (g_screen.y > 1.0) {
+                vScale = g_screen.y / stdHeightPx;
+                widthScaleForRelative = Math::Max(g_screen.x / g_screen.y * stdHeightPx / stdWidthPx, 1.0);
+            }
+            mmPadding = vec2(50.0, 150);
+            minimapSize.y = (stdHeightPx - mmPadding.y * 2.) * vScale;
             minimapCenterPos = mmPadding * vScale;
+            mmPadding *= vScale;
             minimapPad = minimapSize.x / 2.0;
             minimapOuterPos = minimapCenterPos - minimapPad;
             minimapOuterSize = minimapSize + vec2(0, minimapSize.x);

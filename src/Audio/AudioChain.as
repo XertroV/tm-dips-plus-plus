@@ -82,7 +82,7 @@ class AudioChain {
             if (IsPauseMenuOpen() && voice !is null) {
                 voice.Pause();
                 while (IsPauseMenuOpen()) yield();
-                voice.Play();
+                if (voice !is null) voice.Play();
             }
             if (voice is null && startFadeOut == 0) {
                 if (queued.Length > 0) {

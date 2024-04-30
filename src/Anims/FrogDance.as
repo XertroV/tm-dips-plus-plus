@@ -1,5 +1,4 @@
 const uint FD_FRAMES = 6;
-nvg::Texture@ frogdance_tex;
 const uint FD_DURATION = 3600;
 
 [Setting hidden]

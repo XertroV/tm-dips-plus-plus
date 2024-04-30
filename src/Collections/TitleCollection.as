@@ -108,8 +108,8 @@ class TitleCollectionItem_Special : TitleCollectionItem {
         }
         if (titleLines.Length == 1) {
             AddTitleScreenAnimation(MainTitleScreenAnim(titleLines[0], AudioChain({audioFile})));
-        } else if (titleLines.Length == 2) {
-            AddTitleScreenAnimation(MainTitleScreenAnim(titleLines[0], titleLines[1], AudioChain({audioFile})));
+        } else if (titleLines.Length >= 2) {
+            AddTitleScreenAnimation(MainTitleScreenAnim(titleLines[0], titleLines[1], AudioChain({audioFile}), 0.0));
         } else {
             throw('cant deal with more than 2 title lines');
         }
@@ -153,6 +153,9 @@ class TitleCollectionItem_Norm : TitleCollectionItem {
 
     void PlayItem(bool collect = true) override {
         if (!AudioFilesExist({MainTitlePath, audioFile}, false)) {
+            return;
+        }
+        if (IsTitleGagPlaying()) {
             return;
         }
         if (collect) {

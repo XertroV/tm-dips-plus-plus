@@ -13,6 +13,10 @@ bool IsPauseMenuOpen(bool requireFocused = true) {
     return psapi.IsInGameMenuDisplayed;
 }
 
+bool IsImguiHovered() {
+    return int(GetApp().InputPort.MouseVisibility) == 2;
+}
+
 bool PlaygroundExists() {
     return GetApp().CurrentPlayground !is null;
 }

@@ -95,6 +95,25 @@ void RefreshAssets() {
     AddArbitraryAssetDownload("img/Deep_dip_2_logo.png");
     AddArbitraryAssetDownload("img/vae_square.png");
     AddArbitraryAssetDownload("img/vae.png");
+    AddArbitraryAssetDownload("img/vae.png");
+    AddArbitraryAssetDownload("img/floor0.jpg");
+    AddArbitraryAssetDownload("img/floor1.jpg");
+    AddArbitraryAssetDownload("img/floor2.jpg");
+    AddArbitraryAssetDownload("img/floor3.jpg");
+    AddArbitraryAssetDownload("img/floor4.jpg");
+    AddArbitraryAssetDownload("img/floor5.jpg");
+    AddArbitraryAssetDownload("img/floor6.jpg");
+    AddArbitraryAssetDownload("img/floor7.jpg");
+    AddArbitraryAssetDownload("img/floor8.jpg");
+    AddArbitraryAssetDownload("img/floor9.jpg");
+    AddArbitraryAssetDownload("img/floor10.jpg");
+    AddArbitraryAssetDownload("img/floor11.jpg");
+    AddArbitraryAssetDownload("img/floor12.jpg");
+    AddArbitraryAssetDownload("img/floor13.jpg");
+    AddArbitraryAssetDownload("img/floor14.jpg");
+    AddArbitraryAssetDownload("img/floor15.jpg");
+    AddArbitraryAssetDownload("img/floor16.jpg");
+    AddArbitraryAssetDownload("img/finish.jpg");
     // AddArbitraryAssetDownload("img/dd2-c3.png");
     // AddArbitraryAssetDownload("img/dd2-c2.png");
 }
@@ -116,7 +135,7 @@ string[] GetAudioAssetsRepositoryFiles() {
     } else {
         NotifyWarning("Failed to get audio assets index");
         NotifyWarning("Response code: " + req.ResponseCode());
-        auto body = req.String();
+        auto body = req.String().SubStr(0, 100);
         NotifyWarning("Response body: " + body);
         throw("Failed to get audio assets index");
     }
@@ -177,7 +196,7 @@ class AssetDownload {
         } else {
             NotifyWarning("Failed to download " + this.url);
             NotifyWarning("Response code: " + req.ResponseCode());
-            auto body = req.String();
+            auto body = req.String().SubStr(0, 100);
             NotifyWarning("Response body: " + body);
             DownloadProgress::Error("Failed to download " + this.url);
         }

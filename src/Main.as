@@ -29,9 +29,11 @@ DD2API@ g_api;
 void Main() {
     @g_api = DD2API();
     startnew(LoadFonts);
+    startnew(LoadGlobalTextures);
     startnew(PreloadCriticalSounds);
     g_LocalPlayerMwId = GetLocalPlayerMwId();
     startnew(AwaitLocalPlayerMwId);
+    startnew(RNGExtraLoop);
     // GenerateHeightStrings();
     InitDD2TriggerTree();
     sleep(500);
@@ -52,6 +54,22 @@ void _Unload() {
 }
 
 
+vec2 g_MousePos;
+void OnMouseMove(int x, int y) {
+    g_MousePos = vec2(x, y);
+}
+
+UI::InputBlocking OnMouseButton(bool down, int button, int x, int y) {
+    if (down) {
+        bool lmb = button == 0;
+        if (lmb) {
+            if (DipsPPSettings::TestClick()) {
+                return UI::InputBlocking::Block;
+            }
+        }
+    }
+    return UI::InputBlocking::DoNothing;
+}
 
 
 bool g_Active = false;
@@ -68,6 +86,11 @@ void RenderEarly() {
     }
 }
 
+void RenderMenuMain() {
+    if (!g_Active) return;
+    DrawPluginMenuItem(true);
+}
+
 void Render() {
     DownloadProgress::Draw();
     // dev mode => render in menus
@@ -77,6 +100,7 @@ void Render() {
         RenderTextOveralys();
         RenderSubtitles();
         Minimap::Render();
+        DipsPPSettings::RenderButton();
     }
     if (g_Active || DEV_MODE) {
         RenderTitleScreenAnims();
@@ -94,7 +118,7 @@ bool RenderEarlyInner() {
     if (app.CurrentPlayground.GameTerminals.Length == 0) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals[0].ControlledPlayer is null) return Inactive(wasActive);
     if (app.CurrentPlayground.UIConfigs.Length == 0) return Inactive(wasActive);
-    if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
+    // if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
     // ! uncomment this to enable map UID check
     if (!MapMatches(app.RootMap)) return Inactive(wasActive);
     if (!wasActive) EmitGoingActive(true);
@@ -110,9 +134,8 @@ bool GoodUISequence(CGamePlaygroundUIConfig::EUISequence seq) {
 }
 
 
-/** Render function called every frame intended only for menu items in `UI`.
-*/
 void RenderMenu() {
+    DrawPluginMenuItem();
     if (UI::MenuItem(PluginName + ": Show Falls On Left Side", "", g_ShowFalls)) {
         g_ShowFalls = !g_ShowFalls;
         S_ShowMinimap = g_ShowFalls;
@@ -138,7 +161,6 @@ void RenderMenu() {
 
 [Setting hidden]
 bool g_ShowFalls = true;
-
 
 
 
@@ -378,5 +400,16 @@ void AddSimpleTooltip(const string &in msg) {
         UI::BeginTooltip();
         UI::TextWrapped(msg);
         UI::EndTooltip();
+    }
+}
+
+
+
+
+void RNGExtraLoop() {
+    float r;
+    while (true) {
+        r = Math::Rand(0.0, 1.0);
+        sleep(Time::Now % 1000 + 500 * r);
     }
 }

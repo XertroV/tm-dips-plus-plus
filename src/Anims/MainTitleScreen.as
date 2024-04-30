@@ -3,15 +3,17 @@ uint debug_srcNonce = 0;
 class MainTitleScreenAnim : FloorTitleGeneric {
     string secLine;
     AudioChain@ audio;
+    float reduceMainTimeBy;
 
     bool started = false;
 
-    MainTitleScreenAnim(const string &in titleName, const string &in secLine, AudioChain@ audioArg) {
+    MainTitleScreenAnim(const string &in titleName, const string &in secLine, AudioChain@ audioArg, float reduceMainTimeBy = 0.8) {
         auto ps = GetPosSize();
         super(titleName, ps.xy, ps.zw);
         this.secLine = secLine;
         @this.audio = audioArg;
-        trace("Created main title anim: " + titleName);
+        dev_trace("Created main title anim: " + titleName + " / " + secLine);
+        this.reduceMainTimeBy = reduceMainTimeBy;
         startnew(CoroutineFunc(this.SetStageTimesFromAudio));
     }
 
@@ -26,6 +28,9 @@ class MainTitleScreenAnim : FloorTitleGeneric {
 
     ~MainTitleScreenAnim() {
         trace('destroying MainTitleScreenAnim: ' + titleName + " / " + secLine);
+        if (audio !is null) {
+            audio.StartFadeOutLoop();
+        }
     }
 
     // only used with secondary lines
@@ -34,7 +39,7 @@ class MainTitleScreenAnim : FloorTitleGeneric {
         if (this.audio !is null) {
             trace('set stage time');
             while (this.audio.IsLoading) yield();
-            this.SetStageTime(MainTextStageIx, this.audio.totalDuration - 0.8);
+            this.SetStageTime(MainTextStageIx, this.audio.totalDuration - reduceMainTimeBy);
         }
     }
 
