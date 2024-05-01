@@ -2,7 +2,7 @@ enum MessageRequestTypes {
     Authenticate = 1,
     ResumeSession = 2,
     ReportContext = 3,
-    ReportGameCamNod = 4,
+    ReportGCNodMsg = 4,
 
     Ping = 8,
 
@@ -60,28 +60,34 @@ OutgoingMsg@ ResumeSessionMsg(const string &in session_token) {
     return WrapMsgJson(j, MessageRequestTypes::ResumeSession);
 }
 
-OutgoingMsg@ ReportContextMsg() {
-    throw("todo: ReportContextMsg");
+OutgoingMsg@ ReportContextMsg(uint64 sf, uint64 mi, nat2 bi, bool relevant) {
     auto @j = Json::Object();
-    // j["context"] = context;
-    // todo
+    j["sf"] = Text::FormatPointer(sf);
+    j["mi"] = Text::FormatPointer(mi);
+    j["map"] = Map::GetMapInfo(relevant);
+    yield();
+    j["i"] = Map::I();
+    j["bi"] = Nat2ToJson(bi);
     return WrapMsgJson(j, MessageRequestTypes::ReportContext);
 }
 
-OutgoingMsg@ ReportGameCamNodMsg() {
-    throw("todo: ReportGameCamNodMsg");
+OutgoingMsg@ ReportGCNodMsg(const string &in gcBase64) {
     auto @j = Json::Object();
-    // todo
-    return WrapMsgJson(j, MessageRequestTypes::ReportGameCamNod);
+    j["data"] = gcBase64;
+    return WrapMsgJson(j, MessageRequestTypes::ReportGCNodMsg);
 }
 
 OutgoingMsg@ PingMsg() {
     return WrapMsgJson(Json::Object(), MessageRequestTypes::Ping);
 }
 
-OutgoingMsg@ ReportVehicleStateMsg(const iso4 &in state, const vec3 &in vel) {
+OutgoingMsg@ ReportVehicleStateMsg(PlayerState@ p) {
+    return ReportVehicleStateMsg(p.pos, p.rot, p.vel);
+}
+OutgoingMsg@ ReportVehicleStateMsg(const vec3 &in pos, const quat &in rotq, const vec3 &in vel) {
     auto @j = Json::Object();
-    j["state"] = Iso4ToJson(state);
+    j["pos"] = Vec3ToJson(pos);
+    j["rotq"] = QuatToJson(rotq);
     j["vel"] = Vec3ToJson(vel);
     return WrapMsgJson(j, MessageRequestTypes::ReportVehicleState);
 }

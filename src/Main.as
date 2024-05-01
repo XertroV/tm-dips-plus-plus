@@ -27,21 +27,41 @@ void LoadFonts() {
 DD2API@ g_api;
 
 void Main() {
-    @g_api = DD2API();
+    auto GameVer = GetApp().SystemPlatform.ExeVersion;
+    if ("2024-04-19_14_47" < "2024-03-19_14_47") {
+        throw("oops");
+    }
+    if (GameVer > "2024-03-19_14_47") {
+        NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
+        NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
+        NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
+        NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
+        startnew(UnloadSelfSoon);
+        return;
+    }
     startnew(LoadFonts);
     startnew(LoadGlobalTextures);
     startnew(PreloadCriticalSounds);
     g_LocalPlayerMwId = GetLocalPlayerMwId();
     startnew(AwaitLocalPlayerMwId);
     startnew(RNGExtraLoop);
+    startnew(MainMenuBg::OnPluginLoad);
     // GenerateHeightStrings();
     InitDD2TriggerTree();
-    sleep(500);
-    // auto size = vec2(400, 100);
-    // auto pos = vec2((Draw::GetWidth() - size.x) / 2.0, 200);
-    // titleScreenAnimations.InsertLast(FloorTitleGeneric("Floor 00 - SparklingW", pos, size));
+    yield();
+    startnew(SF::LoadPtrs);
+    sleep(200);
+    @g_api = DD2API();
+    sleep(300);
     startnew(RefreshAssets);
 }
+
+void UnloadSelfSoon() {
+    sleep(3000);
+    auto self = Meta::ExecutingPlugin();
+    Meta::UnloadPlugin(self);
+}
+
 //remove any hooks
 void OnDestroyed() { _Unload(); }
 void OnDisabled() { _Unload(); }
@@ -51,6 +71,7 @@ void _Unload() {
         @textOverlayAudio = null;
     }
     ClearAnimations();
+    MainMenuBg::Unload();
 }
 
 
@@ -118,9 +139,13 @@ bool RenderEarlyInner() {
     if (app.CurrentPlayground.GameTerminals.Length == 0) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals[0].ControlledPlayer is null) return Inactive(wasActive);
     if (app.CurrentPlayground.UIConfigs.Length == 0) return Inactive(wasActive);
+#if DEV
+#else
+    if (app.Editor is null) return Inactive(wasActive);
+#endif
     // if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
     // ! uncomment this to enable map UID check
-    if (!MapMatches(app.RootMap)) return Inactive(wasActive);
+    if (!MapMatchesDD2Uid(app.RootMap)) return Inactive(wasActive);
     if (!wasActive) EmitGoingActive(true);
     g_Active = true;
     PS::UpdatePlayers();
@@ -146,17 +171,17 @@ void RenderMenu() {
     if (UI::MenuItem(PluginName + ": Show Minimap", "", S_ShowMinimap)) {
         S_ShowMinimap = !S_ShowMinimap;
     }
-    if (UI::MenuItem(PluginName + ": Activate for this map")) {
-        auto map = GetApp().RootMap;
-        if (map is null) {
-            NotifyError("No map found");
-        } else {
-            S_ActiveForMapUids = map.EdChallengeId;
-        }
-    }
-    if (UI::MenuItem(PluginName + ": Deactivate for this map")) {
-        S_ActiveForMapUids = "";
-    }
+    // if (UI::MenuItem(PluginName + ": Activate for this map")) {
+    //     auto map = GetApp().RootMap;
+    //     if (map is null) {
+    //         NotifyError("No map found");
+    //     } else {
+    //         S_ActiveForMapUids = map.EdChallengeId;
+    //     }
+    // }
+    // if (UI::MenuItem(PluginName + ": Deactivate for this map")) {
+    //     S_ActiveForMapUids = "";
+    // }
 }
 
 [Setting hidden]

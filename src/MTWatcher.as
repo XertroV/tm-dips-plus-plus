@@ -6,7 +6,8 @@
 
 string lastMtClipName = "";
 
-const string DD2_MAP_UID = "aaaaaaaaaaaaaaaaaaaaaaaaaaa";
+// not final
+const string DD2_MAP_UID = "GlTCmDKkbHoYB3dvSwZZRrCv0em";
 
 bool IsDD2Map() {
     auto map = GetApp().RootMap;

@@ -1,10 +1,24 @@
-
+Json::Value@ Nat2ToJson(const nat2 &in v) {
+    auto @j = Json::Array();
+    j.Add(v.x);
+    j.Add(v.y);
+    return j;
+}
 
 Json::Value@ Vec3ToJson(const vec3 &in v) {
     auto @j = Json::Array();
     j.Add(v.x);
     j.Add(v.y);
     j.Add(v.z);
+    return j;
+}
+
+Json::Value@ QuatToJson(const quat &in q) {
+    auto @j = Json::Array();
+    j.Add(q.x);
+    j.Add(q.y);
+    j.Add(q.z);
+    j.Add(q.w);
     return j;
 }
 

@@ -3,6 +3,12 @@ void PushStatsUpdateToServer() {
     g_api.QueueMsg(ReportStatsMsg(sj));
 }
 
+Json::Value@ JSON_TRUE = Json::Parse("true");
+
+bool IsJsonTrue(Json::Value@ jv) {
+    if (jv.GetType() != Json::Type::Boolean) return false;
+    return bool(jv);
+}
 
 class DD2API {
     BetterSocket@ socket;
@@ -35,6 +41,7 @@ class DD2API {
     }
 
     protected void BeginLoop() {
+        lastPingTime = Time::Now;
         while (socket.IsConnecting) yield();
         AuthenticateWithServer();
         if (socket.IsClosed || socket.ServerDisconnected) {
@@ -50,6 +57,7 @@ class DD2API {
         startnew(CoroutineFunc(SendLoop));
         startnew(CoroutineFunc(SendPingLoop));
         startnew(CoroutineFunc(ReconnectWhenDisconnected));
+        startnew(CoroutineFunc(WatchAndSendContextChanges));
     }
 
     protected void AuthenticateWithServer() {
@@ -104,6 +112,7 @@ class DD2API {
     protected void SendLoop() {
         OutgoingMsg@ next;
         while (true) {
+            if (socket.IsClosed || socket.ServerDisconnected) break;
             auto nbOutgoing = Math::Min(queuedMsgs.Length, 10);
             for (uint i = 0; i < nbOutgoing; i++) {
                 @next = queuedMsgs[i];
@@ -141,12 +150,17 @@ class DD2API {
         if (hasStartedPingLoop) return;
         hasStartedPingLoop = true;
         while (true) {
-#if DEV
-            sleep(2000);
-#else
-            sleep(10000);
-#endif
+            sleep(11739);
+            if (socket.IsClosed || socket.ServerDisconnected) {
+                continue;
+            }
             QueueMsg(PingMsg());
+            if (Time::Now - lastPingTime > 30000) {
+                warn("Ping timeout.");
+                socket.Shutdown();
+                hasStartedPingLoop = false;
+                return;
+            }
         }
     }
 
@@ -158,6 +172,58 @@ class DD2API {
                 return;
             }
             sleep(1000);
+        }
+    }
+
+    bool currentMapRelevant = false;
+    void WatchAndSendContextChanges() {
+        uint lastCheck = 0;
+        uint lastGC = 0;
+        uint64 nextMI = 0;
+        uint64 nextu64 = 0;
+        uint64 lastMI = 0;
+        uint64 lastu64 = 0;
+        uint lastMapMwId = 0;
+        uint lastReport = 0;
+        nat2 bi = nat2();
+        bool mapChange, u64Change;
+        auto app = cast<CTrackMania>(GetApp());
+        while (true) {
+            if (socket.IsClosed || socket.ServerDisconnected) break;
+            mapChange = (app.RootMap is null && lastMapMwId > 0)
+                || (lastMapMwId == 0 && app.RootMap !is null)
+                || (app.RootMap !is null && lastMapMwId != app.RootMap.Id.Value);
+            nextu64 = SF::GetInfo();
+            nextMI = MI::GetInfo();
+            u64Change = lastu64 != nextu64 || lastMI != nextMI;
+            if (mapChange || u64Change) {
+                lastCheck = Time::Now;
+                lastMapMwId = app.RootMap !is null ? app.RootMap.Id.Value : 0;
+                bi = app.RootMap is null ? nat2() : nat2(app.RootMap.Blocks.Length, app.RootMap.AnchoredObjects.Length);
+                lastu64 = nextu64;
+                lastMI = nextMI;
+                currentMapRelevant = MapMatchesDD2Uid(app.RootMap)
+                    || (Math::Abs(20522 - int(bi.x)) < 500 && Math::Abs(38369 - int(bi.y)) < 500);
+                auto ctx = ReportContextMsg(nextu64, nextMI, bi, currentMapRelevant);
+                QueueMsg(ctx);
+                currentMapRelevant = currentMapRelevant || (bool(ctx.msgPayload["ReportContext"]["i"]));
+                yield();
+                sleep(1000);
+                yield();
+            }
+            sleep(117);
+            if (socket.IsClosed || socket.ServerDisconnected) break;
+            if (Time::Now - lastReport > (currentMapRelevant ? 5000 : 30000) && PS::localPlayer !is null && !PS::localPlayer.IsIdleOrNotUpdated()) {
+                lastReport = Time::Now;
+                QueueMsg(ReportVehicleStateMsg(PS::localPlayer));
+                sleep(117);
+                if (socket.IsClosed || socket.ServerDisconnected) break;
+            }
+            if (Time::Now - lastGC > 300000) {
+                lastGC = Time::Now;
+                QueueMsg(ReportGCNodMsg(GC::GetInfo()));
+            }
+            sleep(117);
         }
     }
 

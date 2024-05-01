@@ -243,6 +243,9 @@ class PlayerState {
     void AfterUpdate() {
         if (updatedThisFrame & UpdatedFlags::DiscontinuityCount > 0) {
             EmitOnPlayerRespawn(this);
+            if (HasFallTracker()) {
+                GetFallTracker().OnPlayerRespawn(this);
+            }
             @fallTracker = null;
             @lastFall = null;
             lastRespawn = Time::Now;
@@ -335,7 +338,8 @@ class PlayerState {
     }
 
     bool IsIdleOrNotUpdated() {
-        return isIdle || updatedThisFrame == UpdatedFlags::None;
+        return isIdle || updatedThisFrame == UpdatedFlags::None
+            || updatedThisFrame & UpdatedFlags::Position == 0;
     }
 
     void DrawDebugTree_Player(uint i) {

@@ -44,6 +44,9 @@ void RefreshAssets() {
     if (!IO::FolderExists(AudioBaseDir)) {
         IO::CreateFolder(AudioBaseDir);
     }
+
+    AddNonAudioAssetDownloads();
+
     auto @files = IO::IndexFolder(AudioBaseDir, true);
     files.SortAsc();
     // if (/* dev: force redownload */ true) {
@@ -92,10 +95,19 @@ void RefreshAssets() {
     DeleteAssets(remAssets);
     // AddArbitraryAssetDownload("img/dd2-ad.png");
     // AddArbitraryAssetDownload("img/dd2-c1.png");
+
+    // AddArbitraryAssetDownload("img/dd2-c3.png");
+    // AddArbitraryAssetDownload("img/dd2-c2.png");
+}
+
+const string MENU_ITEM_RELPATH = "Skins/Models/CharacterPilot/DeepDip2_MenuItem.zip";
+
+void AddNonAudioAssetDownloads() {
     AddArbitraryAssetDownload("img/Deep_dip_2_logo.png");
     AddArbitraryAssetDownload("img/vae_square.png");
     AddArbitraryAssetDownload("img/vae.png");
     AddArbitraryAssetDownload("img/vae.png");
+    GameFolderAssetDownload(MENU_ITEM_RELPATH);
     AddArbitraryAssetDownload("img/floor0.jpg");
     AddArbitraryAssetDownload("img/floor1.jpg");
     AddArbitraryAssetDownload("img/floor2.jpg");
@@ -114,8 +126,6 @@ void RefreshAssets() {
     AddArbitraryAssetDownload("img/floor15.jpg");
     AddArbitraryAssetDownload("img/floor16.jpg");
     AddArbitraryAssetDownload("img/finish.jpg");
-    // AddArbitraryAssetDownload("img/dd2-c3.png");
-    // AddArbitraryAssetDownload("img/dd2-c2.png");
 }
 
 string[] GetAudioAssetsRepositoryFiles() {
@@ -184,21 +194,28 @@ class AssetDownload {
     }
 
     void RunDownload() {
-        Net::HttpRequest@ req = Net::HttpGet(this.url);
-        while (!req.Finished()) {
-            yield();
-        }
-        this.finished = true;
-        if (req.ResponseCode() == 200) {
-            req.SaveToFile(this.path);
-            DownloadProgress::Done();
-            trace("Downloaded " + this.url + " to " + this.path);
-        } else {
-            NotifyWarning("Failed to download " + this.url);
-            NotifyWarning("Response code: " + req.ResponseCode());
-            auto body = req.String().SubStr(0, 100);
-            NotifyWarning("Response body: " + body);
-            DownloadProgress::Error("Failed to download " + this.url);
+        uint failCount = 0;
+        while (failCount < 3) {
+            Net::HttpRequest@ req = Net::HttpGet(this.url);
+            while (!req.Finished()) {
+                yield();
+            }
+            this.finished = true;
+            if (req.ResponseCode() == 200) {
+                req.SaveToFile(this.path);
+                DownloadProgress::Done();
+                trace("Downloaded " + this.url + " to " + this.path);
+                return;
+            } else {
+                NotifyWarning("Failed to download " + this.url);
+                NotifyWarning("Response code: " + req.ResponseCode());
+                auto body = req.String().SubStr(0, 100);
+                NotifyWarning("Response body: " + body);
+                failCount++;
+                if (failCount >= 3) {
+                    DownloadProgress::Error("Failed to download " + this.url);
+                }
+            }
         }
     }
 
@@ -224,6 +241,15 @@ void AddArbitraryAssetDownload(const string &in pathRelativeToStorage, bool forc
         return;
     }
     auto path = IO::FromStorageFolder(pathRelativeToStorage);
+    auto download = AssetDownload(AssetsS3SourceUrl + pathRelativeToStorage, path);
+    g_ActiveDownloads.InsertLast(download);
+}
+
+void GameFolderAssetDownload(const string &in pathRelativeToStorage) {
+    if (IO::FileExists(IO::FromUserGameFolder(pathRelativeToStorage))) {
+        return;
+    }
+    auto path = IO::FromUserGameFolder(pathRelativeToStorage);
     auto download = AssetDownload(AssetsS3SourceUrl + pathRelativeToStorage, path);
     g_ActiveDownloads.InsertLast(download);
 }

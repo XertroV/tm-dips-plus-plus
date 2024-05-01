@@ -59,6 +59,7 @@ class BetterSocket {
         if (s is null) {
             return true;
         }
+        if (hasWaitingAvailable) return false;
         auto _avail = s.Available();
         bool _canRead = s.CanRead();
         if (_avail <= 0 && _canRead) {

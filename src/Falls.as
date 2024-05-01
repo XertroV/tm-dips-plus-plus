@@ -52,6 +52,16 @@ class FallTracker {
         }
     }
 
+    // gets called instead of update before fall tracker destroyed
+    void OnPlayerRespawn(PlayerState@ player) {
+        if (currentHeight > 50.) {
+            // fall gang
+            currentHeight = 10.;
+            currentFloor = MapFloor::FloorGang;
+            fallDist = startHeight - currentHeight;
+        }
+    }
+
     void OnContinueFall(PlayerState@ player) {
         SetSpeed(player);
     }
