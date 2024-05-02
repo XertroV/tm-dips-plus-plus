@@ -28,15 +28,12 @@ DD2API@ g_api;
 
 void Main() {
     auto GameVer = GetApp().SystemPlatform.ExeVersion;
-    if ("2024-04-19_14_47" < "2024-03-19_14_47") {
-        throw("oops");
-    }
     if (GameVer > "2024-03-19_14_47") {
         NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
         NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
         NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
         NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
-        startnew(UnloadSelfSoon);
+        // startnew(UnloadSelfSoon);
         return;
     }
     startnew(LoadFonts);
@@ -51,9 +48,10 @@ void Main() {
     yield();
     startnew(SF::LoadPtrs);
     sleep(200);
-    @g_api = DD2API();
     sleep(300);
     startnew(RefreshAssets);
+    sleep(1000);
+    @g_api = DD2API();
 }
 
 void UnloadSelfSoon() {

@@ -10,6 +10,19 @@ bool IsJsonTrue(Json::Value@ jv) {
     return bool(jv);
 }
 
+#if DEVx
+const string ENDPOINT = "127.0.0.1";
+#else
+// 161.35.155.191
+const string ENDPOINT = "dips-plus-plus-server.xk.io";
+// const string ENDPOINT = "161.35.155.191";
+// const string ENDPOINT = "203.221.134.67";
+// const string ENDPOINT = "dpps.xk.io";
+// const string ENDPOINT = "167.71.143.101";
+// const string ENDPOINT = "openplanet.dev";
+// const string ENDPOINT = "map-together-au.xk.io";
+#endif
+
 class DD2API {
     BetterSocket@ socket;
     protected string sessionToken;
@@ -20,10 +33,10 @@ class DD2API {
 
     DD2API() {
         InitMsgHandlers();
-        @socket = BetterSocket("127.0.0.1", 17677);
-        socket.StartConnect();
-        startnew(CoroutineFunc(BeginLoop));
-        startnew(UpdateAuthTokenIfNeeded);
+        @socket = BetterSocket(ENDPOINT, 17677);
+        // @socket = BetterSocket(ENDPOINT, 19796);
+        // @socket = BetterSocket(ENDPOINT, 443);
+        startnew(CoroutineFunc(ReconnectSocket));
     }
 
     void OnDisabled() {

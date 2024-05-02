@@ -11,6 +11,7 @@ class BetterSocket {
 
     bool ReconnectToServer() {
         if (s !is null) {
+            dev_trace('closing');
             s.Close();
             @s = null;
         }
@@ -30,16 +31,19 @@ class BetterSocket {
             IsConnecting = false;
             return;
         }
-        @s = Net::Socket();
-        if (!s.Connect(addr, port) || !IsUnclosed) {
+        // @s = Net::Socket();
+        Net::Socket@ socket = Net::Socket();
+        if (!socket.Connect(addr, port)) {
             warn("Failed to connect to " + addr + ":" + port);
-            @s = null;
+        } else {
+            @s = socket;
         }
         IsConnecting = false;
     }
 
     void Shutdown() {
         if (s !is null) {
+            dev_trace('Shutdown:closing');
             s.Close();
             @s = null;
         }
