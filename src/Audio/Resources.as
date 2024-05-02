@@ -282,6 +282,7 @@ void UpdateDownloads() {
 
 
 void PreloadCriticalSounds() {
+    Audio_LoadFromCache_Async("vt/volume_test.mp3");
     Audio_LoadFromCache_Async("vl/Intro_Plugin_2.mp3");
     Audio_LoadFromCache_Async("vl/Level_1_final.mp3");
     Audio_LoadFromCache_Async("vl/Level_2_final.mp3");

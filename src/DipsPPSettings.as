@@ -38,6 +38,7 @@ namespace DipsPPSettings {
     }
 
     bool TestClick() {
+        if (tl.LengthSquared() < 1 || size.LengthSquared() < 10) return false;
         if (IsWithin(g_MousePos, tl, size)) {
             OnClickSettingsButton();
             return true;

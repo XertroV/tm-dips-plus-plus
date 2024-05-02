@@ -29,7 +29,7 @@ string[]@ genLoadingScreenFileList() {
     string[]@ ret = {"img/finish.jpg"};
     for (int i = 16; i >= 0; i--) {
         ret.InsertLast(Text::Format("img/floor%d.jpg", i));
-        print("Added " + ret[ret.Length - 1] + " to loading screens");
+        // print("Added " + ret[ret.Length - 1] + " to loading screens");
     }
     return ret;
 
@@ -53,7 +53,7 @@ void CheckPrepareLoadingScreen() {
     }
     if (g_nextLoadingScreen is null) {
         @g_nextLoadingScreen = GetNewLoadingScreen();
-        print("loaded next loading screen");
+        // print("loaded next loading screen");
     }
 }
 
@@ -83,12 +83,12 @@ class LoadingScreen {
         if (tex !is null) return;
         IO::File f(IO::FromStorageFolder(path), IO::FileMode::Read);
         @tex = UI::LoadTexture(f.Read(f.Size()));
-        print("loaded texture " + path + " / " + tex.GetSize().ToString());
+        // print("loaded texture " + path + " / " + tex.GetSize().ToString());
     }
 
     void Draw() {
         if (tex is null) {
-            warn("null tex");
+            warn("null loading screen tex");
             return;
         }
         UI::DrawList@ dl = UI::GetBackgroundDrawList();

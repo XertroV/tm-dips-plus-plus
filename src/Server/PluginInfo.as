@@ -174,23 +174,38 @@ namespace Map {
     Json::Value@ lastMapInfo = Json::Value();
     uint lastMapMwId;
 
+    bool gettingMapInfo = false;
     Json::Value@ GetMapInfo(bool relevant) {
+        while (gettingMapInfo) yield();
+        gettingMapInfo = true;
+        Json::Value@ j = Json::Object();
+
         auto map = GetApp().RootMap;
         if (map is null) {
             lastMapMwId = 0;
             @lastMapInfo = Json::Value();
-            return Json::Value();
+            gettingMapInfo = false;
+            return lastMapInfo;
         }
         if (map.Id.Value == lastMapMwId) return lastMapInfo;
-        lastMapMwId = map.Id.Value;
-        Json::Value@ j = Json::Object();
-        if (relevant) {
-            j["uid"] = map.EdChallengeId;
-        } else {
-            j["uid"] = map.EdChallengeId.SubStr(0, 23) + "xxxx";
+
+        try {
+            lastMapMwId = map.Id.Value;
+            if (relevant) {
+                j["uid"] = map.EdChallengeId;
+            } else {
+                j["uid"] = map.EdChallengeId.SubStr(0, 23) + "xxxx";
+            }
+            j["name"] = relevant ? string(map.MapName) : "<!:;not relevant>";
+            j["hash"] = GetMapHash(map);
+        } catch {
+            string info = getExceptionInfo();
+            warn("Failed to get map info: " + info);
         }
-        j["name"] = relevant ? string(map.MapName) : "<!:;not relevant>";
-        j["hash"] = GetMapHash(map);
+
+        @lastMapInfo = j;
+        gettingMapInfo = false;
+
         return j;
     }
 

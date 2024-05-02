@@ -31,7 +31,7 @@ namespace MainMenuBg {
         if (!IsReady()) return false;
         auto l = GetMenuSceneLayer();
         if (l is null) return false;
-        auto patch = GetMenuPatches();
+        auto patch = GetMenuPatches(S_MenuBgTimeOfDay, S_MenuBgSeason);
         EngageIntercepts();
         l.ManialinkPageUtf8 = patch.Apply(origML);
         applied = true;
@@ -208,6 +208,7 @@ class APatchSet {
 }
 
 enum TimeOfDay {
+    DoNotOverride = -1,
     Morning = 1,
     Day = 3,
     Evening = 5,
@@ -215,11 +216,13 @@ enum TimeOfDay {
 }
 
 enum Season {
+    DoNotOverride = -1,
     Spring = 0,
     Summer = 1,
     Autumn = 2,
     Winter = 3
 }
+
 
 APatchSet@ GetMenuPatches(int setTimeOfDay = -1, int setSeason = -1) {
     APatchSet@ patches = APatchSet();
