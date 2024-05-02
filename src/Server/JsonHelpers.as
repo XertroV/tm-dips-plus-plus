@@ -47,3 +47,37 @@ Json::Value@ Iso4ToJson(const iso4 &in iso) {
     j.Add(t);
     return j;
 }
+
+uint[] JsonToUintArray(const Json::Value@ j) {
+    uint[] arr;
+    if (j.GetType() != Json::Type::Array) {
+        warn("non-array value passed to JsonToUIntArray");
+        return arr;
+    }
+    for (uint i = 0; i < j.Length; i++) {
+        try {
+            arr.InsertLast(j[i]);
+        } catch {
+            warn("non-uint value in JsonToUIntArray: " + getExceptionInfo());
+            arr.InsertLast(0);
+        }
+    }
+    return arr;
+}
+
+bool[] JsonToBoolArray(const Json::Value@ j) {
+    bool[] arr;
+    if (j.GetType() != Json::Type::Array) {
+        warn("non-array value passed to JsonToBoolArray");
+        return arr;
+    }
+    for (uint i = 0; i < j.Length; i++) {
+        try {
+            arr.InsertLast(j[i]);
+        } catch {
+            warn("non-bool value in JsonToBoolArray: " + getExceptionInfo());
+            arr.InsertLast(false);
+        }
+    }
+    return arr;
+}

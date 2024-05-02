@@ -48,10 +48,9 @@ void Main() {
     yield();
     startnew(SF::LoadPtrs);
     sleep(200);
+    @g_api = DD2API();
     sleep(300);
     startnew(RefreshAssets);
-    sleep(1000);
-    @g_api = DD2API();
 }
 
 void UnloadSelfSoon() {
@@ -112,6 +111,7 @@ void RenderMenuMain() {
 
 void Render() {
     DownloadProgress::Draw();
+    MaybeDrawLoadingScreen();
     // dev mode => render in menus
     if (g_Active) {
         HUD::Render(PS::viewedPlayer);
@@ -120,8 +120,6 @@ void Render() {
         RenderSubtitles();
         Minimap::Render();
         DipsPPSettings::RenderButton();
-    }
-    if (g_Active || DEV_MODE) {
         RenderTitleScreenAnims();
     }
     RenderDebugWindow();
@@ -139,7 +137,7 @@ bool RenderEarlyInner() {
     if (app.CurrentPlayground.UIConfigs.Length == 0) return Inactive(wasActive);
 #if DEV
 #else
-    if (app.Editor is null) return Inactive(wasActive);
+    if (app.Editor !is null) return Inactive(wasActive);
 #endif
     // if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
     // ! uncomment this to enable map UID check
@@ -332,6 +330,25 @@ void OnGoingActive() {
     //     yield();
     // }
     startnew(MTWatcherForMap);
+    startnew(CountTimeInMap);
+}
+
+void CountTimeInMap() {
+    auto app = GetApp();
+    auto idVal = GetMapMwIdVal(app.RootMap);
+    if (idVal == 0) {
+        Dev_Notify("CountTimeInMap: idVal is 0");
+        warn("CountTimeInMap: idVal is 0");
+        return;
+    }
+    auto last = Time::Now;
+    uint delta;
+    while (g_Active) {
+        yield();
+        delta = Time::Now - last;
+        Stats::LogTimeInMapMs(delta);
+        last += delta;
+    }
 }
 
 

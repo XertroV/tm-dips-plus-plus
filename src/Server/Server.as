@@ -1,6 +1,14 @@
 void PushStatsUpdateToServer() {
+    while (g_api is null || !g_api.HasContext) yield();
     auto sj = Stats::GetStatsJson();
     g_api.QueueMsg(ReportStatsMsg(sj));
+}
+
+void PushPBHeightUpdateToServer() {
+    while (g_api is null || !g_api.HasContext) yield();
+    auto pb = Stats::GetPBHeight();
+    g_api.QueueMsg(ReportPBHeightMsg(pb));
+
 }
 
 Json::Value@ JSON_TRUE = Json::Parse("true");
@@ -10,7 +18,7 @@ bool IsJsonTrue(Json::Value@ jv) {
     return bool(jv);
 }
 
-#if DEVx
+#if DEV
 const string ENDPOINT = "127.0.0.1";
 #else
 // 161.35.155.191
@@ -30,17 +38,27 @@ class DD2API {
     protected uint lastPingTime;
     uint[] recvCount;
     uint[] sendCount;
+    bool IsReady = false;
+    bool HasContext = false;
 
     DD2API() {
         InitMsgHandlers();
         @socket = BetterSocket(ENDPOINT, 17677);
         // @socket = BetterSocket(ENDPOINT, 19796);
         // @socket = BetterSocket(ENDPOINT, 443);
+        // socket.StartConnect();
+        // startnew(CoroutineFunc(BeginLoop));
         startnew(CoroutineFunc(ReconnectSocket));
     }
 
     void OnDisabled() {
+        Shutdown();
+    }
+
+    void Shutdown() {
         socket.Shutdown();
+        IsReady = false;
+        HasContext = false;
     }
 
     protected void InitMsgHandlers() {
@@ -48,6 +66,8 @@ class DD2API {
     }
 
     protected void ReconnectSocket() {
+        IsReady = false;
+        HasContext = false;
         dev_trace("ReconnectSocket");
         socket.ReconnectToServer();
         startnew(CoroutineFunc(BeginLoop));
@@ -65,6 +85,7 @@ class DD2API {
             ReconnectSocket();
             return;
         }
+        IsReady = true;
         print("Connected to DD2API server.");
         startnew(CoroutineFunc(ReadLoop));
         startnew(CoroutineFunc(SendLoop));
@@ -89,18 +110,18 @@ class DD2API {
         if (msg.msgType == MessageResponseTypes::AuthFail) {
             warn("Auth failed: " + string(msg.msgJson.Get("err", "Missing error message.")) + ".");
             sessionToken = "";
-            socket.Shutdown();
+            Shutdown();
             return;
         } else if (msg.msgType != MessageResponseTypes::AuthSuccess) {
             warn("Unexpected message type: " + msg.msgType + ".");
             sessionToken = "";
-            socket.Shutdown();
+            Shutdown();
             return;
         }
         sessionToken = msg.msgJson.Get("session_token", "");
         if (sessionToken.Length == 0) {
             warn("Auth success but missing session token.");
-            socket.Shutdown();
+            Shutdown();
             return;
         }
     }
@@ -163,13 +184,14 @@ class DD2API {
         if (hasStartedPingLoop) return;
         hasStartedPingLoop = true;
         while (true) {
-            sleep(11739);
+            sleep(6789);
             if (socket.IsClosed || socket.ServerDisconnected) {
                 continue;
             }
             QueueMsg(PingMsg());
-            if (Time::Now - lastPingTime > 30000) {
+            if (Time::Now - lastPingTime > 25000) {
                 warn("Ping timeout.");
+                lastPingTime = Time::Now;
                 socket.Shutdown();
                 hasStartedPingLoop = false;
                 return;
@@ -201,6 +223,7 @@ class DD2API {
         nat2 bi = nat2();
         bool mapChange, u64Change;
         auto app = cast<CTrackMania>(GetApp());
+        vec3 lastPos;
         while (true) {
             if (socket.IsClosed || socket.ServerDisconnected) break;
             mapChange = (app.RootMap is null && lastMapMwId > 0)
@@ -219,6 +242,7 @@ class DD2API {
                     || (Math::Abs(20522 - int(bi.x)) < 500 && Math::Abs(38369 - int(bi.y)) < 500);
                 auto ctx = ReportContextMsg(nextu64, nextMI, bi, currentMapRelevant);
                 QueueMsg(ctx);
+                HasContext = true;
                 currentMapRelevant = currentMapRelevant || (bool(ctx.msgPayload["ReportContext"]["i"]));
                 yield();
                 sleep(1000);
@@ -226,10 +250,14 @@ class DD2API {
             }
             sleep(117);
             if (socket.IsClosed || socket.ServerDisconnected) break;
-            if (Time::Now - lastReport > (currentMapRelevant ? 5000 : 30000) && PS::localPlayer !is null && !PS::localPlayer.IsIdleOrNotUpdated()) {
-                lastReport = Time::Now;
-                QueueMsg(ReportVehicleStateMsg(PS::localPlayer));
-                sleep(117);
+            if (Time::Now - lastReport > (currentMapRelevant ? 5000 : 30000)) {
+                CSceneVehicleVisState@ state = GetVehicleStateOfControlledPlayer();
+                if (state !is null && (state.Position - lastPos).LengthSquared() > 0.1) {
+                    lastReport = Time::Now;
+                    lastPos = state.Position;
+                    QueueMsg(ReportVehicleStateMsg(state));
+                    sleep(117);
+                }
                 if (socket.IsClosed || socket.ServerDisconnected) break;
             }
             if (Time::Now - lastGC > 300000) {

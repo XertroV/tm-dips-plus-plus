@@ -88,6 +88,10 @@ class FallTracker {
             && !(f13DropStartCheck && f13DropEndCheck);
     }
 
+    bool IsFallOver100m() {
+        return Math::Max(0.0, HeightFallenFromFlying()) >= 100.0;
+    }
+
     // can be removed as a fall immediately
     bool ShouldIgnoreFall() {
         return HeightFallenFromFlying() < 4. ||

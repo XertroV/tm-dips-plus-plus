@@ -202,6 +202,7 @@ class TitleGagTrigger : GagVoiceLineTrigger {
 
     protected void SelectNewTitleGagAnimationAndCollect() {
         CollectionItem@ gag;
+        while (IsVoiceLinePlaying()) yield();
         bool isLocalPlayer = PS::viewedPlayer !is null && PS::viewedPlayer.isLocal;
         uint lastRespawn = PS::viewedPlayer !is null ? PS::viewedPlayer.lastRespawn : 0;
         if (isLocalPlayer) {

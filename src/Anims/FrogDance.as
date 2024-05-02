@@ -8,14 +8,12 @@ void WaitAndPlayFloorGangFrog() {
     if (!S_EnableFallGangFrogDance) return;
     Dev_Notify("Waiting for fall to reach 16 m");
     while (PS::viewedPlayer !is null && PS::viewedPlayer.HasFallTracker()) {
-        if (PS::viewedPlayer.pos.y < 16. && PS::viewedPlayer.GetFallTracker().IsFallPastMinFall()) {
+        if (PS::viewedPlayer.pos.y < 16. && PS::viewedPlayer.GetFallTracker().IsFallOver100m()) {
             EmitStatusAnimation(FrogDance());
-            Dev_Notify("16 m -> frog dance");
             break;
         }
         yield();
     }
-    Dev_Notify("frog dance ended");
 }
 
 class FrogDance : ProgressAnim {

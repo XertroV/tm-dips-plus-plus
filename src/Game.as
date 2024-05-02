@@ -30,3 +30,15 @@ uint GetGameTime() {
 int GetRaceTimeFromStartTime(int startTime) {
     return GetGameTime() - startTime;
 }
+
+CSceneVehicleVisState@ GetVehicleStateOfControlledPlayer() {
+    try {
+        auto app = GetApp();
+        if (app.GameScene is null || app.CurrentPlayground is null) return null;
+        auto player = cast<CSmPlayer>(GetApp().CurrentPlayground.GameTerminals[0].ControlledPlayer);
+        if (player is null) return null;
+        return VehicleState::GetVis(app.GameScene, player).AsyncState;
+    } catch {
+        return null;
+    }
+}

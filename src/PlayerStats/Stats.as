@@ -1,7 +1,7 @@
 
 
 namespace Stats {
-    uint secondsSpentInMap = 0;
+    uint64 msSpentInMap = 0;
     uint nbJumps = 0;
     uint nbFalls = 0;
     uint nbFloorsFallen = 0;
@@ -21,8 +21,8 @@ namespace Stats {
     uint byeByesTriggered = 0;
 
     Json::Value@ GetStatsJson() {
-        Json::Value@ stats;
-        stats["seconds_spent_in_map"] = secondsSpentInMap;
+        Json::Value@ stats = Json::Object();
+        stats["seconds_spent_in_map"] = msSpentInMap / 1000;
         stats["nb_jumps"] = nbJumps;
         stats["nb_falls"] = nbFalls;
         stats["nb_floors_fallen"] = nbFloorsFallen;
@@ -41,8 +41,32 @@ namespace Stats {
         return stats;
     }
 
+    void LoadStatsFromJson(Json::Value@ j) {
+        msSpentInMap = uint(j["seconds_spent_in_map"]) * 1000;
+        nbJumps = j["nb_jumps"];
+        nbFalls = j["nb_falls"];
+        nbFloorsFallen = j["nb_floors_fallen"];
+        lastPbSetTs = j["last_pb_set_ts"];
+        totalDistFallen = j["total_dist_fallen"];
+        pbHeight = j["pb_height"];
+        pbFloor = MapFloor(int(j["pb_floor"]));
+        nbResets = j["nb_resets"];
+        ggsTriggered = j["ggs_triggered"];
+        titleGagsTriggered = j["title_gags_triggered"];
+        titleGagsSpecialTriggered = j["title_gags_special_triggered"];
+        byeByesTriggered = j["bye_byes_triggered"];
+        monumentTriggers = JsonToUintArray(j["monument_triggers"]);
+        reachedFloorCount = JsonToUintArray(j["reached_floor_count"]);
+        floorVoiceLinesPlayed = JsonToBoolArray(j["floor_voice_lines_played"]);
+    }
+
     // from server
     LBEntry@[] globalLB;
+
+    void LogTimeInMapMs(uint deltaMs) {
+        msSpentInMap += deltaMs;
+        UpdateStatsSoon();
+    }
 
     void LogTriggeredSound(const string &in triggerName, const string &in audioFile) {
         // todo: player stats for triggering stuff
@@ -98,6 +122,7 @@ namespace Stats {
         if (pos.y > pbHeight) {
             bool lastPbWasAWhileAgo = pbHeight < PB_START_ALERT_LIMIT || (Time::Now - lastPbSet > 180 * 1000);
             auto floor = HeightToFloor(pos.y);
+            lastPbSetTs = Time::Stamp;
             lastPbSet = Time::Now;
             pbFloor = floor;
             pbHeight = pos.y;
@@ -157,14 +182,13 @@ namespace Stats {
     }
 }
 
-
-
 void UpdateStatsSoon() {
     // start coroutine that waits a bit and then updates stats
+    startnew(UpdateStatsWaitLoop);
 }
 
 void UpdatePBHeightSoon() {
-
+    startnew(UpdatePBHeightWaitLoop);
 }
 
 const uint STATS_UPDATE_INTERVAL = 1000 * 20;
@@ -181,8 +205,28 @@ void UpdateStatsWaitLoop() {
         yield();
     }
     lastStatsUpdate = Time::Now;
-    isWaitingToUpdateStats = false;
     PushStatsUpdateToServer();
+    lastStatsUpdate = Time::Now;
+    isWaitingToUpdateStats = false;
+}
+
+const uint PBH_UPDATE_INTERVAL = 2000;
+const uint PBH_UPDATE_MIN_WAIT = 1000;
+bool isWaitingToUpdatePBH = false;
+uint lastPBHUpdate = 0;
+uint lastCallToPBHWaitLoop = 0;
+
+void UpdatePBHeightWaitLoop() {
+    lastCallToPBHWaitLoop = Time::Now;
+    if (isWaitingToUpdatePBH) return;
+    isWaitingToUpdatePBH = true;
+    while (Time::Now - lastCallToPBHWaitLoop < PBH_UPDATE_MIN_WAIT && Time::Now - lastPBHUpdate < PBH_UPDATE_INTERVAL) {
+        yield();
+    }
+    lastPBHUpdate = Time::Now;
+    PushPBHeightUpdateToServer();
+    lastPBHUpdate = Time::Now;
+    isWaitingToUpdatePBH = false;
 }
 
 

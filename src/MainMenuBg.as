@@ -9,6 +9,10 @@ namespace MainMenuBg {
         }
         origML = l.ManialinkPageUtf8;
         gotOrigML = true;
+        while (!S_EnableMainMenuPromoBg) sleep(100);
+        while (!IsReady()) sleep(100);
+        while (GetMenuSceneLayer() is null) sleep(100);
+        ApplyMenuBg();
     }
 
     bool IsReady() {
@@ -35,6 +39,9 @@ namespace MainMenuBg {
     }
 
     void Unapply() {
+        if (hasIntProcs) {
+            DisengageIntercepts();
+        }
         if (!applied) return;
         if (!gotOrigML) return;
         auto l = GetMenuSceneLayer();
@@ -81,6 +88,9 @@ namespace MainMenuBg {
     bool applied = false;
 
     void Unload() {
+        if (hasIntProcs) {
+            DisengageIntercepts();
+        }
         if (!gotOrigML) return;
         if (!applied) return;
         Unapply();
@@ -94,10 +104,19 @@ namespace MainMenuBg {
     MwId SceneId = MwId();
     // CGameMenuSceneScriptManager@ msm;
 
+    bool hasIntProcs = false;
     void EngageIntercepts() {
+        hasIntProcs = true;
         Dev::InterceptProc("CGameMenuSceneScriptManager", "ItemCreate0", CGameMenuSceneScriptManager_ItemCreate0);
         Dev::InterceptProc("CGameMenuSceneScriptManager", "ItemSetLocation", CGameMenuSceneScriptManager_ItemSetLocation);
         Dev::InterceptProc("CGameMenuSceneScriptManager", "SceneDestroy", CGameMenuSceneScriptManager_SceneDestroy);
+    }
+
+    void DisengageIntercepts() {
+        hasIntProcs = false;
+        Dev::ResetInterceptProc("CGameMenuSceneScriptManager", "ItemCreate0", CGameMenuSceneScriptManager_ItemCreate0);
+        Dev::ResetInterceptProc("CGameMenuSceneScriptManager", "ItemSetLocation", CGameMenuSceneScriptManager_ItemSetLocation);
+        Dev::ResetInterceptProc("CGameMenuSceneScriptManager", "SceneDestroy", CGameMenuSceneScriptManager_SceneDestroy);
     }
 
     bool CGameMenuSceneScriptManager_ItemCreate0(CMwStack &in stack, CMwNod@ nod) {

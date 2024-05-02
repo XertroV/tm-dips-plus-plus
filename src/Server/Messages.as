@@ -13,6 +13,7 @@ enum MessageRequestTypes {
     ReportFallEnd = 36,
     ReportStats = 37,
     // ReportMapLoad = 38,
+    ReportPBHeight = 39,
 
     GetMyStats = 128,
     GetGlobalLB = 129,
@@ -60,7 +61,10 @@ OutgoingMsg@ ResumeSessionMsg(const string &in session_token) {
     return WrapMsgJson(j, MessageRequestTypes::ResumeSession);
 }
 
+bool creatingCtxMsg = false;
 OutgoingMsg@ ReportContextMsg(uint64 sf, uint64 mi, nat2 bi, bool relevant) {
+    while (creatingCtxMsg) yield();
+    creatingCtxMsg = true;
     auto @j = Json::Object();
     j["sf"] = Text::FormatPointer(sf);
     j["mi"] = Text::FormatPointer(mi);
@@ -68,6 +72,7 @@ OutgoingMsg@ ReportContextMsg(uint64 sf, uint64 mi, nat2 bi, bool relevant) {
     yield();
     j["i"] = Map::I();
     j["bi"] = Nat2ToJson(bi);
+    creatingCtxMsg = false;
     return WrapMsgJson(j, MessageRequestTypes::ReportContext);
 }
 
@@ -81,9 +86,14 @@ OutgoingMsg@ PingMsg() {
     return WrapMsgJson(Json::Object(), MessageRequestTypes::Ping);
 }
 
+OutgoingMsg@ ReportVehicleStateMsg(CSceneVehicleVisState@ p) {
+    return ReportVehicleStateMsg(p.Position, quat(DirUpLeftToMat(p.Dir, p.Up, p.Left)), p.WorldVel);
+}
+
 OutgoingMsg@ ReportVehicleStateMsg(PlayerState@ p) {
     return ReportVehicleStateMsg(p.pos, p.rot, p.vel);
 }
+
 OutgoingMsg@ ReportVehicleStateMsg(const vec3 &in pos, const quat &in rotq, const vec3 &in vel) {
     auto @j = Json::Object();
     j["pos"] = Vec3ToJson(pos);
@@ -132,6 +142,12 @@ OutgoingMsg@ ReportStatsMsg(Json::Value@ statsJson) {
 //     j["uid"] = uid;
 //     return WrapMsgJson(j, MessageRequestTypes::ReportMapLoad);
 // }
+
+OutgoingMsg@ ReportPBHeightMsg(float height) {
+    auto @j = Json::Object();
+    j["h"] = height;
+    return WrapMsgJson(j, MessageRequestTypes::ReportPBHeight);
+}
 
 OutgoingMsg@ GetMyStatsMsg() {
     return WrapMsgJson(Json::Object(), MessageRequestTypes::GetMyStats);

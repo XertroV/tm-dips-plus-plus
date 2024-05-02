@@ -12,3 +12,9 @@ bool S_ShowMinimap = true;
 
 [Setting hidden]
 float S_PBAlertFontSize = 82.0;
+
+[Setting hidden]
+bool S_ShowDDLoadingScreens = true;
+
+[Setting hidden]
+bool S_EnableMainMenuPromoBg = false;

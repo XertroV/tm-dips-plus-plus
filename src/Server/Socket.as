@@ -38,6 +38,7 @@ class BetterSocket {
         } else {
             @s = socket;
         }
+        sleep(1000);
         IsConnecting = false;
     }
 
@@ -121,7 +122,7 @@ class BetterSocket {
     }
 
     void WriteMsg(uint8 msgType, const string &in msgData) {
-        if (IsClosed || ServerDisconnected) {
+        if (s is null) {
             if (msgType != uint8(MessageResponseTypes::Ping))
                 dev_trace("WriteMsg: dropping msg b/c socket closed/disconnected");
             return;
