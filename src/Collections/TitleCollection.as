@@ -24,6 +24,14 @@ class TitleCollection : Collection {
         }
     }
 
+    void AddItem(CollectionItem@ item) override {
+        Collection::AddItem(item);
+        auto titleItem = cast<TitleCollectionItem>(item);
+        if (titleItem !is null) {
+            @titleItem.parent = this;
+        }
+    }
+
     void LoadTitleData() {
         IO::FileSource file("Collections/titles_normal.psv");
         string line;
@@ -69,7 +77,59 @@ class TitleCollection : Collection {
         startnew(CoroutineFunc(RestoreFromSaved));
     }
 
-    void RestoreFromSaved() {}
+    void DrawStats() {
+        uint total = items.Length;
+        uint nb_uncollected = uncollected.Length;
+        uint nb_collected = total - nb_uncollected;
+        UI::AlignTextToFramePadding();
+        UI::PushFont(f_DroidBig);
+        if (isGeepGip && nb_collected == 0) {
+            UI::Text("?????????");
+        } else {
+            UI::Text("Collection: " + (isGeepGip ? "Geep Gips" : "Title Gags"));
+        }
+        UI::PopFont();
+        UI::Text("Collected: " + nb_collected + " / " + items.Length);
+    }
+
+    string get_FileName() {
+        return IO::FromStorageFolder(isGeepGip ? "gg_titles_collected.txt" : "norm_titles_collected.txt");
+    }
+
+    void RestoreFromSaved() override {
+        if (!IO::FileExists(FileName)) return;
+        IO::File f(FileName, IO::FileMode::Read);
+        string line;
+        Json::Value@ j;
+        Json::Value@[] collected;
+        while (!f.EOF()) {
+            line = f.ReadLine();
+            if (line.Length == 0) continue;
+            try {
+                @j = Json::Parse(line);
+                if (j !is null && j.HasKey("name") && j.HasKey("collected") && bool(j["collected"])) {
+                    collected.InsertLast(j);
+                }
+            } catch {
+                warn("Failed to parse title collection line: " + line);
+                continue;
+            }
+        }
+        f.Close();
+        string cName;
+        for (uint i = 0; i < collected.Length; i++) {
+            cName = collected[i]["name"];
+            if (itemLookup.Exists(cName)) {
+                auto item = cast<TitleCollectionItem>(itemLookup[cName]);
+                if (item !is null) {
+                    item.collected = true;
+                    item.collectedAt = collected[i]["collectedAt"];
+                } else {
+                    warn("Failed to find item for " + cName);
+                }
+            }
+        }
+    }
 }
 
 class GG_TitleCollection : TitleCollection {
@@ -81,6 +141,7 @@ class GG_TitleCollection : TitleCollection {
 
 class TitleCollectionItem : CollectionItem {
     string title;
+    TitleCollection@ parent;
 
     TitleCollectionItem(const string &in title) {
         super(title, true);
@@ -89,6 +150,8 @@ class TitleCollectionItem : CollectionItem {
 
     void CollectTitleSoon() {
         CollectSoonTrigger(1200);
+        IO::File f(parent.FileName, IO::FileMode::Append);
+        f.WriteLine(Json::Write(this.ToUserJson()));
     }
 }
 

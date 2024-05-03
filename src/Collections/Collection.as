@@ -13,9 +13,11 @@ const string COLLECTION_FILE = "Collection.json";
 class Collection {
     CollectionItem@[] items;
     CollectionItem@[] uncollected;
+    dictionary itemLookup;
 
     void AddItem(CollectionItem@ item) {
         items.InsertLast(item);
+        @itemLookup[item.name] = item;
         if (!item.collected) {
             uncollected.InsertLast(item);
         } else {
@@ -23,7 +25,7 @@ class Collection {
         }
     }
 
-    void RestoreFromSave() {
+    void RestoreFromSaved() {
         // ! todo
     }
 
@@ -101,6 +103,7 @@ class CollectionItem {
     }
 
     protected void ToUserJsonInner(Json::Value@ j) {
+        j["name"] = name;
         j["collected"] = collected;
         j["collectedAt"] = collectedAt;
     }

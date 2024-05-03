@@ -14,15 +14,15 @@ const string MenuTitle = MenuIconColor + Icons::ArrowDown + "\\$z " + PluginName
 UI::Font@ f_MonoSpace = null;
 UI::Font@ f_DroidBig = null;
 UI::Font@ f_DroidBigger = null;
-int f_Nvg_OswaldLightItalic = nvg::LoadFont("Fonts/Oswald-LightItalic.ttf", true, true);
-int f_Nvg_ExoLightItalic = nvg::LoadFont("Fonts/Exo-LightItalic.ttf", true, true);
+// int f_Nvg_OswaldLightItalic = nvg::LoadFont("Fonts/Oswald-LightItalic.ttf", true, true);
+// int f_Nvg_ExoLightItalic = nvg::LoadFont("Fonts/Exo-LightItalic.ttf", true, true);
 int f_Nvg_ExoRegularItalic = nvg::LoadFont("Fonts/Exo-Italic.ttf", true, true);
 int f_Nvg_ExoRegular = nvg::LoadFont("Fonts/Exo-Regular.ttf", true, true);
 int f_Nvg_ExoMedium = nvg::LoadFont("Fonts/Exo-Medium.ttf", true, true);
 int f_Nvg_ExoMediumItalic = nvg::LoadFont("Fonts/Exo-MediumItalic.ttf", true, true);
 int f_Nvg_ExoBold = nvg::LoadFont("Fonts/Exo-Bold.ttf", true, true);
 int f_Nvg_ExoExtraBold = nvg::LoadFont("Fonts/Exo-ExtraBold.ttf", true, true);
-int f_Nvg_ExoExtraBoldItalic = nvg::LoadFont("Fonts/Exo-ExtraBoldItalic.ttf", true, true);
+// int f_Nvg_ExoExtraBoldItalic = nvg::LoadFont("Fonts/Exo-ExtraBoldItalic.ttf", true, true);
 // int g_nvgFont = nvg::LoadFont("RobotoSans.ttf", true, true);
 
 #if DEV
@@ -61,7 +61,8 @@ void Main() {
     // GenerateHeightStrings();
     InitDD2TriggerTree();
     yield();
-    startnew(Stats::OnStartTryRestoreFromFile);
+    // don't trust users not to just edit the file; get it from server instead.
+    // startnew(Stats::OnStartTryRestoreFromFile);
     startnew(GreenTimer::OnPluginStart);
     startnew(Wizard::OnPluginLoad);
     startnew(SF::LoadPtrs);
@@ -134,6 +135,7 @@ void Render() {
     MaybeDrawLoadingScreen();
     Wizard::DrawWindow();
     Volume::RenderSubtitlesVolumeIfNotActive();
+    MainUI::Render();
     // dev mode => render in menus
     if (g_Active) {
         GreenTimer::Render();
@@ -180,6 +182,7 @@ bool GoodUISequence(CGamePlaygroundUIConfig::EUISequence seq) {
 
 void RenderMenu() {
     DrawPluginMenuItem();
+    return;
     if (UI::MenuItem(PluginName + ": Show Falls On Left Side", "", g_ShowFalls)) {
         g_ShowFalls = !g_ShowFalls;
         S_ShowMinimap = g_ShowFalls;

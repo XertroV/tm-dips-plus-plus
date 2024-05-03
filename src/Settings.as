@@ -26,11 +26,7 @@ float S_PBAlertFontSize = 82.0;
 bool S_ShowDDLoadingScreens = true;
 
 [Setting hidden]
-#if DEV
-bool S_EnableMainMenuPromoBg = true;
-#else
 bool S_EnableMainMenuPromoBg = false;
-#endif
 
 [Setting hidden]
 TimeOfDay S_MenuBgTimeOfDay = TimeOfDay::Night;

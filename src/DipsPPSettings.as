@@ -56,9 +56,11 @@ namespace DipsPPSettings {
     }
 
     void OnClickSettingsButton() {
-        Dev_Notify("Clicked Dips++ settings button");
+        g_MainUiVisible = true;
     }
 }
+
+
 
 bool IsWithin(vec2 pos, vec2 tl, vec2 size) {
     return pos.x >= tl.x && pos.x <= tl.x + size.x && pos.y >= tl.y && pos.y <= tl.y + size.y;

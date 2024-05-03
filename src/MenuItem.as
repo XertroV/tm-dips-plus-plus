@@ -30,7 +30,10 @@ void DrawPluginMenuLabel() {
     MenuLogo::DrawImage(UI::GetWindowDrawList());
 }
 
-void DrawPluginMenuInner() {
+void DrawPluginMenuInner(bool isMenuBar = false) {
+    if (!isMenuBar) {
+        g_MainUiVisible = UI::Checkbox("Main UI", g_MainUiVisible);
+    }
     Volume::DrawMenu();
     HUD::DrawMenu();
     Minimap::DrawMenu();

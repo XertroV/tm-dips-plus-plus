@@ -1,14 +1,41 @@
-#
 
-License: Public Domain
+*Can you hear the thunder...*
 
-Authors: XertroV
+# Dips++
 
-Suggestions/feedback: @XertroV on Openplanet discord
+The official companion plugin for *Deep Dip 2*.
 
-Code/issues: [https://github.com/XertroV/tm-play-map](https://github.com/XertroV/tm-play-map)
+Plugin features include:
+* Voice lines + subtitles for each floor
+* Additional lore
+* Height Tracker
+* PB Tracker
+* Falls Tracker
+* Jump Speed Indicator
+* and even more stats!
+* Over 400 Collectables
+* Floor Gang Celebrator
+* Loading Screens
+* A Main Menu Surprise
 
-GL HF
+## API & Data
+
+Data disclaimer: This plugin will transmit data to the Dips++ server for the duration of the Deep Dip 2 event.
+
+Data is available via the Dips++ server. Some very brief documentation about available routes is found here: <https://dips-plus-plus.xk.io/api/routes>.
+
+More endpoints will be added over the coming days.
+
+Contact @XertroV for questions or requests.
+
+
+
+
+
+
+
+
+
 
 
 
@@ -47,24 +74,6 @@ todo:
   - little popup of avatar when voice lines speaking, next to subtitles
 - [ ] vaelyn credit in credits for voice line
   - during intro voice lines, show writen and voiced by vaelyn (show for full time)
-- [ ] !!! subtitles
 - [ ] totd + lobby map easter eggs
 
 - [ ] finish stuff, detect chat and hide main GZ overlay
-
-frame:
-- check in map
-  - no map -> deactivate
-- check player count
-  - if changed, update players & order
-  - update player table
-- (players are sorted now)
-- for each player
-  - read vehicle id and update table references
-- for each vehicle id
-  - look up player
-  - update player state tracked info
-  - while processing player state update, emit events
-- for each event (drain)
-  - process, update state
-- render

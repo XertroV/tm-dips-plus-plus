@@ -11,6 +11,7 @@ Thank you.
 bool g_DebugOpen = false;
 
 void RenderDebugWindow() {
+    return false;
     if (!g_DebugOpen) return;
     if (UI::Begin(PluginName + ": Debug Window", g_DebugOpen, UI::WindowFlags::AlwaysVerticalScrollbar)) {
         UI::BeginTabBar("DebugTabBar", UI::TabBarFlags::FittingPolicyScroll);

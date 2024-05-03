@@ -333,6 +333,7 @@ class DD2API {
 
         @msgHandlers[MessageResponseTypes::Ping] = MsgHandler(PingHandler);
 
+        @msgHandlers[MessageResponseTypes::ServerInfo] = MsgHandler(ServerInfoHandler);
         @msgHandlers[MessageResponseTypes::Stats] = MsgHandler(StatsHandler);
         @msgHandlers[MessageResponseTypes::GlobalLB] = MsgHandler(GlobalLBHandler);
         @msgHandlers[MessageResponseTypes::FriendsLB] = MsgHandler(FriendsLBHandler);
@@ -359,6 +360,12 @@ class DD2API {
         lastPingTime = Time::Now;
     }
 
+    void ServerInfoHandler(Json::Value@ msg) {
+        //warn("Server info received.");
+        if (msg.HasKey("ServerInfo")) @msg = msg["ServerInfo"];
+        Global::SetServerInfoFromJson(msg);
+    }
+
     void StatsHandler(Json::Value@ msg) {
         //warn("Stats received.");
         dev_trace('stats from server: ' + Json::Write(msg));
@@ -374,12 +381,12 @@ class DD2API {
     }
 
     void GlobalOverviewHandler(Json::Value@ msg) {
-        warn("Global Overview received. " + Json::Write(msg));
+        // warn("Global Overview received. " + Json::Write(msg));
         Global::SetFromJson(msg["j"]);
     }
 
     void Top3Handler(Json::Value@ msg) {
-        warn("Top3 received. " + Json::Write(msg) + " / type: " + tostring(msg.GetType()));
+        // warn("Top3 received. " + Json::Write(msg) + " / type: " + tostring(msg.GetType()));
         Global::SetTop3FromJson(msg["top3"]);
     }
 }
@@ -393,6 +400,15 @@ namespace Global {
     uint falls = 0;
     uint floors_fallen = 0;
     float height_fallen = 0;
+    uint nb_players_live = 0;
+
+    void SetServerInfoFromJson(Json::Value@ j) {
+        try {
+            nb_players_live = j["nb_players_live"];
+        } catch {
+            warn("Failed to parse Server info. " + getExceptionInfo());
+        }
+    }
 
     void SetFromJson(Json::Value@ j) {
         try {
@@ -423,7 +439,7 @@ namespace Global {
 
 
 void EmitUpdatedTop3() {
-    warn("emit updated top3");
+    // warn("emit updated top3");
 }
 
 

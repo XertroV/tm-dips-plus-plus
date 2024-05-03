@@ -32,6 +32,37 @@ namespace Stats {
     [Setting hidden]
     uint lastLoadedDeepDip2Ts = 0;
 
+    void DrawStatsUI() {
+        DrawCenteredText("My Stats", f_DroidBigger, 26.);
+        UI::Columns(2, "myStatsColumns", true);
+        UI::Text("Time spent in map");
+        UI::Text("Jumps");
+        UI::Text("Falls");
+        UI::Text("Floors fallen");
+        UI::Text("Total distance fallen");
+        UI::Text("Personal best height");
+        UI::Text("Personal best floor");
+        UI::Text("Resets");
+        UI::Text("Title gags triggered");
+        UI::Text("Special Title Gags triggered");
+        UI::Text("GGs triggered");
+        UI::Text("Bye Byes triggered");
+        UI::NextColumn();
+        UI::Text(Time::Format(msSpentInMap, false, true, true));
+        UI::Text("" + nbJumps);
+        UI::Text("" + nbFalls);
+        UI::Text("" + nbFloorsFallen);
+        UI::Text(Text::Format("%.1f m", totalDistFallen));
+        UI::Text(Text::Format("%.1f m", pbHeight));
+        UI::Text(tostring(pbFloor));
+        UI::Text("" + nbResets);
+        UI::Text("" + titleGagsTriggered);
+        UI::Text("" + titleGagsSpecialTriggered);
+        UI::Text("" + ggsTriggered);
+        UI::Text("" + byeByesTriggered);
+        UI::Columns(1);
+    }
+
     Json::Value@ GetStatsJson() {
         Json::Value@ stats = Json::Object();
         stats["seconds_spent_in_map"] = msSpentInMap / 1000;

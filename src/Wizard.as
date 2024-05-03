@@ -17,7 +17,7 @@ namespace Wizard {
         g_WizardOpen = !S_WizardFinished;
     }
 
-    const int2 windowSize = int2(800, 500);
+    const int2 windowSize = int2(1100, 700);
     int flags = UI::WindowFlags::NoCollapse | UI::WindowFlags::NoResize | UI::WindowFlags::NoSavedSettings | UI::WindowFlags::AlwaysAutoResize | UI::WindowFlags::NoTitleBar;
     float ui_scale = UI::GetScale();
 
@@ -87,6 +87,8 @@ namespace Wizard {
             UI::SetNextItemWidth(avail.x * .75);
             UI::PushFont(f_DroidBig);
             Volume::DrawVolumeSlider(false);
+            UI::Dummy(vec2(avail.x * .4, 0));
+            UI::SameLine();
             S_PauseWhenGameUnfocused = UI::Checkbox("Pause audio when the game is unfocused", S_PauseWhenGameUnfocused);
             UI::PopFont();
         } else if (DrawCenteredButton("Proceed", f_DroidBig, 20.)) {
@@ -105,11 +107,11 @@ namespace Wizard {
                 S_MenuBgSeason = ComboSeason("Main Menu Background Season", S_MenuBgSeason);
             }
             S_ShowDDLoadingScreens = UI::Checkbox("Show DD2 Loading Screens?", S_ShowDDLoadingScreens);
+            if (DrawCenteredButton("Proceed", f_DroidBig, 20.)) {
+                wizardStep++;
+            }
         }
         UI::EndChild();
-        if (DrawCenteredButton("Proceed", f_DroidBig, 20.)) {
-            wizardStep++;
-        }
     }
 
     void DrawStepTwo() {

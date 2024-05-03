@@ -339,8 +339,6 @@ GameTrigger@[]@ generateVoiceLineTriggers() {
     GameTrigger@[] ret;
     ret.InsertLast(FloorVLTrigger(vec3(168, 24, 672),	vec3(192, 42, 740), "VL Intro", 0));
     // 420 min x = late on bridge
-    ret.InsertLast(TitleGagTrigger(vec3(424, 7, 424),	vec3(1100, 57, 1100), "Floor Gang"));
-    ret.InsertLast(TitleGagTrigger(vec3(384, 7, 760),	vec3(424, 57, 776), "Floor Gang"));
     ret.InsertLast(FloorVLTrigger(vec3(697, 169, 800), vec3(725, 178, 832), "VL Floor 1 - Majijej", 1));
     ret.InsertLast(FloorVLTrigger(vec3(518, 241, 640), vec3(538, 247, 671), "VL Floor 2 - Lentillion", 2));
     ret.InsertLast(FloorVLTrigger(vec3(640, 337, 576), vec3(672, 346, 608), "VL Floor 3 - MaxChess", 3));
@@ -358,6 +356,8 @@ GameTrigger@[]@ generateVoiceLineTriggers() {
     ret.InsertLast(FloorVLTrigger(vec3(800, 1640, 610), vec3(833, 1647, 637), "VL Floor 15 - Kubas", 15));
     ret.InsertLast(FloorVLTrigger(vec3(796, 1690, 544), vec3(860, 1700, 576), "VL Floor 16 - Jumper471", 16));
     // ret.InsertLast(FloorVLTrigger(vec3(), vec3(), "Finish"));
+    ret.InsertLast(TitleGagTrigger(vec3(424, 7, 424),	vec3(1100, 57, 1100), "Floor Gang"));
+    ret.InsertLast(TitleGagTrigger(vec3(384, 7, 760),	vec3(424, 57, 776), "Floor Gang"));
     return ret;
 }
 
