@@ -37,5 +37,6 @@ namespace TitleGag {
 
 
 bool NewTitleGagOkay() {
-    return TitleGag::IsReady();
+    return TitleGag::IsReady()
+        && !S_HideMovieTitles;
 }

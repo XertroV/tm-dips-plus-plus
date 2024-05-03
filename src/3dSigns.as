@@ -14,8 +14,8 @@ bool S_Enable3dSigns = true;
 namespace Signs3d {
     bool signsApplied = false;
     void SignsOnGoingActive() {
-        if (S_Enable3dSigns) return;
-        if (Enable3dScreens()) return;
+        if (!S_Enable3dSigns) return;
+        if (Enable3dScreens(false)) return;
         auto app = GetApp();
         auto net = app.Network;
         while (app.RootMap is null) yield();
@@ -105,7 +105,7 @@ namespace Signs3d {
         Enable3dScreens();
     }
 
-    bool Enable3dScreens() {
+    bool Enable3dScreens(bool initIfAbsent = true) {
         if (!g_Active) return false;
         auto app = GetApp();
         if (app.PlaygroundScript !is null) {
@@ -125,6 +125,7 @@ namespace Signs3d {
             if (found > 1) {
                 return true;
             }
+            if (!initIfAbsent) return false;
             SignsOnGoingActive();
             return true;
         } catch {

@@ -137,7 +137,8 @@ void Render() {
     Volume::RenderSubtitlesVolumeIfNotActive();
     MainUI::Render();
     // dev mode => render in menus
-    if (g_Active) {
+    bool draw = g_Active && (S_ShowWhenUIHidden || UI::IsGameUIVisible());
+    if (draw) {
         GreenTimer::Render();
         HUD::Render(PS::viewedPlayer);
         RenderAnimations();

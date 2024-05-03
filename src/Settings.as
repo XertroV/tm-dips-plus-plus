@@ -7,6 +7,13 @@ Please do not distribute altered copies of the DD2 map.
 Thank you.
 - XertroV
 */
+
+[Setting hidden]
+bool S_ShowWhenUIHidden = false;
+
+[Setting hidden]
+bool S_HideMovieTitles = false;
+
 [Setting hidden]
 bool S_Enabled = true;
 

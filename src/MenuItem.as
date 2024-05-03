@@ -34,6 +34,7 @@ void DrawPluginMenuInner(bool isMenuBar = false) {
     if (!isMenuBar) {
         g_MainUiVisible = UI::Checkbox("Main UI", g_MainUiVisible);
     }
+    Visibility::DrawMenu();
     Volume::DrawMenu();
     HUD::DrawMenu();
     Minimap::DrawMenu();
@@ -59,5 +60,19 @@ namespace MenuLogo {
     void DrawImage(UI::DrawList@ dl) {
         if (!G_Initialized) return;
         dl.AddImage(dips_pp_logo_horiz_vsm, mainTL, mainSize, 0xFFFFFFFF, 0.0);
+    }
+}
+
+
+
+
+
+namespace Visibility {
+    void DrawMenu() {
+        if (UI::BeginMenu("Visibility")) {
+            S_ShowWhenUIHidden = UI::Checkbox("Show when UI hidden?", S_ShowWhenUIHidden);
+            S_HideMovieTitles = UI::Checkbox("Hide & silence fake movie titles?", S_HideMovieTitles);
+            UI::EndMenu();
+        }
     }
 }
