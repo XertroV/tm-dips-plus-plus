@@ -169,6 +169,17 @@ namespace MainMenuBg {
         msm.ItemSetLocation(SceneId, DD2MenuBgItemIds[ix], pos, rot, onTurntable);
         return true;
     }
+
+
+    void DrawPromoMenuSettings() {
+        if (UI::BeginMenu("Main Menu")) {
+            S_EnableMainMenuPromoBg = UI::Checkbox("Enable Main Menu Thing", S_EnableMainMenuPromoBg);
+            S_MenuBgTimeOfDay = ComboTimeOfDay("Time of Day", S_MenuBgTimeOfDay);
+            S_MenuBgSeason = ComboSeason("Season", S_MenuBgSeason);
+            UI::EndMenu();
+        }
+    }
+
 }
 
 

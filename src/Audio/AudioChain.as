@@ -15,11 +15,17 @@ class AudioChain {
     float totalDuration;
     string[]@ samplePaths;
     string samplesStr;
+    bool onlyInMap = true;
 
     AudioChain(string[]@ samplePaths) {
         @this.samplePaths = samplePaths;
         samplesStr = Json::Write(samplePaths.ToJson());
         startnew(CoroutineFunc(this.LoadSamples));
+    }
+
+    AudioChain@ WithPlayAnywhere() {
+        onlyInMap = false;
+        return this;
     }
 
     void LoadSamples() {
@@ -108,9 +114,11 @@ class AudioChain {
             }
 
             // If we exit the map, stop playing sounds
-            if (GetApp().RootMap is null || !PlaygroundExists()) {
-                StartFadeOutLoop();
-                break;
+            if (onlyInMap) {
+                if (GetApp().RootMap is null || !PlaygroundExists()) {
+                    StartFadeOutLoop();
+                    break;
+                }
             }
 
             if (voice is null) break;
@@ -122,6 +130,7 @@ class AudioChain {
             @voice = null;
             yield();
         }
+        dev_trace("Audio done " + this.samplesStr);
         isPlaying = false;
     }
 

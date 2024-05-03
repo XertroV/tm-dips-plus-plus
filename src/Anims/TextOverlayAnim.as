@@ -144,7 +144,7 @@ class TextOverlayAnim2 : TextOverlayAnim {
         this.text2 = text2;
         this.audio1Len = audio1Len;
         this.audio2Len = audio2Len;
-        @cloverSubs = SubtitlesAnim("subtitles/clover.txt");
+        @cloverSubs = SubtitlesAnim("subtitles/clover.txt", false);
     }
     //playingStartTime
 
@@ -159,7 +159,7 @@ class TextOverlayAnim2 : TextOverlayAnim {
             return true;
         }
         auto r = TextOverlayAnim::Update();
-        if (!triggered2 && (Time::Now - playingStartTime) > audio1Len) {
+        if (!triggered2 && playingStartTime > 0 && (Time::Now - playingStartTime) > audio1Len) {
             triggered2 = true;
             startnew(CoroutineFunc(this.BeginAudio2Subs));
         }

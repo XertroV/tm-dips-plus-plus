@@ -7,6 +7,9 @@ Please do not distribute altered copies of the DD2 map.
 Thank you.
 - XertroV
 */
+
+const string COLLECTION_FILE = "Collection.json";
+
 class Collection {
     CollectionItem@[] items;
     CollectionItem@[] uncollected;
@@ -18,6 +21,10 @@ class Collection {
         } else {
             warn("duplicate added: " + item.name);
         }
+    }
+
+    void RestoreFromSave() {
+        // ! todo
     }
 
     CollectionItem@ SelectOne() {

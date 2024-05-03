@@ -107,6 +107,7 @@ class DD2API {
         startnew(CoroutineFunc(SendPingLoop));
         startnew(CoroutineFunc(ReconnectWhenDisconnected));
         startnew(CoroutineFunc(WatchAndSendContextChanges));
+        QueueMsg(GetMyStatsMsg());
     }
 
     protected void AuthenticateWithServer() {
@@ -173,9 +174,24 @@ class DD2API {
         }
     }
 
+    string lastStatsJson;
     protected void SendMsgNow(OutgoingMsg@ msg) {
-        socket.WriteMsg(msg.type, Json::Write(msg.msgPayload));
+        if (msg.getTy() == MessageRequestTypes::ReportStats) {
+            lastStatsJson = Json::Write(msg.msgPayload);
+            socket.WriteMsg(msg.type, lastStatsJson);
+            startnew(CoroutineFunc(PersistCachedStats));
+        } else {
+            socket.WriteMsg(msg.type, Json::Write(msg.msgPayload));
+        }
         LogSentType(msg);
+    }
+
+    void PersistCachedStats() {
+        if (IO::FileExists(STATS_FILE)) {
+            IO::Move(STATS_FILE, STATS_FILE + ".bak");
+        }
+        IO::File f(STATS_FILE, IO::FileMode::Write);
+        f.Write(lastStatsJson);
     }
 
     protected void LogSentType(OutgoingMsg@ msg) {
@@ -345,6 +361,8 @@ class DD2API {
 
     void StatsHandler(Json::Value@ msg) {
         //warn("Stats received.");
+        dev_trace('stats from server: ' + Json::Write(msg));
+        Stats::LoadStatsFromServer(msg["stats"]);
     }
 
     void GlobalLBHandler(Json::Value@ msg) {
@@ -357,7 +375,7 @@ class DD2API {
 
     void GlobalOverviewHandler(Json::Value@ msg) {
         warn("Global Overview received. " + Json::Write(msg));
-        Global::SetFromJson(msg);
+        Global::SetFromJson(msg["j"]);
     }
 
     void Top3Handler(Json::Value@ msg) {

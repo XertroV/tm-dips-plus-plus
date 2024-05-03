@@ -136,3 +136,11 @@ enum LoadingScreenDL {
 }
 [Setting hidden]
 LoadingScreenDL S_LoadingScreenDL = LoadingScreenDL::Foreground;
+
+
+void DrawLoadingScreenMenu() {
+    if (UI::BeginMenu("Loading Screens")) {
+        S_ShowDDLoadingScreens = UI::Checkbox("Show DD Loading Screens", S_ShowDDLoadingScreens);
+        UI::EndMenu();
+    }
+}

@@ -14,24 +14,30 @@ void DrawPluginMenuItem(bool short = false) {
     // if (dips_pp_logo_horiz_vsm !is null) {
     //     UI::SetNextItemWidth(dips_pp_logo_horiz_vsm_dims.x);
     // }
-    if (UI::BeginMenu(MENU_LABEL, true)) {
+    if (UI::BeginMenu(!G_Initialized ? "Dips++" : MENU_LABEL, true)) {
         // DrawPluginMenuLabel();
         UI::Separator();
         DrawPluginMenuInner();
         UI::Separator();
         UI::EndMenu();
     }
-    DrawPluginMenuLabel();
+    if (G_Initialized) DrawPluginMenuLabel();
 }
 
 void DrawPluginMenuLabel() {
-    if (dips_pp_logo_horiz_vsm is null) return;
+    if (dips_pp_logo_horiz_vsm is null && dips_pp_logo_horiz_vsm_dims.LengthSquared() < 1.) return;
     MenuLogo::UpdateRenderVarsForMenu(UI::GetItemRect());
     MenuLogo::DrawImage(UI::GetWindowDrawList());
 }
 
 void DrawPluginMenuInner() {
-    UI::Text("Menu!");
+    Volume::DrawMenu();
+    HUD::DrawMenu();
+    Minimap::DrawMenu();
+    GreenTimer::DrawSettings();
+    Signs3d::DrawMenu();
+    DrawLoadingScreenMenu();
+    MainMenuBg::DrawPromoMenuSettings();
 }
 
 namespace MenuLogo {
@@ -48,6 +54,7 @@ namespace MenuLogo {
     }
 
     void DrawImage(UI::DrawList@ dl) {
+        if (!G_Initialized) return;
         dl.AddImage(dips_pp_logo_horiz_vsm, mainTL, mainSize, 0xFFFFFFFF, 0.0);
     }
 }

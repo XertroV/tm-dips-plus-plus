@@ -7,15 +7,18 @@ Please do not distribute altered copies of the DD2 map.
 Thank you.
 - XertroV
 */
+// subtitles anim class
 class SubtitlesAnim : Animation {
     string file;
     uint[] startTimes;
     string[] lines;
     uint endTime;
     DeepDip2LogoAnim@ dd2LogoAnim;
+    bool isVae;
 
-    SubtitlesAnim(const string &in file) {
+    SubtitlesAnim(const string &in file, bool isVae = true) {
         super(file);
+        this.isVae = isVae;
         this.file = file;
         bool fileExists = false;
         try {
@@ -194,7 +197,8 @@ class SubtitlesAnim : Animation {
     void GenerateTextBounds() {
         fontSize = g_screen.y / 40.0;
         maxWidth = g_screen.x * .5;
-        maxWidthTextOnly = maxWidth - Minimap::vScale * VAE_HEAD_SIZE / 3.;
+        maxWidthTextOnly = maxWidth;
+        if (isVae) maxWidthTextOnly -= Minimap::vScale * VAE_HEAD_SIZE / 3.;
         SetupNvgFonts();
         fullTextBounds = vec2(maxWidth, 0);
         lineBounds.RemoveRange(0, lineBounds.Length);
@@ -257,7 +261,7 @@ class SubtitlesAnim : Animation {
 
         DrawBackgroundBox(alpha);
         DrawSubtitleLines();
-        DrawVae();
+        if (isVae) DrawVae();
 
         nvg::GlobalAlpha(1.0);
 

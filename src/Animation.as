@@ -41,7 +41,7 @@ class Animation {
     }
 }
 
-Animation@[] subtitleAnims;
+SubtitlesAnim@[] subtitleAnims;
 Animation@[] textOverlayAnims;
 Animation@[] statusAnimations;
 FloorTitleGeneric@[] titleScreenAnimations;
@@ -67,7 +67,7 @@ void AddTitleScreenAnimation(FloorTitleGeneric@ anim) {
     trace('added to titleScreenAnimations: ' + anim.ToString());
 }
 
-void AddSubtitleAnimation(Animation@ anim) {
+void AddSubtitleAnimation(SubtitlesAnim@ anim) {
     subtitleAnims.InsertLast(anim);
 }
 

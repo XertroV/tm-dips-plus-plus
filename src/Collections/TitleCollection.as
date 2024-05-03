@@ -51,6 +51,7 @@ class TitleCollection : Collection {
             AddItem(TitleCollectionItem_Special(parts[0], parts[1]));
         }
         print("Loaded " + (items.Length - initLen) + " special titles");
+        startnew(CoroutineFunc(RestoreFromSaved));
     }
     void LoadGeepGipTitleData() {
         auto initLen = items.Length;
@@ -65,7 +66,10 @@ class TitleCollection : Collection {
             AddItem(TitleCollectionItem_GeepGip(parts[0], "gg/" + parts[1]));
         }
         print("Loaded " + (items.Length - initLen) + " gg titles");
+        startnew(CoroutineFunc(RestoreFromSaved));
     }
+
+    void RestoreFromSaved() {}
 }
 
 class GG_TitleCollection : TitleCollection {

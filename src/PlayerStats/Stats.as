@@ -8,6 +8,7 @@ Thank you.
 - XertroV
 */
 
+const string STATS_FILE = IO::FromStorageFolder("stats.json");
 
 namespace Stats {
     uint64 msSpentInMap = 0;
@@ -28,6 +29,8 @@ namespace Stats {
     uint titleGagsTriggered = 0;
     uint titleGagsSpecialTriggered = 0;
     uint byeByesTriggered = 0;
+    [Setting hidden]
+    uint lastLoadedDeepDip2Ts = 0;
 
     Json::Value@ GetStatsJson() {
         Json::Value@ stats = Json::Object();
@@ -50,7 +53,53 @@ namespace Stats {
         return stats;
     }
 
+    void LoadStatsFromServer(Json::Value@ j) {
+        // are these better than the stats we have?
+        float statsHeight = j['pb_height'];
+        if (statsHeight > pbHeight + 1.0) {
+            warn("Updating with stats from server since pbHeight is greater");
+            pbHeight = statsHeight;
+            pbFloor = MapFloor(int(j['pb_floor']));
+            lastPbSetTs = j['last_pb_set_ts'];
+            lastPbSet = Time::Now;
+        }
+        msSpentInMap = Math::Max(msSpentInMap, uint(j['seconds_spent_in_map']) * 1000);
+        nbJumps = Math::Max(nbJumps, j['nb_jumps']);
+        nbFalls = Math::Max(nbFalls, j['nb_falls']);
+        nbFloorsFallen = Math::Max(nbFloorsFallen, j['nb_floors_fallen']);
+        totalDistFallen = Math::Max(totalDistFallen, j['total_dist_fallen']);
+        nbResets = Math::Max(nbResets, j['nb_resets']);
+        ggsTriggered = Math::Max(ggsTriggered, j['ggs_triggered']);
+        titleGagsTriggered = Math::Max(titleGagsTriggered, j['title_gags_triggered']);
+        titleGagsSpecialTriggered = Math::Max(titleGagsSpecialTriggered, j['title_gags_special_triggered']);
+        byeByesTriggered = Math::Max(byeByesTriggered, j['bye_byes_triggered']);
+        auto jMTs = j['monument_triggers'];
+        for (uint i = 0; i < monumentTriggers.Length; i++) {
+            if (i >= jMTs.Length) {
+                break;
+            }
+            monumentTriggers[i] = Math::Max(monumentTriggers[i], jMTs[i]);
+        }
+        auto jRFC = j['reached_floor_count'];
+        for (uint i = 0; i < reachedFloorCount.Length; i++) {
+            if (i >= jRFC.Length) {
+                break;
+            }
+            reachedFloorCount[i] = Math::Max(reachedFloorCount[i], jRFC[i]);
+        }
+        auto jFVL = j['floor_voice_lines_played'];
+        for (uint i = 0; i < floorVoiceLinesPlayed.Length; i++) {
+            if (i >= jFVL.Length) {
+                break;
+            }
+            floorVoiceLinesPlayed[i] = floorVoiceLinesPlayed[i] || bool(jFVL[i]);
+        }
+    }
+
     void LoadStatsFromJson(Json::Value@ j) {
+        if (j.HasKey("ReportStats")) @j = j['ReportStats'];
+        if (j.HasKey("stats")) @j = j['stats'];
+        dev_trace("loading stats: " + Json::Write(j));
         msSpentInMap = uint(j["seconds_spent_in_map"]) * 1000;
         nbJumps = j["nb_jumps"];
         nbFalls = j["nb_falls"];
@@ -67,6 +116,18 @@ namespace Stats {
         monumentTriggers = JsonToUintArray(j["monument_triggers"]);
         reachedFloorCount = JsonToUintArray(j["reached_floor_count"]);
         floorVoiceLinesPlayed = JsonToBoolArray(j["floor_voice_lines_played"]);
+        dev_trace('loaded json stats; floor vls played len: ' + floorVoiceLinesPlayed.Length);
+    }
+
+    void OnStartTryRestoreFromFile() {
+        if (IO::FileExists(STATS_FILE)) {
+            auto statsJson = Json::FromFile(STATS_FILE);
+            if (statsJson !is null && statsJson.GetType() == Json::Type::Object) {
+                dev_trace('loading stats');
+                LoadStatsFromJson(statsJson);
+                dev_trace('loaded stats');
+            }
+        }
     }
 
     // from server
@@ -74,6 +135,7 @@ namespace Stats {
 
     void LogTimeInMapMs(uint deltaMs) {
         msSpentInMap += deltaMs;
+        lastLoadedDeepDip2Ts = Time::Now;
         UpdateStatsSoon();
     }
 

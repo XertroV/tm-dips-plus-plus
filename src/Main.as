@@ -38,6 +38,7 @@ void LoadFonts() {
 }
 
 DD2API@ g_api;
+bool G_Initialized = false;
 
 void Main() {
     auto GameVer = GetApp().SystemPlatform.ExeVersion;
@@ -56,13 +57,17 @@ void Main() {
     startnew(AwaitLocalPlayerMwId);
     startnew(RNGExtraLoop);
     startnew(MainMenuBg::OnPluginLoad);
+    startnew(Volume::VolumeOnPluginStart);
     // GenerateHeightStrings();
     InitDD2TriggerTree();
     yield();
+    startnew(Stats::OnStartTryRestoreFromFile);
+    startnew(GreenTimer::OnPluginStart);
     startnew(Wizard::OnPluginLoad);
     startnew(SF::LoadPtrs);
     sleep(200);
     @g_api = DD2API();
+    G_Initialized = true;
     sleep(300);
     startnew(RefreshAssets);
 }
@@ -124,10 +129,14 @@ void RenderMenuMain() {
 }
 
 void Render() {
+    if (!G_Initialized) return;
     DownloadProgress::Draw();
     MaybeDrawLoadingScreen();
+    Wizard::DrawWindow();
+    Volume::RenderSubtitlesVolumeIfNotActive();
     // dev mode => render in menus
     if (g_Active) {
+        GreenTimer::Render();
         HUD::Render(PS::viewedPlayer);
         RenderAnimations();
         RenderTextOveralys();
@@ -218,15 +227,20 @@ void RenderTextOveralys() {
 
 void RenderSubtitleAnims() {
     if (subtitleAnims.Length == 0) return;
-    for (uint i = 0; i < subtitleAnims.Length; i++) {
-        if (subtitleAnims[i].Update()) {
-            subtitleAnims[i].Draw();
-        } else {
-            subtitleAnims[i].OnEndAnim();
-            subtitleAnims.RemoveAt(i);
-            i--;
-        }
+    if (subtitleAnims[0].Update()) {
+        subtitleAnims[0].Draw();
+    } else {
+        subtitleAnims.RemoveAt(0);
     }
+    // for (uint i = 0; i < subtitleAnims.Length; i++) {
+    //     if (subtitleAnims[i].Update()) {
+    //         subtitleAnims[i].Draw();
+    //     } else {
+    //         subtitleAnims[i].OnEndAnim();
+    //         subtitleAnims.RemoveAt(i);
+    //         i--;
+    //     }
+    // }
 }
 
 void RenderTitleScreenAnims() {
@@ -345,6 +359,7 @@ void OnGoingActive() {
     // }
     startnew(MTWatcherForMap);
     startnew(CountTimeInMap);
+    startnew(Signs3d::SignsOnGoingActive);
 }
 
 void CountTimeInMap() {
@@ -388,9 +403,12 @@ void AwaitLocalPlayerMwId() {
     // }
 }
 
+string _LocalPlayerLogin;
+
 uint GetLocalPlayerMwId() {
     auto app = GetApp();
     if (app.LocalPlayerInfo is null) return -1;
+    _LocalPlayerLogin = app.LocalPlayerInfo.Id.GetName();
     return app.LocalPlayerInfo.Id.Value;
 }
 

@@ -151,6 +151,8 @@ namespace Minimap {
             localPlayer.minimapLabel.Draw(localPlayer, cWhite, cBlack);
             @localPlayer = null;
         }
+
+        RenderMinimapTop3();
     }
 
     float HeightToMinimapY(float h) {
@@ -323,7 +325,7 @@ namespace Minimap {
                     extraPos = textPos + vec2(textBounds.x - textPad / 2.0, 0);
                     extraFS = Math::Lerp(extraFS, playerLabelBaseHeight * extraScale, 0.05);
 
-                    nvg::FontFace(f_Nvg_ExoRegularItalic);
+                    nvg::FontFace(f_Nvg_ExoMediumItalic);
                     nvg::FontSize(extraFS);
                     fallString = tostring(int(p.pos.y)) + " (-" + int(fallDist) + ")";
                     extraBounds = Math::Lerp(extraBounds, nvg::TextBounds(fallString), 0.15);
@@ -368,7 +370,7 @@ namespace Minimap {
                 } else {
                     nvg::FillColor(Math::Lerp(cLimeGreen, cOrange, fallDegree));
                 }
-                nvg::FontFace(f_Nvg_ExoRegularItalic);
+                nvg::FontFace(f_Nvg_ExoMediumItalic);
                 nvg::FontSize(extraFS);
                 // nvg::Text(extraPos, tostring(Math::Rand(100, 1000)));
                 nvg::Text(extraPos, fallString);
@@ -376,6 +378,93 @@ namespace Minimap {
 
             nvg::ClosePath();
         }
+    }
+
+    float hoverTime = 0.;
+    float hoverDelta;
+    void RenderMinimapTop3() {
+        int hovered = 0;
+        nvg::Reset();
+        nvg::FontFace(f_Nvg_ExoBold);
+        nvg::FontSize(floorNumberBaseHeight);
+        vec2 textBounds = nvg::TextBounds("00") + vec2(textPad * 2.0, 0);
+        vec2 pos = vec2(minimapCenterPos.x, 0);
+        uint rank;
+        for (int i = Global::top3.Length - 1; i >= 0; i--) {
+            // render pb under WR
+            if (i == 0) {
+                if (RenderTop3Instance(pos, -1, textBounds, Stats::pbHeight) && hovered == 0) {
+                    hovered = -1;
+                }
+            }
+            rank = i + 1;
+            if (RenderTop3Instance(pos, rank, textBounds, Global::top3[i].height) && hovered == 0) {
+                hovered = rank;
+            }
+        }
+        // ! todo: show stats on hover
+        hoverDelta = g_DT * 3.;
+        if (hovered != 0) {
+            hoverTime = Math::Clamp(hoverTime + hoverDelta, 0., 1.);
+            DrawRecordHovered(hovered, hoverTime);
+            nvg::GlobalAlpha(1.0);
+        } else {
+            hoverTime = Math::Clamp(hoverTime - hoverDelta, 0.0, 1.0);
+        }
+    }
+
+    void DrawRecordHovered(int rank, float alpha) {
+        float height;
+        string name;
+        if (rank < 1) {
+            height = Stats::pbHeight;
+            name = "Personal Best";
+        } else {
+            height = Global::top3[rank - 1].height;
+            name = Global::top3[rank - 1].name;
+        }
+        string label = name + Text::Format(" - %.1f m", height);
+        nvg::Reset();
+        nvg::FontFace(f_Nvg_ExoBold);
+        nvg::GlobalAlpha(alpha);
+        nvg::BeginPath();
+        nvg::LineCap(nvg::LineCapType::Round);
+        auto textBounds = nvg::TextBounds(label);
+        vec2 pos = vec2(minimapCenterPos.x, HeightToMinimapY(height));
+        drawLabelBackgroundTagLines(pos, playerLabelBaseHeight, stdTriHeight, textBounds);
+        nvg::FillColor(cWhite25);
+        nvg::Fill();
+        nvg::StrokeWidth(1.5 * vScale);
+        nvg::StrokeColor(cBlack);
+        nvg::Stroke();
+        nvg::ClosePath();
+        nvg::BeginPath();
+        nvg::FillColor(cBlack);
+        nvg::TextAlign(nvg::Align::Left | nvg::Align::Middle);
+        nvg::Text(vec2(minimapCenterPos.x + playerLabelBaseHeight * 1.2, HeightToMinimapY(height)), name);
+        nvg::ClosePath();
+        nvg::GlobalAlpha(1.0);
+    }
+
+    // returns hovered
+    bool RenderTop3Instance(vec2 pos, int rank, vec2 textBounds, float height) {
+        pos.y = HeightToMinimapY(height);
+        nvg::BeginPath();
+        nvg::LineCap(nvg::LineCapType::Round);
+        drawLabelBackgroundTagLinesRev(pos, floorNumberBaseHeight, stdTriHeight * .95, textBounds);
+        nvg::FillColor(rank == 1 ? cGold : rank == 2 ? cSilver : rank == 3 ? cBronze : cSkyBlue);
+        nvg::Fill();
+        nvg::StrokeWidth(1.5 * vScale);
+        nvg::StrokeColor(cBlack);
+        nvg::Stroke();
+        nvg::ClosePath();
+        nvg::BeginPath();
+        nvg::FillColor(cBlack);
+        nvg::TextAlign(nvg::Align::Right | nvg::Align::Middle);
+        pos = pos - vec2(floorNumberBaseHeight, floorNumberBaseHeight * -0.12);
+        nvg::Text(pos, rank < 1 ? "PB" : rank == 1 ? "WR" : "#" + rank);
+        nvg::ClosePath();
+        return IsWithin(g_MousePos, vec2(0, pos.y), vec2(pos.x, stdTriHeight * .95));
     }
 
     void RenderMinimapFloors() {
@@ -439,6 +528,14 @@ namespace Minimap {
         nvg::Text(pos + vec2(playerLabelBaseHeight * 1.2, playerLabelBaseHeight * 0.12), "Editor");
         nvg::ClosePath();
     }
+
+    void DrawMenu() {
+        if (UI::BeginMenu("Minimap")) {
+            S_ShowMinimap = UI::Checkbox("Show Minimap", S_ShowMinimap);
+            S_MinimapPlayerLabelFS = UI::SliderInt("Player Label Font Size", S_MinimapPlayerLabelFS, 10, 40);
+            UI::EndMenu();
+        }
+    }
 }
 
 vec2 GetMinMaxHeight(CSmArenaClient@ cp) {
@@ -448,7 +545,7 @@ vec2 GetMinMaxHeight(CSmArenaClient@ cp) {
     }
     auto arena = cp.Arena;
     if (arena.MapLandmarks.Length == 0) {
-        NotifyWarning("GetMinMaxHeight: arena.MapLandmarks.Length == 0");
+        Dev_Notify("GetMinMaxHeight: arena.MapLandmarks.Length == 0");
         return vec2();
     }
     vec2 mm = vec2(arena.MapLandmarks[0].Position.y);

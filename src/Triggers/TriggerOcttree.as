@@ -179,10 +179,10 @@ class FloorVLTrigger : PlaySoundTrigger {
 
     void RunTrigger() {
         PlaySoundTrigger::OnEnteredTrigger(_tmpPrevTrigger);
+        Stats::SetVoiceLinePlayed(floor);
         while (audioChain is null || !audioChain.isPlaying) {
             yield();
         }
-        Stats::SetVoiceLinePlayed(floor);
         if (subtitles !is null) {
             AddSubtitleAnimation(subtitles);
         }
@@ -244,14 +244,14 @@ class GG_VLineTrigger : AntiCylinderTrigger {
     }
 
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
-        Notify(name + " entered.");
+        Dev_Notify(name + " entered.");
         if (NewTitleGagOkay()) {
             SelectNewGGAnimationAndCollect();
         }
     }
 
     void OnLeftTrigger(OctTreeRegion@ newTrigger) override {
-        Notify(name + " left.");
+        Dev_Notify(name + " left.");
         if (newTrigger is null) {
             @lastTriggerHit = null;
             lastTriggerName = "";
@@ -264,7 +264,7 @@ class GG_VLineTrigger : AntiCylinderTrigger {
             gag.PlayItem();
             TitleGag::MarkWaiting();
         } else {
-            Notify("No GG title gags left to select.");
+            Dev_Notify("No GG title gags left to select.");
         }
     }
 }
@@ -464,7 +464,7 @@ void OnLeaveTrigger(GameTrigger@ prevTrigger, GameTrigger@ newTrigger) {
 }
 
 void OnNewTriggerHit(GameTrigger@ lastTriggerHit, GameTrigger@ newTrigger) {
-    trace('OnNewTriggerHit @ ' + PS::localPlayer.pos.ToString());
+    dev_trace('OnNewTriggerHit @ ' + PS::localPlayer.pos.ToString());
     // Notify("Hit trigger: " + newTrigger.name);
     // AddTitleScreenAnimation(MainTitleScreenAnim(newTrigger.name, "test", null));
     // NotifyWarning("Added title screen anim");

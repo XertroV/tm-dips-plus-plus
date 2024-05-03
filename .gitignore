@@ -1,3 +1,4 @@
+*.webm
 *.zip
 .elevenlabs_auth
 *:Zone.Identifier
