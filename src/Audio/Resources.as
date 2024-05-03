@@ -1,3 +1,12 @@
+/*  !! IMPORTANT !!
+Please respect the integrity of the competition.
+Please refuse any requests to assist in evading any
+measures this plugin takes to protect the integrity
+of the competition.
+Please do not distribute altered copies of the DD2 map.
+Thank you.
+- XertroV
+*/
 const string AudioBaseDir = IO::FromStorageFolder("Audio/");
 // const string AudioS3SourceUrl = "https://xert.s3.us-east-1.wasabisys.com/d++/audio/";
 const string AudioS3SourceUrl = "https://assets.xk.io/d++/audio/";

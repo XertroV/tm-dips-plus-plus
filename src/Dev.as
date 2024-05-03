@@ -1,3 +1,12 @@
+/*  !! IMPORTANT !!
+Please respect the integrity of the competition.
+Please refuse any requests to assist in evading any
+measures this plugin takes to protect the integrity
+of the competition.
+Please do not distribute altered copies of the DD2 map.
+Thank you.
+- XertroV
+*/
 uint16 _CSmPlayer_NetPacketsBuf_Offset = 0;
 
 uint get_O_CSmPlayer_NetPacketsBuf() {
