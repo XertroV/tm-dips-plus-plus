@@ -44,6 +44,8 @@ enum MessageResponseTypes {
     Stats = 128,
     GlobalLB = 129,
     FriendsLB = 130,
+    GlobalOverview = 131,
+    Top3 = 132,
 }
 
 OutgoingMsg@ WrapMsgJson(Json::Value@ inner, MessageRequestTypes type) {

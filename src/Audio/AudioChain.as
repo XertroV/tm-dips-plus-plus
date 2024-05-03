@@ -102,15 +102,17 @@ class AudioChain {
                     @voice = null;
                     break;
                 }
+            } else if (voice !is null) {
+                // while we're playing, keep the volume up-to-date with settings
+                voice.SetGain(S_VolumeGain);
             }
-#if DEVx
-#else
+
             // If we exit the map, stop playing sounds
             if (GetApp().RootMap is null || !PlaygroundExists()) {
                 StartFadeOutLoop();
                 break;
             }
-#endif
+
             if (voice is null) break;
             done = voice.GetPosition() >= voice.GetLength();
             if (!done) {

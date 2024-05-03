@@ -39,6 +39,7 @@ class FallTracker {
     float currentHeight;
     uint startTime;
     uint endTime;
+    vec3 endPos;
     float startSpeed;
     vec3 startVel;
     // implies player is local
@@ -58,6 +59,7 @@ class FallTracker {
             Stats::LogFallStart();
             f13DropStartCheck = f13_dropStart.PointInside(player.pos);
             if (f13DropStartCheck) Dev_Notify("F13 drop start check passed");
+            PushMessage(ReportFallStartMsg(uint8(startFloor), player.pos, player.vel, startTime));
         }
     }
 
@@ -89,6 +91,7 @@ class FallTracker {
             } else {
                 Stats::LogFallEndedLessThanMin();
             }
+            PushMessage(ReportFallEndMsg(uint8(currentFloor), endPos, endTime));
         }
     }
 
@@ -133,6 +136,7 @@ class FallTracker {
 
     void OnEndFall(PlayerState@ player) {
         endTime = Time::Now;
+        endPos = player.pos;
         if (f13DropStartCheck && !f13DropEndCheck) {
             f13DropEndCheck = f13_dropEnd.PointInside(player.pos);
             if (f13DropEndCheck) {
@@ -155,6 +159,36 @@ class FallTracker {
         return "Fell " + Text::Format("%.0f m / ", fallDist) + FloorsFallen() + " floors";
     }
 }
+
+
+
+class ClimbTracker {
+    bool recordStats;
+    int floorReached = 0;
+    float maxH = 0;
+
+    ClimbTracker(PlayerState@ player) {
+        recordStats = player.isLocal;
+    }
+
+    void Reset() {
+        floorReached = 0;
+        maxH = 0;
+    }
+
+    void Update(float height) {
+        if (recordStats && height > maxH) {
+            maxH = height;
+            auto f = HeightToFloor(height);
+            if (f > floorReached) {
+                floorReached = int(f);
+                Stats::LogFloorReached(f);
+            }
+        }
+    }
+}
+
+
 
 MapFloor HeightToFloor(float h) {
     return HeightToFloorBinarySearch(h);

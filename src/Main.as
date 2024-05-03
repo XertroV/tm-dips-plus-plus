@@ -369,6 +369,7 @@ void CountTimeInMap() {
 void EmitOnPlayerRespawn(PlayerState@ ps) {
     if (ps.isLocal) {
         TitleGag::OnPlayerRespawn();
+        Stats::LogRestart(ps.lastRaceTime);
     }
 }
 

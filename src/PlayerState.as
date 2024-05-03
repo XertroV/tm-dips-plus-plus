@@ -26,6 +26,9 @@ class PlayerState {
     FallTracker@ lastFall;
     uint lastRespawn;
     int raceTime;
+    int lastRaceTime;
+
+    ClimbTracker@ climbTracker;
 
     // changed flags, type: union of UpdatedFlags
     int updatedThisFrame = UpdatedFlags::None;
@@ -46,6 +49,9 @@ class PlayerState {
         isLocal = playerScoreMwId == g_LocalPlayerMwId;
         startnew(CoroutineFunc(CheckUpdateIsLocal));
         lastRespawn = Time::Now;
+        if (isLocal) {
+            @climbTracker = ClimbTracker(this);
+        }
     }
 
     void CheckUpdateIsLocal() {
@@ -68,6 +74,7 @@ class PlayerState {
     void Update(CSmPlayer@ player) {
         @this.player = player;
         if (cast<CSmScriptPlayer>(player.ScriptAPI) !is null) {
+            lastRaceTime = raceTime;
             raceTime = GetRaceTimeFromStartTime(cast<CSmScriptPlayer>(player.ScriptAPI).StartTime);
         }
         this.isViewed = PS::guiPlayerMwId == playerScoreMwId;
@@ -257,6 +264,9 @@ class PlayerState {
             }
             @fallTracker = null;
             @lastFall = null;
+            if (climbTracker !is null) {
+                climbTracker.Reset();
+            }
             lastRespawn = Time::Now;
         }
         if (isFalling && fallTracker !is null) {
@@ -269,6 +279,7 @@ class PlayerState {
             AfterUpdate_FallTracker();
         }
         if (isLocal) {
+            climbTracker.Update(this.pos.y);
             if (!TitleGag::IsReady() && this.pos.y >= 106.0) {
                 TitleGag::OnReachFloorOne();
             }

@@ -17,8 +17,14 @@ void PushPBHeightUpdateToServer() {
     while (g_api is null || !g_api.HasContext) yield();
     auto pb = Stats::GetPBHeight();
     g_api.QueueMsg(ReportPBHeightMsg(pb));
-
 }
+
+
+void PushMessage(OutgoingMsg@ msg) {
+    if (g_api is null) return;
+    g_api.QueueMsg(msg);
+}
+
 
 Json::Value@ JSON_TRUE = Json::Parse("true");
 
@@ -27,7 +33,7 @@ bool IsJsonTrue(Json::Value@ jv) {
     return bool(jv);
 }
 
-#if DEVx
+#if DEV
 const string ENDPOINT = "127.0.0.1";
 #else
 // 161.35.155.191
@@ -288,7 +294,16 @@ class DD2API {
         //     warn("Message type " + msg.msgType + " does not have a key for its type. Message: " + msg.msgData);
         //     return;
         // }
-        msgHandlers[msg.msgType](msg.msgJson);
+        Json::Value@ j;
+        try {
+            msgHandlers[msg.msgType](msg.msgJson);
+        } catch {
+            print("msg: " + Json::Write(msg.msgJson));
+            warn("Failed to handle message type: " + MessageResponseTypes(msg.msgType) + ". " + getExceptionInfo());
+// #if DEV
+//             msgHandlers[msg.msgType](msg.msgJson);
+// #endif
+        }
     }
 
 
@@ -305,6 +320,8 @@ class DD2API {
         @msgHandlers[MessageResponseTypes::Stats] = MsgHandler(StatsHandler);
         @msgHandlers[MessageResponseTypes::GlobalLB] = MsgHandler(GlobalLBHandler);
         @msgHandlers[MessageResponseTypes::FriendsLB] = MsgHandler(FriendsLBHandler);
+        @msgHandlers[MessageResponseTypes::GlobalOverview] = MsgHandler(GlobalOverviewHandler);
+        @msgHandlers[MessageResponseTypes::Top3] = MsgHandler(Top3Handler);
     }
 
 
@@ -337,7 +354,60 @@ class DD2API {
     void FriendsLBHandler(Json::Value@ msg) {
         //warn("Friends LB received.");
     }
+
+    void GlobalOverviewHandler(Json::Value@ msg) {
+        warn("Global Overview received. " + Json::Write(msg));
+        Global::SetFromJson(msg);
+    }
+
+    void Top3Handler(Json::Value@ msg) {
+        warn("Top3 received. " + Json::Write(msg) + " / type: " + tostring(msg.GetType()));
+        Global::SetTop3FromJson(msg["top3"]);
+    }
 }
+
+namespace Global {
+    uint players = 0;
+    uint sessions = 0;
+    uint resets = 0;
+    uint jumps = 0;
+    uint map_loads = 0;
+    uint falls = 0;
+    uint floors_fallen = 0;
+    float height_fallen = 0;
+
+    void SetFromJson(Json::Value@ j) {
+        try {
+            players = j["players"];
+            sessions = j["sessions"];
+            resets = j["resets"];
+            jumps = j["jumps"];
+            map_loads = j["map_loads"];
+            falls = j["falls"];
+            floors_fallen = j["floors_fallen"];
+            height_fallen = j["height_fallen"];
+        } catch {
+            warn("Failed to parse Global stats. " + getExceptionInfo());
+        }
+    }
+
+    LBEntry@[] top3 = {LBEntry(), LBEntry(), LBEntry()};
+    void SetTop3FromJson(Json::Value@ j) {
+        for (uint i = 0; i < j.Length; i++) {
+            while (i >= top3.Length) {
+                top3.InsertLast(LBEntry());
+            }
+            top3[i].SetFromJson(j[i]);
+        }
+        EmitUpdatedTop3();
+    }
+}
+
+
+void EmitUpdatedTop3() {
+    warn("emit updated top3");
+}
+
 
 
 funcdef void MsgHandler(Json::Value@);

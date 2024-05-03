@@ -203,8 +203,10 @@ namespace Map {
             if (relevant) {
                 j["uid"] = map.EdChallengeId;
             } else {
-                j["uid"] = map.EdChallengeId.SubStr(0, 23) + "xxxx";
+                j["uid"] = Crypto::MD5(map.EdChallengeId).SubStr(0, 30);
             }
+            string mnLower = string(map.MapName).ToLower();
+            relevant = relevant || (mnLower.Contains("deep") || mnLower.Contains("dip") || mnLower.Contains("dd2"));
             j["name"] = relevant ? string(map.MapName) : "<!:;not relevant>";
             j["hash"] = GetMapHash(map);
         } catch {

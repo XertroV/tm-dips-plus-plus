@@ -123,6 +123,11 @@ namespace Stats {
         nbFalls--;
     }
 
+    void LogRestart(uint raceTime) {
+        nbResets++;
+        PushMessage(ReportRespawnMsg(raceTime));
+    }
+
     // just after maji floor welcome sign
     const float PB_START_ALERT_LIMIT = 112.;
 
@@ -252,6 +257,17 @@ void EmitNewHeightPB(PlayerState@ player) {
 
 class LBEntry {
     string name;
+    string wsid;
     float height;
+    uint rank;
+    uint ts;
     uint raceTimeAtHeight;
+
+    void SetFromJson(Json::Value@ j) {
+        name = j["name"];
+        wsid = j["wsid"];
+        height = j["height"];
+        rank = j["rank"];
+        ts = j["ts"];
+    }
 }

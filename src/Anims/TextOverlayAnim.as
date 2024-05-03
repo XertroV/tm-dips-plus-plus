@@ -15,6 +15,7 @@ class TextOverlayAnim : Animation {
     float maxWidth = g_screen.x * .5;
     string text;
     AudioChain@ audio;
+    uint playingStartTime = 0;
 
     TextOverlayAnim(const string &in triggerName, const string &in text, AudioChain@ audio = null) {
         super(triggerName);
@@ -26,6 +27,7 @@ class TextOverlayAnim : Animation {
     void AwaitVoiceLinesEndedThenPlayAudio() {
         while (IsVoiceLinePlaying()) yield();
         SetTextOverlayAudio(audio);
+        playingStartTime = Time::Now;
     }
 
     bool fadingOut = false;
@@ -45,14 +47,13 @@ class TextOverlayAnim : Animation {
     }
 
     bool Update() override {
-        if (IsVoiceLinePlaying()) return true;
+        if (fadingIn) {
+            return UpdateFadeIn();
+        }
         if (fadingOut || !StillInTrigger) {
             if (!fadingOut) audio.StartFadeOutLoop();
             fadingOut = true;
-            return UpdateFadeOut();
-        }
-        if (fadingIn) {
-            return UpdateFadeIn();
+            return UpdateFadeOut() || IsVoiceLinePlaying();
         }
         return true;
     }
@@ -75,7 +76,7 @@ class TextOverlayAnim : Animation {
         if (t <= 0.0) {
             t = 0.0;
             prog = 0.0;
-            return false;
+            return !IsVoiceLinePlaying();
         }
         return true;
     }
@@ -124,9 +125,57 @@ TextOverlayAnim@ Jave_TextOverlayAnim() {
     return TextOverlayAnim("Jave Monument", MONUMENT_JAVE, AudioChain({"after_months_of_grinding_the_tower_jave_finally_managed_to_secure_the_deep_dip_world_record_on_o_2.mp3"}));
 }
 
+// ! test
 TextOverlayAnim@ Bren_TextOverlayAnim() {
-    return TextOverlayAnim("Bren Monument", MONUMENT_BREN, AudioChain({"following_a_spectacular_battle_bren_managed_to_be_the_first_to_conquer_deep_dip_on_november_23rd_3.mp3"}));
+    return TextOverlayAnim2("Bren Monument", MONUMENT_BREN, 29350, MONUMENT_BREN_CLOVER, 22400,
+        AudioChain({"following_a_spectacular_battle_bren_managed_to_be_the_first_to_conquer_deep_dip_on_november_23rd_3.mp3",
+            "monument_bren_correction_12_finishers.mp3"}));
 }
+
+
+class TextOverlayAnim2 : TextOverlayAnim {
+    string text2;
+    uint audio1Len;
+    uint audio2Len;
+    SubtitlesAnim@ cloverSubs;
+
+    TextOverlayAnim2(const string &in triggerName, const string &in text, uint audio1Len, const string &in text2, uint audio2Len, AudioChain@ audio = null) {
+        super(triggerName, text, audio);
+        this.text2 = text2;
+        this.audio1Len = audio1Len;
+        this.audio2Len = audio2Len;
+        @cloverSubs = SubtitlesAnim("subtitles/clover.txt");
+    }
+    //playingStartTime
+
+    bool triggered2 = false;
+    uint lastUpdate = 0;
+    bool Update() override {
+        if (IsPauseMenuOpen(true)) {
+            if (lastUpdate > 0) {
+                playingStartTime += (Time::Now - lastUpdate);
+            }
+            lastUpdate = Time::Now;
+            return true;
+        }
+        auto r = TextOverlayAnim::Update();
+        if (!triggered2 && (Time::Now - playingStartTime) > audio1Len) {
+            triggered2 = true;
+            startnew(CoroutineFunc(this.BeginAudio2Subs));
+        }
+        lastUpdate = Time::Now;
+        return r;
+    }
+
+    void BeginAudio2Subs() {
+        fadingOut = true;
+        AddSubtitleAnimation(cloverSubs);
+        while (Time::Now - playingStartTime < audio2Len) yield();
+        fadingIn = true;
+        fadingOut = false;
+    }
+}
+
 
 AudioChain@ textOverlayAudio;
 
