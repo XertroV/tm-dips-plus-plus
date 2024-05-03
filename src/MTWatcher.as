@@ -16,7 +16,7 @@ Thank you.
 string lastMtClipName = "";
 
 // not final
-const string DD2_MAP_UID = "GlTCmDKkbHoYB3dvSwZZRrCv0em";
+const string DD2_MAP_UID = "DeepDip2__The_Storm_Is_Here";
 
 bool IsDD2Map() {
     auto map = GetApp().RootMap;
