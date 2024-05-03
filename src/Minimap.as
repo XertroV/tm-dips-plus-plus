@@ -12,6 +12,12 @@ const uint AFTER_FALL_STABLE_AFTER = 4000;
 
 /// A vertical minimap for showing falls in real time
 /// ~~Rotates in 3d depending on camera orientation~~
+
+[Setting hidden]
+float S_MinimapLeftPad = 50.0;
+[Setting hidden]
+float S_MinimapTopBottomPad = 150.0;
+
 namespace Minimap {
     vec3 camPos;
     mat4 camProjMat;
@@ -61,7 +67,7 @@ namespace Minimap {
                 vScale = g_screen.y / stdHeightPx;
                 widthScaleForRelative = Math::Max(g_screen.x / g_screen.y * stdHeightPx / stdWidthPx, 1.0);
             }
-            mmPadding = vec2(50.0, 150);
+            mmPadding = vec2(S_MinimapLeftPad, S_MinimapTopBottomPad);
             minimapSize.y = (stdHeightPx - mmPadding.y * 2.) * vScale;
             minimapCenterPos = mmPadding * vScale;
             mmPadding *= vScale;
@@ -533,6 +539,9 @@ namespace Minimap {
         if (UI::BeginMenu("Minimap")) {
             S_ShowMinimap = UI::Checkbox("Show Minimap", S_ShowMinimap);
             S_MinimapPlayerLabelFS = UI::SliderInt("Player Label Font Size", S_MinimapPlayerLabelFS, 10, 40);
+            S_MinimapLeftPad = UI::SliderFloat("Minimap Left Padding", S_MinimapLeftPad, 0, 200);
+            S_MinimapTopBottomPad = UI::SliderFloat("Minimap Top/Bottom Padding", S_MinimapTopBottomPad, 0, 500);
+            updateMatrices = true;
             UI::EndMenu();
         }
     }

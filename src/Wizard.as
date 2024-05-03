@@ -91,6 +91,10 @@ namespace Wizard {
             UI::SameLine();
             S_PauseWhenGameUnfocused = UI::Checkbox("Pause audio when the game is unfocused", S_PauseWhenGameUnfocused);
             UI::PopFont();
+            if (DrawCenteredButton("Skip Audio Test", f_DroidBig, 20.)) {
+                Volume::ToggleAudioTest();
+                wizardStep++;
+            }
         } else if (DrawCenteredButton("Proceed", f_DroidBig, 20.)) {
             wizardStep++;
         }

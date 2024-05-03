@@ -44,10 +44,10 @@ namespace Volume {
     void ToggleAudioTest() {
         if (vtAudio is null) return;
         if (vtAudio.isPlaying) {
-            // vtAudio.StartFadeOutLoop();
-            // if (subtitleAnims.Length > 0 && subtitleAnims[0].file == vtFile) {
-            //     subtitleAnims.RemoveAt(0);
-            // }
+            vtAudio.StartFadeOutLoop();
+            if (subtitleAnims.Length > 0 && subtitleAnims[0].file == vtFile) {
+                subtitleAnims.RemoveAt(0);
+            }
             return;
         }
         @vtSubtitlesAnim = SubtitlesAnim(vtFile, false);

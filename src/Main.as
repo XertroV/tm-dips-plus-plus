@@ -61,8 +61,8 @@ void Main() {
     // GenerateHeightStrings();
     InitDD2TriggerTree();
     yield();
-    // don't trust users not to just edit the file; get it from server instead.
-    // startnew(Stats::OnStartTryRestoreFromFile);
+    // ~~don't trust users not to just edit the file; get it from server instead.~~
+    startnew(Stats::OnStartTryRestoreFromFile);
     startnew(GreenTimer::OnPluginStart);
     startnew(Wizard::OnPluginLoad);
     startnew(SF::LoadPtrs);
