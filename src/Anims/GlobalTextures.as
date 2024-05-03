@@ -1,5 +1,6 @@
 nvg::Texture@ frogdance_tex;
 nvg::Texture@ dips_pp_logo_sm;
+UI::Texture@ ui_dips_pp_logo_sm;
 UI::Texture@ dips_pp_logo_horiz_vsm;
 vec2 dips_pp_logo_horiz_vsm_dims;
 
@@ -9,8 +10,11 @@ void LoadGlobalTextures() {
     @frogdance_tex = nvg::LoadTexture(buf, nvg::TextureFlags::Nearest);
 
     IO::FileSource dpp("sprites/dips-pp-sm.png");
-    @dips_pp_logo_sm = nvg::LoadTexture(dpp.Read(dpp.Size()), nvg::TextureFlags::None);
+    @buf = dpp.Read(dpp.Size());
+    @dips_pp_logo_sm = nvg::LoadTexture(buf, nvg::TextureFlags::None);
     DipsPPSettings::texDims = dips_pp_logo_sm.GetSize();
+    buf.Seek(0);
+    @ui_dips_pp_logo_sm = UI::LoadTexture(buf);
 
     IO::FileSource dpp_horiz("sprites/dpp-horiz-vsm.png");
     // @dips_pp_logo_horiz_vsm = nvg::LoadTexture(dpp_horiz.Read(dpp_horiz.Size()), nvg::TextureFlags::None);

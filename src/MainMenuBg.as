@@ -1,4 +1,6 @@
 namespace MainMenuBg {
+    const string SKIN_ML_PATH = "Skins\\Models\\CharacterPilot\\DeepDip2_MenuItem.zip";
+
     string origML;
     bool gotOrigML = false;
 
@@ -124,7 +126,7 @@ namespace MainMenuBg {
         string modelName = stack.CurrentWString(1);
         if (modelName != "CharacterPilot") return true;
         string skinNameOrUrl = stack.CurrentWString(0);
-        if (skinNameOrUrl != "Skins\\Models\\CharacterPilot\\DeepDip2_MenuItem.zip") return true;
+        if (skinNameOrUrl != SKIN_ML_PATH) return true;
         observeMwIds = true;
         SceneId = stack.CurrentId(2);
         // @msm = cast<CGameMenuSceneScriptManager>(nod);
@@ -227,7 +229,7 @@ enum Season {
 APatchSet@ GetMenuPatches(int setTimeOfDay = -1, int setSeason = -1) {
     APatchSet@ patches = APatchSet();
     patches.AddPatch(AppendPatch("Ident PodiumItemId;", "\n\tIdent DD2ItemId;"));
-    patches.AddPatch(AppendPatch("#Const HomeBackground_C_PilotInCar False", "\n#Const HomeBackground_C_DD2Position <2.75, 1.25, 12.0>\n#Const HomeBackground_C_DD2Rotation 10."));
+    patches.AddPatch(AppendPatch("#Const HomeBackground_C_PilotInCar False", "\n#Const HomeBackground_C_DD2Position <2.65, 1.05, 10.0>\n#Const HomeBackground_C_DD2Rotation 10."));
     if (setTimeOfDay >= 0) {
         patches.AddPatch(PrependPatch("HomeBackground_TimeOfDay::GetDayPart(HomeBackground_TimeOfDay::GetDayProgression(), False),", "" + setTimeOfDay + ", //"));
     }

@@ -3,6 +3,8 @@ const string MenuIconColor = "\\$fd5";
 const string MenuTitle = MenuIconColor + Icons::ArrowDown + "\\$z " + PluginName;
 
 UI::Font@ f_MonoSpace = null;
+UI::Font@ f_DroidBig = null;
+UI::Font@ f_DroidBigger = null;
 int f_Nvg_OswaldLightItalic = nvg::LoadFont("Fonts/Oswald-LightItalic.ttf", true, true);
 int f_Nvg_ExoLightItalic = nvg::LoadFont("Fonts/Exo-LightItalic.ttf", true, true);
 int f_Nvg_ExoRegularItalic = nvg::LoadFont("Fonts/Exo-Italic.ttf", true, true);
@@ -22,6 +24,8 @@ bool DEV_MODE = false;
 
 void LoadFonts() {
 	@f_MonoSpace = UI::LoadFont("DroidSansMono.ttf");
+    @f_DroidBig = UI::LoadFont("DroidSans.ttf", 20);
+    @f_DroidBigger = UI::LoadFont("DroidSans.ttf", 26);
 }
 
 DD2API@ g_api;
@@ -46,6 +50,7 @@ void Main() {
     // GenerateHeightStrings();
     InitDD2TriggerTree();
     yield();
+    startnew(Wizard::OnPluginLoad);
     startnew(SF::LoadPtrs);
     sleep(200);
     @g_api = DD2API();

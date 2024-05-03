@@ -101,13 +101,14 @@ void RefreshAssets() {
 }
 
 const string MENU_ITEM_RELPATH = "Skins/Models/CharacterPilot/DeepDip2_MenuItem.zip";
+const string MENU_ITEM_RELPATH2 = "Skins/Models/CharacterPilot/DeepDip2_MenuItem_v2.zip";
 
 void AddNonAudioAssetDownloads() {
     AddArbitraryAssetDownload("img/Deep_dip_2_logo.png");
     AddArbitraryAssetDownload("img/vae_square.png");
     AddArbitraryAssetDownload("img/vae.png");
-    AddArbitraryAssetDownload("img/vae.png");
     GameFolderAssetDownload(MENU_ITEM_RELPATH);
+    GameFolderAssetDownload(MENU_ITEM_RELPATH2);
     AddArbitraryAssetDownload("img/floor0.jpg");
     AddArbitraryAssetDownload("img/floor1.jpg");
     AddArbitraryAssetDownload("img/floor2.jpg");
@@ -282,25 +283,47 @@ void UpdateDownloads() {
 
 
 void PreloadCriticalSounds() {
-    Audio_LoadFromCache_Async("vt/volume_test.mp3");
-    Audio_LoadFromCache_Async("vl/Intro_Plugin_2.mp3");
-    Audio_LoadFromCache_Async("vl/Level_1_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_2_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_3_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_4_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_5_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_6_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_7_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_8_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_9_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_10_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_11_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_12_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_13_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_14_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_15_final.mp3");
-    Audio_LoadFromCache_Async("vl/Level_16_final.mp3");
-    Audio_LoadFromCache_Async("vl/Lvl_17_Finished.mp3");
-    Audio_LoadFromCache_Async("deep_dip_2.mp3");
-    Audio_LoadFromCache_Async("geep_gip_2.mp3");
+    Meta::PluginCoroutine@[] coros;
+    coros.InsertLast(AudioLoader("vt/volume_test.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Intro_Plugin_2.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_1_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_2_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_3_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_4_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_5_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_6_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_7_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_8_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_9_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_10_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_11_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_12_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_13_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_14_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_15_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Level_16_final.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("vl/Lvl_17_Finished.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("deep_dip_2.mp3").GetCoro());
+    coros.InsertLast(AudioLoader("geep_gip_2.mp3").GetCoro());
+    await(coros);
+}
+
+class AudioLoader {
+    string path;
+    Meta::PluginCoroutine@ coro;
+
+    AudioLoader(const string &in path) {
+        this.path = path;
+        // yield here to ensure we don't make them all on one frame in case the assets already exist.
+        yield();
+        @coro = startnew(CoroutineFunc(DoLoad));
+    }
+
+    Meta::PluginCoroutine@ GetCoro() {
+        return coro;
+    }
+
+    void DoLoad() {
+        Audio_LoadFromCache_Async(path);
+    }
 }
