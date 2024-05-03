@@ -117,6 +117,7 @@ class TitleCollection : Collection {
         }
         f.Close();
         string cName;
+        print("loaded " + collected.Length + " collected titles");
         for (uint i = 0; i < collected.Length; i++) {
             cName = collected[i]["name"];
             if (itemLookup.Exists(cName)) {
@@ -129,6 +130,7 @@ class TitleCollection : Collection {
                 }
             }
         }
+        UpdateUncollected();
     }
 }
 
@@ -149,6 +151,8 @@ class TitleCollectionItem : CollectionItem {
     }
 
     void CollectTitleSoon() {
+        collected = true;
+        collectedAt = Time::Now;
         CollectSoonTrigger(1200);
         IO::File f(parent.FileName, IO::FileMode::Append);
         f.WriteLine(Json::Write(this.ToUserJson()));
