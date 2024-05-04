@@ -82,8 +82,8 @@ class CollectionItem {
         if (!collected) {
             collectedAt = Time::Stamp;
             collected = true;
-            sleep(sleepTime);
             EmitCollected(this);
+            sleep(sleepTime);
         }
     }
 

@@ -250,9 +250,9 @@ namespace Map {
             string acc;
             while (!buf.AtEnd()) {
                 // trace('b:' + buf.GetPosition());
-                acc += Crypto::Sha256(buf.ReadToBase64(Math::Min(0x20000, buf.GetSize() - buf.GetPosition())));
+                acc += Crypto::Sha256(buf.ReadToBase64(Math::Min(0x40000, buf.GetSize() - buf.GetPosition())));
                 // trace('a1:' + buf.GetPosition());
-                buf.Seek(Math::Min(0x20000, buf.GetSize() - buf.GetPosition()), 1);
+                buf.Seek(Math::Min(0x40000, buf.GetSize() - buf.GetPosition()), 1);
                 // trace('a2:' + buf.GetPosition());
                 if (!buf.AtEnd()) {
                     yield();

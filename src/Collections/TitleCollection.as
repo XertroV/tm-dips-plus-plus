@@ -151,9 +151,14 @@ class TitleCollectionItem : CollectionItem {
     }
 
     void CollectTitleSoon() {
-        collected = true;
-        collectedAt = Time::Now;
         CollectSoonTrigger(1200);
+        startnew(CoroutineFunc(LogCollectedWhenCollected));
+    }
+
+    void LogCollectedWhenCollected() {
+        while (!collected) {
+            yield();
+        }
         IO::File f(parent.FileName, IO::FileMode::Append);
         f.WriteLine(Json::Write(this.ToUserJson()));
     }
