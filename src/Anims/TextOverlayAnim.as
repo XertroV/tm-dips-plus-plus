@@ -168,11 +168,8 @@ class TextOverlayAnim2 : TextOverlayAnim {
     }
 
     void BeginAudio2Subs() {
-        fadingOut = true;
         AddSubtitleAnimation(cloverSubs);
         while (Time::Now - playingStartTime < audio2Len) yield();
-        fadingIn = true;
-        fadingOut = false;
     }
 }
 
