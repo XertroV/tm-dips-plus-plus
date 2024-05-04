@@ -81,11 +81,19 @@ namespace MainUI {
         UI::TextWrapped("Details and things coming soon!");
     }
 
+    uint lastLbUpdate = 0;
+
     void DrawLeaderboardTab() {
+        // update at most once per minute
+        if (lastLbUpdate + 60000 < Time::Now) {
+            lastLbUpdate = Time::Now;
+            PushMessage(GetMyRankMsg());
+            PushMessage(GetGlobalLBMsg(1, 501));
+        }
         DrawCenteredText("Leaderboard", f_DroidBigger, 26.);
         DrawCenteredText("Top 3", f_DroidBigger, 26.);
         auto @top3 = Global::top3;
-        for (uint i = 0; i < top3.Length; i++) {
+        for (uint i = 0; i < Math::Min(S_NbTopTimes, top3.Length); i++) {
             auto @player = top3[i];
             if (player.name == "") {
                 DrawCenteredText(tostring(i + 1) + ". ???", f_DroidBig, 20.);
@@ -93,8 +101,37 @@ namespace MainUI {
                 DrawCenteredText(tostring(i + 1) + ". " + player.name + Text::Format(" - %.1f m", player.height), f_DroidBig, 20.);
             }
         }
-        UI::Text("");
-        DrawCenteredText("-- More LB Features Soon --", f_DroidBig, 20.);
+        UI::Separator();
+        DrawCenteredText("My Rank", f_DroidBigger, 26.);
+        DrawCenteredText(Text::Format("%d. ", Global::myRank.rank) + Text::Format("%.1f m", Global::myRank.height), f_DroidBig, 20.);
+        UI::Separator();
+        DrawCenteredText("Global Leaderboard", f_DroidBigger, 26.);
+        if (UI::BeginChild("GlobalLeaderboard", vec2(0, 0), false, UI::WindowFlags::AlwaysVerticalScrollbar)) {
+            if (UI::BeginTable('lbtabel', 3, UI::TableFlags::SizingStretchSame)) {
+                UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80.);
+                UI::TableSetupColumn("Height (m)", UI::TableColumnFlags::WidthFixed, 100.);
+                UI::TableSetupColumn("Player");
+                UI::ListClipper clip(Global::globalLB.Length);
+                while (clip.Step()) {
+                    for (int i = clip.DisplayStart; i < clip.DisplayEnd; i++) {
+                        UI::PushID(i);
+                        UI::TableNextRow();
+                        auto item = Global::globalLB[i];
+                        UI::TableNextColumn();
+                        UI::Text(Text::Format("%d.", item.rank));
+                        UI::TableNextColumn();
+                        UI::Text(Text::Format("%.1f m", item.height));
+                        UI::TableNextColumn();
+                        UI::Text(item.name);
+                        UI::PopID();
+                    }
+                }
+                UI::EndTable();
+            }
+        }
+        UI::EndChild();
+        // UI::Text("");
+        // DrawCenteredText("-- More LB Features Soon --", f_DroidBig, 20.);
     }
 
     void DrawVoiceLinesTab() {

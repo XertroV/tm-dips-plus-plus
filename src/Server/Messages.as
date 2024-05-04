@@ -27,6 +27,9 @@ enum MessageRequestTypes {
     GetMyStats = 128,
     GetGlobalLB = 129,
     GetFriendsLB = 130,
+    GetGlobalOverview = 131,
+    GetServerStats = 132,
+    GetMyRank = 133,
 
     StressMe = 255,
 }
@@ -46,6 +49,7 @@ enum MessageResponseTypes {
     FriendsLB = 130,
     GlobalOverview = 131,
     Top3 = 132,
+    MyRank = 133,
 }
 
 OutgoingMsg@ WrapMsgJson(Json::Value@ inner, MessageRequestTypes type) {
@@ -165,8 +169,11 @@ OutgoingMsg@ GetMyStatsMsg() {
     // return OutgoingMsg(uint8(MessageRequestTypes::GetMyStats), Json::Object());
 }
 
-OutgoingMsg@ GetGlobalLBMsg() {
-    return WrapMsgJson(Json::Object(), MessageRequestTypes::GetGlobalLB);
+OutgoingMsg@ GetGlobalLBMsg(uint start, uint end) {
+    auto j = Json::Object();
+    j["start"] = start;
+    j["end"] = end;
+    return WrapMsgJson(j, MessageRequestTypes::GetGlobalLB);
     // return OutgoingMsg(uint8(MessageRequestTypes::GetGlobalLB), Json::Object());
 }
 
@@ -177,6 +184,10 @@ OutgoingMsg@ GetFriendsLBMsg(string[]@ friends) {
         j.Add(friends[i]);
     }
     return WrapMsgJson(j, MessageRequestTypes::GetFriendsLB);
+}
+
+OutgoingMsg@ GetMyRankMsg() {
+    return WrapMsgJson(Json::Object(), MessageRequestTypes::GetMyRank);
 }
 
 OutgoingMsg@ StressMeMsg() {

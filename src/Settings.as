@@ -15,6 +15,9 @@ bool S_ShowWhenUIHidden = false;
 bool S_HideMovieTitles = false;
 
 [Setting hidden]
+uint S_NbTopTimes = 3;
+
+[Setting hidden]
 bool S_Enabled = true;
 
 [Setting category="General" name="Volume" min=0 max=1]

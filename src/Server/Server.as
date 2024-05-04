@@ -339,6 +339,7 @@ class DD2API {
         @msgHandlers[MessageResponseTypes::FriendsLB] = MsgHandler(FriendsLBHandler);
         @msgHandlers[MessageResponseTypes::GlobalOverview] = MsgHandler(GlobalOverviewHandler);
         @msgHandlers[MessageResponseTypes::Top3] = MsgHandler(Top3Handler);
+        @msgHandlers[MessageResponseTypes::MyRank] = MsgHandler(MyRankHandler);
     }
 
 
@@ -374,6 +375,7 @@ class DD2API {
 
     void GlobalLBHandler(Json::Value@ msg) {
         //warn("Global LB received.");
+        Global::UpdateLBFromJson(msg["entries"]);
     }
 
     void FriendsLBHandler(Json::Value@ msg) {
@@ -388,6 +390,11 @@ class DD2API {
     void Top3Handler(Json::Value@ msg) {
         // warn("Top3 received. " + Json::Write(msg) + " / type: " + tostring(msg.GetType()));
         Global::SetTop3FromJson(msg["top3"]);
+    }
+
+    void MyRankHandler(Json::Value@ msg) {
+        // warn("MyRank received. " + Json::Write(msg));
+        Global::SetMyRankFromJson(msg["r"]);
     }
 }
 
@@ -435,11 +442,36 @@ namespace Global {
         }
         EmitUpdatedTop3();
     }
+
+    LBEntry@[] globalLB = {};
+    void UpdateLBFromJson(Json::Value@ j) {
+        while (globalLB.Length < j.Length) {
+            globalLB.InsertLast(LBEntry());
+        }
+        for (uint i = 0; i < j.Length; i++) {
+            globalLB[i].SetFromJson(j[i]);
+        }
+        EmitUpdatedGlobalLB();
+    }
+
+    LBEntry myRank = LBEntry();
+    void SetMyRankFromJson(Json::Value@ j) {
+        myRank.SetFromJson(j);
+        EmitUpdatedMyRank();
+    }
 }
 
 
 void EmitUpdatedTop3() {
     // warn("emit updated top3");
+}
+
+void EmitUpdatedGlobalLB() {
+
+}
+
+void EmitUpdatedMyRank() {
+
 }
 
 

@@ -149,6 +149,7 @@ namespace Wizard {
         g_WizardOpen = false;
         wizardStep = 0;
         showVolumeSlider = false;
+        Meta::SaveSettings();
     }
 }
 

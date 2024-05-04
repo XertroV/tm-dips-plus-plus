@@ -396,7 +396,7 @@ namespace Minimap {
         vec2 textBounds = nvg::TextBounds("00") + vec2(textPad * 2.0, 0);
         vec2 pos = vec2(minimapCenterPos.x, 0);
         uint rank;
-        for (int i = Global::top3.Length - 1; i >= 0; i--) {
+        for (int i = Math::Min(S_NbTopTimes, Global::top3.Length) - 1; i >= 0; i--) {
             // render pb under WR
             if (i == 0) {
                 if (RenderTop3Instance(pos, -1, textBounds, Stats::pbHeight) && hovered == 0) {
@@ -409,11 +409,10 @@ namespace Minimap {
             }
         }
         // ! todo: show stats on hover
-        hoverDelta = g_DT * 3.;
+        hoverDelta = g_DT / 333.;
         if (hovered != 0) {
             hoverTime = Math::Clamp(hoverTime + hoverDelta, 0., 1.);
             DrawRecordHovered(hovered, hoverTime);
-            nvg::GlobalAlpha(1.0);
         } else {
             hoverTime = Math::Clamp(hoverTime - hoverDelta, 0.0, 1.0);
         }

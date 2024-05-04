@@ -161,6 +161,14 @@ namespace Stats {
         }
     }
 
+    void BackupForSafety() {
+        if (IO::FileExists(STATS_FILE)) {
+            IO::File f(STATS_FILE, IO::FileMode::Read);
+            IO::File f2(STATS_FILE + "." + Time::Stamp, IO::FileMode::Write);
+            f2.Write(f.ReadToEnd());
+        }
+    }
+
     // from server
     LBEntry@[] globalLB;
 
