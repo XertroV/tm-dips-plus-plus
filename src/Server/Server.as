@@ -102,12 +102,12 @@ class DD2API {
         }
         IsReady = true;
         print("Connected to DD2API server.");
+        QueueMsg(GetMyStatsMsg());
         startnew(CoroutineFunc(ReadLoop));
         startnew(CoroutineFunc(SendLoop));
         startnew(CoroutineFunc(SendPingLoop));
         startnew(CoroutineFunc(ReconnectWhenDisconnected));
         startnew(CoroutineFunc(WatchAndSendContextChanges));
-        QueueMsg(GetMyStatsMsg());
     }
 
     protected void AuthenticateWithServer() {

@@ -7,6 +7,8 @@ Please do not distribute altered copies of the DD2 map.
 Thank you.
 - XertroV
 */
+
+//
 const string PluginName = Meta::ExecutingPlugin().Name;
 const string MenuIconColor = "\\$fd5";
 const string MenuTitle = MenuIconColor + Icons::ArrowDown + "\\$z " + PluginName;
@@ -132,15 +134,16 @@ void RenderMenuMain() {
 
 void Render() {
     if (!G_Initialized) return;
-    bool drawAnywhere = S_ShowWhenUIHidden || UI::IsGameUIVisible();
+    bool drawAnywhereUI = S_ShowWhenUIHidden || UI::IsOverlayShown();
+    bool drawAnywhereGame = S_ShowWhenUIHidden || UI::IsGameUIVisible();
     DownloadProgress::Draw();
     MaybeDrawLoadingScreen();
     Wizard::DrawWindow();
     Volume::RenderSubtitlesVolumeIfNotActive();
-    if (drawAnywhere) {
+    if (drawAnywhereUI) {
         MainUI::Render();
     }
-    if (g_Active && drawAnywhere) {
+    if (g_Active && drawAnywhereGame) {
         GreenTimer::Render();
         HUD::Render(PS::viewedPlayer);
         RenderAnimations();

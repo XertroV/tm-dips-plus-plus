@@ -57,6 +57,7 @@ namespace DipsPPSettings {
 
     void OnClickSettingsButton() {
         g_MainUiVisible = true;
+        UI::ShowOverlay();
     }
 }
 
