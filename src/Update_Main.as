@@ -142,8 +142,8 @@ namespace PS {
         bool addNew = newEntId < 0x3000000 && newEntId & 0x2000000 > 0;
         auto lastIx = lastId & 0xFFFFFF;
         auto newIx = newEntId & 0xFFFFFF;
-        bool badOld = removeOld && lastIx > 4000;
-        bool badNew = addNew && newIx > 4000;
+        bool badOld = removeOld && lastIx > 20000;
+        bool badNew = addNew && newIx > 20000;
         if (badOld || badNew) {
             NotifyWarning("Invalid vehicle id: " + Text::Format("0x%08x", lastId) + " -> " + Text::Format("0x%08x", newEntId));
             return;
