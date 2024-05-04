@@ -132,14 +132,15 @@ void RenderMenuMain() {
 
 void Render() {
     if (!G_Initialized) return;
+    bool drawAnywhere = S_ShowWhenUIHidden || UI::IsGameUIVisible();
     DownloadProgress::Draw();
     MaybeDrawLoadingScreen();
     Wizard::DrawWindow();
     Volume::RenderSubtitlesVolumeIfNotActive();
-    MainUI::Render();
-    // dev mode => render in menus
-    bool draw = g_Active && (S_ShowWhenUIHidden || UI::IsGameUIVisible());
-    if (draw) {
+    if (drawAnywhere) {
+        MainUI::Render();
+    }
+    if (g_Active && drawAnywhere) {
         GreenTimer::Render();
         HUD::Render(PS::viewedPlayer);
         RenderAnimations();
