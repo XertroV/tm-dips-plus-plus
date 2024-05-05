@@ -160,7 +160,7 @@ class PlayerState {
     }
 
     void UpdateVehicleState(CSceneVehicleVis@ vis) {
-        if ()
+
         @vehicle = vis;
         // updatedThisFrame |= UpdatedFlags::Flying | UpdatedFlags::Falling | UpdatedFlags::Position;
         auto @state = vis.AsyncState;

@@ -50,6 +50,8 @@ namespace GreenTimer {
         DrawTextWithShadow(g_screen * pos, Time::Format(Stats::msSpentInMap, false, true, true), S_GreenTimerColor);
     }
 
+    string setTimerTo = "";
+
     void DrawSettings() {
         if (UI::BeginMenu("Green Timer")) {
 #if DEV
@@ -63,7 +65,37 @@ namespace GreenTimer {
             }
             S_GreenTimerPos = UI::InputFloat2("Pos (0-1)", S_GreenTimerPos);
             S_GreenTimerAlign = InputAlign("Align", S_GreenTimerAlign);
+            string curr = Time::Format(Stats::msSpentInMap, false, true, true);
+            if (setTimerTo == "") setTimerTo = curr;
+            UI::Text("Current Timer: " + curr);
+            bool changed = false;
+            setTimerTo = UI::InputText("Set Timer To", setTimerTo, changed);
+            if (changed) {
+                tryUpdateTimeInMap(setTimerTo);
+            }
+            if (parseErr != "") {
+                UI::TextWrapped("\\$f80Parse Error: " + parseErr);
+            }
             UI::EndMenu();
+        }
+    }
+
+    string parseErr;
+
+    void tryUpdateTimeInMap(const string &in setTimerTo) {
+        try {
+            auto parts = setTimerTo.Trim().Split(":");
+            if (parts.Length != 3) {
+                parseErr = "format: h:mm:ss";
+                return;
+            }
+            int hours = Text::ParseInt(parts[0]);
+            int min = Text::ParseInt(parts[1]);
+            int sec = Text::ParseInt(parts[2]);
+            Stats::msSpentInMap = (hours * 3600 + min * 60 + sec) * 1000;
+            parseErr = "";
+        } catch {
+            parseErr = "exception: " + getExceptionInfo();
         }
     }
 

@@ -130,7 +130,7 @@ namespace Stats {
     void LoadStatsFromJson(Json::Value@ j) {
         if (j.HasKey("ReportStats")) @j = j['ReportStats'];
         if (j.HasKey("stats")) @j = j['stats'];
-        dev_trace("loading stats: " + Json::Write(j));
+        trace("loading stats: " + Json::Write(j));
         msSpentInMap = uint(j["seconds_spent_in_map"]) * 1000;
         nbJumps = j["nb_jumps"];
         nbFalls = j["nb_falls"];
@@ -231,9 +231,17 @@ namespace Stats {
 
     // just after maji floor welcome sign
     const float PB_START_ALERT_LIMIT = 112.;
+    uint lastPlayerNoPbUpdateWarn = 0;
 
     void OnLocalPlayerPosUpdate(PlayerState@ player) {
         auto pos = player.pos;
+        if (player.raceTime < 2000 || Time::Now - player.lastRespawn < 2000) {
+            if (Time::Now - lastPlayerNoPbUpdateWarn > 200) {
+                lastPlayerNoPbUpdateWarn = Time::Now;
+                trace('ignoring PB height ' + pos.y + ' since raceTime or last respawn is less than 2s (ago)');
+            }
+            return;
+        }
         if (pos.y > pbHeight) {
             bool lastPbWasAWhileAgo = pbHeight < PB_START_ALERT_LIMIT || (Time::Now - lastPbSet > 180 * 1000);
             auto floor = HeightToFloor(pos.y);

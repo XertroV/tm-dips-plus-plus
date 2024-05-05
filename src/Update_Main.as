@@ -183,9 +183,11 @@ namespace PS {
             nbPlayerVisStates++;
             auto ix = entId & 0xFFFFFF;
             if (ix >= vehicleIdToPlayers.Length) {
-                throw("Invalid vehicle id: " + Text::Format("0x%08x", entId));
+                trace("Invalid vehicle id: " + Text::Format("0x%08x", entId));
+                continue;
+            } else {
+                @player = vehicleIdToPlayers[ix];
             }
-            @player = vehicleIdToPlayers[ix];
             if (player !is null) player.UpdateVehicleState(vis);
             // this happens on any snowcar map:
             // else trace("Player is null for valid vehicle id: " + Text::Format("0x%08x", entId));

@@ -7,16 +7,22 @@ Please do not distribute altered copies of the DD2 map.
 Thank you.
 - XertroV
 */
+
 void PushStatsUpdateToServer() {
     while (g_api is null || !g_api.HasContext) yield();
     auto sj = Stats::GetStatsJson();
     g_api.QueueMsg(ReportStatsMsg(sj));
 }
 
+uint Count_PushPBHeightUpdateToServer = 0;
+uint Count_PushPBHeightUpdateToServerQueued = 0;
+
 void PushPBHeightUpdateToServer() {
+    Count_PushPBHeightUpdateToServer++;
     while (g_api is null || !g_api.HasContext) yield();
     auto pb = Stats::GetPBHeight();
     g_api.QueueMsg(ReportPBHeightMsg(pb));
+    Count_PushPBHeightUpdateToServerQueued++;
 }
 
 
@@ -103,11 +109,11 @@ class DD2API {
         IsReady = true;
         print("Connected to DD2API server.");
         QueueMsg(GetMyStatsMsg());
+        startnew(CoroutineFunc(WatchAndSendContextChanges));
         startnew(CoroutineFunc(ReadLoop));
         startnew(CoroutineFunc(SendLoop));
         startnew(CoroutineFunc(SendPingLoop));
         startnew(CoroutineFunc(ReconnectWhenDisconnected));
-        startnew(CoroutineFunc(WatchAndSendContextChanges));
     }
 
     protected void AuthenticateWithServer() {
@@ -157,6 +163,9 @@ class DD2API {
     }
     protected void QueueMsg(uint8 type, Json::Value@ payload) {
         queuedMsgs.InsertLast(OutgoingMsg(type, payload));
+        if (queuedMsgs.Length > 10) {
+            trace('msg queue: ' + queuedMsgs.Length);
+        }
     }
 
     protected void SendLoop() {
@@ -254,9 +263,9 @@ class DD2API {
         nat2 bi = nat2();
         bool mapChange, u64Change;
         auto app = cast<CTrackMania>(GetApp());
+        uint started = Time::Now;
         vec3 lastPos;
         while (true) {
-            if (socket.IsClosed || socket.ServerDisconnected) break;
             mapChange = (app.RootMap is null && lastMapMwId > 0)
                 || (lastMapMwId == 0 && app.RootMap !is null)
                 || (app.RootMap !is null && lastMapMwId != app.RootMap.Id.Value);
@@ -280,7 +289,7 @@ class DD2API {
                 yield();
             }
             sleep(117);
-            if (socket.IsClosed || socket.ServerDisconnected) break;
+            // if (socket.IsClosed || socket.ServerDisconnected) break;
             if (Time::Now - lastReport > (currentMapRelevant ? 5000 : 30000)) {
                 CSceneVehicleVisState@ state = GetVehicleStateOfControlledPlayer();
                 if (state !is null && (state.Position - lastPos).LengthSquared() > 0.1) {
@@ -289,13 +298,17 @@ class DD2API {
                     QueueMsg(ReportVehicleStateMsg(state));
                     sleep(117);
                 }
-                if (socket.IsClosed || socket.ServerDisconnected) break;
+                // if (socket.IsClosed || socket.ServerDisconnected) break;
             }
             if (Time::Now - lastGC > 300000) {
                 lastGC = Time::Now;
                 QueueMsg(ReportGCNodMsg(GC::GetInfo()));
             }
             sleep(117);
+            if (Time::Now - started > 15000 && (socket.IsClosed || socket.ServerDisconnected)) {
+                trace("breaking context loop");
+                break;
+            }
         }
     }
 

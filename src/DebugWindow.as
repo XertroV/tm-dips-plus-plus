@@ -188,7 +188,10 @@ void DrawCurrentStatusesTab() {
 }
 
 void DrawAPIPacketsTab() {
-    if (g_api !is null && UI::TreeNode("API Packets")) {
+    if (g_api !is null) {
+        UI::AlignTextToFramePadding();
+        UI::Text("API Packet Counts");
+        UI::Separator();
         uint c;
         UI::AlignTextToFramePadding();
         UI::Text("Recv Counts");

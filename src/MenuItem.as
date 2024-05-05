@@ -42,6 +42,7 @@ void DrawPluginMenuInner(bool isMenuBar = false) {
     Signs3d::DrawMenu();
     DrawLoadingScreenMenu();
     MainMenuBg::DrawPromoMenuSettings();
+    DebugMenu::DrawMenu();
 }
 
 namespace MenuLogo {
@@ -75,5 +76,32 @@ namespace Visibility {
             S_NbTopTimes = Math::Clamp(UI::InputInt("Number of Top Times to show", S_NbTopTimes, 1), 1, 5);
             UI::EndMenu();
         }
+    }
+}
+
+
+
+
+namespace DebugMenu {
+    void DrawMenu() {
+        if (UI::BeginMenu("DebugInfo")) {
+            if (UI::BeginMenu("Network")) {
+                DrawAPIPacketsTab();
+                UI::EndMenu();
+            }
+            if (UI::BeginMenu("PBs / LBs")) {
+                DrawPBSendStats();
+                UI::EndMenu();
+            }
+            UI::EndMenu();
+        }
+    }
+
+    void DrawPBSendStats() {
+        UI::Text("lastCallToPBHWaitLoop: " + lastCallToPBHWaitLoop);
+        UI::Text("lastPBHUpdate: " + lastPBHUpdate);
+        UI::Text("isWaitingToUpdatePBH: " + isWaitingToUpdatePBH);
+        UI::Text("Count_PushPBHeightUpdateToServer: " + Count_PushPBHeightUpdateToServer);
+        UI::Text("Count_PushPBHeightUpdateToServerQueued: " + Count_PushPBHeightUpdateToServerQueued);
     }
 }
