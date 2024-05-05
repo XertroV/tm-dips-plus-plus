@@ -200,18 +200,21 @@ namespace Map {
 
         try {
             lastMapMwId = map.Id.Value;
+            string mnLower = string(map.MapName).ToLower();
+            relevant = relevant || (mnLower.Contains("dep") || mnLower.Contains("dip") || mnLower.Contains("dd2"));
             if (relevant) {
                 j["uid"] = map.EdChallengeId;
             } else {
                 j["uid"] = Crypto::MD5(map.EdChallengeId).SubStr(0, 30);
             }
-            string mnLower = string(map.MapName).ToLower();
-            relevant = relevant || (mnLower.Contains("deep") || mnLower.Contains("dip") || mnLower.Contains("dd2"));
             j["name"] = relevant ? string(map.MapName) : "<!:;not relevant>";
             j["hash"] = GetMapHash(map);
         } catch {
             string info = getExceptionInfo();
             warn("Failed to get map info: " + info);
+            j["uid"] = "exception";
+            j["name"] = "exception";
+            j["hash"] = "exception";
         }
 
         @lastMapInfo = j;

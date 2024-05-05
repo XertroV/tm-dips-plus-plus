@@ -17,9 +17,11 @@ namespace DipsPPSettings {
     float hoverProg = 0.0;
     bool hovering = false;
     float hovRound = 5.0;
+    uint lastDraw = 0;
 
     void RenderButton() {
         if (dips_pp_logo_sm is null) return;
+        lastDraw = Time::Now;
         size = texDims * Minimap::vScale * .6;
         br = brCoord * Minimap::vScale + g_screen;
         tl = br - vec2(Math::Round(size.x), Math::Round(size.y));
@@ -47,6 +49,9 @@ namespace DipsPPSettings {
     }
 
     bool TestClick() {
+        if (!g_Active) return false;
+        if (hoverProg <= 0.) return false;
+        if (Time::Now > lastDraw + 1000) return false;
         if (tl.LengthSquared() < 1 || size.LengthSquared() < 10) return false;
         if (IsWithin(g_MousePos, tl, size)) {
             OnClickSettingsButton();

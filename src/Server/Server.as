@@ -83,7 +83,7 @@ class DD2API {
     protected void ReconnectSocket() {
         IsReady = false;
         HasContext = false;
-        dev_trace("ReconnectSocket");
+        trace("ReconnectSocket");
         socket.ReconnectToServer();
         startnew(CoroutineFunc(BeginLoop));
     }
@@ -200,7 +200,7 @@ class DD2API {
         }
         sendCount[msg.type]++;
         if (msg.getTy() != MessageRequestTypes::Ping)
-            dev_trace("Sent message type: " + tostring(msg.getTy()));
+            trace("Sent message type: " + tostring(msg.getTy()));
     }
 
     protected void LogRecvType(RawMessage@ msg) {
@@ -233,7 +233,7 @@ class DD2API {
     void ReconnectWhenDisconnected() {
         while (true) {
             if (socket.IsClosed || socket.ServerDisconnected) {
-                dev_trace("disconnect detected.");
+                trace("disconnect detected.");
                 ReconnectSocket();
                 return;
             }
@@ -369,7 +369,7 @@ class DD2API {
 
     void StatsHandler(Json::Value@ msg) {
         //warn("Stats received.");
-        dev_trace('stats from server: ' + Json::Write(msg));
+        trace('stats from server: ' + Json::Write(msg));
         Stats::LoadStatsFromServer(msg["stats"]);
     }
 

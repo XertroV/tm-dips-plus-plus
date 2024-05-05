@@ -57,7 +57,7 @@ void CheckPrepareLoadingScreen() {
             toLoadLoadingScreens.RemoveLast();
             unusedLoadingScreens.InsertLast(LoadingScreen(path));
         } else {
-            dev_trace("waiting for " + path + " to load");
+            trace("waiting for " + path + " to load");
         }
     }
     if (g_nextLoadingScreen is null) {

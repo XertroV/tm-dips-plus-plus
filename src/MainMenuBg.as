@@ -61,11 +61,17 @@ namespace MainMenuBg {
         applied = false;
     }
 
-    CGameUILayer@ GetMenuSceneLayer() {
+    CGameUILayer@ GetMenuSceneLayer(bool canYield = true) {
         auto app = cast<CTrackMania>(GetApp());
-        while (app.MenuManager is null) yield();
+        while (app.MenuManager is null) {
+            if (!canYield) return null;
+            yield();
+        }
         auto mm = app.MenuManager;
-        while (mm.MenuCustom_CurrentManiaApp is null) yield();
+        while (mm.MenuCustom_CurrentManiaApp is null) {
+            if (!canYield) return null;
+            yield();
+        }
         auto mca = mm.MenuCustom_CurrentManiaApp;
         mca.DataFileMgr.Media_RefreshFromDisk(CGameDataFileManagerScript::EMediaType::Skins, 4);
         while (mca.UILayers.Length < 30) yield();

@@ -216,7 +216,8 @@ class TitleGagTrigger : GagVoiceLineTrigger {
         uint lastRespawn = PS::viewedPlayer !is null ? PS::viewedPlayer.lastRespawn : 0;
         if (isLocalPlayer) {
             @gag = GLOBAL_TITLE_COLLECTION.SelectOneUncollected();
-        } else {
+        }
+        if (gag is null) {
             @gag = GLOBAL_TITLE_COLLECTION.SelectOne();
         }
         if (gag is null) {

@@ -33,23 +33,35 @@ void MTWatcherForMap() {
     uint uidMwIdV = app.RootMap.Id.Value;
     CGameCtnMediaClipPlayer@ clipPlayer = null;
     while (true) {
-        if (app.RootMap is null) break;
-        if (app.RootMap.Id.Value != uidMwIdV) break;
-        if (app.CurrentPlayground is null) break;
-        if (app.CurrentPlayground.GameTerminals.Length == 0) break;
-        @clipPlayer = app.CurrentPlayground.GameTerminals[0].MediaClipPlayer;
-        if (clipPlayer is null) throw("clipPlayer null");
+        try {
+            if (app.RootMap is null) break;
+            if (app.RootMap.Id.Value != uidMwIdV) break;
+            if (app.CurrentPlayground is null) break;
+            if (app.CurrentPlayground.GameTerminals.Length == 0) break;
+            if (app.CurrentPlayground.GameTerminals[0].UISequence_Current != CGamePlaygroundUIConfig::EUISequence::Playing) {
+                if (lastMtClipName.Length > 0) {
+                    OnMtClipGoneNull();
+                    lastMtClipName = "";
+                }
+                yield();
+                continue;
+            }
+            @clipPlayer = app.CurrentPlayground.GameTerminals[0].MediaClipPlayer;
+            if (clipPlayer is null) throw("clipPlayer null");
 
-        if (clipPlayer.Clip is null) {
-            if (lastMtClipName.Length > 0) {
-                OnMtClipGoneNull();
-                lastMtClipName = "";
+            if (clipPlayer.Clip is null) {
+                if (lastMtClipName.Length > 0) {
+                    OnMtClipGoneNull();
+                    lastMtClipName = "";
+                }
+            } else {
+                if (lastMtClipName != clipPlayer.Clip.Name) {
+                    OnMtClipChanged(clipPlayer.Clip.Name);
+                    lastMtClipName = clipPlayer.Clip.Name;
+                }
             }
-        } else {
-            if (lastMtClipName != clipPlayer.Clip.Name) {
-                OnMtClipChanged(clipPlayer.Clip.Name);
-                lastMtClipName = clipPlayer.Clip.Name;
-            }
+        } catch {
+            warn("MTWatcherForMap error: " + getExceptionInfo());
         }
 
         yield();

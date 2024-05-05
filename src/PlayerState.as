@@ -27,6 +27,7 @@ class PlayerState {
     uint lastRespawn;
     int raceTime;
     int lastRaceTime;
+    uint creationTime;
 
     ClimbTracker@ climbTracker;
 
@@ -49,6 +50,7 @@ class PlayerState {
         isLocal = playerScoreMwId == g_LocalPlayerMwId;
         startnew(CoroutineFunc(CheckUpdateIsLocal));
         lastRespawn = Time::Now;
+        creationTime = Time::Now;
         if (isLocal) {
             @climbTracker = ClimbTracker(this);
         }
@@ -72,6 +74,9 @@ class PlayerState {
     }
 
     void Update(CSmPlayer@ player) {
+        if (Time::Now - creationTime < 500) {
+            return;
+        }
         @this.player = player;
         if (cast<CSmScriptPlayer>(player.ScriptAPI) !is null) {
             lastRaceTime = raceTime;
@@ -155,6 +160,7 @@ class PlayerState {
     }
 
     void UpdateVehicleState(CSceneVehicleVis@ vis) {
+        if ()
         @vehicle = vis;
         // updatedThisFrame |= UpdatedFlags::Flying | UpdatedFlags::Falling | UpdatedFlags::Position;
         auto @state = vis.AsyncState;
@@ -191,14 +197,16 @@ class PlayerState {
             dev_trace("Player " + playerName + " has NaN/Inf/oob pos: " + pos.ToString());
             return;
         }
-        this.vel = vel;
-        // simplify low velocities
-        if (vel.LengthSquared() < 0.0000001) {
-            this.vel = vec3();
+        if (discontinuityCount == newDiscontCount) {
+            this.vel = vel;
+            // simplify low velocities
+            if (vel.LengthSquared() < 0.0000001) {
+                this.vel = vec3();
+            }
+            this.pos = pos;
+            this.rot = rot;
+            updatedThisFrame |= UpdatedFlags::Position;
         }
-        this.pos = pos;
-        this.rot = rot;
-        updatedThisFrame |= UpdatedFlags::Position;
 
         // other ppls vehicles just get buggy after y=-1000
         float posL2 = pos.LengthSquared();

@@ -26,7 +26,7 @@ namespace GreenTimer {
     vec2[] extraPos = {};
 
     void OnPluginStart() {
-        wirtualMode = GetLocalLogin() == WRITUAL_LOGIN;
+        // wirtualMode = GetLocalLogin() == WRITUAL_LOGIN;
     }
 
     void Render() {
