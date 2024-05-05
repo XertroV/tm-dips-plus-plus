@@ -207,7 +207,6 @@ void DrawAPIPacketsTab() {
             if (c == 0) continue;
             UI::Text("[" + tostring(MessageRequestTypes(i)) + "]: " + c);
         }
-        UI::TreePop();
     }
 
 }
