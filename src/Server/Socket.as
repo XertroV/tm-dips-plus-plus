@@ -53,7 +53,7 @@ class BetterSocket {
 
     void Shutdown() {
         if (s !is null) {
-            dev_trace('Shutdown:closing');
+            trace('Shutdown:closing');
             s.Close();
             @s = null;
         }

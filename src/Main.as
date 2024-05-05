@@ -392,8 +392,11 @@ void CountTimeInMap() {
 
 void EmitOnPlayerRespawn(PlayerState@ ps) {
     if (ps.isLocal) {
+        if (ps.lastRaceTime < 999999999) {
+            // trace("OnPlayerRespawn: " + ps.lastRaceTime);
+            Stats::LogRestart(ps.lastRaceTime);
+        }
         TitleGag::OnPlayerRespawn();
-        Stats::LogRestart(ps.lastRaceTime);
     }
 }
 

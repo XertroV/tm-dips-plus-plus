@@ -89,6 +89,7 @@ class DD2API {
     protected void ReconnectSocket() {
         IsReady = false;
         HasContext = false;
+        lastPingTime = Time::Now;
         trace("ReconnectSocket");
         socket.ReconnectToServer();
         startnew(CoroutineFunc(BeginLoop));
@@ -106,10 +107,21 @@ class DD2API {
             ReconnectSocket();
             return;
         }
-        IsReady = true;
-        print("Connected to DD2API server.");
-        QueueMsg(GetMyStatsMsg());
+        lastPingTime = Time::Now;
+        print("Connected to DD2API server...");
         startnew(CoroutineFunc(WatchAndSendContextChanges));
+        uint ctxStartTime = Time::Now;
+        while (!HasContext && Time::Now - ctxStartTime < 30000) yield_why("awaiting context");
+        if (!HasContext) {
+            warn("Failed to get context.");
+            Shutdown();
+            sleep(1000);
+            ReconnectSocket();
+            return;
+        }
+        print("... DD2API ready");
+        IsReady = true;
+        QueueMsg(GetMyStatsMsg());
         startnew(CoroutineFunc(ReadLoop));
         startnew(CoroutineFunc(SendLoop));
         startnew(CoroutineFunc(SendPingLoop));
@@ -127,7 +139,10 @@ class DD2API {
             SendMsgNow(ResumeSessionMsg(sessionToken));
         }
         auto msg = socket.ReadMsg();
-        if (msg is null) return;
+        if (msg is null) {
+            trace("Recieved null msg from server after auth.");
+            return;
+        }
         LogRecvType(msg);
         if (msg.msgType == MessageResponseTypes::AuthFail) {
             warn("Auth failed: " + string(msg.msgJson.Get("err", "Missing error message.")) + ".");
@@ -229,7 +244,7 @@ class DD2API {
                 continue;
             }
             QueueMsg(PingMsg());
-            if (Time::Now - lastPingTime > 25000) {
+            if (Time::Now - lastPingTime > 45000 && IsReady) {
                 warn("Ping timeout.");
                 lastPingTime = Time::Now;
                 socket.Shutdown();
@@ -265,6 +280,8 @@ class DD2API {
         auto app = cast<CTrackMania>(GetApp());
         uint started = Time::Now;
         vec3 lastPos;
+        bool firstRun = true;
+        trace('context loop start');
         while (true) {
             mapChange = (app.RootMap is null && lastMapMwId > 0)
                 || (lastMapMwId == 0 && app.RootMap !is null)
@@ -272,7 +289,9 @@ class DD2API {
             nextu64 = SF::GetInfo();
             nextMI = MI::GetInfo();
             u64Change = lastu64 != nextu64 || lastMI != nextMI;
-            if (mapChange || u64Change) {
+            if (mapChange || u64Change || firstRun) {
+                trace('context change');
+                firstRun = false;
                 lastCheck = Time::Now;
                 lastMapMwId = app.RootMap !is null ? app.RootMap.Id.Value : 0;
                 bi = app.RootMap is null ? nat2() : nat2(app.RootMap.Blocks.Length, app.RootMap.AnchoredObjects.Length);
@@ -282,6 +301,7 @@ class DD2API {
                     || (Math::Abs(20522 - int(bi.x)) < 500 && Math::Abs(38369 - int(bi.y)) < 500);
                 auto ctx = ReportContextMsg(nextu64, nextMI, bi, currentMapRelevant);
                 QueueMsg(ctx);
+                trace("sent context");
                 HasContext = true;
                 currentMapRelevant = currentMapRelevant || (bool(ctx.msgPayload["ReportContext"]["i"]));
                 yield();
@@ -310,6 +330,7 @@ class DD2API {
                 break;
             }
         }
+        trace('context loop end');
     }
 
     void HandleRawMsg(RawMessage@ msg) {
