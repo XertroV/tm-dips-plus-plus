@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <manialink version="3" name="DD2_Stadium2x3">
-<video id="dd2-vid" size="320 180" pos="0 0" halign="center" valign="center" data="https://assets.xk.io/d++/img/thats_a_ban_classic.webm" play="1" loop="1" music="0" />
+<video id="dd2-vid" size="320 180" pos="0 0" halign="center" valign="center" data="VIDEO_LINK" play="1" loop="1" music="0" />
 <script><!--
 main() {
     while (InputPlayer == Null) {

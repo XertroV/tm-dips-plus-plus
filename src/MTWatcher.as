@@ -38,7 +38,7 @@ void MTWatcherForMap() {
             if (app.RootMap.Id.Value != uidMwIdV) break;
             if (app.CurrentPlayground is null) break;
             if (app.CurrentPlayground.GameTerminals.Length == 0) break;
-            if (app.CurrentPlayground.GameTerminals[0].UISequence_Current != CGamePlaygroundUIConfig::EUISequence::Playing) {
+            if (app.CurrentPlayground.GameTerminals[0].UISequence_Current != SGamePlaygroundUIConfig::EUISequence::Playing) {
                 if (lastMtClipName.Length > 0) {
                     OnMtClipGoneNull();
                     lastMtClipName = "";
