@@ -42,9 +42,11 @@ void LoadFonts() {
 DD2API@ g_api;
 bool G_Initialized = false;
 
+const string KEM_LOGIN = "oNhUUAthQx6SkVe2YK9PXw";
+
 void Main() {
     auto GameVer = GetApp().SystemPlatform.ExeVersion;
-    if (GameVer > "2024-03-19_14_47") {
+    if (GameVer > "2024-03-19_14_47" && GetLocalLogin() != KEM_LOGIN) {
         NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
         NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
         NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");

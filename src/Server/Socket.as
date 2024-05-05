@@ -136,9 +136,13 @@ class BetterSocket {
                 dev_trace("WriteMsg: dropping msg b/c socket closed/disconnected");
             return;
         }
-        s.Write(uint(5 + msgData.Length));
-        s.Write(msgType);
-        s.Write(msgData);
+        bool success = false;
+        success = s.Write(uint(5 + msgData.Length)) || success;
+        success = s.Write(msgType) || success;
+        success = s.Write(msgData) || success;
+        if (!success) {
+            warn("failure to write message? " + tostring(MessageRequestTypes(msgType)) + " / " + msgData.Length + " bytes");
+        }
         // dev_trace("WriteMsg: " + uint(5 + msgData.Length) + " bytes");
     }
 }
