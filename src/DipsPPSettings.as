@@ -20,6 +20,7 @@ namespace DipsPPSettings {
     uint lastDraw = 0;
 
     void RenderButton() {
+        if (S_HideDPPButtonInBottomRight) return;
         if (dips_pp_logo_sm is null) return;
         lastDraw = Time::Now;
         size = texDims * Minimap::vScale * .6;
@@ -50,6 +51,7 @@ namespace DipsPPSettings {
 
     bool TestClick() {
         if (!g_Active) return false;
+        if (S_HideDPPButtonInBottomRight) return false;
         if (hoverProg <= 0.) return false;
         if (Time::Now > lastDraw + 1000) return false;
         if (tl.LengthSquared() < 1 || size.LengthSquared() < 10) return false;

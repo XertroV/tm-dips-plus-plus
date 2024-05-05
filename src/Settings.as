@@ -12,6 +12,9 @@ Thank you.
 bool S_ShowWhenUIHidden = false;
 
 [Setting hidden]
+bool S_HideDPPButtonInBottomRight = false;
+
+[Setting hidden]
 bool S_HideMovieTitles = false;
 
 [Setting hidden]
