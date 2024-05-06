@@ -6,6 +6,7 @@
 28dipslater.mp3
 50_deeps_of_dip.mp3
 a_dip_to_redeepen.mp3
+a_dipple_in_time.mp3
 a_game_of_dips.mp3
 a_nightmare_on_dip_street.mp3
 a_quiet_dip.mp3
@@ -273,7 +274,9 @@ groundhog_dip.mp3
 guardiansofthediplaxy.mp3
 harrydeeperandthediplyhallowspart2.mp3
 haveabreakhaveadipdap.mp3
+hazdip_hotel.mp3
 helldippers.mp3
+helluva_dip.mp3
 homers_odipee.mp3
 honey_i_dipped_the_kids.mp3
 howtotrainyourdip.mp3
@@ -354,6 +357,7 @@ monument_bren_correction_12_finishers.mp3
 mr__mrs_dipth.mp3
 mud.mp3
 mudbound.mp3
+murder_dips.mp3
 naturalborndippers.mp3
 neongenesisdeepandiplion.mp3
 night_of_the_living_dips.mp3
@@ -439,6 +443,7 @@ synechdipynewyork.mp3
 taxidipper.mp3
 thank_you_for_dipping.mp3
 the2024olymdips.mp3
+the_amazing_dipgital_deep.mp3
 the_assasination_of_diplias_deepsar.mp3
 the_ballard_of_sir_dipsalot.mp3
 the_bourne_dip.mp3
