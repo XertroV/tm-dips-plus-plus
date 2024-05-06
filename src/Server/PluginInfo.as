@@ -183,17 +183,13 @@ namespace Map {
     Json::Value@ lastMapInfo = Json::Value();
     uint lastMapMwId;
 
-    bool gettingMapInfo = false;
     Json::Value@ GetMapInfo(bool relevant) {
-        while (gettingMapInfo) yield();
-        gettingMapInfo = true;
         Json::Value@ j = Json::Object();
 
         auto map = GetApp().RootMap;
         if (map is null) {
             lastMapMwId = 0;
             @lastMapInfo = Json::Value();
-            gettingMapInfo = false;
             return lastMapInfo;
         }
         if (map.Id.Value == lastMapMwId) return lastMapInfo;
@@ -218,7 +214,6 @@ namespace Map {
         }
 
         @lastMapInfo = j;
-        gettingMapInfo = false;
 
         return j;
     }

@@ -140,7 +140,7 @@ class DD2API {
 
     protected void BeginLoop(uint64 nonce) {
         lastPingTime = Time::Now;
-        while (socket.IsConnecting) yield();
+        while (socket.IsConnecting && !IsBadNonce(nonce)) yield();
         AuthenticateWithServer(nonce);
         if (IsBadNonce(nonce)) return;
         if (socket.IsClosed || socket.ServerDisconnected || sessionToken == "") {
