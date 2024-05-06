@@ -52,6 +52,7 @@ namespace GreenTimer {
     void _DrawGreenTimer(vec2 pos, int align) {
         nvg::TextAlign(align);
         string label = Time::Format(Stats::msSpentInMap, false, true, true);
+        if (label.Length < 8) label = "0" + label;
         vec2 bounds = nvg::TextBounds(label.Length > 8 ? "000:00:00" : "00:00:00");
         int nbDigits = label.Length > 8 ? 8 : 6;
         vec2 smallBounds = nvg::TextBounds("00");
