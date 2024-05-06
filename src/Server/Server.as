@@ -39,7 +39,7 @@ bool IsJsonTrue(Json::Value@ jv) {
     return bool(jv);
 }
 
-#if DEV
+#if DEVx
 const string ENDPOINT = "127.0.0.1";
 #else
 // 161.35.155.191
@@ -85,6 +85,10 @@ class DD2API {
         while (socket.IsConnecting) yield();
         sleep(21230);
         while (true) {
+            if (socket.IsConnecting) {
+                uint connStart = Time::Now;
+                while (socket.IsConnecting && Time::Now - connStart < 5000) yield();
+            }
             if (socket.IsClosed || socket.ServerDisconnected) {
                 if (!wasDead) {
                     wasDead = true;
@@ -92,8 +96,11 @@ class DD2API {
                 } else if (Time::Now - lastDead > 21230) {
                     lastDead = Time::Now;
                     ReconnectSocket();
+                    wasDead = false;
                     sleep(21230);
                 }
+            } else {
+                wasDead = false;
             }
             sleep(10);
         }

@@ -136,15 +136,15 @@ class BetterSocket {
                 dev_trace("WriteMsg: dropping msg b/c socket closed/disconnected");
             return;
         }
-        bool success = false;
-        success = s.Write(uint(5 + msgData.Length)) || success;
+        bool success = true;
+        success = s.Write(uint(5 + msgData.Length)) && success;
         // yield();
-        success = s.Write(msgType) || success;
+        success = s.Write(msgType) && success;
         // yield();
-        success = s.Write(msgData) || success;
+        success = s.Write(msgData) && success;
         if (!success) {
             warn("failure to write message? " + tostring(MessageRequestTypes(msgType)) + " / " + msgData.Length + " bytes");
-            this.Shutdown();
+            // this.Shutdown();
         }
         // dev_trace("WriteMsg: " + uint(5 + msgData.Length) + " bytes");
     }
