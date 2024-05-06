@@ -197,7 +197,7 @@ namespace Map {
         try {
             lastMapMwId = map.Id.Value;
             string mnLower = string(map.MapName).ToLower();
-            relevant = relevant || (mnLower.Contains("dep") || mnLower.Contains("dip") || mnLower.Contains("dd2"));
+            relevant = relevant || (mnLower.Contains("deep") || mnLower.Contains("dip") || mnLower.Contains("dd2"));
             if (relevant) {
                 j["uid"] = map.EdChallengeId;
             } else {
