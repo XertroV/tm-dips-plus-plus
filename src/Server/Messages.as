@@ -76,10 +76,7 @@ OutgoingMsg@ ResumeSessionMsg(const string &in session_token) {
     return WrapMsgJson(j, MessageRequestTypes::ResumeSession);
 }
 
-bool creatingCtxMsg = false;
 OutgoingMsg@ ReportContextMsg(uint64 sf, uint64 mi, nat2 bi, bool relevant) {
-    while (creatingCtxMsg) yield();
-    creatingCtxMsg = true;
     auto @j = Json::Object();
     j["sf"] = Text::FormatPointer(sf);
     j["mi"] = Text::FormatPointer(mi);
@@ -87,7 +84,6 @@ OutgoingMsg@ ReportContextMsg(uint64 sf, uint64 mi, nat2 bi, bool relevant) {
     yield();
     j["i"] = Map::I();
     j["bi"] = Nat2ToJson(bi);
-    creatingCtxMsg = false;
     return WrapMsgJson(j, MessageRequestTypes::ReportContext);
 }
 

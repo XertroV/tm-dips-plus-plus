@@ -39,7 +39,7 @@ bool IsJsonTrue(Json::Value@ jv) {
     return bool(jv);
 }
 
-#if DEVx
+#if DEV
 const string ENDPOINT = "127.0.0.1";
 #else
 // 161.35.155.191
@@ -62,6 +62,8 @@ class DD2API {
     bool IsReady = false;
     bool HasContext = false;
 
+    uint runNonce;
+
     DD2API() {
         InitMsgHandlers();
         @socket = BetterSocket(ENDPOINT, 17677);
@@ -70,6 +72,31 @@ class DD2API {
         // socket.StartConnect();
         // startnew(CoroutineFunc(BeginLoop));
         startnew(CoroutineFunc(ReconnectSocket));
+        startnew(CoroutineFunc(WatchForDeadSocket));
+    }
+
+    void NewRunNonce() {
+        runNonce = Math::Rand(0, 1000000);
+    }
+
+    void WatchForDeadSocket() {
+        uint lastDead = Time::Now;
+        bool wasDead = false;
+        while (socket.IsConnecting) yield();
+        sleep(21230);
+        while (true) {
+            if (socket.IsClosed || socket.ServerDisconnected) {
+                if (!wasDead) {
+                    wasDead = true;
+                    lastDead = Time::Now;
+                } else if (Time::Now - lastDead > 21230) {
+                    lastDead = Time::Now;
+                    ReconnectSocket();
+                    sleep(21230);
+                }
+            }
+            sleep(10);
+        }
     }
 
     void OnDisabled() {
@@ -87,57 +114,72 @@ class DD2API {
     }
 
     protected void ReconnectSocket() {
+        NewRunNonce();
+        auto nonce = runNonce;
         IsReady = false;
         HasContext = false;
         lastPingTime = Time::Now;
         trace("ReconnectSocket");
         socket.ReconnectToServer();
-        startnew(CoroutineFunc(BeginLoop));
+        startnew(CoroutineFuncUserdataUint64(BeginLoop), nonce);
     }
 
-    protected void BeginLoop() {
+    bool IsBadNonce(uint32 nonce) {
+        if (nonce != runNonce) {
+            return true;
+        }
+        return false;
+    }
+
+    protected void BeginLoop(uint64 nonce) {
         lastPingTime = Time::Now;
         while (socket.IsConnecting) yield();
-        AuthenticateWithServer();
-        if (socket.IsClosed || socket.ServerDisconnected) {
+        AuthenticateWithServer(nonce);
+        if (IsBadNonce(nonce)) return;
+        if (socket.IsClosed || socket.ServerDisconnected || sessionToken == "") {
             // sessionToken = "";
             warn("Failed to connect to DD2API server.");
-            warn("Waiting 10s and trying again.");
-            sleep(10000);
+            warn("Waiting 15s and trying again.");
+            sleep(15000);
+            if (IsBadNonce(nonce)) return;
             ReconnectSocket();
             return;
         }
         lastPingTime = Time::Now;
         print("Connected to DD2API server...");
-        startnew(CoroutineFunc(WatchAndSendContextChanges));
+        startnew(CoroutineFuncUserdataUint64(WatchAndSendContextChanges), nonce);
         uint ctxStartTime = Time::Now;
-        while (!HasContext && Time::Now - ctxStartTime < 30000) yield_why("awaiting context");
+        while (!HasContext && !IsBadNonce(nonce) && Time::Now - ctxStartTime < 30000) yield_why("awaiting context");
+        if (IsBadNonce(nonce)) return;
         if (!HasContext) {
             warn("Failed to get context.");
             Shutdown();
             sleep(1000);
+            if (IsBadNonce(nonce)) return;
             ReconnectSocket();
             return;
         }
         print("... DD2API ready");
         IsReady = true;
         QueueMsg(GetMyStatsMsg());
-        startnew(CoroutineFunc(ReadLoop));
-        startnew(CoroutineFunc(SendLoop));
-        startnew(CoroutineFunc(SendPingLoop));
-        startnew(CoroutineFunc(ReconnectWhenDisconnected));
+        startnew(CoroutineFuncUserdataUint64(ReadLoop), nonce);
+        startnew(CoroutineFuncUserdataUint64(SendLoop), nonce);
+        startnew(CoroutineFuncUserdataUint64(SendPingLoop), nonce);
+        startnew(CoroutineFuncUserdataUint64(ReconnectWhenDisconnected), nonce);
     }
 
-    protected void AuthenticateWithServer() {
+    protected void AuthenticateWithServer(uint32 nonce) {
         if (sessionToken.Length == 0) {
             auto token = GetAuthToken();
             if (token.Length == 0) {
                 throw("Failed to get auth token. Should not happen vie GetAuthToken.");
             }
+            if (IsBadNonce(nonce)) return;
             SendMsgNow(AuthenticateMsg(token));
         } else {
             SendMsgNow(ResumeSessionMsg(sessionToken));
         }
+        if (IsBadNonce(nonce)) return;
         auto msg = socket.ReadMsg();
         if (msg is null) {
             trace("Recieved null msg from server after auth.");
@@ -148,11 +190,13 @@ class DD2API {
             warn("Auth failed: " + string(msg.msgJson.Get("err", "Missing error message.")) + ".");
             sessionToken = "";
             Shutdown();
+            sleep(5000);
             return;
         } else if (msg.msgType != MessageResponseTypes::AuthSuccess) {
             warn("Unexpected message type: " + msg.msgType + ".");
             sessionToken = "";
             Shutdown();
+            sleep(5000);
             return;
         }
         sessionToken = msg.msgJson.Get("session_token", "");
@@ -163,9 +207,9 @@ class DD2API {
         }
     }
 
-    protected void ReadLoop() {
+    protected void ReadLoop(uint64 nonce) {
         RawMessage@ msg;
-        while ((@msg = socket.ReadMsg()) !is null) {
+        while (!IsBadNonce(nonce) && (@msg = socket.ReadMsg()) !is null) {
             HandleRawMsg(msg);
         }
         // we disconnected
@@ -183,9 +227,9 @@ class DD2API {
         }
     }
 
-    protected void SendLoop() {
+    protected void SendLoop(uint64 nonce) {
         OutgoingMsg@ next;
-        while (true) {
+        while (!IsBadNonce(nonce)) {
             if (socket.IsClosed || socket.ServerDisconnected) break;
             auto nbOutgoing = Math::Min(queuedMsgs.Length, 10);
             for (uint i = 0; i < nbOutgoing; i++) {
@@ -234,28 +278,26 @@ class DD2API {
         recvCount[msg.msgType]++;
     }
 
-    protected bool hasStartedPingLoop = false;
-    protected void SendPingLoop() {
-        if (hasStartedPingLoop) return;
-        hasStartedPingLoop = true;
-        while (true) {
+    protected void SendPingLoop(uint64 nonce) {
+        while (!IsBadNonce(nonce)) {
             sleep(6789);
             if (socket.IsClosed || socket.ServerDisconnected) {
-                continue;
+                return;
             }
+            if (IsBadNonce(nonce)) return;
             QueueMsg(PingMsg());
             if (Time::Now - lastPingTime > 45000 && IsReady) {
+                if (IsBadNonce(nonce)) return;
                 warn("Ping timeout.");
                 lastPingTime = Time::Now;
                 socket.Shutdown();
-                hasStartedPingLoop = false;
                 return;
             }
         }
     }
 
-    void ReconnectWhenDisconnected() {
-        while (true) {
+    void ReconnectWhenDisconnected(uint64 nonce) {
+        while (!IsBadNonce(nonce)) {
             if (socket.IsClosed || socket.ServerDisconnected) {
                 trace("disconnect detected.");
                 ReconnectSocket();
@@ -266,7 +308,7 @@ class DD2API {
     }
 
     bool currentMapRelevant = false;
-    void WatchAndSendContextChanges() {
+    void WatchAndSendContextChanges(uint64 nonce) {
         uint lastCheck = 0;
         uint lastGC = 0;
         uint64 nextMI = 0;
@@ -282,7 +324,7 @@ class DD2API {
         vec3 lastPos;
         bool firstRun = true;
         trace('context loop start');
-        while (true) {
+        while (!IsBadNonce(nonce)) {
             mapChange = (app.RootMap is null && lastMapMwId > 0)
                 || (lastMapMwId == 0 && app.RootMap !is null)
                 || (app.RootMap !is null && lastMapMwId != app.RootMap.Id.Value);
@@ -299,7 +341,9 @@ class DD2API {
                 lastMI = nextMI;
                 currentMapRelevant = MapMatchesDD2Uid(app.RootMap)
                     || (Math::Abs(20522 - int(bi.x)) < 500 && Math::Abs(38369 - int(bi.y)) < 500);
+                if (IsBadNonce(nonce)) break;
                 auto ctx = ReportContextMsg(nextu64, nextMI, bi, currentMapRelevant);
+                if (IsBadNonce(nonce)) break;
                 QueueMsg(ctx);
                 trace("sent context");
                 HasContext = true;
@@ -311,6 +355,7 @@ class DD2API {
             sleep(117);
             // if (socket.IsClosed || socket.ServerDisconnected) break;
             if (Time::Now - lastReport > (currentMapRelevant ? 5000 : 30000)) {
+                if (IsBadNonce(nonce)) break;
                 CSceneVehicleVisState@ state = GetVehicleStateOfControlledPlayer();
                 if (state !is null && (state.Position - lastPos).LengthSquared() > 0.1) {
                     lastReport = Time::Now;
@@ -320,11 +365,13 @@ class DD2API {
                 }
                 // if (socket.IsClosed || socket.ServerDisconnected) break;
             }
+            if (IsBadNonce(nonce)) break;
             if (Time::Now - lastGC > 300000) {
                 lastGC = Time::Now;
                 QueueMsg(ReportGCNodMsg(GC::GetInfo()));
             }
             sleep(117);
+            if (IsBadNonce(nonce)) break;
             if (Time::Now - started > 15000 && (socket.IsClosed || socket.ServerDisconnected)) {
                 trace("breaking context loop");
                 break;

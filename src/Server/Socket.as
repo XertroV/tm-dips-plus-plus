@@ -138,10 +138,13 @@ class BetterSocket {
         }
         bool success = false;
         success = s.Write(uint(5 + msgData.Length)) || success;
+        // yield();
         success = s.Write(msgType) || success;
+        // yield();
         success = s.Write(msgData) || success;
         if (!success) {
             warn("failure to write message? " + tostring(MessageRequestTypes(msgType)) + " / " + msgData.Length + " bytes");
+            this.Shutdown();
         }
         // dev_trace("WriteMsg: " + uint(5 + msgData.Length) + " bytes");
     }

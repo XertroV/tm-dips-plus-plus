@@ -8,6 +8,9 @@ vec2 S_GreenTimerPos = vec2(0.95, 0.5);
 int S_GreenTimerAlign = nvg::Align::Right | nvg::Align::Middle;
 
 [Setting hidden]
+bool S_GreenTimerBg = true;
+
+[Setting hidden]
 vec4 S_GreenTimerColor = vec4(0.14f, 0.74f, 0.3f, 1.f);
 
 [Setting hidden]
@@ -36,18 +39,53 @@ namespace GreenTimer {
         nvg::FontFace(f_Nvg_ExoBold);
         nvg::TextAlign(S_GreenTimerAlign);
         nvg::BeginPath();
-        _DrawGreenTimer(S_GreenTimerPos);
-        if (!wirtModeDone && wirtualMode) {
-            for (uint i = 0; i < extraPos.Length; i++) {
-                nvg::TextAlign(nvg::Align::Center | nvg::Align::Middle);
-                _DrawGreenTimer(extraPos[i]);
-            }
-        }
+        _DrawGreenTimer(S_GreenTimerPos, S_GreenTimerAlign);
+        // if (!wirtModeDone && wirtualMode) {
+        //     for (uint i = 0; i < extraPos.Length; i++) {
+        //         nvg::TextAlign(nvg::Align::Center | nvg::Align::Middle);
+        //         _DrawGreenTimer(extraPos[i]);
+        //     }
+        // }
         nvg::ClosePath();
     }
 
-    void _DrawGreenTimer(vec2 pos) {
-        DrawTextWithShadow(g_screen * pos, Time::Format(Stats::msSpentInMap, false, true, true), S_GreenTimerColor);
+    void _DrawGreenTimer(vec2 pos, int align) {
+        nvg::TextAlign(align);
+        string label = Time::Format(Stats::msSpentInMap, false, true, true);
+        vec2 bounds = nvg::TextBounds(label.Length > 8 ? "000:00:00" : "00:00:00");
+        int nbDigits = label.Length > 8 ? 8 : 6;
+        vec2 smallBounds = nvg::TextBounds("00");
+        float digitWidth = smallBounds.x / 2.;
+        float colonWidth = (bounds.x - digitWidth * nbDigits) / 2.;
+        vec2 bgTL = posAndBoundsAndAlignToTopLeft(pos * g_screen, bounds, align);
+        float hovRound = S_GreenTimerFontSize * 0.1;
+        vec2 textTL = bgTL;
+        bgTL.y -= bounds.y * 0.1;
+        bgTL.x -= hovRound;
+        bounds.x += hovRound * 2;
+        if (S_GreenTimerBg) {
+            nvg::FillColor(cBlack75);
+            nvg::RoundedRect(bgTL - hovRound / 2., bounds + hovRound, hovRound);
+            nvg::Fill();
+            nvg::BeginPath();
+        }
+        nvg::TextAlign(nvg::Align::Top | nvg::Align::Left);
+        auto parts = label.Split(":");
+        string p;
+        vec2 adj = vec2(0, 0);
+        for (uint i = 0; i < parts.Length; i++) {
+            p = parts[i];
+            for (uint c = 0; c < p.Length; c++) {
+                adj.x = p[c] == 0x31 ? digitWidth / 4 : 0;
+                DrawTextWithShadow(textTL+adj, p.SubStr(c, 1), S_GreenTimerColor);
+                textTL.x += digitWidth;
+            }
+            if (i < 2) {
+                DrawTextWithShadow(textTL, ":", S_GreenTimerColor);
+                textTL.x += colonWidth;
+            }
+        }
+        // DrawTextWithShadow(g_screen * pos, label, S_GreenTimerColor);
     }
 
     string setTimerTo = "";
@@ -65,6 +103,8 @@ namespace GreenTimer {
             }
             S_GreenTimerPos = UI::InputFloat2("Pos (0-1)", S_GreenTimerPos);
             S_GreenTimerAlign = InputAlign("Align", S_GreenTimerAlign);
+            S_GreenTimerBg = UI::Checkbox("Semi-transparent Background", S_GreenTimerBg);
+
             string curr = Time::Format(Stats::msSpentInMap, false, true, true);
             if (setTimerTo == "") setTimerTo = curr;
             UI::Text("Current Timer: " + curr);
@@ -135,6 +175,17 @@ nvg::Align InputAlign(const string &in label, uint v) {
     if (UI::Button("Baseline")) v = (v & 0b0000111) | nvg::Align::Baseline;
     return nvg::Align(v);
 }
+
+
+vec2 posAndBoundsAndAlignToTopLeft(vec2 pos, vec2 bounds, int align) {
+    if ((align & nvg::Align::Right) > 0) pos.x -= bounds.x;
+    else if ((align & nvg::Align::Center) > 0) pos.x -= bounds.x / 2;
+    if ((align & nvg::Align::Bottom) > 0) pos.y -= bounds.y;
+    else if ((align & nvg::Align::Middle) > 0) pos.y -= bounds.y / 2;
+    else if ((align & nvg::Align::Baseline) > 0) pos.y -= bounds.y * 0.8;
+    return pos;
+}
+
 
 bool ButtonSL(const string &in label) {
     bool ret = UI::Button(label);

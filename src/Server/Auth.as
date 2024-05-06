@@ -54,3 +54,9 @@ const string GetAuthToken() {
 bool HasAuthToken() {
     return g_opAuthToken != "" && lastAuthTime > 0 && Time::Now < lastAuthTime + (180 * 1000);
 }
+
+void AwaitAuthToken() {
+    while (!HasAuthToken()) {
+        yield();
+    }
+}

@@ -85,6 +85,7 @@ namespace Stats {
     }
 
     void LoadStatsFromServer(Json::Value@ j) {
+        trace("loading stats from server: " + Json::Write(j));
         // are these better than the stats we have?
         float statsHeight = j['pb_height'];
         if (statsHeight > pbHeight + 1.0) {
@@ -236,14 +237,14 @@ namespace Stats {
 
     void OnLocalPlayerPosUpdate(PlayerState@ player) {
         auto pos = player.pos;
-        if (player.raceTime < 2000 || Time::Now - player.lastRespawn < 2000) {
-            if (Time::Now - lastPlayerNoPbUpdateWarn > 200) {
-                lastPlayerNoPbUpdateWarn = Time::Now;
-                trace('ignoring PB height ' + pos.y + ' since raceTime or last respawn is less than 2s (ago)');
-            }
-            return;
-        }
         if (pos.y > pbHeight) {
+            if (player.raceTime < 2000 || Time::Now - player.lastRespawn < 2000) {
+                if (Time::Now - lastPlayerNoPbUpdateWarn > 200) {
+                    lastPlayerNoPbUpdateWarn = Time::Now;
+                    trace('ignoring PB height ' + pos.y + ' since raceTime or last respawn is less than 2s (ago)');
+                }
+                return;
+            }
             bool lastPbWasAWhileAgo = pbHeight < PB_START_ALERT_LIMIT || (Time::Now - lastPbSet > 180 * 1000);
             auto floor = HeightToFloor(pos.y);
             lastPbSetTs = Time::Stamp;
