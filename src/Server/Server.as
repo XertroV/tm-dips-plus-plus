@@ -39,7 +39,7 @@ bool IsJsonTrue(Json::Value@ jv) {
     return bool(jv);
 }
 
-#if DEVx
+#if DEV
 const string ENDPOINT = "127.0.0.1";
 #else
 // 161.35.155.191

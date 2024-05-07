@@ -26,7 +26,7 @@ namespace Signs3d {
         while (app.RootMap is null) yield();
         while (app.CurrentPlayground is null) yield();
         while (net.ClientManiaAppPlayground is null) yield();
-        while (net.ClientManiaAppPlayground.UILayers.Length < 20) yield();
+        while (net.ClientManiaAppPlayground !is null && net.ClientManiaAppPlayground.UILayers.Length < 20) yield();
         yield();
         yield();
         yield();
