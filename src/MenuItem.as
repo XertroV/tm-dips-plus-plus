@@ -73,8 +73,11 @@ namespace Visibility {
         if (UI::BeginMenu("Visibility")) {
             S_ShowWhenUIHidden = UI::Checkbox("Show when UI hidden?", S_ShowWhenUIHidden);
             S_HideMovieTitles = UI::Checkbox("Hide & silence fake movie titles?", S_HideMovieTitles);
+            UI::Indent();
+            S_JustSilenceMovieTitles = UI::Checkbox("Just silence fake movie titles?", S_JustSilenceMovieTitles);
+            UI::Unindent();
             S_HideDPPButtonInBottomRight = UI::Checkbox("Hide Dips++ button in bottom right?", S_HideDPPButtonInBottomRight);
-            S_NbTopTimes = Math::Clamp(UI::InputInt("Number of Top Times to show", S_NbTopTimes, 1), 1, 5);
+            S_NbTopTimes = Math::Clamp(UI::InputInt("Number of Top Times to show (1-10)", S_NbTopTimes, 1), 1, 10);
             UI::EndMenu();
         }
     }

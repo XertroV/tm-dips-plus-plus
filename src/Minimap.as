@@ -389,28 +389,28 @@ namespace Minimap {
     float hoverTime = 0.;
     float hoverDelta;
     void RenderMinimapTop3() {
-        int hovered = 0;
         nvg::Reset();
         nvg::FontFace(f_Nvg_ExoBold);
         nvg::FontSize(floorNumberBaseHeight);
         vec2 textBounds = nvg::TextBounds("00") + vec2(textPad * 2.0, 0);
         vec2 pos = vec2(minimapCenterPos.x, 0);
         uint rank;
+        int[] hovered = {};
         for (int i = Math::Min(S_NbTopTimes, Global::top3.Length) - 1; i >= 0; i--) {
             // render pb under WR
             if (i == 0) {
-                if (RenderTop3Instance(pos, -1, textBounds, Stats::pbHeight) && hovered == 0) {
-                    hovered = -1;
+                if (RenderTop3Instance(pos, -1, textBounds, Stats::pbHeight)) {
+                    hovered.InsertLast(-1);
                 }
             }
             rank = i + 1;
-            if (RenderTop3Instance(pos, rank, textBounds, Global::top3[i].height) && hovered == 0) {
-                hovered = rank;
+            if (RenderTop3Instance(pos, rank, textBounds, Global::top3[i].height)) {
+                hovered.InsertLast(rank);
             }
         }
         // ! todo: show stats on hover
         hoverDelta = g_DT / 333.;
-        if (hovered != 0) {
+        if (hovered.Length > 0) {
             hoverTime = Math::Clamp(hoverTime + hoverDelta, 0., 1.);
             DrawRecordHovered(hovered, hoverTime);
         } else {
@@ -418,26 +418,32 @@ namespace Minimap {
         }
     }
 
-    void DrawRecordHovered(int rank, float alpha) {
+    void DrawRecordHovered(int[]@ ranks, float alpha) {
         float height;
         string name;
-        if (rank < 1) {
-            height = Stats::pbHeight;
-            name = "Personal Best";
-        } else {
-            height = Global::top3[rank - 1].height;
-            name = Global::top3[rank - 1].name;
+        string label;
+        int rank;
+        for (int i = int(ranks.Length)-1; i >= 0; i--) {
+            rank = ranks[i];
+            if (i > 0) label += " / ";
+            if (rank < 1) {
+                height = Stats::pbHeight;
+                name = "Personal Best";
+            } else {
+                height = Global::top3[rank - 1].height;
+                name = Global::top3[rank - 1].name;
+            }
+            label += name + Text::Format(" @ %.1f m", height);
         }
-        string label = name + Text::Format(" - %.1f m", height);
         nvg::Reset();
-        nvg::FontFace(f_Nvg_ExoBold);
+        nvg::FontFace(f_Nvg_ExoExtraBold);
         nvg::GlobalAlpha(alpha);
         nvg::BeginPath();
         nvg::LineCap(nvg::LineCapType::Round);
         auto textBounds = nvg::TextBounds(label);
         vec2 pos = vec2(minimapCenterPos.x, HeightToMinimapY(height));
-        drawLabelBackgroundTagLines(pos, playerLabelBaseHeight, stdTriHeight, textBounds);
-        nvg::FillColor(cWhite25);
+        drawLabelBackgroundTagLines(pos, playerLabelBaseHeight, stdTriHeight, textBounds + vec2(playerLabelBaseHeight * 0.4, 0));
+        nvg::FillColor(cWhite75);
         nvg::Fill();
         nvg::StrokeWidth(1.5 * vScale);
         nvg::StrokeColor(cBlack);
@@ -446,7 +452,7 @@ namespace Minimap {
         nvg::BeginPath();
         nvg::FillColor(cBlack);
         nvg::TextAlign(nvg::Align::Left | nvg::Align::Middle);
-        nvg::Text(vec2(minimapCenterPos.x + playerLabelBaseHeight * 1.2, HeightToMinimapY(height)), name);
+        nvg::Text(vec2(minimapCenterPos.x + playerLabelBaseHeight * 1.2, HeightToMinimapY(height) + playerLabelBaseHeight * 0.1), label);
         nvg::ClosePath();
         nvg::GlobalAlpha(1.0);
     }
@@ -469,7 +475,7 @@ namespace Minimap {
         pos = pos - vec2(floorNumberBaseHeight, floorNumberBaseHeight * -0.12);
         nvg::Text(pos, rank < 1 ? "PB" : rank == 1 ? "WR" : "#" + rank);
         nvg::ClosePath();
-        return IsWithin(g_MousePos, vec2(0, pos.y), vec2(pos.x, stdTriHeight * .95));
+        return IsWithin(g_MousePos, vec2(0, pos.y - stdTriHeight), vec2(pos.x + stdTriHeight*.5, stdTriHeight * 2.));
     }
 
     void RenderMinimapFloors() {

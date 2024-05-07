@@ -18,6 +18,9 @@ bool S_HideDPPButtonInBottomRight = false;
 bool S_HideMovieTitles = false;
 
 [Setting hidden]
+bool S_JustSilenceMovieTitles = false;
+
+[Setting hidden]
 uint S_NbTopTimes = 3;
 
 [Setting hidden]

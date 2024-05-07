@@ -116,12 +116,12 @@ namespace HUD {
             if (S_HUDJumpSpeed) DrawHudLabel(h, jumpSpeedPos, Text::Format("%.1f km/h", fallTracker.startSpeed), cWhite, nvg::Align::Right | nvg::Align::Top, cBlack85, alpha);
         }
         if (player.isLocal) {
-            fallsHudLabel = "Falls: " + (Stats::GetTotalFalls() + fallAdj) + " / Floors: " + (Stats::GetTotalFloorsFallen() + currFallFloors)
-                + Text::Format(" / %.1f m", Stats::GetTotalDistanceFallen() + distFallen)
+            fallsHudLabel = "Falls: " + (Stats::GetTotalFalls() + fallAdj);
+            if (S_HUDShowFloorsFallen) fallsHudLabel += " / Floors: " + (Stats::GetTotalFloorsFallen() + currFallFloors);
+            if (S_HUDShowMetersFallen) fallsHudLabel += Text::Format(" / %.1f m", Stats::GetTotalDistanceFallen() + distFallen);
 #if DEV
-                + Text::Format(" / abs m: %.1f", absDistFallen);
+            fallsHudLabel += Text::Format(" / abs m: %.1f", absDistFallen);
 #endif
-                ;
             if (S_HUDShowFalls) DrawHudLabel(h, fallsPos, fallsHudLabel, cWhite);
 
             float pbHeight = Stats::GetPBHeight();

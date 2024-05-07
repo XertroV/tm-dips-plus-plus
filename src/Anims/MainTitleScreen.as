@@ -60,13 +60,18 @@ class MainTitleScreenAnim : FloorTitleGeneric {
         return vec4(0, g_screen.y * 0.0 + yTitleOff, g_screen.x, g_screen.y * 0.15);
     }
 
+    // overwrite in future if necessary
+    bool get_OkayToPlayAudio() {
+        return !S_JustSilenceMovieTitles;
+    }
+
     bool Update() override {
         bool ret = FloorTitleGeneric::Update();
         if (!ret) trace('main title update: false');
         auto ps = GetPosSize();
         pos = ps.xy;
         size = ps.zw;
-        if (!started) {
+        if (!started && OkayToPlayAudio) {
             if (audio !is null) audio.Play();
             started = true;
         }
