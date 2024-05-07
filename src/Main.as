@@ -168,10 +168,7 @@ bool RenderEarlyInner() {
     if (app.CurrentPlayground.GameTerminals.Length == 0) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals[0].ControlledPlayer is null) return Inactive(wasActive);
     if (app.CurrentPlayground.UIConfigs.Length == 0) return Inactive(wasActive);
-#if DEV
-#else
     if (app.Editor !is null) return Inactive(wasActive);
-#endif
     // if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
     // ! uncomment this to enable map UID check
     if (!MapMatchesDD2Uid(app.RootMap)) return Inactive(wasActive);
