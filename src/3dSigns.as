@@ -12,7 +12,6 @@ Thank you.
 bool S_Enable3dSigns = true;
 
 namespace Signs3d {
-    bool signsApplied = false;
     void SignsOnGoingActive() {
         if (!S_Enable3dSigns) return;
         ChooseRandomVid();
@@ -92,6 +91,11 @@ namespace Signs3d {
                 startnew(Enable3dScreensCoroF);
             }
             UI::EndDisabled();
+            UI::BeginDisabled(!S_Enable3dSigns);
+            if (UI::Button("Cycle Screens")) {
+                startnew(Cycle3dScreens);
+            }
+            UI::EndDisabled();
             UI::EndMenu();
         }
     }
@@ -107,7 +111,7 @@ namespace Signs3d {
             for (uint i = 0; i < cmap.UILayers.Length; i++) {
                 auto l = cmap.UILayers[i];
                 if (l.Type != CGameUILayer::EUILayerType::ScreenIn3d) continue;
-                if (l.AttachId == "Stadium_155" || l.AttachId == "2x3_Stadium") {
+                if (l.AttachId == "155_Stadium" || l.AttachId == "2x3_Stadium") {
                     l.Type = CGameUILayer::EUILayerType::Normal;
                 }
             }
@@ -131,9 +135,13 @@ namespace Signs3d {
             auto cmap = app.Network.ClientManiaAppPlayground;
             for (uint i = 0; i < cmap.UILayers.Length; i++) {
                 auto l = cmap.UILayers[i];
-                if (l.Type != CGameUILayer::EUILayerType::Normal) continue;
-                if (l.AttachId == "Stadium_155" || l.AttachId == "2x3_Stadium") {
+                if (l.AttachId == "155_Stadium" || l.AttachId == "2x3_Stadium") {
                     l.Type = CGameUILayer::EUILayerType::ScreenIn3d;
+                    if (l.AttachId == "155_Stadium") {
+                        l.ManialinkPageUtf8 = GetStadiumScreenCode();
+                    } else if (l.AttachId == "2x3_Stadium") {
+                        l.ManialinkPageUtf8 = GetStadiumSideCode();
+                    }
                     found++;
                 }
             }
@@ -149,14 +157,20 @@ namespace Signs3d {
         return false;
     }
 
+#if DEV
+    const uint loopNewClipTime = 60000;
+#else
+    const uint loopNewClipTime = 600000;
+#endif
+
     void LoopUpdate3dScreens() {
-        uint lastChangeTime = 0;
+        uint lastChangeTime = Time::Now;;
         while (g_Active) {
             sleep(100);
-            if (!signsApplied) continue;
+            // if (!signsApplied) continue;
             if (!S_Enable3dSigns) continue;
             if (!g_Active) return;
-            if (Time::Now - lastChangeTime > 600000) {
+            if (Time::Now - lastChangeTime > loopNewClipTime) {
                 lastChangeTime = Time::Now;
                 Cycle3dScreens();
             }
@@ -164,6 +178,7 @@ namespace Signs3d {
     }
 
     void Cycle3dScreens() {
+        trace('Cycle3dScreens');
         auto link = ChooseRandomVid();
         auto app = GetApp();
         if (app.PlaygroundScript !is null) {
@@ -175,9 +190,11 @@ namespace Signs3d {
                 auto l = cmap.UILayers[i];
                 if (l.Type != CGameUILayer::EUILayerType::ScreenIn3d) continue;
                 // start of our layers
-                if (l.AttachId == "Stadium_155") {
+                if (l.AttachId == "155_Stadium") {
+                    trace('updated 155');
                     l.ManialinkPageUtf8 = GetStadiumScreenCode();
                 } else if (l.AttachId == "2x3_Stadium") {
+                    trace('updated 2x3');
                     l.ManialinkPageUtf8 = GetStadiumSideCode();
                     break;
                 }
@@ -188,15 +205,45 @@ namespace Signs3d {
         }
     }
 
+    // "https://assets.xk.io/d++/vid/lars-silly-mistake.webm",
     string[] videoLinks = {
-        // "https://assets.xk.io/d++/vid/lars-silly-mistake.webm",
-        "https://assets.xk.io/d++/vid/byebye-bren.webm",
-        "https://assets.xk.io/d++/vid/carljr-nice-physics.webm"
+        "https://assets.xk.io/d++/vid/carljr-nice-physics.webm",
+        "https://assets.xk.io/d++/vid/byebye-bren.webm"
     };
+    const string vidLinkPrefix = "https://assets.xk.io/d++/vid/";
 
     string currVideoLink;
     string ChooseRandomVid() {
+        startnew(CheckForNewClipLinks);
         currVideoLink = videoLinks[Math::Rand(0, videoLinks.Length)];
+        trace('[ScreensIn3d] set curr video link: ' + currVideoLink);
         return currVideoLink;
+    }
+
+    void CheckForNewClipLinks() {
+        Net::HttpRequest@ req = Net::HttpGet("https://assets.xk.io/d++/vid/clip-links.txt");
+        while (!req.Finished()) yield();
+        if (req.ResponseCode() != 200) return;
+        auto clips = req.String().Split("\n");
+        // trace('Got clips: ' + string(Json::Write(clips.ToJson())));
+        for (uint i = 0; i < clips.Length; i++) {
+            auto clip = clips[i].Trim();
+            if (clip.Length < 7) continue;
+            clip = vidLinkPrefix + clip;
+            clips[i] = clip;
+            if (videoLinks.Find(clip) == -1) {
+                videoLinks.InsertLast(clip);
+                trace('Inserted new clip: ' + clip);
+            }
+        }
+        // trace('Got clips: ' + string(Json::Write(clips.ToJson())));
+        // trace('Got videoLinks: ' + string(Json::Write(videoLinks.ToJson())));
+        for (uint i = 0; i < videoLinks.Length; i++) {
+            if (clips.Find(videoLinks[i]) == -1) {
+                trace('Removed clip: ' + videoLinks[i]);
+                videoLinks.RemoveAt(i);
+                i--;
+            }
+        }
     }
 }

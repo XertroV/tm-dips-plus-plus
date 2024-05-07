@@ -7,8 +7,8 @@ main() {
         yield;
     }
     while (True) {
-        // (Page.GetFirstChild("dd2-vid") as CMlMediaPlayer).Stop();
-        // (Page.GetFirstChild("dd2-vid") as CMlMediaPlayer).Play();
+        (Page.GetFirstChild("dd2-vid") as CMlMediaPlayer).Stop();
+        (Page.GetFirstChild("dd2-vid") as CMlMediaPlayer).Play();
         yield;
     }
 }
