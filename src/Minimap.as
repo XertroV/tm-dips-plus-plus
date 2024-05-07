@@ -419,13 +419,14 @@ namespace Minimap {
     }
 
     void DrawRecordHovered(int[]@ ranks, float alpha) {
-        float height;
+        float height = 0.;
+        float heightSum = 0.;
         string name;
         string label;
         int rank;
         for (int i = int(ranks.Length)-1; i >= 0; i--) {
             rank = ranks[i];
-            if (i > 0) label += " / ";
+            if (label.Length > 0) label += " / ";
             if (rank < 1) {
                 height = Stats::pbHeight;
                 name = "Personal Best";
@@ -433,15 +434,18 @@ namespace Minimap {
                 height = Global::top3[rank - 1].height;
                 name = Global::top3[rank - 1].name;
             }
+            heightSum += height;
             label += name + Text::Format(" @ %.1f m", height);
         }
+        heightSum /= float(ranks.Length);
         nvg::Reset();
         nvg::FontFace(f_Nvg_ExoExtraBold);
         nvg::GlobalAlpha(alpha);
         nvg::BeginPath();
         nvg::LineCap(nvg::LineCapType::Round);
         auto textBounds = nvg::TextBounds(label);
-        vec2 pos = vec2(minimapCenterPos.x, HeightToMinimapY(height));
+        float pxH = HeightToMinimapY(heightSum);
+        vec2 pos = vec2(minimapCenterPos.x, pxH);
         drawLabelBackgroundTagLines(pos, playerLabelBaseHeight, stdTriHeight, textBounds + vec2(playerLabelBaseHeight * 0.4, 0));
         nvg::FillColor(cWhite75);
         nvg::Fill();
@@ -452,10 +456,14 @@ namespace Minimap {
         nvg::BeginPath();
         nvg::FillColor(cBlack);
         nvg::TextAlign(nvg::Align::Left | nvg::Align::Middle);
-        nvg::Text(vec2(minimapCenterPos.x + playerLabelBaseHeight * 1.2, HeightToMinimapY(height) + playerLabelBaseHeight * 0.1), label);
+        nvg::Text(vec2(minimapCenterPos.x + playerLabelBaseHeight * 1.2, pxH + playerLabelBaseHeight * 0.1), label);
         nvg::ClosePath();
         nvg::GlobalAlpha(1.0);
     }
+
+    vec4[] rankColors = {
+        cGold, cSilver, cBronze,
+    };
 
     // returns hovered
     bool RenderTop3Instance(vec2 pos, int rank, vec2 textBounds, float height) {
@@ -463,7 +471,7 @@ namespace Minimap {
         nvg::BeginPath();
         nvg::LineCap(nvg::LineCapType::Round);
         drawLabelBackgroundTagLinesRev(pos, floorNumberBaseHeight, stdTriHeight * .95, textBounds);
-        nvg::FillColor(rank == 1 ? cGold : rank == 2 ? cSilver : rank == 3 ? cBronze : cSkyBlue);
+        nvg::FillColor(rank == 1 ? cGold : rank == 2 ? cSilver : rank == 3 ? cBronze : rank < 0 ?  cSkyBlue : cPaleBlue35);
         nvg::Fill();
         nvg::StrokeWidth(1.5 * vScale);
         nvg::StrokeColor(cBlack);
@@ -499,6 +507,14 @@ namespace Minimap {
             nvg::StrokeColor(cBlack);
             // nvg::Stroke();
             nvg::ClosePath();
+            nvg::BeginPath();
+            vec2 dashSize = vec2(floorNumberBaseHeight * 0.8, floorNumberBaseHeight * 0.2);
+            float rounding = dashSize.y * .3;
+            nvg::RoundedRect(pos - dashSize / 2., dashSize, rounding);
+            nvg::FillColor(cBlack);
+            nvg::Fill();
+            nvg::StrokeColor(cWhite50);
+            nvg::Stroke();
             nvg::BeginPath();
             nvg::FillColor(cBlack);
             nvg::TextAlign(nvg::Align::Right | nvg::Align::Middle);

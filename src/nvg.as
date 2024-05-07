@@ -33,6 +33,8 @@ const vec4 cGold = vec4(1, 0.84, 0, 1);
 const vec4 cGoldLight = vec4(1, 0.9, 0.25, 1);
 const vec4 cSilver = vec4(0.75, 0.75, 0.75, 1);
 const vec4 cBronze = vec4(0.797f, 0.479f, 0.225f, 1.000f);
+const vec4 cPaleBlue35 = vec4(0.68, 0.85, 0.90, .35);
+
 
 
 

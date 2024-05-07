@@ -41,6 +41,7 @@ void MTWatcherForMap() {
             if (app.CurrentPlayground.GameTerminals[0].UISequence_Current != SGamePlaygroundUIConfig::EUISequence::Playing) {
                 if (lastMtClipName.Length > 0) {
                     OnMtClipGoneNull();
+                    @clipPlayer = null;
                     lastMtClipName = "";
                 }
                 yield();
