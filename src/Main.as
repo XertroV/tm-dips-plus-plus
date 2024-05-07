@@ -391,11 +391,12 @@ void CountTimeInMap() {
     }
 }
 
-
+uint lastReportedRespawn;
 void EmitOnPlayerRespawn(PlayerState@ ps) {
     if (ps.isLocal) {
-        if (ps.lastRaceTime < 999999999) {
+        if (Time::Now - lastReportedRespawn > 1000 && ps.lastRaceTime < 999999999) {
             // trace("OnPlayerRespawn: " + ps.lastRaceTime);
+            lastReportedRespawn = Time::Now;
             Stats::LogRestart(ps.lastRaceTime);
         }
         TitleGag::OnPlayerRespawn();

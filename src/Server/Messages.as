@@ -113,7 +113,7 @@ OutgoingMsg@ ReportVehicleStateMsg(const vec3 &in pos, const quat &in rotq, cons
     return WrapMsgJson(j, MessageRequestTypes::ReportVehicleState);
 }
 
-OutgoingMsg@ ReportRespawnMsg(uint raceTime) {
+OutgoingMsg@ ReportRespawnMsg(int raceTime) {
     auto @j = Json::Object();
     j["race_time"] = raceTime;
     return WrapMsgJson(j, MessageRequestTypes::ReportRespawn);

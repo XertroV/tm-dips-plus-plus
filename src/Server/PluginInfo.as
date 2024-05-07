@@ -153,9 +153,10 @@ namespace SF {
         for (uint i = 0; i < ptrs.Length; i++) {
             auto ptr = ptrs[i];
             if (ptr == 0) continue;
-            if (ptr % 8 != 0) continue;
+            if (ptr % 4 != 0) continue;
             if (ptr < ba) continue;
             auto x = Math::Clamp(Dev::ReadInt32(ptr), 0, 1);
+            if (x == 0) continue;
             ret *= (x * lambda[i]);
             if (ret & 3 == 0) {
                 ret = ret >> 2;

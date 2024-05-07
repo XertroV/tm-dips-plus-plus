@@ -226,7 +226,7 @@ namespace Stats {
         nbFalls--;
     }
 
-    void LogRestart(uint raceTime) {
+    void LogRestart(int raceTime) {
         nbResets++;
         PushMessage(ReportRespawnMsg(raceTime));
     }

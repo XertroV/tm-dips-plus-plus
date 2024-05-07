@@ -31,10 +31,10 @@ bool PlaygroundExists() {
     return GetApp().CurrentPlayground !is null;
 }
 
-uint GetGameTime() {
+int GetGameTime() {
     auto pg = GetApp().Network.PlaygroundInterfaceScriptHandler;
     if (pg is null) return 0;
-    return pg.GameTime;
+    return int(pg.GameTime);
 }
 
 int GetRaceTimeFromStartTime(int startTime) {

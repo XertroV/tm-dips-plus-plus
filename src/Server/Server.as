@@ -285,7 +285,9 @@ class DD2API {
         recvCount[msg.msgType]++;
     }
 
+    uint pingTimeoutCount = 0;
     protected void SendPingLoop(uint64 nonce) {
+        pingTimeoutCount = 0;
         while (!IsBadNonce(nonce)) {
             sleep(6789);
             if (socket.IsClosed || socket.ServerDisconnected) {
@@ -295,10 +297,15 @@ class DD2API {
             QueueMsg(PingMsg());
             if (Time::Now - lastPingTime > 45000 && IsReady) {
                 if (IsBadNonce(nonce)) return;
-                warn("Ping timeout.");
-                lastPingTime = Time::Now;
-                socket.Shutdown();
-                return;
+                pingTimeoutCount++;
+                if (pingTimeoutCount > 3) {
+                    warn("Ping timeout.");
+                    lastPingTime = Time::Now;
+                    socket.Shutdown();
+                    return;
+                }
+            } else {
+                pingTimeoutCount = 0;
             }
         }
     }
