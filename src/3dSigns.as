@@ -178,7 +178,7 @@ namespace Signs3d {
     }
 
     void Cycle3dScreens() {
-        trace('Cycle3dScreens');
+        dev_trace('Cycle3dScreens');
         auto link = ChooseRandomVid();
         auto app = GetApp();
         if (app.PlaygroundScript !is null) {
@@ -191,10 +191,10 @@ namespace Signs3d {
                 if (l.Type != CGameUILayer::EUILayerType::ScreenIn3d) continue;
                 // start of our layers
                 if (l.AttachId == "155_Stadium") {
-                    trace('updated 155');
+                    dev_trace('updated 155');
                     l.ManialinkPageUtf8 = GetStadiumScreenCode();
                 } else if (l.AttachId == "2x3_Stadium") {
-                    trace('updated 2x3');
+                    dev_trace('updated 2x3');
                     l.ManialinkPageUtf8 = GetStadiumSideCode();
                     break;
                 }
@@ -216,7 +216,7 @@ namespace Signs3d {
     string ChooseRandomVid() {
         startnew(CheckForNewClipLinks);
         currVideoLink = videoLinks[Math::Rand(0, videoLinks.Length)];
-        trace('[ScreensIn3d] set curr video link: ' + currVideoLink);
+        dev_trace('[ScreensIn3d] set curr video link: ' + currVideoLink);
         return currVideoLink;
     }
 
@@ -233,14 +233,14 @@ namespace Signs3d {
             clips[i] = clip;
             if (videoLinks.Find(clip) == -1) {
                 videoLinks.InsertLast(clip);
-                trace('Inserted new clip: ' + clip);
+                dev_trace('Inserted new clip: ' + clip);
             }
         }
         // trace('Got clips: ' + string(Json::Write(clips.ToJson())));
         // trace('Got videoLinks: ' + string(Json::Write(videoLinks.ToJson())));
         for (uint i = 0; i < videoLinks.Length; i++) {
             if (clips.Find(videoLinks[i]) == -1) {
-                trace('Removed clip: ' + videoLinks[i]);
+                dev_trace('Removed clip: ' + videoLinks[i]);
                 videoLinks.RemoveAt(i);
                 i--;
             }
