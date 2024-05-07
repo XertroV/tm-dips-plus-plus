@@ -189,8 +189,9 @@ namespace Signs3d {
     }
 
     string[] videoLinks = {
-        "https://assets.xk.io/d++/vid/lars-silly-mistake.webm",
-        "https://assets.xk.io/d++/vid/byebye-bren.webm"
+        // "https://assets.xk.io/d++/vid/lars-silly-mistake.webm",
+        "https://assets.xk.io/d++/vid/byebye-bren.webm",
+        "https://assets.xk.io/d++/vid/carljr-nice-physics.webm"
     };
 
     string currVideoLink;
