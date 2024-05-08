@@ -146,9 +146,9 @@ namespace Minimap {
             if (screenPos.y < minMaxLabelHeight.x || screenPos.y > minMaxLabelHeight.y) continue;
             size = 5 * vScale;
             p.lastMinimapPos = screenPos;
-            if (p.isLocal) {
+            if (p.isLocal || p.isViewed) {
                 @localPlayer = p;
-            } else if ((p.isFalling || p.minimapLabel.afterFall) && p.HasFallTracker() && p.GetFallTracker().IsFallPastMinFall()) {
+            } else if (p.HasFallTracker() && p.GetFallTracker().IsFallPastMinFall()) {
                 fallers.InsertLast(p);
             } else {
                 nvgDrawPointCircle(screenPos, size, cGreen, cMagenta);
@@ -372,7 +372,7 @@ namespace Minimap {
             drawLabelBackgroundTagLines(pos, playerLabelBaseHeight, stdTriHeight, textBounds);
             nvg::FillColor(bg);
             nvg::Fill();
-            if (p.isLocal) {
+            if (p.isLocal || p.isViewed) {
                 nvg::StrokeWidth(1.5 * vScale);
                 nvg::StrokeColor(playerCol);
                 nvg::Stroke();

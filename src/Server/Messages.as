@@ -31,6 +31,7 @@ enum MessageRequestTypes {
     GetGlobalOverview = 131,
     GetServerStats = 132,
     GetMyRank = 133,
+    GetPlayersPb = 134,
 
     StressMe = 255,
 }
@@ -51,6 +52,7 @@ enum MessageResponseTypes {
     GlobalOverview = 131,
     Top3 = 132,
     MyRank = 133,
+    PlayersPB = 134,
 }
 
 OutgoingMsg@ WrapMsgJson(Json::Value@ inner, MessageRequestTypes type) {
@@ -191,6 +193,12 @@ OutgoingMsg@ GetFriendsLBMsg(string[]@ friends) {
 
 OutgoingMsg@ GetMyRankMsg() {
     return WrapMsgJson(Json::Object(), MessageRequestTypes::GetMyRank);
+}
+
+OutgoingMsg@ GetPlayersPbMsg(const string &in wsid) {
+    auto @j = Json::Object();
+    j["wsid"] = wsid;
+    return WrapMsgJson(j, MessageRequestTypes::GetPlayersPb);
 }
 
 OutgoingMsg@ StressMeMsg() {

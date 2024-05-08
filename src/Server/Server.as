@@ -25,6 +25,9 @@ void PushPBHeightUpdateToServer() {
     Count_PushPBHeightUpdateToServerQueued++;
 }
 
+void PushGetPlayerPBRequestToServer(const string &in login) {
+    PushMessage(GetPlayersPbMsg(login));
+}
 
 void PushMessage(OutgoingMsg@ msg) {
     if (g_api is null) return;
@@ -435,6 +438,7 @@ class DD2API {
         @msgHandlers[MessageResponseTypes::GlobalOverview] = MsgHandler(GlobalOverviewHandler);
         @msgHandlers[MessageResponseTypes::Top3] = MsgHandler(Top3Handler);
         @msgHandlers[MessageResponseTypes::MyRank] = MsgHandler(MyRankHandler);
+        @msgHandlers[MessageResponseTypes::PlayersPB] = MsgHandler(PlayersPBHandler);
     }
 
 
@@ -490,6 +494,11 @@ class DD2API {
     void MyRankHandler(Json::Value@ msg) {
         // warn("MyRank received. " + Json::Write(msg));
         Global::SetMyRankFromJson(msg["r"]);
+    }
+
+    void PlayersPBHandler(Json::Value@ msg) {
+        // warn("Players PB received. " + Json::Write(msg));
+        Global::SetPlayersPBHeightFromJson(msg);
     }
 }
 
@@ -560,10 +569,25 @@ namespace Global {
         EmitUpdatedMyRank();
     }
 
+    void SetPlayersPBHeightFromJson(Json::Value@ j) {
+        pbCache[string(j["name"])] = float(j["height"]);
+    }
+
+    dictionary lastUpdateTimes;
+    void CheckUpdatePlayersHeight(const string &in login) {
+        if (lastUpdateTimes.Exists(login)) {
+            if (Time::Now - int(lastUpdateTimes[login]) < 30000) return;
+        }
+        lastUpdateTimes[login] = Time::Now;
+        if (Time::Stamp > 1715234400) {
+            PushGetPlayerPBRequestToServer(login);
+        }
+    }
+
     // can trigger stutters
     float GetPlayersPBHeight(PlayerState@ player) {
-        MainUI::CheckUpdateLeaderboard();
         if (player is null) return -1.;
+        CheckUpdatePlayersHeight(player.playerLogin);
         float h;
         if (pbCache.Get(player.playerName, h)) return h;
         return -1.;

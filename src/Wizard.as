@@ -159,7 +159,7 @@ namespace Wizard {
 void DrawCenteredText(const string &in msg, UI::Font@ font, float fontSize, bool alignToFramePadding = true) {
     UI::PushFont(font);
     auto bounds = Draw::MeasureString(msg, font, fontSize, 0.0f);
-    auto pos = (UI::GetWindowContentRegionMax() - bounds) / 2.;
+    auto pos = (UI::GetWindowContentRegionMax() - bounds) / 2. / UI::GetScale();
     pos.y = UI::GetCursorPos().y;
     UI::SetCursorPos(pos);
     UI::Text(msg);

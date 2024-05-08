@@ -94,7 +94,7 @@ namespace MainUI {
     void DrawLeaderboardTab() {
         CheckUpdateLeaderboard();
         DrawCenteredText("Leaderboard", f_DroidBigger, 26.);
-        DrawCenteredText("Top 3", f_DroidBigger, 26.);
+        DrawCenteredText("Top " + S_NbTopTimes, f_DroidBigger, 26.);
         auto @top3 = Global::top3;
         for (uint i = 0; i < Math::Min(S_NbTopTimes, top3.Length); i++) {
             auto @player = top3[i];
