@@ -28,6 +28,7 @@ class PlayerState {
     int raceTime;
     int lastRaceTime;
     uint creationTime;
+    bool recheckedColor = false;
 
     ClimbTracker@ climbTracker;
 
@@ -82,13 +83,22 @@ class PlayerState {
             lastRaceTime = raceTime;
             raceTime = GetRaceTimeFromStartTime(cast<CSmScriptPlayer>(player.ScriptAPI).StartTime);
         }
+        if (!recheckedColor && Time::Now - creationTime > 5000) {
+            recheckedColor = true;
+#if DEV
+            if (!Vec3Eq(color.xyz, player.LinearHueSrgb)) {
+                dev_trace("Player " + playerName + " changed color: " + color.ToString() + " -> " + player.LinearHueSrgb.ToString());
+            }
+#endif
+            color = vec4(player.LinearHueSrgb, 1.0);
+        }
         this.isViewed = PS::guiPlayerMwId == playerScoreMwId;
         auto entId = player.GetCurrentEntityID();
         if (entId != lastVehicleId) {
             PS::UpdateVehicleId(this, entId);
             lastVehicleId = entId;
             updatedThisFrame |= UpdatedFlags::VehicleId;
-            // trace('Updated vehicle id for ' + playerName + ": " + Text::Format("0x%08x", entId));
+            // dev_trace('Updated vehicle id for ' + playerName + ": " + Text::Format("0x%08x", entId));
         }
     }
 

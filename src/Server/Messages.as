@@ -23,6 +23,7 @@ enum MessageRequestTypes {
     ReportStats = 37,
     // ReportMapLoad = 38,
     ReportPBHeight = 39,
+    // ReportSessionCL = 40,
 
     GetMyStats = 128,
     GetGlobalLB = 129,
@@ -75,6 +76,12 @@ OutgoingMsg@ ResumeSessionMsg(const string &in session_token) {
     j["gamer_info"] = GetGameRunningInfo();
     return WrapMsgJson(j, MessageRequestTypes::ResumeSession);
 }
+
+// OutgoingMsg@ ReportSessionCL() {
+//     auto @j = Json::Object();
+//     j["cl"] = CL::GetInfo();
+//     return WrapMsgJson(j, MessageRequestTypes::SessionCL);
+// }
 
 OutgoingMsg@ ReportContextMsg(uint64 sf, uint64 mi, nat2 bi, bool relevant) {
     auto @j = Json::Object();

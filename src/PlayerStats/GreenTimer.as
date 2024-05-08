@@ -54,7 +54,7 @@ namespace GreenTimer {
         string label = Time::Format(Stats::msSpentInMap, false, true, true);
         if (label.Length < 8) label = "0" + label;
         vec2 bounds = nvg::TextBounds(label.Length > 8 ? "000:00:00" : "00:00:00");
-        int nbDigits = label.Length > 8 ? 8 : 6;
+        int nbDigits = label.Length > 8 ? 7 : 6;
         vec2 smallBounds = nvg::TextBounds("00");
         float digitWidth = smallBounds.x / 2.;
         float colonWidth = (bounds.x - digitWidth * nbDigits) / 2.;
@@ -71,6 +71,8 @@ namespace GreenTimer {
             nvg::BeginPath();
         }
         nvg::TextAlign(nvg::Align::Top | nvg::Align::Left);
+        // DrawTextWithShadow(textTL, label, S_GreenTimerColor);
+        // return;
         auto parts = label.Split(":");
         string p;
         vec2 adj = vec2(0, 0);

@@ -205,17 +205,24 @@ namespace Signs3d {
         }
     }
 
-    // "https://assets.xk.io/d++/vid/lars-silly-mistake.webm",
     string[] videoLinks = {
         "https://assets.xk.io/d++/vid/carljr-nice-physics.webm",
-        "https://assets.xk.io/d++/vid/byebye-bren.webm"
+        "https://assets.xk.io/d++/vid/dont-pull-a-lars-scrapie.webm"
     };
     const string vidLinkPrefix = "https://assets.xk.io/d++/vid/";
 
     string currVideoLink;
+    string nextVid;
     string ChooseRandomVid() {
         startnew(CheckForNewClipLinks);
-        currVideoLink = videoLinks[Math::Rand(0, videoLinks.Length)];
+        nextVid = videoLinks[Math::Rand(0, videoLinks.Length)];
+        if (nextVid == currVideoLink) {
+            nextVid = videoLinks[Math::Rand(0, videoLinks.Length)];
+        }
+        if (nextVid == currVideoLink) {
+            nextVid = videoLinks[Math::Rand(0, videoLinks.Length)];
+        }
+        currVideoLink = nextVid;
         dev_trace('[ScreensIn3d] set curr video link: ' + currVideoLink);
         return currVideoLink;
     }
@@ -225,6 +232,7 @@ namespace Signs3d {
         while (!req.Finished()) yield();
         if (req.ResponseCode() != 200) return;
         auto clips = req.String().Split("\n");
+        string[] toLoadSilently = {};
         // trace('Got clips: ' + string(Json::Write(clips.ToJson())));
         for (uint i = 0; i < clips.Length; i++) {
             auto clip = clips[i].Trim();
@@ -234,6 +242,7 @@ namespace Signs3d {
             if (videoLinks.Find(clip) == -1) {
                 videoLinks.InsertLast(clip);
                 dev_trace('Inserted new clip: ' + clip);
+                toLoadSilently.InsertLast(clip);
             }
         }
         // trace('Got clips: ' + string(Json::Write(clips.ToJson())));
@@ -245,5 +254,68 @@ namespace Signs3d {
                 i--;
             }
         }
+
+        if (toLoadSilently.Length > 0) {
+            LoadClipsSilently(toLoadSilently);
+        }
+    }
+
+    void LoadClipsSilently(string[]@ clips) {
+        string[] lines = {};
+        for (uint i = 0; i < clips.Length; i++) {
+            auto clip = clips[i];
+            lines.InsertLast('<video id="dd2-vid" size="320 180" pos="0 0" halign="center" valign="center" data="VIDEO_LINK" play="0" loop="1" music="0" />');
+            lines[lines.Length - 1] = lines[lines.Length - 1].Replace("VIDEO_LINK", clip);
+        }
+        string vidLines = string::Join(lines, "\n");
+        auto layer = FindUILayerWAttachId("dpp_load_clips");
+        if (layer is null) @layer = CreateUILayer("dpp_load_clips");
+        else layer.IsVisible = true;
+        if (layer is null) {
+            warn("Could not find or create UI layer for loading clips");
+            return;
+        }
+        string code = """
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<manialink version="3" name="DD2_WebmsSilentLoadEarly">
+UI_ELEMENTS
+</manialink>
+""";
+        code = code.Replace("UI_ELEMENTS", vidLines);
+        layer.ManialinkPageUtf8 = code;
+        layer.IsVisible = false;
+    }
+
+    CGameUILayer@ FindUILayerWAttachId(const string &in attachId, uint skipN = 0) {
+        auto app = GetApp();
+        try {
+            auto cmap = app.Network.ClientManiaAppPlayground;
+            for (uint i = 0; i < cmap.UILayers.Length; i++) {
+                auto l = cmap.UILayers[i];
+                if (l.AttachId == attachId) {
+                    if (skipN > 0) {
+                        skipN--;
+                    } else {
+                        return l;
+                    }
+                }
+            }
+        } catch {
+            warn("exception finding UI layer: " + getExceptionInfo());
+        }
+        return null;
+    }
+
+    CGameUILayer@ CreateUILayer(const string &in attachId) {
+        auto app = GetApp();
+        try {
+            auto cmap = app.Network.ClientManiaAppPlayground;
+            auto layer = cmap.UILayerCreate();
+            layer.AttachId = attachId;
+            return layer;
+        } catch {
+            warn("exception creating UI layer: " + getExceptionInfo());
+        }
+        return null;
     }
 }

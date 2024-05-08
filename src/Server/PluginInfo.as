@@ -180,6 +180,31 @@ namespace SF {
     }
 }
 
+// namespace CL {
+//     uint64 ptr1 = 0;
+//     const string pat = "48 8B 05 ?? ?? ?? ?? 81 B8 84 00 00 00 A0 25 00 00";
+//     uint64 GetPtr1() {
+//         if (ptr1 == 0) {
+//             ptr1 = SF::GetGameAddr(pat, 7);
+//         }
+//         return ptr1;
+//     }
+//     string GetInfo() {
+//         auto ptr = GetPtr1();
+//         if (ptr == 0) return "no_ptr1";
+//         auto ptr2 = Dev::ReadUInt64(ptr) + 0x78;
+//         if (ptr2 == 0 || ptr2 % 8 != 0 || ptr < 0xFFFFFFFF) return "no_ptr2";
+//         auto c1 = Dev::ReadUInt32(ptr2 + 0x8);
+//         auto c2 = Dev::ReadUInt32(ptr2 + 0xC);
+//         if (c1 == 0 || c2 < 0x10) return "no_c1_c2";
+//         auto ptr3 = Dev::ReadUInt64(ptr2);
+//         if (ptr3 == 0 || ptr3 < 0xFFFFFFFF) return "no_ptr3";
+//         auto res = Dev::ReadCString(ptr3);
+//         auto ix = Math::Max(0, res.IndexOf("] Lo") - 5);
+//         return res.SubStr(ix);
+//     }
+// }
+
 namespace Map {
     Json::Value@ lastMapInfo = Json::Value();
     uint lastMapMwId;

@@ -498,7 +498,7 @@ namespace Global {
     uint sessions = 0;
     uint resets = 0;
     uint jumps = 0;
-    uint map_loads = 0;
+    // uint map_loads = 0;
     uint falls = 0;
     uint floors_fallen = 0;
     float height_fallen = 0;
@@ -518,7 +518,7 @@ namespace Global {
             sessions = j["sessions"];
             resets = j["resets"];
             jumps = j["jumps"];
-            map_loads = j["map_loads"];
+            // map_loads = j["map_loads"];
             falls = j["falls"];
             floors_fallen = j["floors_fallen"];
             height_fallen = j["height_fallen"];

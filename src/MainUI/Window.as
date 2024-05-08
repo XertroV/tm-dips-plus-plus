@@ -53,7 +53,7 @@ namespace MainUI {
         UI::Text("Total Floors Fallen");
         UI::Text("Total Height Fallen");
         UI::Text("Total Jumps");
-        UI::Text("Total Map Loads");
+        // UI::Text("Total Map Loads");
         UI::Text("Total Resets");
         UI::Text("Total Sessions");
         UI::NextColumn();
@@ -63,7 +63,7 @@ namespace MainUI {
         UI::Text(tostring(Global::floors_fallen));
         UI::Text(tostring(Global::height_fallen));
         UI::Text(tostring(Global::jumps));
-        UI::Text(tostring(Global::map_loads));
+        // UI::Text(tostring(Global::map_loads));
         UI::Text(tostring(Global::resets));
         UI::Text(tostring(Global::sessions));
         UI::Columns(1);
