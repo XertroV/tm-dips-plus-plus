@@ -756,3 +756,30 @@ enum WheelOrder {
     RR = 2,
     RL = 3,
 }
+
+
+// -1 = less, 0 = eq, 1 = greater
+funcdef int PlayerLessF(PlayerState@ &in m1, PlayerState@ &in m2);
+void playerQuicksort(PlayerState@[]@ arr, PlayerLessF@ f, int left = 0, int right = -1) {
+    if (arr.Length < 2) return;
+    if (right < 0) right = arr.Length - 1;
+    int i = left;
+    int j = right;
+    PlayerState@ pivot = arr[(left + right) / 2];
+    PlayerState@ temp;
+
+    while (i <= j) {
+        while (f(arr[i], pivot) < 0) i++;
+        while (f(arr[j], pivot) > 0) j--;
+        if (i <= j) {
+            @temp = arr[i];
+            @arr[i] = arr[j];
+            @arr[j] = temp;
+            i++;
+            j--;
+        }
+    }
+
+    if (left < j) playerQuicksort(arr, f, left, j);
+    if (i < right) playerQuicksort(arr, f, i, right);
+}

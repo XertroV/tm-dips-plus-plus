@@ -86,7 +86,9 @@ namespace HUD {
         vec2 lineHeightAdj = vec2(0, S_HudHeight * 1.18) * Minimap::vScale;
 
         vec2 fallsPos = pos + lineHeightAdj;
-        if (!S_HUDShowHeight) fallsPos = pos;
+        if (!player.isLocal || !S_HUDShowHeight) {
+            fallsPos = pos;
+        }
         vec2 pbHeightPos = fallsPos + lineHeightAdj;
         if (!S_HUDShowFalls) pbHeightPos = fallsPos;
 
@@ -123,12 +125,12 @@ namespace HUD {
             fallsHudLabel += Text::Format(" / abs m: %.1f", absDistFallen);
 #endif
             if (S_HUDShowFalls) DrawHudLabel(h, fallsPos, fallsHudLabel, cWhite);
-
-            float pbHeight = Stats::GetPBHeight();
+        }
+        if (S_HUDShowPB) {
+            float pbHeight = player.isLocal ? Stats::GetPBHeight() : Global::GetPlayersPBHeight(player);
             pbHeightLabel = Text::Format("PB: %4.0f m", pbHeight);
             bool isPBing = player.pos.y + 16. > pbHeight;
-
-            if (S_HUDShowPB) DrawHudLabel(h, pbHeightPos, pbHeightLabel, isPBing ? cGoldLight : cWhite);
+            DrawHudLabel(h, pbHeightPos, pbHeightLabel, isPBing ? cGoldLight : cWhite);
         }
     }
 

@@ -503,6 +503,7 @@ namespace Global {
     uint floors_fallen = 0;
     float height_fallen = 0;
     uint nb_players_live = 0;
+    dictionary pbCache;
 
     void SetServerInfoFromJson(Json::Value@ j) {
         try {
@@ -534,6 +535,7 @@ namespace Global {
                 top3.InsertLast(LBEntry());
             }
             top3[i].SetFromJson(j[i]);
+            pbCache[top3[i].name] = top3[i].height;
         }
         EmitUpdatedTop3();
     }
@@ -545,6 +547,9 @@ namespace Global {
         }
         for (uint i = 0; i < j.Length; i++) {
             globalLB[i].SetFromJson(j[i]);
+            if (i < 50) {
+                pbCache[globalLB[i].name] = globalLB[i].height;
+            }
         }
         EmitUpdatedGlobalLB();
     }
@@ -553,6 +558,11 @@ namespace Global {
     void SetMyRankFromJson(Json::Value@ j) {
         myRank.SetFromJson(j);
         EmitUpdatedMyRank();
+    }
+
+    float GetPlayersPBHeight(PlayerState@ player) {
+        if (player is null) return -1.;
+        return pbCache.Get(player.playerName, -1.0);
     }
 }
 

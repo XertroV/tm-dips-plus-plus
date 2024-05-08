@@ -97,7 +97,8 @@ class FallTracker {
 
     bool IsFallPastMinFall() {
         return Math::Max(0.0, HeightFallenFromFlying()) >= MIN_FALL_HEIGHT_FOR_STATS
-            && !(f13DropStartCheck && f13DropEndCheck);
+            && !(f13DropStartCheck && f13DropEndCheck)
+            && Time::Now - startTime > 20;
     }
 
     bool IsFallOver100m() {

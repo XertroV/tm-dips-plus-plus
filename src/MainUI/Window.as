@@ -61,7 +61,7 @@ namespace MainUI {
         UI::Text(tostring(Global::nb_players_live));
         UI::Text(tostring(Global::falls));
         UI::Text(tostring(Global::floors_fallen));
-        UI::Text(tostring(Global::height_fallen));
+        UI::Text(Text::Format("%.1 km", Global::height_fallen / 1000.));
         UI::Text(tostring(Global::jumps));
         // UI::Text(tostring(Global::map_loads));
         UI::Text(tostring(Global::resets));
@@ -82,14 +82,17 @@ namespace MainUI {
     }
 
     uint lastLbUpdate = 0;
-
-    void DrawLeaderboardTab() {
-        // update at most once per minute
+    // update at most once per minute
+    void CheckUpdateLeaderboard() {
         if (lastLbUpdate + 60000 < Time::Now) {
             lastLbUpdate = Time::Now;
             PushMessage(GetMyRankMsg());
             PushMessage(GetGlobalLBMsg(1, 501));
         }
+    }
+
+    void DrawLeaderboardTab() {
+        CheckUpdateLeaderboard();
         DrawCenteredText("Leaderboard", f_DroidBigger, 26.);
         DrawCenteredText("Top 3", f_DroidBigger, 26.);
         auto @top3 = Global::top3;

@@ -108,6 +108,17 @@ namespace Minimap {
 
     PlayerState@[] fallers;
 
+    int SortFallersAsc(PlayerState@ &in a, PlayerState@ &in b) {
+        if (a.HasFallTracker()) {
+            if (!b.HasFallTracker()) return 1;
+            float ah = a.GetFallTracker().HeightFallenFromFlying();
+            float bh = b.GetFallTracker().HeightFallenFromFlying();
+            return ah < bh ? -1 : ah > bh ? 1 : 0;
+        }
+        if (b.HasFallTracker()) return -1;
+        return 0;
+    }
+
     void Render() {
         // if (!g_Active) return;
         if (!S_ShowMinimap) return;
@@ -137,12 +148,16 @@ namespace Minimap {
             p.lastMinimapPos = screenPos;
             if (p.isLocal) {
                 @localPlayer = p;
-            } else if (p.isFalling || p.minimapLabel.afterFall) {
+            } else if ((p.isFalling || p.minimapLabel.afterFall) && p.HasFallTracker() && p.GetFallTracker().IsFallPastMinFall()) {
                 fallers.InsertLast(p);
             } else {
                 nvgDrawPointCircle(screenPos, size, cGreen, cMagenta);
                 p.minimapLabel.Draw(p, cWhite, cBlack);
             }
+        }
+
+        if (fallers.Length > 1) {
+            playerQuicksort(fallers, PlayerLessF(SortFallersAsc));
         }
 
         for (uint i = 0; i < fallers.Length; i++) {
