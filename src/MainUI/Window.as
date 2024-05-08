@@ -61,7 +61,7 @@ namespace MainUI {
         UI::Text(tostring(Global::nb_players_live));
         UI::Text(tostring(Global::falls));
         UI::Text(tostring(Global::floors_fallen));
-        UI::Text(Text::Format("%.1 km", Global::height_fallen / 1000.));
+        UI::Text(Text::Format("%.1f km", Global::height_fallen / 1000.));
         UI::Text(tostring(Global::jumps));
         // UI::Text(tostring(Global::map_loads));
         UI::Text(tostring(Global::resets));

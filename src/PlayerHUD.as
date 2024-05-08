@@ -86,11 +86,12 @@ namespace HUD {
         vec2 lineHeightAdj = vec2(0, S_HudHeight * 1.18) * Minimap::vScale;
 
         vec2 fallsPos = pos + lineHeightAdj;
-        if (!player.isLocal || !S_HUDShowHeight) {
+        if (!S_HUDShowHeight) {
             fallsPos = pos;
         }
+
         vec2 pbHeightPos = fallsPos + lineHeightAdj;
-        if (!S_HUDShowFalls) pbHeightPos = fallsPos;
+        if (!S_HUDShowFalls || !player.isLocal) pbHeightPos = fallsPos;
 
         vec2 jumpSpeedPos = fallingPos + lineHeightAdj;
         if (!S_HUDShowCurrentFall) jumpSpeedPos = fallingPos;

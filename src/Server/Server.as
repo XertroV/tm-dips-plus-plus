@@ -547,7 +547,7 @@ namespace Global {
         }
         for (uint i = 0; i < j.Length; i++) {
             globalLB[i].SetFromJson(j[i]);
-            if (i < 50) {
+            if (i < 35) {
                 pbCache[globalLB[i].name] = globalLB[i].height;
             }
         }
@@ -560,9 +560,13 @@ namespace Global {
         EmitUpdatedMyRank();
     }
 
+    // can trigger stutters
     float GetPlayersPBHeight(PlayerState@ player) {
+        MainUI::CheckUpdateLeaderboard();
         if (player is null) return -1.;
-        return pbCache.Get(player.playerName, -1.0);
+        float h;
+        if (pbCache.Get(player.playerName, h)) return h;
+        return -1.;
     }
 }
 
