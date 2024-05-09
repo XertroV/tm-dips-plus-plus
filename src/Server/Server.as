@@ -572,9 +572,8 @@ namespace Global {
         }
         for (uint i = 0; i < j.Length; i++) {
             globalLB[i].SetFromJson(j[i]);
-            if (i < 35) {
-                pbCache[globalLB[i].name] = globalLB[i].height;
-            }
+            pbCache[globalLB[i].name] = globalLB[i].height;
+            if (i % 50 == 0) yield();
         }
         EmitUpdatedGlobalLB();
     }

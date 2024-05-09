@@ -171,7 +171,7 @@ void DrawCenteredText(const string &in msg, UI::Font@ font, float fontSize, bool
 
 bool DrawCenteredButton(const string &in msg, UI::Font@ font, float fontSize, bool alignToFramePadding = true) {
     UI::PushFont(font);
-    auto bounds = Draw::MeasureString(msg, font, fontSize, 0.0f) + fontSize;
+    auto bounds = Draw::MeasureString(msg, font, fontSize, 0.0f) * UI::GetScale() + UI::GetStyleVarVec2(UI::StyleVar::FramePadding).x * 2;
     auto pos = (UI::GetWindowContentRegionMax() - bounds) / 2.;
     pos.y = UI::GetCursorPos().y;
     UI::SetCursorPos(pos);

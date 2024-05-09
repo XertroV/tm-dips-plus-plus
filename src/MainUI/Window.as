@@ -97,6 +97,9 @@ namespace MainUI {
     void DrawDonationsTab() {
         Global::CheckUpdateDonations();
         DrawCenteredText("Total Prize Pool: $" + Text::Format("%.2f", Global::totalDonations), f_DroidBigger, 26.);
+        if (DrawCenteredButton("Contribute to the Prize Pool", f_DroidBigger, 26.)) {
+            OpenBrowserURL("https://matcherino.com/tournaments/111501");
+        }
         DrawCenteredText("Donations", f_DroidBigger, 26.);
         UI::Separator();
         if (UI::RadioButton("Donations", !donationsShowingDonors)) donationsShowingDonors = false;
