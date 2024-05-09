@@ -471,6 +471,16 @@ void NotifyWarning(const string &in msg) {
     UI::ShowNotification(Meta::ExecutingPlugin().Name + ": Warning", msg, vec4(.9, .6, .2, .3), 15000);
 }
 
+dictionary warnDebounce;
+void NotifyWarningDebounce(const string &in msg, uint ms) {
+    warn(msg);
+    bool showWarn = !warnDebounce.Exists(msg) || Time::Now - uint(warnDebounce[msg]) > ms;
+    if (showWarn) {
+        UI::ShowNotification(Meta::ExecutingPlugin().Name + ": Warning", msg, vec4(.9, .6, .2, .3), 15000);
+        warnDebounce[msg] = Time::Now;
+    }
+}
+
 
 void dev_trace(const string &in msg) {
 #if DEV

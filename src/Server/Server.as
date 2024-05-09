@@ -64,6 +64,8 @@ class DD2API {
     uint[] sendCount;
     bool IsReady = false;
     bool HasContext = false;
+    string authError;
+
 
     uint runNonce;
 
@@ -127,6 +129,7 @@ class DD2API {
         NewRunNonce();
         auto nonce = runNonce;
         IsReady = false;
+        authError = "";
         HasContext = false;
         lastPingTime = Time::Now;
         trace("ReconnectSocket");
@@ -197,13 +200,15 @@ class DD2API {
         }
         LogRecvType(msg);
         if (msg.msgType == MessageResponseTypes::AuthFail) {
-            warn("Auth failed: " + string(msg.msgJson.Get("err", "Missing error message.")) + ".");
+            authError = "Auth failed: " + string(msg.msgJson.Get("err", "Missing error message.")) + ".";
+            NotifyWarningDebounce(authError, 300000);
             sessionToken = "";
             Shutdown();
             sleep(5000);
             return;
         } else if (msg.msgType != MessageResponseTypes::AuthSuccess) {
-            warn("Unexpected message type: " + msg.msgType + ".");
+            authError = "Unexpected message type: " + msg.msgType + ".";
+            warn(authError);
             sessionToken = "";
             Shutdown();
             sleep(5000);
@@ -211,10 +216,12 @@ class DD2API {
         }
         sessionToken = msg.msgJson.Get("session_token", "");
         if (sessionToken.Length == 0) {
-            warn("Auth success but missing session token.");
+            authError = "Auth success but missing session token.";
+            warn(authError);
             Shutdown();
             return;
         }
+        authError = "";
     }
 
     protected void ReadLoop(uint64 nonce) {
@@ -587,9 +594,7 @@ namespace Global {
             if (Time::Now - int(lastUpdateTimes[login]) < 30000) return;
         }
         lastUpdateTimes[login] = Time::Now;
-        if (Time::Stamp > 1715234400) {
-            PushGetPlayerPBRequestToServer(login);
-        }
+        PushGetPlayerPBRequestToServer(login);
     }
 
     // can trigger stutters
@@ -608,9 +613,7 @@ namespace Global {
     void CheckUpdateDonations() {
         if (lastDonationsUpdate + 60000 < Time::Now) {
             lastDonationsUpdate = Time::Now;
-            if (Time::Stamp > 1715234400) {
-                PushMessage(GetDonationsMsg());
-            }
+            PushMessage(GetDonationsMsg());
         }
     }
 

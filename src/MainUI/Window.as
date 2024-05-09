@@ -10,6 +10,11 @@ namespace MainUI {
         int flags = UI::WindowFlags::NoCollapse | UI::WindowFlags::MenuBar;
 
         if (UI::Begin("Dips++   \\$aaa by XertroV", g_MainUiVisible, flags)) {
+            if (g_api !is null && g_api.authError.Length > 0) {
+                UI::TextWrapped("\\$f80Auth Error: \\$z" + g_api.authError);
+            }
+
+
             if (UI::BeginMenuBar()) {
                 DrawPluginMenuInner(true);
                 UI::EndMenuBar();
