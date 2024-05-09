@@ -25,6 +25,11 @@ namespace MainUI {
                 UI::EndTabItem();
             }
 
+            if (UI::BeginTabItem("Donations")) {
+                DrawDonationsTab();
+                UI::EndTabItem();
+            }
+
             if (UI::BeginTabItem("Collections")) {
                 DrawMainCollectionsTab();
                 UI::EndTabItem();
@@ -49,6 +54,7 @@ namespace MainUI {
         UI::Columns(2, "GlobalStatsColumns", true);
         UI::Text("Players");
         UI::Text("Connected Players");
+        UI::Text("Currently Climbing");
         UI::Text("Total Falls");
         UI::Text("Total Floors Fallen");
         UI::Text("Total Height Fallen");
@@ -59,6 +65,7 @@ namespace MainUI {
         UI::NextColumn();
         UI::Text(tostring(Global::players));
         UI::Text(tostring(Global::nb_players_live));
+        UI::Text(tostring(Global::nb_players_climbing));
         UI::Text(tostring(Global::falls));
         UI::Text(tostring(Global::floors_fallen));
         UI::Text(Text::Format("%.1f km", Global::height_fallen / 1000.));
@@ -79,6 +86,71 @@ namespace MainUI {
         UI::Separator();
         UI::AlignTextToFramePadding();
         UI::TextWrapped("Details and things coming soon!");
+    }
+
+    bool donationsShowingDonors = true;
+    void DrawDonationsTab() {
+        Global::CheckUpdateDonations();
+        DrawCenteredText("Total Prize Pool: $" + Text::Format("%.2f", Global::totalDonations), f_DroidBigger, 26.);
+        DrawCenteredText("Donations", f_DroidBigger, 26.);
+        UI::Separator();
+        if (UI::RadioButton("Donations", !donationsShowingDonors)) donationsShowingDonors = false;
+        UI::SameLine();
+        if (UI::RadioButton("Donors", donationsShowingDonors)) donationsShowingDonors = true;
+        UI::Separator();
+        if (donationsShowingDonors) {
+            DrawDonations_Donors();
+        } else {
+            DrawDonations_Donations();
+        }
+    }
+
+    void DrawDonations_Donations() {
+        if (UI::BeginTable("donations", 3, UI::TableFlags::SizingStretchProp)) {
+            UI::TableSetupColumn("Amount", UI::TableColumnFlags::WidthFixed, 100.);
+            UI::TableSetupColumn("Name", UI::TableColumnFlags::WidthFixed, 180.);
+            UI::TableSetupColumn("Message");
+            UI::ListClipper clip(Global::donations.Length);
+            while (clip.Step()) {
+                for (int i = clip.DisplayStart; i < clip.DisplayEnd; i++) {
+                    auto item = Global::donations[i];
+                    UI::PushID('' + i);
+                    UI::TableNextRow();
+                    UI::TableNextColumn();
+                    UI::Text(Text::Format("$%.2f", item.amount));
+                    UI::TableNextColumn();
+                    UI::Text(item.name);
+                    UI::TableNextColumn();
+                    UI::Text(item.comment);
+                    UI::PopID();
+                }
+            }
+            UI::EndTable();
+        }
+    }
+
+    void DrawDonations_Donors() {
+        if (UI::BeginTable("donors", 3, UI::TableFlags::SizingStretchProp)) {
+            UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80.);
+            UI::TableSetupColumn("Amount", UI::TableColumnFlags::WidthFixed, 100.);
+            UI::TableSetupColumn("Donor");
+            UI::ListClipper clip(Global::donors.Length);
+            while (clip.Step()) {
+                for (int i = clip.DisplayStart; i < clip.DisplayEnd; i++) {
+                    auto item = Global::donors[i];
+                    UI::PushID('' + i);
+                    UI::TableNextRow();
+                    UI::TableNextColumn();
+                    UI::Text(tostring(i + 1));
+                    UI::TableNextColumn();
+                    UI::Text(Text::Format("$%.2f", item.amount));
+                    UI::TableNextColumn();
+                    UI::Text(item.name);
+                    UI::PopID();
+                }
+            }
+            UI::EndTable();
+        }
     }
 
     uint lastLbUpdate = 0;

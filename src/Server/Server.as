@@ -439,6 +439,7 @@ class DD2API {
         @msgHandlers[MessageResponseTypes::Top3] = MsgHandler(Top3Handler);
         @msgHandlers[MessageResponseTypes::MyRank] = MsgHandler(MyRankHandler);
         @msgHandlers[MessageResponseTypes::PlayersPB] = MsgHandler(PlayersPBHandler);
+        @msgHandlers[MessageResponseTypes::Donations] = MsgHandler(DonationsHandler);
     }
 
 
@@ -500,6 +501,10 @@ class DD2API {
         // warn("Players PB received. " + Json::Write(msg));
         Global::SetPlayersPBHeightFromJson(msg);
     }
+
+    void DonationsHandler(Json::Value@ msg) {
+        Global::SetDonationsFromJson(msg);
+    }
 }
 
 namespace Global {
@@ -511,7 +516,8 @@ namespace Global {
     uint falls = 0;
     uint floors_fallen = 0;
     float height_fallen = 0;
-    uint nb_players_live = 0;
+    int nb_players_live = 0;
+    int nb_players_climbing = 0;
     dictionary pbCache;
 
     void SetServerInfoFromJson(Json::Value@ j) {
@@ -532,6 +538,8 @@ namespace Global {
             falls = j["falls"];
             floors_fallen = j["floors_fallen"];
             height_fallen = j["height_fallen"];
+            nb_players_climbing = JGetInt(j, "nb_players_climbing", 0);
+            nb_players_live = JGetInt(j, "nb_players_live", 0);
         } catch {
             warn("Failed to parse Global stats. " + getExceptionInfo());
         }
@@ -591,6 +599,73 @@ namespace Global {
         float h;
         if (pbCache.Get(player.playerName, h)) return h;
         return -1.;
+    }
+
+    // donations
+
+    uint lastDonationsUpdate = 0;
+    // update at most once per minute
+    void CheckUpdateDonations() {
+        if (lastDonationsUpdate + 60000 < Time::Now) {
+            lastDonationsUpdate = Time::Now;
+            if (Time::Stamp > 1715234400) {
+                PushMessage(GetDonationsMsg());
+            }
+        }
+    }
+
+    Donation@[] donations = {};
+    Donor@[] donors = {};
+    float totalDonations = 0;
+
+    void SetDonationsFromJson(Json::Value@ j) {
+        startnew(CoroutineFuncUserdata(SetDonationsFromJsonAsync), j);
+    }
+
+    void SetDonationsFromJsonAsync(ref@ r) {
+        totalDonations = 0;
+        Json::Value@ j = cast<Json::Value>(r);
+        auto d = j["donations"];
+        auto n = j["donors"];
+        while (donations.Length < d.Length) {
+            donations.InsertLast(Donation());
+        }
+        for (uint i = 0; i < d.Length; i++) {
+            donations[i].UpdateFromJson(d[i]);
+            totalDonations += donations[i].amount;
+            if (i % 50 == 0) yield();
+        }
+        while (donors.Length < n.Length) {
+            donors.InsertLast(Donor());
+        }
+        for (uint i = 0; i < n.Length; i++) {
+            donors[i].UpdateFromJson(n[i]);
+            if (i % 50 == 0) yield();
+        }
+    }
+
+    class Donation {
+        string name;
+        float amount;
+        string comment;
+        int64 ts;
+
+        void UpdateFromJson(Json::Value@ j) {
+            name = j["name"];
+            amount = float(j["amount"]);
+            comment = j["comment"];
+            ts = int64(j["ts"]);
+        }
+    }
+
+    class Donor {
+        string name;
+        float amount;
+
+        void UpdateFromJson(Json::Value@ j) {
+            name = j["name"];
+            amount = float(j["amount"]);
+        }
     }
 }
 

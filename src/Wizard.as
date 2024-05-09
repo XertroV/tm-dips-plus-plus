@@ -158,8 +158,8 @@ namespace Wizard {
 // vec2 lastCenteredTextBounds = vec2(100, 20);
 void DrawCenteredText(const string &in msg, UI::Font@ font, float fontSize, bool alignToFramePadding = true) {
     UI::PushFont(font);
-    auto bounds = Draw::MeasureString(msg, font, fontSize, 0.0f);
-    auto pos = (UI::GetWindowContentRegionMax() - bounds) / 2. / UI::GetScale();
+    auto bounds = Draw::MeasureString(msg, font, fontSize, 0.0f) * UI::GetScale();
+    auto pos = (UI::GetWindowContentRegionMax() - bounds) / 2.;
     pos.y = UI::GetCursorPos().y;
     UI::SetCursorPos(pos);
     UI::Text(msg);

@@ -7,6 +7,10 @@ Please do not distribute altered copies of the DD2 map.
 Thank you.
 - XertroV
 */
+
+//
+const uint32 LOW_VELOCITY_TURTLE_MIN_TIME = 30000;
+
 // Player state
 class PlayerState {
     CSmPlayer@ player;
@@ -29,6 +33,7 @@ class PlayerState {
     int lastRaceTime;
     uint creationTime;
     bool recheckedColor = false;
+    uint lowVelocitySince;
 
     ClimbTracker@ climbTracker;
 
@@ -52,6 +57,7 @@ class PlayerState {
         startnew(CoroutineFunc(CheckUpdateIsLocal));
         lastRespawn = Time::Now;
         creationTime = Time::Now;
+        lowVelocitySince = Time::Now;
         if (isLocal) {
             @climbTracker = ClimbTracker(this);
         }
@@ -213,6 +219,10 @@ class PlayerState {
             if (vel.LengthSquared() < 0.0000001) {
                 this.vel = vec3();
             }
+            if (vel.LengthSquared() > 0.1) {
+                // if we have some velocity, reset the low vel since counter;
+                lowVelocitySince = Time::Now;
+            }
             this.pos = pos;
             this.rot = rot;
             updatedThisFrame |= UpdatedFlags::Position;
@@ -272,6 +282,10 @@ class PlayerState {
         }
 
         AfterUpdate();
+    }
+
+    bool get_IsLowVelocityTurtleIdle() {
+        return isFlying && (Time::Now - lowVelocitySince > LOW_VELOCITY_TURTLE_MIN_TIME);
     }
 
     void AfterUpdate() {

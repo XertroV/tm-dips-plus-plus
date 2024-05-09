@@ -148,11 +148,12 @@ namespace Minimap {
             p.lastMinimapPos = screenPos;
             if (p.isLocal || p.isViewed) {
                 @localPlayer = p;
-            } else if (p.HasFallTracker() && p.GetFallTracker().IsFallPastMinFall()) {
+            } else if (p.HasFallTracker() && p.GetFallTracker().IsFallPastMinFall() && !p.IsLowVelocityTurtleIdle) {
                 fallers.InsertLast(p);
             } else {
+                bool lowVelTurtle = p.IsLowVelocityTurtleIdle;
                 nvgDrawPointCircle(screenPos, size, cGreen, cMagenta);
-                p.minimapLabel.Draw(p, cWhite, cBlack);
+                p.minimapLabel.Draw(p, lowVelTurtle ? cWhite25 : cWhite, lowVelTurtle ? cGray35 : cBlack);
             }
         }
 
@@ -168,8 +169,9 @@ namespace Minimap {
         fallers.RemoveRange(0, fallers.Length);
 
         if (localPlayer !is null) {
+            bool lowVelTurtle = localPlayer.IsLowVelocityTurtleIdle;
             nvgDrawPointCircle(localPlayer.lastMinimapPos, 5 * vScale, cMagenta, cWhite);
-            localPlayer.minimapLabel.Draw(localPlayer, cWhite, cBlack);
+            localPlayer.minimapLabel.Draw(localPlayer, lowVelTurtle ? cWhite25 : cWhite, lowVelTurtle ? cGray35 : cBlack);
             @localPlayer = null;
         }
 

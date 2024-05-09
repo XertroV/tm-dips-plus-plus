@@ -90,3 +90,11 @@ bool[] JsonToBoolArray(const Json::Value@ j) {
     }
     return arr;
 }
+
+
+
+
+
+int JGetInt(const Json::Value@ j, const string &in key, int _default = 0) {
+    return j.Get(key, _default);
+}
