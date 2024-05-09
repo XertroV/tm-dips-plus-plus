@@ -25,8 +25,9 @@ void PushPBHeightUpdateToServer() {
     Count_PushPBHeightUpdateToServerQueued++;
 }
 
-void PushGetPlayerPBRequestToServer(const string &in login) {
-    PushMessage(GetPlayersPbMsg(login));
+void PushGetPlayerPBRequestToServer(const string &in wsid) {
+    if (wsid.Length < 30) warn("wsid too short: " + wsid);
+    PushMessage(GetPlayersPbMsg(wsid));
 }
 
 void PushMessage(OutgoingMsg@ msg) {
@@ -594,12 +595,12 @@ namespace Global {
             if (Time::Now - int(lastUpdateTimes[login]) < 30000) return;
         }
         lastUpdateTimes[login] = Time::Now;
-        PushGetPlayerPBRequestToServer(login);
+        PushGetPlayerPBRequestToServer(LoginToWSID(login));
     }
 
     // can trigger stutters
     float GetPlayersPBHeight(PlayerState@ player) {
-        if (player is null) return -1.;
+        if (player is null) return -2.;
         CheckUpdatePlayersHeight(player.playerLogin);
         float h;
         if (pbCache.Get(player.playerName, h)) return h;
