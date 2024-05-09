@@ -8,4 +8,4 @@ siteid   = 519
 [script]
 #__DEFINES__
 dependencies = ["VehicleState", "Camera"]
-optional_dependencies = ["betterloadingscreen", "customloadingscreen", "static-loading-screen"]
+optional_dependencies = ["betterloadingscreen", "customloadingscreen", "static-loading-screen", "MLHook"]

@@ -88,11 +88,12 @@ class DD2API {
     void WatchForDeadSocket() {
         uint lastDead = Time::Now;
         bool wasDead = false;
-        while (socket.IsConnecting) yield();
+        uint connStart = Time::Now;
+        while (socket.IsConnecting && Time::Now - connStart < 5000) yield();
         sleep(21230);
         while (true) {
             if (socket.IsConnecting) {
-                uint connStart = Time::Now;
+                connStart = Time::Now;
                 while (socket.IsConnecting && Time::Now - connStart < 5000) yield();
             }
             if (socket.IsClosed || socket.ServerDisconnected) {

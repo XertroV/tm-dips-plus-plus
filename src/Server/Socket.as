@@ -100,13 +100,31 @@ class BetterSocket {
         return s !is null ? s.Available() : 0;
     }
 
+    // true if last message was received more than 1 minute ago
+    bool get_LastMsgRecievedLongAgo() {
+        return Time::Now - lastMessageRecvTime > 40000;
+    }
+
     protected RawMessage tmpBuf;
+    uint lastMessageRecvTime = 0;
 
     // parse msg immediately
-    RawMessage@ ReadMsg() {
+    RawMessage@ ReadMsg(int timeout = 40000) {
         // read msg length
         // read msg data
-        while (Available < 4 && !IsClosed && !ServerDisconnected) yield();
+        uint startReadTime = Time::Now;
+        while (Available < 4 && !IsClosed && !ServerDisconnected && (timeout <= 0 || Time::Now - startReadTime < timeout)) yield();
+        if (timeout > 0 && Time::Now - startReadTime >= timeout) {
+            yield();
+            yield();
+            yield();
+            if (Available < 4 && !IsClosed && !ServerDisconnected) {
+                warn("ReadMsg timed out while waiting for length");
+                warn("Disconnecting socket");
+                Shutdown();
+                return null;
+            }
+        }
         if (IsClosed || ServerDisconnected) {
             return null;
         }
@@ -119,7 +137,19 @@ class BetterSocket {
             return null;
         }
 
+        startReadTime = Time::Now;
         while (Available < len) {
+            if (timeout > 0 && Time::Now - startReadTime >= timeout) {
+                yield();
+                yield();
+                yield();
+                if (Available < len) {
+                    warn("ReadMsg timed out while reading msg");
+                    warn("Disconnecting socket");
+                    Shutdown();
+                    return null;
+                }
+            }
             if (IsClosed || ServerDisconnected) {
                 return null;
             }
@@ -127,6 +157,7 @@ class BetterSocket {
         }
 
         tmpBuf.ReadFromSocket(s, len);
+        lastMessageRecvTime = Time::Now;
         return tmpBuf;
     }
 
