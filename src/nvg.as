@@ -75,6 +75,14 @@ vec2 DrawTextWithShadow(const vec2 &in pos, const string &in text, vec4 textColo
     return nvg::TextBounds(text);
 }
 
+vec2 DrawText(const vec2 &in pos, const string &in text, vec4 textColor = vec4(1)) {
+    nvg::FontBlur(0.0);
+    nvg::FillColor(textColor);
+    nvg::Text(pos, text);
+    // don't return with +strokeWidth b/c it means we can't turn stroke on/off without causing readjustments in the UI
+    return nvg::TextBounds(text);
+}
+
 
 void nvg_Reset() {
     nvg::Reset();

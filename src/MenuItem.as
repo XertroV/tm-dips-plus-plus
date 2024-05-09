@@ -30,19 +30,46 @@ void DrawPluginMenuLabel() {
     MenuLogo::DrawImage(UI::GetWindowDrawList());
 }
 
+bool menuBarStartedDrawingExtra = false;
+bool menuBarHideUnlessSDE = false;
+bool get__Menu_DrawNextMenu() {
+    return !menuBarHideUnlessSDE || menuBarStartedDrawingExtra;
+}
 void DrawPluginMenuInner(bool isMenuBar = false) {
     if (!isMenuBar) {
         g_MainUiVisible = UI::Checkbox("Main UI", g_MainUiVisible);
     }
+    menuBarStartedDrawingExtra = false;
+    menuBarHideUnlessSDE = false;
+    float maxW = UI::GetWindowContentRegionWidth();
     Visibility::DrawMenu();
-    Volume::DrawMenu();
-    HUD::DrawMenu();
-    Minimap::DrawMenu();
-    GreenTimer::DrawSettings();
-    Signs3d::DrawMenu();
-    DrawLoadingScreenMenu();
-    MainMenuBg::DrawPromoMenuSettings();
-    DebugMenu::DrawMenu();
+    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
+    if (_Menu_DrawNextMenu) Volume::DrawMenu();
+    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
+    if (_Menu_DrawNextMenu) HUD::DrawMenu();
+    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
+    if (_Menu_DrawNextMenu) Minimap::DrawMenu();
+    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
+    if (_Menu_DrawNextMenu) GreenTimer::DrawSettings();
+    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
+    if (_Menu_DrawNextMenu) Signs3d::DrawMenu();
+    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
+    if (_Menu_DrawNextMenu) LoadingScreens::DrawMenu();
+    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
+    if (_Menu_DrawNextMenu) MainMenuBg::DrawPromoMenuSettings();
+    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
+    if (_Menu_DrawNextMenu) Gameplay::DrawMenu();
+    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
+    if (_Menu_DrawNextMenu) DebugMenu::DrawMenu();
+    if (menuBarStartedDrawingExtra) {
+        UI::EndMenu();
+    }
+}
+
+void StartDrawExtra() {
+    if (menuBarStartedDrawingExtra) return;
+    menuBarHideUnlessSDE = true;
+    menuBarStartedDrawingExtra = UI::BeginMenu("More...");
 }
 
 namespace MenuLogo {
@@ -97,6 +124,10 @@ namespace DebugMenu {
                 DrawPBSendStats();
                 UI::EndMenu();
             }
+            if (UI::BeginMenu("Features")) {
+                UI::Text("Magic Spectate: " + (MAGIC_SPEC_ENABLED ? cCheckMark : cCrossMark));
+                UI::EndMenu();
+            }
             UI::EndMenu();
         }
     }
@@ -107,5 +138,19 @@ namespace DebugMenu {
         UI::Text("isWaitingToUpdatePBH: " + isWaitingToUpdatePBH);
         UI::Text("Count_PushPBHeightUpdateToServer: " + Count_PushPBHeightUpdateToServer);
         UI::Text("Count_PushPBHeightUpdateToServerQueued: " + Count_PushPBHeightUpdateToServerQueued);
+    }
+}
+
+
+const string cCheckMark = "\\$<\\$2f2" + Icons::Check + "\\$>";
+const string cCrossMark = "\\$<\\$f22" + Icons::Times + "\\$>";
+
+
+namespace Gameplay {
+    void DrawMenu() {
+        if (UI::BeginMenu("Gameplay")) {
+            S_BlockCam7Drivable = UI::Checkbox("Block camera 7 drivable?", S_BlockCam7Drivable);
+            UI::EndMenu();
+        }
     }
 }

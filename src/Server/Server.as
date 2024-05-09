@@ -287,7 +287,7 @@ class DD2API {
         }
         sendCount[msg.type]++;
         if (msg.getTy() != MessageRequestTypes::Ping)
-            trace("Sent message type: " + tostring(msg.getTy()));
+            dev_trace("Sent message type: " + tostring(msg.getTy()));
     }
 
     protected void LogRecvType(RawMessage@ msg) {

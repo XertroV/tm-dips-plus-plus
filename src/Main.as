@@ -24,7 +24,7 @@ int f_Nvg_ExoMedium = nvg::LoadFont("Fonts/Exo-Medium.ttf", true, true);
 int f_Nvg_ExoMediumItalic = nvg::LoadFont("Fonts/Exo-MediumItalic.ttf", true, true);
 int f_Nvg_ExoBold = nvg::LoadFont("Fonts/Exo-Bold.ttf", true, true);
 int f_Nvg_ExoExtraBold = nvg::LoadFont("Fonts/Exo-ExtraBold.ttf", true, true);
-// int f_Nvg_ExoExtraBoldItalic = nvg::LoadFont("Fonts/Exo-ExtraBoldItalic.ttf", true, true);
+int f_Nvg_ExoExtraBoldItalic = nvg::LoadFont("Fonts/Exo-ExtraBoldItalic.ttf", true, true);
 // int g_nvgFont = nvg::LoadFont("RobotoSans.ttf", true, true);
 
 #if DEV
@@ -76,6 +76,7 @@ void Main() {
     G_Initialized = true;
     sleep(300);
     startnew(RefreshAssets);
+    startnew(MagicSpectate::Load);
 }
 
 void UnloadSelfSoon() {
@@ -93,20 +94,35 @@ void _Unload() {
         @textOverlayAudio = null;
     }
     ClearAnimations();
+    MagicSpectate::Unload();
     MainMenuBg::Unload();
 }
 
 
 vec2 g_MousePos;
+uint lastMouseMove_NonUi;
 void OnMouseMove(int x, int y) {
     g_MousePos = vec2(x, y);
+    lastMouseMove_NonUi = Time::Now;
 }
 
 UI::InputBlocking OnMouseButton(bool down, int button, int x, int y) {
+    g_MousePos = vec2(x, y);
     if (down) {
         bool lmb = button == 0;
         if (lmb) {
             if (DipsPPSettings::TestClick()) {
+                return UI::InputBlocking::Block;
+            }
+        }
+    }
+    return UI::InputBlocking::DoNothing;
+}
+
+UI::InputBlocking OnKeyPress(bool down, VirtualKey key) {
+    if (down) {
+        if (key == VirtualKey::Escape) {
+            if (MagicSpectate::CheckEscPress()) {
                 return UI::InputBlocking::Block;
             }
         }
@@ -127,6 +143,9 @@ void RenderEarly() {
     if (g_Active) {
         Minimap::RenderEarly();
     }
+    if (int(GetApp().InputPort.MouseVisibility) == 2) {
+        g_MousePos = vec2(-1000);
+    }
 }
 
 void RenderMenuMain() {
@@ -142,6 +161,9 @@ void Render() {
     MaybeDrawLoadingScreen();
     Wizard::DrawWindow();
     Volume::RenderSubtitlesVolumeIfNotActive();
+    // render Magic Spectate UI regardless of UI visibility, including warnings
+    MagicSpectate::Render();
+    if (S_BlockCam7Drivable) BlockCam7Drivable::Render();
     if (drawAnywhereUI) {
         MainUI::Render();
     }
@@ -175,6 +197,7 @@ bool RenderEarlyInner() {
     if (!wasActive) EmitGoingActive(true);
     g_Active = true;
     PS::UpdatePlayers();
+    BlockCam7Drivable::Update();
     return true;
 }
 
@@ -340,6 +363,11 @@ void Update(float dt) {
 
 
 vec2 SmoothLerp(vec2 from, vec2 to, float t) {
+    // drawAtWorldPos = Math::Lerp(lastDrawWorldPos, drawAtWorldPos, 1. - Math::Exp(animLambda * lastDt * 0.001));
+    // animLambda: more negative => faster movement
+    return Math::Lerp(from, to, 1. - Math::Exp(-6.0 * g_DT * 0.001));
+}
+float SmoothLerp(float from, float to) {
     // drawAtWorldPos = Math::Lerp(lastDrawWorldPos, drawAtWorldPos, 1. - Math::Exp(animLambda * lastDt * 0.001));
     // animLambda: more negative => faster movement
     return Math::Lerp(from, to, 1. - Math::Exp(-6.0 * g_DT * 0.001));

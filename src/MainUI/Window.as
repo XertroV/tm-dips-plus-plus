@@ -45,6 +45,13 @@ namespace MainUI {
                 UI::EndTabItem();
             }
 
+            if (g_Active) {
+                if (UI::BeginTabItem("Spectate")) {
+                    DrawSpectateTab();
+                    UI::EndTabItem();
+                }
+            }
+
             // if (UI::BeginTabItem("Credits")) {
             //     DrawCreditsTab();
             //     UI::EndTabItem();
@@ -53,6 +60,102 @@ namespace MainUI {
         }
         UI::End();
     }
+
+    PlayerState@[] specSorted;
+    uint sortCounter = 0;
+    uint sortCounterModulo = 300;
+
+    void DrawSpectateTab() {
+        auto specId = PS::viewedPlayer is null ? 0 : PS::viewedPlayer.playerScoreMwId;
+        auto len = PS::players.Length;
+        bool disableSpectate = !MAGIC_SPEC_ENABLED && !Spectate::IsSpectator;
+
+        UI::AlignTextToFramePadding();
+        UI::Indent();
+        if (!MAGIC_SPEC_ENABLED) {
+            UI::TextWrapped("Spectating buttons disabled outside of spectator mode.\n\\<$\\$f80Magic Spectating Disabled!\\$> Spectating while driving (without killing your run) requires MLHook -- install it from plugin manager.");
+        } else {
+            UI::TextWrapped("\\$4f4Magic Spectating Enabled!\\$z Spectating while driving will not kill your run. Press ESC to exit. Camera changes work. Movement auto-disables.");
+            UI::BeginDisabled(!MagicSpectate::IsActive());
+            if (UI::Button("Exit Magic Spectator")) {
+                MagicSpectate::Reset();
+            }
+            UI::EndDisabled();
+            UI::SameLine();
+        }
+        if (UI::Button("Sort List Now")) {
+            sortCounter = 0;
+        }
+        UI::Unindent();
+        float refreshProg = 1. - float(sortCounter) / float(sortCounterModulo);
+        UI::PushStyleColor(UI::Col::PlotHistogram, Math::Lerp(cRed, cLimeGreen, refreshProg));
+        UI::ProgressBar(refreshProg, vec2(-1, 2));
+        UI::PopStyleColor();
+
+        if (specSorted.Length != len) {
+            sortCounter = 0;
+        }
+
+        // only sort every so often to avoid unstable ordering for neighboring ppl
+        if (sortCounter == 0) {
+            specSorted.Resize(0);
+            specSorted.Reserve(len * 2);
+            for (uint i = 0; i < len; i++) {
+                _InsertPlayerSortedByHeight(specSorted, PS::players[i]);
+            }
+        }
+
+        if (len > 1) sortCounter = (sortCounter + 1) % sortCounterModulo;
+
+        UI::PushStyleColor(UI::Col::TableRowBgAlt, cGray35);
+        if (UI::BeginTable("specplayers", 4, UI::TableFlags::SizingStretchProp | UI::TableFlags::ScrollY | UI::TableFlags::RowBg)) {
+            UI::TableSetupColumn("Spec", UI::TableColumnFlags::WidthFixed, 40.);
+            UI::TableSetupColumn("Height", UI::TableColumnFlags::WidthFixed, 80.);
+            UI::TableSetupColumn("From PB", UI::TableColumnFlags::WidthFixed, 100.);
+            UI::TableSetupColumn("Name", UI::TableColumnFlags::WidthStretch);
+            UI::TableHeadersRow();
+
+            PlayerState@ p;
+            bool isSpeccing;
+            UI::ListClipper clip(specSorted.Length);
+            while (clip.Step()) {
+                for (int i = clip.DisplayStart; i < clip.DisplayEnd; i++) {
+                    @p = specSorted[i];
+                    isSpeccing = specId == p.playerScoreMwId;
+                    UI::PushID('spec'+i);
+
+                    UI::TableNextRow();
+                    UI::TableNextColumn();
+                    UI::BeginDisabled(disableSpectate || p.isSpectator || p.isLocal);
+                    if (UI::Button((isSpeccing) ? Icons::EyeSlash : Icons::Eye)) {
+                        if (isSpeccing) {
+                            Spectate::StopSpectating();
+                        } else {
+                            Spectate::SpectatePlayer(p);
+                        }
+                    }
+                    UI::EndDisabled();
+
+                    UI::TableNextColumn();
+                    UI::AlignTextToFramePadding();
+                    UI::Text(Text::Format("%.1f m", p.pos.y));
+
+                    UI::TableNextColumn();
+                    UI::AlignTextToFramePadding();
+                    UI::Text(Text::Format("(%.1f m)", (p.pos.y - Global::GetPlayersPBHeight(p))));
+
+                    UI::TableNextColumn();
+                    UI::Text((p.clubTag.Length > 0 ? "[\\$<"+p.clubTagColored+"\\$>] " : "") + p.playerName);
+
+                    UI::PopID();
+                }
+            }
+
+            UI::EndTable();
+        }
+        UI::PopStyleColor();
+    }
+
 
     void DrawStatsTab() {
         DrawCenteredText("Global Stats", f_DroidBigger, 26.);
@@ -253,4 +356,34 @@ namespace MainUI {
         startnew(CoroutineFunc(vlTrigger.PlayItem));
         AddSubtitleAnimation(vlTrigger.subtitles);
     }
+}
+
+
+
+void _InsertPlayerSortedByHeight(PlayerState@[]@ arr, PlayerState@ p) {
+    int upper = int(arr.Length) - 1;
+    if (upper < 0) {
+        arr.InsertLast(p);
+        return;
+    }
+    if (upper == 0) {
+        if (arr[0].pos.y >= p.pos.y) {
+            arr.InsertLast(p);
+        } else {
+            arr.InsertAt(0, p);
+        }
+        return;
+    }
+    int lower = 0;
+    int mid;
+    while (lower < upper) {
+        mid = (lower + upper) / 2;
+        // trace('l: ' + lower + ', m: ' + mid + ', u: ' + upper);
+        if (arr[mid].pos.y < p.pos.y) {
+            upper = mid;
+        } else {
+            lower = mid + 1;
+        }
+    }
+    arr.InsertAt(lower, p);
 }

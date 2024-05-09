@@ -34,6 +34,10 @@ class PlayerState {
     uint creationTime;
     bool recheckedColor = false;
     uint lowVelocitySince;
+    bool isSpectator;
+    string clubTag;
+    string clubTagClean;
+    string clubTagColored;
 
     ClimbTracker@ climbTracker;
 
@@ -58,6 +62,10 @@ class PlayerState {
         lastRespawn = Time::Now;
         creationTime = Time::Now;
         lowVelocitySince = Time::Now;
+        isSpectator = player.ScriptAPI.RequestsSpectate;
+        clubTag = player.User.ClubTag;
+        clubTagClean = StripFormatCodes(clubTag);
+        clubTagColored = ColoredString(clubTag);
         if (isLocal) {
             @climbTracker = ClimbTracker(this);
         }
@@ -88,6 +96,7 @@ class PlayerState {
         if (cast<CSmScriptPlayer>(player.ScriptAPI) !is null) {
             lastRaceTime = raceTime;
             raceTime = GetRaceTimeFromStartTime(cast<CSmScriptPlayer>(player.ScriptAPI).StartTime);
+            isSpectator = player.ScriptAPI.RequestsSpectate;
         }
         if (!recheckedColor && Time::Now - creationTime > 5000) {
             recheckedColor = true;
@@ -219,7 +228,7 @@ class PlayerState {
             if (vel.LengthSquared() < 0.0000001) {
                 this.vel = vec3();
             }
-            if (vel.LengthSquared() > 0.1) {
+            if (vel.LengthSquared() > 0.13) {
                 // if we have some velocity, reset the low vel since counter;
                 lowVelocitySince = Time::Now;
             }
@@ -374,8 +383,9 @@ class PlayerState {
 
     float FallYDistance() {
         if (!isFalling) return 0.;
-        if (fallTracker !is null) return fallTracker.HeightFallen();
-        return fallStart.y - pos.y;
+        if (fallTracker is null) return 0.;
+        return fallTracker.HeightFallenSafe();
+        // return fallStart.y - pos.y;
         // return flyStart.y - pos.y;
     }
 

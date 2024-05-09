@@ -15,6 +15,12 @@ namespace PS {
     PlayerState@ viewedPlayer;
     uint guiPlayerMwId;
 
+    PlayerState@ GetPlayerFromVehicleId(uint id) {
+        id = id & 0x000fffff;
+        if (id >= vehicleIdToPlayers.Length) return null;
+        return vehicleIdToPlayers[id];
+    }
+
     void ClearPlayers() {
         players.RemoveRange(0, players.Length);
         vehicleIdToPlayers.RemoveRange(0, vehicleIdToPlayers.Length);
@@ -27,6 +33,9 @@ namespace PS {
     void UpdatePlayers() {
         auto cp = cast<CSmArenaClient>(GetApp().CurrentPlayground);
         guiPlayerMwId = GetViewedPlayerMwId(cp);
+        if (MagicSpectate::IsActive()) {
+            guiPlayerMwId = MagicSpectate::GetTarget().playerScoreMwId;
+        }
         SortPlayersAndUpdateVehicleIds(cp);
         UpdateVehicleStates();
         // when opponents are off
