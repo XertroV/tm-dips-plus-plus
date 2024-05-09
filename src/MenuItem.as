@@ -128,6 +128,17 @@ namespace DebugMenu {
                 UI::Text("Magic Spectate: " + (MAGIC_SPEC_ENABLED ? cCheckMark : cCrossMark));
                 UI::EndMenu();
             }
+#if DEV
+            if (UI::BeginMenu("Anims")) {
+                if (UI::MenuItem("Add Bleb")) {
+                    EmitStatusAnimation(RainbowStaticStatusMsg("Bleb").WithDuration(4000));
+                }
+                if (UI::MenuItem("Add 360")) {
+                    EmitStatusAnimation(RainbowStaticStatusMsg("360!").WithDuration(4000));
+                }
+                UI::EndMenu();
+            }
+#endif
             UI::EndMenu();
         }
     }

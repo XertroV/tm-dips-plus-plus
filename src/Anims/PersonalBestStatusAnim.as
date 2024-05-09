@@ -170,4 +170,30 @@ class RainbowStaticStatusMsg : PersonalBestStatusAnim {
     string GetPbText() override {
         return staticMsg;
     }
+
+    RainbowStaticStatusMsg@ WithDuration(uint duration) {
+        this.duration = duration;
+        return this;
+    }
+}
+
+
+
+
+class SpecialTextTrigger : GameTrigger {
+    SpecialTextTrigger(const vec3 &in min, const vec3 &in max, const string &in name, uint duration, uint debounce = 60000) {
+        super(min, max, name);
+        this.debounce = debounce;
+        this.duration = duration;
+    }
+
+    uint duration;
+    uint lastTriggerTime = 0;
+    uint debounce = 180000;
+
+    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+        if (Time::Now - lastTriggerTime < debounce) return;
+        lastTriggerTime = Time::Now;
+        EmitStatusAnimation(RainbowStaticStatusMsg(name).WithDuration(duration));
+    }
 }

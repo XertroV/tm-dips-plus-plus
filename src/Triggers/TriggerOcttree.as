@@ -384,6 +384,8 @@ GameTrigger@[]@ genSpecialTriggers() {
 GameTrigger@[]@ genEasterEggTriggers() {
     GameTrigger@[] ret;
     ret.InsertLast(PlaySoundTrigger(vec3(916.0, 382.0, 769.15), vec3(970.0, 408.0, 780.0), "Mario: Bye Bye", "ee/mario-byebye.mp3"));
+    ret.InsertLast(SpecialTextTrigger(vec3(826.000, 857.000, 993.000), vec3(830.000, 862.000, 999.000), "Bleb", 4000));
+    ret.InsertLast(SpecialTextTrigger(vec3(602.000, 1091.000, 834.000), vec3(630.000, 1098.000, 862.000), "360!", 4000));
     return ret;
 }
 

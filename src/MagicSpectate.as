@@ -121,7 +121,7 @@ namespace MagicSpectate {
         nvg::BeginPath();
         vec2 bgSize = nvg::TextBounds(name) + pad * 2.;
         vec2 bgTL = namePosCM - bgSize / 2.;
-        nvg::FillColor(cBlack85);
+        nvg::FillColor(cBlackf85);
         nvg::RoundedRect(bgTL, bgSize, pad.x);
         nvg::Fill();
         nvg::BeginPath();
