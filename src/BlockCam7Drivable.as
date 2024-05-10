@@ -10,6 +10,7 @@ namespace BlockCam7Drivable {
         try {
             auto gt = app.CurrentPlayground.GameTerminals[0];
             if (gt is null) return;
+            if (gt.UISequence_Current != SGamePlaygroundUIConfig::EUISequence::Playing) return;
             if (GetIsCam7Drivable(gt)) {
                 SetCam7Drivable(gt, false);
                 lastBlockTime = Time::Now;
