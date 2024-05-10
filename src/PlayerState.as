@@ -33,6 +33,7 @@ class PlayerState {
     int lastRaceTime;
     uint creationTime;
     bool recheckedColor = false;
+    uint veryLowVelocitySince;
     uint lowVelocitySince;
     bool isSpectator;
     string clubTag;
@@ -225,10 +226,14 @@ class PlayerState {
         if (discontinuityCount == newDiscontCount) {
             this.vel = vel;
             // simplify low velocities
-            if (vel.LengthSquared() < 0.0000001) {
+            float vSq = vel.LengthSquared();
+            if (vSq < 0.000001) {
                 this.vel = vec3();
             }
-            if (vel.LengthSquared() > 0.13) {
+            if (vSq > 0.0003) {
+                veryLowVelocitySince = Time::Now;
+            }
+            if (vSq > 0.13) {
                 // if we have some velocity, reset the low vel since counter;
                 lowVelocitySince = Time::Now;
             }
@@ -294,7 +299,8 @@ class PlayerState {
     }
 
     bool get_IsLowVelocityTurtleIdle() {
-        return isFlying && (Time::Now - lowVelocitySince > LOW_VELOCITY_TURTLE_MIN_TIME);
+        return (Time::Now - veryLowVelocitySince > LOW_VELOCITY_TURTLE_MIN_TIME)
+            || (isFlying && (Time::Now - lowVelocitySince > LOW_VELOCITY_TURTLE_MIN_TIME));
     }
 
     void AfterUpdate() {

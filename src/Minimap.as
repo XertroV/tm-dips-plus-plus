@@ -153,13 +153,14 @@ namespace Minimap {
             if (screenPos.y < minMaxLabelHeight.x || screenPos.y > minMaxLabelHeight.y) continue;
             size = 5 * vScale;
             p.lastMinimapPos = screenPos;
-            if (p.isLocal || p.isViewed) {
+            if (p.isViewed) {
                 @localPlayer = p;
             } else if (p.HasFallTracker() && p.GetFallTracker().IsFallPastMinFall() && !p.IsLowVelocityTurtleIdle) {
                 fallers.InsertLast(p);
             } else if (!p.IsLowVelocityTurtleIdle) {
                 _InsertPlayerSortedByHeight(drivingPlayers, p);
             } else {
+                // lowest level: low velocity turtly / idle
                 nvgDrawPointCircle(screenPos, size, cGreen, cMagenta);
                 p.minimapLabel.Draw(p, cWhite25, cGray35);
                 if (p.minimapLabel.isHovered_Right) @hovered = p;

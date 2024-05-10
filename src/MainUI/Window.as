@@ -286,7 +286,19 @@ namespace MainUI {
         DrawCenteredText("Leaderboard", f_DroidBigger, 26.);
         DrawCenteredText("Top " + S_NbTopTimes, f_DroidBigger, 26.);
         auto @top3 = Global::top3;
+        auto len = Math::Min(int(top3.Length), S_NbTopTimes);
+        auto nbCols = len > 5 ? 2 : 1;
+        auto startNewAt = nbCols == 1 ? len : (len + 1) / nbCols;
+        UI::Columns(nbCols);
+        auto cFlags = UI::WindowFlags::AlwaysAutoResize;
+        auto cSize = vec2(-1, (UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.) * startNewAt);
+        UI::BeginChild("lbc1", cSize, false, cFlags);
         for (uint i = 0; i < Math::Min(S_NbTopTimes, top3.Length); i++) {
+            if (i == startNewAt) {
+                UI::EndChild();
+                UI::NextColumn();
+                UI::BeginChild("lbc2", cSize, false, cFlags);
+            }
             auto @player = top3[i];
             if (player.name == "") {
                 DrawCenteredText(tostring(i + 1) + ". ???", f_DroidBig, 20.);
@@ -294,6 +306,8 @@ namespace MainUI {
                 DrawCenteredText(tostring(i + 1) + ". " + player.name + Text::Format(" - %.1f m", player.height), f_DroidBig, 20.);
             }
         }
+        UI::EndChild();
+        UI::Columns(1);
         UI::Separator();
         DrawCenteredText("My Rank", f_DroidBigger, 26.);
         DrawCenteredText(Text::Format("%d. ", Global::myRank.rank) + Text::Format("%.1f m", Global::myRank.height), f_DroidBig, 20.);

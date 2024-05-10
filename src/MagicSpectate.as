@@ -13,6 +13,7 @@ namespace MagicSpectate {
     }
 
     void Load() {
+        trace("Registered ML Exec callback for Magic Spectator");
         MLHook::RegisterPlaygroundMLExecutionPointCallback(onMLExec);
     }
 
@@ -67,7 +68,10 @@ namespace MagicSpectate {
         }
         uint vehicleId = currentlySpectating.lastVehicleId;
         // do nothing if the vehicle id is invalid, it might become valid
-        if (vehicleId == 0 || vehicleId & 0x0f000000 > 0x05000000) return;
+        if (vehicleId == 0 || vehicleId & 0x0f000000 > 0x05000000) {
+            // dev_trace("Bad vehicle id: " + Text::Format("%08x", vehicleId));
+            return;
+        }
         auto @player = PS::GetPlayerFromVehicleId(vehicleId);
         if (player is null) {
             dev_trace("magic spectate resetting: GetPlayerFromVehicleId null");
