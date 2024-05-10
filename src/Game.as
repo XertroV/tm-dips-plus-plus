@@ -52,3 +52,11 @@ CSceneVehicleVisState@ GetVehicleStateOfControlledPlayer() {
         return null;
     }
 }
+
+vec3 LocalPlayersColor() {
+    return GetApp().LocalPlayerInfo.Color;
+}
+
+string LocalPlayersWSID() {
+    return GetApp().LocalPlayerInfo.WebServicesUserId;
+}

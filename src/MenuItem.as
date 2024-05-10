@@ -50,6 +50,10 @@ void DrawPluginMenuInner(bool isMenuBar = false) {
     if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
     if (_Menu_DrawNextMenu) Minimap::DrawMenu();
     if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
+    if (_Menu_DrawNextMenu) Gameplay::DrawMenu();
+    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
+    if (_Menu_DrawNextMenu) Alerts::DrawMenu();
+    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
     if (_Menu_DrawNextMenu) GreenTimer::DrawSettings();
     if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
     if (_Menu_DrawNextMenu) Signs3d::DrawMenu();
@@ -57,8 +61,6 @@ void DrawPluginMenuInner(bool isMenuBar = false) {
     if (_Menu_DrawNextMenu) LoadingScreens::DrawMenu();
     if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
     if (_Menu_DrawNextMenu) MainMenuBg::DrawPromoMenuSettings();
-    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
-    if (_Menu_DrawNextMenu) Gameplay::DrawMenu();
     if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
     if (_Menu_DrawNextMenu) DebugMenu::DrawMenu();
     if (menuBarStartedDrawingExtra) {
@@ -134,7 +136,7 @@ namespace DebugMenu {
                     EmitStatusAnimation(RainbowStaticStatusMsg("Bleb").WithDuration(4000));
                 }
                 if (UI::MenuItem("Add 360")) {
-                    EmitStatusAnimation(RainbowStaticStatusMsg("360!").WithDuration(4000));
+                    EmitStatusAnimation(RainbowStaticStatusMsg("360!").WithDuration(3000));
                 }
                 UI::EndMenu();
             }
@@ -161,6 +163,16 @@ namespace Gameplay {
     void DrawMenu() {
         if (UI::BeginMenu("Gameplay")) {
             S_BlockCam7Drivable = UI::Checkbox("Block camera 7 drivable?", S_BlockCam7Drivable);
+            UI::EndMenu();
+        }
+    }
+}
+
+
+namespace Alerts {
+    void DrawMenu() {
+        if (UI::BeginMenu("Alerts")) {
+            S_NotifyOnNewWR = UI::Checkbox("Notification on new WR?", S_NotifyOnNewWR);
             UI::EndMenu();
         }
     }

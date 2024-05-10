@@ -23,7 +23,8 @@ enum MessageRequestTypes {
     ReportStats = 37,
     // ReportMapLoad = 38,
     ReportPBHeight = 39,
-    // ReportSessionCL = 40,
+    ReportPlayerColor = 40,
+    // ReportSessionCL = ??,
 
     GetMyStats = 128,
     GetGlobalLB = 129,
@@ -170,6 +171,14 @@ OutgoingMsg@ ReportPBHeightMsg(float height) {
     j["h"] = height;
     return WrapMsgJson(j, MessageRequestTypes::ReportPBHeight);
 }
+
+OutgoingMsg@ ReportMyColorMsg() {
+    auto @j = Json::Object();
+    j["wsid"] = LocalPlayersWSID();
+    j["color"] = Vec3ToJson(LocalPlayersColor());
+    return WrapMsgJson(j, MessageRequestTypes::ReportPlayerColor);
+}
+
 
 OutgoingMsg@ GetMyStatsMsg() {
     return WrapMsgJson(Json::Object(), MessageRequestTypes::GetMyStats);

@@ -203,17 +203,24 @@ namespace MainUI {
         if (DrawCenteredButton("Contribute to the Prize Pool", f_DroidBigger, 26.)) {
             OpenBrowserURL("https://matcherino.com/tournaments/111501");
         }
-        DrawCenteredText("Donations", f_DroidBigger, 26.);
         UI::Separator();
+        DrawCenteredText("Donation Cheers", f_DroidBig, 20.);
+        DrawCenteredText("Mention a streamer in your donation msg to cheer them on!", f_Droid, 16.);
+        Donations::DrawDonoCheers();
+        UI::Separator();
+        DrawCenteredText("Donations", f_DroidBigger, 26.);
         if (UI::RadioButton("Donations", !donationsShowingDonors)) donationsShowingDonors = false;
         UI::SameLine();
         if (UI::RadioButton("Donors", donationsShowingDonors)) donationsShowingDonors = true;
         UI::Separator();
-        if (donationsShowingDonors) {
-            DrawDonations_Donors();
-        } else {
-            DrawDonations_Donations();
+        if (UI::BeginChild("donobody", vec2(), false, UI::WindowFlags::AlwaysVerticalScrollbar)) {
+            if (donationsShowingDonors) {
+                DrawDonations_Donors();
+            } else {
+                DrawDonations_Donations();
+            }
         }
+        UI::EndChild();
     }
 
     void DrawDonations_Donations() {

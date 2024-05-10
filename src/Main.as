@@ -14,6 +14,7 @@ const string MenuIconColor = "\\$fd5";
 const string MenuTitle = MenuIconColor + Icons::ArrowDown + "\\$z " + PluginName;
 
 UI::Font@ f_MonoSpace = null;
+UI::Font@ f_Droid = null;
 UI::Font@ f_DroidBig = null;
 UI::Font@ f_DroidBigger = null;
 // int f_Nvg_OswaldLightItalic = nvg::LoadFont("Fonts/Oswald-LightItalic.ttf", true, true);
@@ -35,8 +36,9 @@ bool DEV_MODE = false;
 
 void LoadFonts() {
 	@f_MonoSpace = UI::LoadFont("DroidSansMono.ttf");
-    @f_DroidBig = UI::LoadFont("DroidSans.ttf", 20);
-    @f_DroidBigger = UI::LoadFont("DroidSans.ttf", 26);
+    @f_Droid = UI::LoadFont("DroidSans.ttf", 16.);
+    @f_DroidBig = UI::LoadFont("DroidSans.ttf", 20.);
+    @f_DroidBigger = UI::LoadFont("DroidSans.ttf", 26.);
 }
 
 DD2API@ g_api;
@@ -71,7 +73,9 @@ void Main() {
     startnew(GreenTimer::OnPluginStart);
     startnew(Wizard::OnPluginLoad);
     startnew(SF::LoadPtrs);
-    sleep(200);
+    sleep(100);
+    startnew(Donations::SetUpCheers);
+    sleep(100);
     @g_api = DD2API();
     G_Initialized = true;
     sleep(300);

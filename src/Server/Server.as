@@ -177,6 +177,7 @@ class DD2API {
         print("... DD2API ready");
         IsReady = true;
         QueueMsg(GetMyStatsMsg());
+        QueueMsg(ReportMyColorMsg());
         startnew(CoroutineFuncUserdataUint64(ReadLoop), nonce);
         startnew(CoroutineFuncUserdataUint64(SendLoop), nonce);
         startnew(CoroutineFuncUserdataUint64(SendPingLoop), nonce);
@@ -529,6 +530,8 @@ namespace Global {
     int nb_players_climbing = 0;
     dictionary pbCache;
 
+    dictionary wsidToPlayerName;
+
     void SetServerInfoFromJson(Json::Value@ j) {
         try {
             nb_players_live = j["nb_players_live"];
@@ -556,12 +559,19 @@ namespace Global {
 
     LBEntry@[] top3 = {LBEntry(), LBEntry(), LBEntry()};
     void SetTop3FromJson(Json::Value@ j) {
+        auto @leader = top3[0];
         for (uint i = 0; i < j.Length; i++) {
             while (i >= top3.Length) {
                 top3.InsertLast(LBEntry());
             }
-            top3[i].SetFromJson(j[i]);
-            pbCache[top3[i].name] = top3[i].height;
+            if (i == 0 && leader.height > 100. && leader.height < float(j[0]["height"])) {
+                leader.SetFromJson(j[i]);
+                EmitNewWR(leader);
+            } else {
+                top3[i].SetFromJson(j[i]);
+            }
+            @pbCache[top3[i].name] = top3[i];
+            wsidToPlayerName[top3[i].wsid] = top3[i].name;
         }
         EmitUpdatedTop3();
     }
@@ -573,7 +583,8 @@ namespace Global {
         }
         for (uint i = 0; i < j.Length; i++) {
             globalLB[i].SetFromJson(j[i]);
-            pbCache[globalLB[i].name] = globalLB[i].height;
+            @pbCache[globalLB[i].name] = globalLB[i];
+            wsidToPlayerName[globalLB[i].wsid] = globalLB[i].name;
             if (i % 50 == 0) yield();
         }
         EmitUpdatedGlobalLB();
@@ -582,11 +593,20 @@ namespace Global {
     LBEntry myRank = LBEntry();
     void SetMyRankFromJson(Json::Value@ j) {
         myRank.SetFromJson(j);
+        @pbCache[myRank.name] = myRank;
+        wsidToPlayerName[myRank.wsid] = myRank.name;
         EmitUpdatedMyRank();
     }
 
     void SetPlayersPBHeightFromJson(Json::Value@ j) {
-        pbCache[string(j["name"])] = float(j["height"]);
+        auto name = string(j["name"]);
+        if (pbCache.Exists(name)) {
+            cast<LBEntry@>(pbCache[name]).SetFromJson(j);
+        } else {
+            auto @entry = LBEntry();
+            entry.SetFromJson(j);
+            @pbCache[name] = entry;
+        }
     }
 
     dictionary lastUpdateTimes;
@@ -598,13 +618,44 @@ namespace Global {
         PushGetPlayerPBRequestToServer(LoginToWSID(login));
     }
 
+    LBEntry@ GetPlayersPBEntryLogin(const string &in login) {
+        CheckUpdatePlayersHeight(login);
+        auto wsid = WSIDToLogin(login);
+        if (!wsidToPlayerName.Exists(wsid)) return null;
+        string name = string(wsidToPlayerName[wsid]);
+        if (pbCache.Exists(name)) {
+            return cast<LBEntry@>(pbCache[name]);
+        }
+        return null;
+    }
+
+    LBEntry@ GetPlayersPBEntryWL(const string &in wsid, const string &in login) {
+        CheckUpdatePlayersHeight(login);
+        if (!wsidToPlayerName.Exists(wsid)) return null;
+        string name = string(wsidToPlayerName[wsid]);
+        if (pbCache.Exists(name)) {
+            return cast<LBEntry@>(pbCache[name]);
+        }
+        return null;
+    }
+
+    LBEntry@ GetPlayersPBEntry(PlayerState@ p) {
+        if (p is null) return null;
+        CheckUpdatePlayersHeight(p.playerLogin);
+        if (pbCache.Exists(p.playerName)) {
+            return cast<LBEntry@>(pbCache[p.playerName]);
+        }
+        return null;
+    }
+
     // can trigger stutters
     float GetPlayersPBHeight(PlayerState@ player) {
         if (player is null) return -2.;
-        CheckUpdatePlayersHeight(player.playerLogin);
-        float h;
-        if (pbCache.Get(player.playerName, h)) return h;
-        return -1.;
+        auto @pb = GetPlayersPBEntry(player);
+        if (pb is null) {
+            return -1.;
+        }
+        return pb.height;
     }
 
     // donations
@@ -627,6 +678,7 @@ namespace Global {
     }
 
     void SetDonationsFromJsonAsync(ref@ r) {
+        Donations::ResetDonoCheers();
         totalDonations = 0;
         Json::Value@ j = cast<Json::Value>(r);
         auto d = j["donations"];
@@ -637,6 +689,7 @@ namespace Global {
         for (uint i = 0; i < d.Length; i++) {
             donations[i].UpdateFromJson(d[i]);
             totalDonations += donations[i].amount;
+            Donations::AddDonation(donations[i]);
             if (i % 50 == 0) yield();
         }
         while (donors.Length < n.Length) {
@@ -646,6 +699,7 @@ namespace Global {
             donors[i].UpdateFromJson(n[i]);
             if (i % 50 == 0) yield();
         }
+        Donations::SortCheers();
     }
 
     class Donation {
@@ -673,6 +727,18 @@ namespace Global {
     }
 }
 
+
+[Setting hidden]
+bool S_NotifyOnNewWR = true;
+
+
+uint lastWRTime = 0;
+void EmitNewWR(LBEntry@ leader) {
+    if (S_NotifyOnNewWR && Time::Now - lastWRTime > 30000) {
+        lastWRTime = Time::Now;
+        NotifySuccess("New DD2 WR Height: " + leader.name + " @ " + Text::Format("%.1f m", leader.height));
+    }
+}
 
 void EmitUpdatedTop3() {
     // warn("emit updated top3");
