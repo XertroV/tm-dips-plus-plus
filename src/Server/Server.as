@@ -32,6 +32,10 @@ void PushGetPlayerPBRequestToServer(const string &in wsid) {
 
 void PushMessage(OutgoingMsg@ msg) {
     if (g_api is null) return;
+    // if (!g_api.HasContext) {
+    //     warn("Dropping message of type because connection has no context: " + tostring(msg.getTy()));
+    //     return;
+    // }
     g_api.QueueMsg(msg);
 }
 
@@ -249,6 +253,8 @@ class DD2API {
 
     protected void SendLoop(uint64 nonce) {
         OutgoingMsg@ next;
+        uint loopStarted = Time::Now;
+        while (!IsReady && Time::Now - loopStarted < 10000) yield();
         while (!IsBadNonce(nonce)) {
             if (socket.IsClosed || socket.ServerDisconnected) break;
             auto nbOutgoing = Math::Min(queuedMsgs.Length, 10);
