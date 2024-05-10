@@ -140,6 +140,9 @@ namespace DebugMenu {
                 }
                 UI::EndMenu();
             }
+            if (UI::MenuItem("Show Debug", "", g_DebugOpen)) {
+                g_DebugOpen = !g_DebugOpen;
+            }
 #endif
             UI::EndMenu();
         }

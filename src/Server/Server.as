@@ -349,7 +349,7 @@ class DD2API {
         uint64 lastMI = 0;
         uint64 lastu64 = 0;
         uint lastMapMwId = 0;
-        uint lastReport = 0;
+        uint lastVSReport = 0;
         nat2 bi = nat2();
         bool mapChange, u64Change;
         auto app = cast<CTrackMania>(GetApp());
@@ -387,11 +387,13 @@ class DD2API {
             }
             sleep(117);
             // if (socket.IsClosed || socket.ServerDisconnected) break;
-            if (Time::Now - lastReport > (currentMapRelevant ? 5000 : 30000)) {
+            if (Time::Now - lastVSReport > (currentMapRelevant ? 5000 : 25000)) {
                 if (IsBadNonce(nonce)) break;
                 CSceneVehicleVisState@ state = GetVehicleStateOfControlledPlayer();
-                if (state !is null && (state.Position - lastPos).LengthSquared() > 0.1) {
-                    lastReport = Time::Now;
+                if (state !is null &&
+                    ((state.Position - lastPos).LengthSquared() > 0.1)
+                    || Time::Now - lastVSReport > 25000) {
+                    lastVSReport = Time::Now;
                     lastPos = state.Position;
                     QueueMsg(ReportVehicleStateMsg(state));
                     sleep(117);
