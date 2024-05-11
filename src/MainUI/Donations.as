@@ -10,10 +10,16 @@ namespace Donations {
             float maxW = UI::GetWindowContentRegionWidth() * .75;
             float t;
             vec2 cur;
+            LBEntry@ pb;
             for (uint i = 0; i < cheers.Length; i++) {
                 t = cheers[i].TotalAmt / maxAmt;
+                @pb = Global::GetPlayersPBEntryWL(cheers[i].wsid, cheers[i].login);
+                float ls = pb is null ? 0.0 : pb.color.LengthSquared();
+                bool doColor = pb !is null && ls > 0.5 && ls < 2.5;
                 cur = UI::GetCursorPos();
+                if (doColor) UI::PushStyleColor(UI::Col::PlotHistogram, vec4(pb.color, 1.0));
                 UI::ProgressBar(t, vec2(maxW, UI::GetTextLineHeight()));
+                if (doColor) UI::PopStyleColor();
                 UI::SetCursorPos(cur + vec2(maxW * t + 8., 0.));
                 UI::Text(tostring(i + 1) + ". " + cheers[i].playerName + Text::Format(" ($%.2f)", cheers[i].TotalAmt));
             }

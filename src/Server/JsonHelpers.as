@@ -22,6 +22,18 @@ Json::Value@ Vec3ToJson(const vec3 &in v) {
     return j;
 }
 
+vec3 JsonToVec3(const Json::Value@ j) {
+    if (j.GetType() != Json::Type::Array) {
+        warn("non-array value passed to JsonToVec3");
+        return vec3();
+    }
+    if (j.Length < 3) {
+        warn("array value passed to JsonToVec3 is too short");
+        return vec3();
+    }
+    return vec3(float(j[0]), float(j[1]), float(j[2]));
+}
+
 Json::Value@ QuatToJson(const quat &in q) {
     auto @j = Json::Array();
     j.Add(q.x);

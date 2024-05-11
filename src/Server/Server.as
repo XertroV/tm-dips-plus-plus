@@ -556,6 +556,7 @@ namespace Global {
     dictionary pbCache;
 
     dictionary wsidToPlayerName;
+    dictionary colorCache;
 
     void SetServerInfoFromJson(Json::Value@ j) {
         try {
@@ -874,5 +875,6 @@ namespace TwitchNames {
         HandleMsg(_NewMsg("e07e9ea9-daa5-4496-9908-9680e35da02b", "BirdieTM")); yield();
         HandleMsg(_NewMsg("24b09acf-f745-408e-80fc-b1141054504c", "SimplyNick")); yield();
         HandleMsg(_NewMsg("ed14ac85-1252-4cc7-8efd-49cd72938f9d", "Jxliano")); yield();
+        HandleMsg(_NewMsg("06496fad-70f7-49bc-80c6-d62caa7a9de4", "Hefest")); yield();
     }
 }
