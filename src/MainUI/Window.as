@@ -30,7 +30,7 @@ namespace MainUI {
                 UI::EndTabItem();
             }
 
-            if (UI::BeginTabItem("Donations")) {
+            if (UI::BeginTabItem("Prize Pool")) {
                 DrawDonationsTab();
                 UI::EndTabItem();
             }
@@ -200,6 +200,10 @@ namespace MainUI {
     void DrawDonationsTab() {
         Global::CheckUpdateDonations();
         DrawCenteredText("Total Prize Pool: $" + Text::Format("%.2f", Global::totalDonations), f_DroidBigger, 26.);
+        DrawCenteredText(Text::Format("1st: $%.2f", Global::totalDonations * 0.5)
+            + Text::Format(" | 2nd: $%.2f", Global::totalDonations * 0.3)
+            + Text::Format(" | 3rd: $%.2f", Global::totalDonations * 0.2)
+            , f_DroidBig, 20.);
         if (DrawCenteredButton("Contribute to the Prize Pool", f_DroidBigger, 26.)) {
             OpenBrowserURL("https://matcherino.com/tournaments/111501");
         }
