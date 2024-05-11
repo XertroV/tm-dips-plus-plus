@@ -374,8 +374,14 @@ namespace Minimap {
                     if (Time::Now - p.fallStartTs < 15.) fallDist = 0.;
                     // about 2 floors per magnitude
                     fallMag = fallDist / (mapHeightDelta / 16.0);
+                    float fallMagQ = fallMag * .25;
                     extraScale = Math::Clamp(fallMag, 0.1, 1.1) - 0.1;
-                    extraGlobalScale = SmoothLerp(extraGlobalScale, Math::Clamp(fallMag * .25, 1.0, S_MinimapMaxFallingGlobalExtraScale));
+                    // going slow after falling
+                    if (fallMagQ > 1.0 && p.vel.LengthSquared() < 1.0) {
+                        extraGlobalScale = SmoothLerp(extraGlobalScale, 1.0);
+                    } else {
+                        extraGlobalScale = SmoothLerp(extraGlobalScale, Math::Clamp(fallMagQ, 1.0, S_MinimapMaxFallingGlobalExtraScale));
+                    }
                     // exaggerated for debug
                     // extraGlobalScale = SmoothLerp(extraGlobalScale, Math::Clamp(fallMag * 1., 1.0, S_MinimapMaxFallingGlobalExtraScale));
                     lastFalling = Time::Now;

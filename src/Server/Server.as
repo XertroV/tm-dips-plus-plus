@@ -354,7 +354,7 @@ class DD2API {
         bool mapChange, u64Change;
         auto app = cast<CTrackMania>(GetApp());
         uint started = Time::Now;
-        vec3 lastPos;
+        vec3 lastPos = vec3();
         bool firstRun = true;
         trace('context loop start');
         while (!IsBadNonce(nonce)) {
@@ -391,12 +391,17 @@ class DD2API {
                 if (IsBadNonce(nonce)) break;
                 CSceneVehicleVisState@ state = GetVehicleStateOfControlledPlayer();
                 if (state !is null &&
+                    !Spectate::IsSpectator &&
                     ((state.Position - lastPos).LengthSquared() > 0.1)
                     || Time::Now - lastVSReport > 25000) {
-                    lastVSReport = Time::Now;
-                    lastPos = state.Position;
-                    QueueMsg(ReportVehicleStateMsg(state));
-                    sleep(117);
+                        try {
+                            lastVSReport = Time::Now;
+                            lastPos = state.Position;
+                            QueueMsg(ReportVehicleStateMsg(state));
+                            sleep(117);
+                        } catch {
+                            warn("exception reporting VS: " + getExceptionInfo());
+                        }
                 }
                 // if (socket.IsClosed || socket.ServerDisconnected) break;
             }
