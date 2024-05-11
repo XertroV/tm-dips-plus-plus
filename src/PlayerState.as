@@ -72,6 +72,14 @@ class PlayerState {
         }
     }
 
+    string _wsid;
+    string get_playerWsid() {
+        if (_wsid.Length < 15) {
+            _wsid = LoginToWSID(playerLogin);
+        }
+        return _wsid;
+    }
+
     void CheckUpdateIsLocal() {
         isLocal = playerScoreMwId == g_LocalPlayerMwId;
     }

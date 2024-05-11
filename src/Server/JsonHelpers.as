@@ -98,3 +98,46 @@ bool[] JsonToBoolArray(const Json::Value@ j) {
 int JGetInt(const Json::Value@ j, const string &in key, int _default = 0) {
     return j.Get(key, _default);
 }
+
+void IncrJsonIntCounter(Json::Value@ j, const string &in key) {
+    bool hasKey = j.HasKey(key);
+    if (!hasKey) {
+        j[key] = 1;
+        return;
+    }
+    if (j[key].GetType() != Json::Type::Number) {
+        warn("json value is not a number: " + Json::Write(j[key]));
+        return;
+    }
+
+    j[key] = int(j[key]) + 1;
+}
+
+void CopyJsonValuesIfGreater(Json::Value@ from, Json::Value@ to) {
+    if (from.GetType() != Json::Type::Object) {
+        warn("json 'from' value is not an object");
+    }
+    if (to.GetType() != Json::Type::Object) {
+        warn("json 'to' value is not an object");
+    }
+    auto @keys = from.GetKeys();
+    uint nb = keys.Length;
+    Json::Value@ fv;
+    Json::Value@ tv;
+    for (uint i = 0; i < nb; i++) {
+        string key = keys[i];
+        if (to.HasKey(key)) {
+            @fv = from[key];
+            @tv = to[key];
+            if (fv.GetType() == Json::Type::Number && to[key].GetType() == Json::Type::Number) {
+                if (float(fv) > float(tv)) {
+                    to[key] = fv;
+                }
+            } else if (fv.GetType() != Json::Type::Null) {
+                to[key] = from[key];
+            }
+        } else {
+            to[key] = from[key];
+        }
+    }
+}

@@ -24,6 +24,7 @@ enum MessageRequestTypes {
     // ReportMapLoad = 38,
     ReportPBHeight = 39,
     ReportPlayerColor = 40,
+    ReportTwitch = 41,
     // ReportSessionCL = ??,
 
     GetMyStats = 128,
@@ -34,6 +35,8 @@ enum MessageRequestTypes {
     GetMyRank = 133,
     GetPlayersPb = 134,
     GetDonations = 135,
+    GetGfmDonations = 136,
+    GetTwitch = 137,
 
     StressMe = 255,
 }
@@ -56,6 +59,8 @@ enum MessageResponseTypes {
     MyRank = 133,
     PlayersPB = 134,
     Donations = 135,
+    GfmDonations = 136,
+    TwitchName = 137,
 }
 
 OutgoingMsg@ WrapMsgJson(Json::Value@ inner, MessageRequestTypes type) {
@@ -179,6 +184,11 @@ OutgoingMsg@ ReportMyColorMsg() {
     return WrapMsgJson(j, MessageRequestTypes::ReportPlayerColor);
 }
 
+OutgoingMsg@ ReportTwitchMsg(const string &in twitch_name) {
+    auto @j = Json::Object();
+    j["twitch_name"] = twitch_name;
+    return WrapMsgJson(j, MessageRequestTypes::ReportTwitch);
+}
 
 OutgoingMsg@ GetMyStatsMsg() {
     return WrapMsgJson(Json::Object(), MessageRequestTypes::GetMyStats);
@@ -214,6 +224,16 @@ OutgoingMsg@ GetPlayersPbMsg(const string &in wsid) {
 
 OutgoingMsg@ GetDonationsMsg() {
     return WrapMsgJson(Json::Object(), MessageRequestTypes::GetDonations);
+}
+
+OutgoingMsg@ GetGfmDonationsMsg() {
+    return WrapMsgJson(Json::Object(), MessageRequestTypes::GetGfmDonations);
+}
+
+OutgoingMsg@ GetTwitchMsg(const string &in wsid = "") {
+    auto @j = Json::Object();
+    if (wsid.Length > 0) j['wsid'] = wsid;
+    return WrapMsgJson(j, MessageRequestTypes::GetTwitch);
 }
 
 OutgoingMsg@ StressMeMsg() {

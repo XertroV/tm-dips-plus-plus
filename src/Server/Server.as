@@ -182,6 +182,7 @@ class DD2API {
         IsReady = true;
         QueueMsg(GetMyStatsMsg());
         QueueMsg(ReportMyColorMsg());
+        QueueMsg(GetTwitchMsg());
         startnew(CoroutineFuncUserdataUint64(ReadLoop), nonce);
         startnew(CoroutineFuncUserdataUint64(SendLoop), nonce);
         startnew(CoroutineFuncUserdataUint64(SendPingLoop), nonce);
@@ -464,6 +465,8 @@ class DD2API {
         @msgHandlers[MessageResponseTypes::MyRank] = MsgHandler(MyRankHandler);
         @msgHandlers[MessageResponseTypes::PlayersPB] = MsgHandler(PlayersPBHandler);
         @msgHandlers[MessageResponseTypes::Donations] = MsgHandler(DonationsHandler);
+        @msgHandlers[MessageResponseTypes::GfmDonations] = MsgHandler(GfmDonationsHandler);
+        @msgHandlers[MessageResponseTypes::TwitchName] = MsgHandler(TwitchNameHandler);
     }
 
 
@@ -528,6 +531,14 @@ class DD2API {
 
     void DonationsHandler(Json::Value@ msg) {
         Global::SetDonationsFromJson(msg);
+    }
+
+    void GfmDonationsHandler(Json::Value@ msg) {
+        Global::SetGfmDonationsFromJson(msg);
+    }
+
+    void TwitchNameHandler(Json::Value@ msg) {
+        TwitchNames::HandleMsg(msg);
     }
 }
 
@@ -634,7 +645,7 @@ namespace Global {
 
     LBEntry@ GetPlayersPBEntryLogin(const string &in login) {
         CheckUpdatePlayersHeight(login);
-        auto wsid = WSIDToLogin(login);
+        auto wsid = LoginToWSID(login);
         if (!wsidToPlayerName.Exists(wsid)) return null;
         string name = string(wsidToPlayerName[wsid]);
         if (pbCache.Exists(name)) {
@@ -662,7 +673,6 @@ namespace Global {
         return null;
     }
 
-    // can trigger stutters
     float GetPlayersPBHeight(PlayerState@ player) {
         if (player is null) return -2.;
         auto @pb = GetPlayersPBEntry(player);
@@ -689,6 +699,12 @@ namespace Global {
 
     void SetDonationsFromJson(Json::Value@ j) {
         startnew(CoroutineFuncUserdata(SetDonationsFromJsonAsync), j);
+    }
+
+    float gfmDonoAmount = 0.;
+
+    void SetGfmDonationsFromJson(Json::Value@ j) {
+        gfmDonoAmount = j['total'];
     }
 
     void SetDonationsFromJsonAsync(ref@ r) {
@@ -748,6 +764,7 @@ bool S_NotifyOnNewWR = true;
 
 uint lastWRTime = 0;
 void EmitNewWR(LBEntry@ leader) {
+    if (leader.wsid == LocalPlayersWSID()) return;
     if (S_NotifyOnNewWR && Time::Now - lastWRTime > 30000) {
         lastWRTime = Time::Now;
         NotifySuccess("New DD2 WR Height: " + leader.name + " @ " + Text::Format("%.1f m", leader.height));
@@ -781,5 +798,81 @@ class OutgoingMsg {
 
     MessageRequestTypes getTy() {
         return MessageRequestTypes(type);
+    }
+}
+
+
+namespace TwitchNames {
+    dictionary nameCache;
+    void HandleMsg(Json::Value@ j) {
+        try {
+            string twitch_name = j["twitch_name"];
+            string wsid = j["user_id"];
+            if (wsid.Length == 0) {
+                warn("[TwitchName Msg] No wsid returned? " + Json::Write(j));
+            } else {
+                nameCache[wsid] = twitch_name;
+                if (wsid == LocalPlayersWSID()) {
+                    MainUI::m_TwitchID = twitch_name;
+                }
+            }
+        } catch {
+            warn("Exception handling twitch name response: " + Json::Write(j) + ". Exception: " + getExceptionInfo());
+        }
+    }
+
+    void UpdateMyTwitchName(const string &in twitch_name) {
+        PushMessage(ReportTwitchMsg(twitch_name));
+    }
+
+    dictionary lastUpdateTimes;
+    void CheckUpdateTwitchName(const string &in wsid) {
+        if (lastUpdateTimes.Exists(wsid)) {
+            if (Time::Now - int(lastUpdateTimes[wsid]) < 120000) return;
+        }
+        lastUpdateTimes[wsid] = Time::Now;
+        PushMessage(GetTwitchMsg(wsid));
+    }
+
+    string GetTwitchName(const string &in wsid) {
+        CheckUpdateTwitchName(wsid);
+        if (nameCache.Exists(wsid)) {
+            return string(nameCache[wsid]);
+        }
+        return "";
+    }
+
+    Json::Value@ _NewMsg(const string &in wsid, const string &in name) {
+        auto @j = Json::Object();
+        j['twitch_name'] = name;
+        j['user_id'] = wsid;
+        return j;
+    }
+
+    void AddDefaults() {
+        HandleMsg(_NewMsg("5d6b14db-4d41-47a4-93e2-36a3bf229f9b", "Bren_TM2")); yield();
+        HandleMsg(_NewMsg("d46fb45d-d422-47c9-9785-67270a311e25", "eLconn21")); yield();
+        HandleMsg(_NewMsg("e3ff2309-bc24-414a-b9f1-81954236c34b", "Lars_tm")); yield();
+        HandleMsg(_NewMsg("e5a9863b-1844-4436-a8a8-cea583888f8b", "Hazardu")); yield();
+        HandleMsg(_NewMsg("bd45204c-80f1-4809-b983-38b3f0ffc1ef", "Wirtual")); yield();
+        HandleMsg(_NewMsg("803695f6-8319-4b8e-8c28-44856834fe3b", "simo_900")); yield();
+        HandleMsg(_NewMsg("c1e8bbec-8bb3-40b3-9b0e-52e3cb36015e", "SkandeaR")); yield();
+        HandleMsg(_NewMsg("05477e79-25fd-48c2-84c7-e1621aa46517", "GranaDyy")); yield();
+        // iiHugo
+        HandleMsg(_NewMsg("da4642f9-6acf-43fe-88b6-b120ff1308ba", "Scrapie")); yield();
+        HandleMsg(_NewMsg("a4699c4c-e6c1-4005-86f6-55888f854e6f", "Talliebird")); yield();
+        // HandleMsg(_NewMsg("7f1707fe-bc7d-4b3c-90f7-a95e5be5f0da", "Korchii")); yield();
+        HandleMsg(_NewMsg("b05db0f8-d845-47d2-b0e5-795717038ac6", "MASSA")); yield();
+        HandleMsg(_NewMsg("e387f7d8-afb0-4bf6-bb29-868d1a62de3b", "Tarpor")); yield();
+        HandleMsg(_NewMsg("d320a237-1b0a-4069-af83-f2c09fbf042e", "Mudda_tm")); yield();
+        HandleMsg(_NewMsg("21029447-5895-4e1e-829c-14dedb4af788", "Kubas")); yield();
+        HandleMsg(_NewMsg("3bb0d130-637d-46a6-9c19-87fe4bda3c52", "Spammiej")); yield();
+        // HandleMsg(_NewMsg("0fd26a9f-8f70-4f51-85e1-fe99a4ed6ffb", "Schmaniol")); yield();
+        HandleMsg(_NewMsg("af30b7a1-fc37-485f-94bf-f00e39805d8c", "Ixxonn")); yield();
+        HandleMsg(_NewMsg("fc54a67c-7bd3-4b33-aa7d-a77f13a7b621", "mtat_TM")); yield();
+        HandleMsg(_NewMsg("0c857beb-fd95-4449-a669-21fb310cacae", "CarlJrtm")); yield();
+        HandleMsg(_NewMsg("e07e9ea9-daa5-4496-9908-9680e35da02b", "BirdieTM")); yield();
+        HandleMsg(_NewMsg("24b09acf-f745-408e-80fc-b1141054504c", "SimplyNick")); yield();
+        HandleMsg(_NewMsg("ed14ac85-1252-4cc7-8efd-49cd72938f9d", "Jxliano")); yield();
     }
 }

@@ -25,8 +25,11 @@ namespace MagicSpectate {
         if (Time::Now - movementAlarmLastTime < 500) {
             _DrawMovementAlarm();
         }
-        if (currentlySpectating is null) return;
-        _DrawCurrentlySpectatingUI();
+        if (currentlySpectating !is null) {
+            _DrawCurrentlySpectatingUI();
+        } else if (Spectate::IsSpectator) {
+            _DrawGameSpectatingUI();
+        }
     }
 
     bool CheckEscPress() {
@@ -133,6 +136,65 @@ namespace MagicSpectate {
         nvg::Stroke();
         nvg::BeginPath();
         DrawText(SPEC_NAME_POS * g_screen + vec2(0, fs * .1), name, (cWhite + p.color) / 2.);
+        string twitchName = TwitchNames::GetTwitchName(p.playerWsid);
+        if (twitchName.Length > 0) {
+            DrawTwitchName(twitchName, fs, pad, true);
+        }
+    }
+
+    void _DrawGameSpectatingUI() {
+        auto p = PS::viewedPlayer;
+        if (p is null) return;
+        string twitchName = TwitchNames::GetTwitchName(p.playerWsid);
+        // if (twitchName.Length == 0) twitchName = "<< Unknown >>";
+        float fs = 36. * Minimap::vScale;
+        auto pad = SPEC_BG_PAD * Minimap::vScale;
+        nvg::Reset();
+        nvg::TextAlign(nvg::Align::Center | nvg::Align::Middle);
+        nvg::FontFace(f_Nvg_ExoExtraBoldItalic);
+        nvg::FontSize(fs);
+        if (twitchName.Length > 0) {
+            DrawTwitchName(twitchName, fs, pad, false);
+        }
+    }
+
+    void DrawTwitchName(const string &in twitchName, float fs, vec2 pad, bool isMagicSpec) {
+        vec4 rect();
+
+        string label = Icons::Twitch + " " + twitchName;
+        nvg::FontSize(fs);
+        vec2 bounds = nvg::TextBounds(label);
+
+        rect.y = 1240. * Minimap::vScale;
+        if (isMagicSpec) {
+            rect.y += 28. * Minimap::vScale;
+            rect.w = 64. * Minimap::vScale;
+        } else {
+            rect.w = 64. * Minimap::vScale;
+        }
+        rect.z = bounds.x + pad.x * 2.;
+        rect.x = 0.5 * g_screen.x - rect.z / 2.;
+
+
+        vec2 textPos = rect.xy + rect.zw / 2. + vec2(0., fs * 0.1);
+
+        nvg::BeginPath();
+
+        if (isMagicSpec) {
+            nvg::RoundedRect(rect.xy - pad * .5, rect.zw + pad, pad.x);
+        } else {
+            vec2 slantOff = vec2(6.0 * Minimap::vScale, 0.);
+            nvg::MoveTo(rect.xy + slantOff);
+            nvg::LineTo(rect.xy + slantOff + vec2(rect.z, 0));
+            nvg::LineTo(rect.xy - slantOff + rect.zw);
+            nvg::LineTo(rect.xy - slantOff + vec2(0., rect.w));
+            nvg::LineTo(rect.xy + slantOff);
+        }
+        nvg::FillColor(cBlack85);
+        nvg::Fill();
+
+        nvg::BeginPath();
+        DrawText(textPos, label, cTwitch);
     }
 
     void _DrawMovementAlarm() {
@@ -142,7 +204,6 @@ namespace MagicSpectate {
             nvg::FontFace(f_Nvg_ExoExtraBold);
             nvg::TextAlign(nvg::Align::Center | nvg::Align::Middle);
             DrawTextWithStroke(vec2(.5, 0.69) * g_screen, "Movement!", cRed, 4. * Minimap::vScale);
-            trace('drawing movement alarm');
     }
 
     void DrawMenu() {

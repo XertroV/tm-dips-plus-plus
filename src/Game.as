@@ -59,6 +59,10 @@ vec3 LocalPlayersColor() {
     return GetApp().LocalPlayerInfo.Color;
 }
 
+string _LocalPlayerWSID;
 string LocalPlayersWSID() {
-    return GetApp().LocalPlayerInfo.WebServicesUserId;
+    if (_LocalPlayerWSID.Length < 15) {
+        _LocalPlayerWSID = GetApp().LocalPlayerInfo.WebServicesUserId;
+    }
+    return _LocalPlayerWSID;
 }

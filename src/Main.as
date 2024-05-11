@@ -75,6 +75,7 @@ void Main() {
     startnew(SF::LoadPtrs);
     sleep(100);
     startnew(Donations::SetUpCheers);
+    startnew(TwitchNames::AddDefaults);
     sleep(100);
     @g_api = DD2API();
     G_Initialized = true;

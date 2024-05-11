@@ -181,10 +181,15 @@ class RainbowStaticStatusMsg : PersonalBestStatusAnim {
 
 
 class SpecialTextTrigger : GameTrigger {
-    SpecialTextTrigger(const vec3 &in min, const vec3 &in max, const string &in name, uint duration, uint debounce = 60000) {
+    CoroutineFunc@ onTrigger = null;
+
+    SpecialTextTrigger(const vec3 &in min, const vec3 &in max, const string &in name, uint duration, uint debounce = 60000, CoroutineFunc@ onTrigger = null) {
         super(min, max, name);
         this.debounce = debounce;
         this.duration = duration;
+        if (onTrigger !is null) {
+            @this.onTrigger = onTrigger;
+        }
     }
 
     uint duration;
@@ -195,5 +200,8 @@ class SpecialTextTrigger : GameTrigger {
         if (Time::Now - lastTriggerTime < debounce) return;
         lastTriggerTime = Time::Now;
         EmitStatusAnimation(RainbowStaticStatusMsg(name).WithDuration(duration));
+        if (onTrigger !is null) {
+            startnew(onTrigger);
+        }
     }
 }

@@ -29,6 +29,7 @@ namespace Stats {
     uint titleGagsTriggered = 0;
     uint titleGagsSpecialTriggered = 0;
     uint byeByesTriggered = 0;
+    Json::Value@ extra = Json::Object();
     [Setting hidden]
     uint lastLoadedDeepDip2Ts = 0;
 
@@ -81,6 +82,7 @@ namespace Stats {
         stats["monument_triggers"] = monumentTriggers.ToJson();
         stats["reached_floor_count"] = reachedFloorCount.ToJson();
         stats["floor_voice_lines_played"] = floorVoiceLinesPlayed.ToJson();
+        stats["extra"] = extra;
         return stats;
     }
 
@@ -105,6 +107,11 @@ namespace Stats {
         titleGagsTriggered = Math::Max(titleGagsTriggered, j['title_gags_triggered']);
         titleGagsSpecialTriggered = Math::Max(titleGagsSpecialTriggered, j['title_gags_special_triggered']);
         byeByesTriggered = Math::Max(byeByesTriggered, j['bye_byes_triggered']);
+
+        if (j.HasKey("extra")) {
+            CopyJsonValuesIfGreater(j["extra"], extra);
+        }
+
         auto jMTs = j['monument_triggers'];
         for (uint i = 0; i < monumentTriggers.Length; i++) {
             if (i >= jMTs.Length) {
@@ -229,6 +236,16 @@ namespace Stats {
     void LogRestart(int raceTime) {
         nbResets++;
         PushMessage(ReportRespawnMsg(raceTime));
+    }
+
+    void LogBleb() {
+        IncrJsonIntCounter(extra, "blebs");
+        UpdateStatsSoon();
+    }
+
+    void LogDebugTrigger() {
+        IncrJsonIntCounter(extra, "debugTs");
+        UpdateStatsSoon();
     }
 
     // just after maji floor welcome sign

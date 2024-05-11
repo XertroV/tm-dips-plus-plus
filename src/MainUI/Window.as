@@ -45,6 +45,11 @@ namespace MainUI {
                 UI::EndTabItem();
             }
 
+            if (UI::BeginTabItem("Profile")) {
+                DrawProfileTab();
+                UI::EndTabItem();
+            }
+
             if (g_Active) {
                 if (UI::BeginTabItem("Spectate")) {
                     DrawSpectateTab();
@@ -60,6 +65,17 @@ namespace MainUI {
         }
         UI::End();
     }
+
+    string m_TwitchID;
+    void DrawProfileTab() {
+        bool changed;
+        m_TwitchID = UI::InputText("Twitch username", m_TwitchID, changed);
+        if (changed) {
+            TwitchNames::UpdateMyTwitchName(m_TwitchID);
+        }
+    }
+
+
 
     PlayerState@[] specSorted;
     uint sortCounter = 0;
