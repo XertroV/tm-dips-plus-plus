@@ -811,6 +811,8 @@ namespace TwitchNames {
             string wsid = j["user_id"];
             if (wsid.Length == 0) {
                 warn("[TwitchName Msg] No wsid returned? " + Json::Write(j));
+            } else if (twitch_name.Length == 0) {
+                // ignore unknown
             } else {
                 nameCache[wsid] = twitch_name;
                 if (wsid == LocalPlayersWSID()) {
