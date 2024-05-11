@@ -392,15 +392,16 @@ class DD2API {
                 CSceneVehicleVisState@ state = GetVehicleStateOfControlledPlayer();
                 if (state !is null &&
                     !Spectate::IsSpectator &&
-                    ((state.Position - lastPos).LengthSquared() > 0.1)
-                    || Time::Now - lastVSReport > 25000) {
-                        try {
-                            lastVSReport = Time::Now;
-                            lastPos = state.Position;
-                            QueueMsg(ReportVehicleStateMsg(state));
-                            sleep(117);
-                        } catch {
-                            warn("exception reporting VS: " + getExceptionInfo());
+                    ((state.Position - lastPos).LengthSquared() > 0.1
+                     || Time::Now - lastVSReport > 25000)
+                ) {
+                    try {
+                        lastVSReport = Time::Now;
+                        lastPos = state.Position;
+                        QueueMsg(ReportVehicleStateMsg(state));
+                        sleep(117);
+                    } catch {
+                        warn("exception reporting VS: " + getExceptionInfo());
                         }
                 }
                 // if (socket.IsClosed || socket.ServerDisconnected) break;

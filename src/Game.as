@@ -47,7 +47,9 @@ CSceneVehicleVisState@ GetVehicleStateOfControlledPlayer() {
         if (app.GameScene is null || app.CurrentPlayground is null) return null;
         auto player = cast<CSmPlayer>(GetApp().CurrentPlayground.GameTerminals[0].ControlledPlayer);
         if (player is null) return null;
-        return VehicleState::GetVis(app.GameScene, player).AsyncState;
+        CSceneVehicleVis@ vis = VehicleState::GetVis(app.GameScene, player);
+        if (vis is null) return null;
+        return vis.AsyncState;
     } catch {
         return null;
     }
