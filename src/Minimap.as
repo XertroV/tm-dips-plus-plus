@@ -475,7 +475,7 @@ namespace Minimap {
             vec2 hovTL = rect.xy + vec2(rect.z + textPad * 2., 0);
             string l = Text::Format("%.1f m", p.pos.y) + Text::Format(" | PB: %.1f m", Global::GetPlayersPBHeight(p));
 
-            if (S_ClickMinimapToMagicSpectate || Spectate::IsSpectator) {
+            if ((S_ClickMinimapToMagicSpectate && MAGIC_SPEC_ENABLED) || Spectate::IsSpectator) {
                 UI::SetMouseCursor(UI::MouseCursor::Hand);
             }
             nvg::Reset();

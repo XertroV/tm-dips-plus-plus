@@ -106,11 +106,6 @@ namespace MagicSpectate {
     }
 
 
-
-    const float SPEC_NAME_HEIGHT = 50.;
-    const vec2 SPEC_NAME_POS = vec2(.5, 0.8333333333333334);
-    const vec2 SPEC_BG_PAD = vec2(18.);
-
     void _DrawCurrentlySpectatingUI() {
         auto p = currentlySpectating;
         auto pad = SPEC_BG_PAD * Minimap::vScale;
@@ -141,6 +136,51 @@ namespace MagicSpectate {
             DrawTwitchName(twitchName, fs, pad, true);
         }
     }
+
+    void _DrawMovementAlarm() {
+            nvg::Reset();
+            nvg::BeginPath();
+            nvg::FontSize(50. * Minimap::vScale);
+            nvg::FontFace(f_Nvg_ExoExtraBold);
+            nvg::TextAlign(nvg::Align::Center | nvg::Align::Middle);
+            DrawTextWithStroke(vec2(.5, 0.69) * g_screen, "Movement!", cRed, 4. * Minimap::vScale);
+    }
+
+    void DrawMenu() {
+        if (UI::BeginMenu("Spec")) {
+            S_ClickMinimapToMagicSpectate = UI::Checkbox("Click Minimap to Magic Spectate", S_ClickMinimapToMagicSpectate);
+            UI::EndMenu();
+        }
+    }
+}
+
+#else
+const bool MAGIC_SPEC_ENABLED = false;
+namespace MagicSpectate {
+    void Unload() {}
+    void Load() {}
+    void Reset() {}
+    void Render() {
+        if (Spectate::IsSpectator) {
+            _DrawGameSpectatingUI();
+        }
+    }
+    void DrawMenu() {}
+    void SpectatePlayer(PlayerState@ player) {}
+    bool CheckEscPress() { return false; }
+    bool IsActive() { return false; }
+    PlayerState@ GetTarget() { return null; }
+}
+#endif
+
+
+const uint16 O_GAMESCENE = GetOffset("CGameCtnApp", "GameScene");
+
+
+namespace MagicSpectate {
+    const float SPEC_NAME_HEIGHT = 50.;
+    const vec2 SPEC_NAME_POS = vec2(.5, 0.8333333333333334);
+    const vec2 SPEC_BG_PAD = vec2(18.);
 
     void _DrawGameSpectatingUI() {
         auto p = PS::viewedPlayer;
@@ -196,44 +236,7 @@ namespace MagicSpectate {
         nvg::BeginPath();
         DrawText(textPos, label, cTwitch);
     }
-
-    void _DrawMovementAlarm() {
-            nvg::Reset();
-            nvg::BeginPath();
-            nvg::FontSize(50. * Minimap::vScale);
-            nvg::FontFace(f_Nvg_ExoExtraBold);
-            nvg::TextAlign(nvg::Align::Center | nvg::Align::Middle);
-            DrawTextWithStroke(vec2(.5, 0.69) * g_screen, "Movement!", cRed, 4. * Minimap::vScale);
-    }
-
-    void DrawMenu() {
-        if (UI::BeginMenu("Spec")) {
-            S_ClickMinimapToMagicSpectate = UI::Checkbox("Click Minimap to Magic Spectate", S_ClickMinimapToMagicSpectate);
-            UI::EndMenu();
-        }
-    }
 }
-
-#else
-const bool MAGIC_SPEC_ENABLED = false;
-namespace MagicSpectate {
-    void Unload() {}
-    void Load() {}
-    void Reset() {}
-    void Render() {}
-    void DrawMenu() {}
-    void SpectatePlayer(PlayerState@ player) {}
-    bool CheckEscPress() { return false; }
-    bool IsActive() { return false; }
-    PlayerState@ GetTarget() { return null; }
-}
-#endif
-
-
-const uint16 O_GAMESCENE = GetOffset("CGameCtnApp", "GameScene");
-
-
-
 
 
 // This is for managing spectating more generally
@@ -245,7 +248,7 @@ namespace Spectate {
 
     void SpectatePlayer(PlayerState@ p) {
         // if we are driving
-        if (MagicSpectate::IsActive() || PS::localPlayer.playerScoreMwId == PS::viewedPlayer.playerScoreMwId) {
+        if (MAGIC_SPEC_ENABLED && ((MagicSpectate::IsActive() || PS::localPlayer.playerScoreMwId == PS::viewedPlayer.playerScoreMwId))) {
             MagicSpectate::SpectatePlayer(p);
         } else {
             ServerSpectatePlayer(p);
@@ -257,6 +260,7 @@ namespace Spectate {
         auto api = net.PlaygroundClientScriptAPI;
         auto client = net.ClientManiaAppPlayground;
         api.SetSpectateTarget(p.playerLogin);
+        // https://github.com/ezio416/tm-spectator-camera/blob/6a8f5180c90d37d15b830d238065fa7dab83b3cc/src/Main.as#L206
         client.ClientUI.Spectator_SetForcedTarget_Clear();
         api.SetWantedSpectatorCameraType(CGamePlaygroundClientScriptAPI::ESpectatorCameraType::Follow);
     }
