@@ -47,6 +47,7 @@ bool G_Initialized = false;
 const string KEM_LOGIN = "oNhUUAthQx6SkVe2YK9PXw";
 
 void Main() {
+    g_LocalPlayerMwId = GetLocalPlayerMwId();
     auto GameVer = GetApp().SystemPlatform.ExeVersion;
     if (GameVer > "2024-03-19_14_47" && GetLocalLogin() != KEM_LOGIN && GetLocalLogin() != XERTROV_LOGIN) {
         NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
@@ -60,7 +61,6 @@ void Main() {
     startnew(LoadFonts);
     startnew(LoadGlobalTextures);
     startnew(PreloadCriticalSounds);
-    g_LocalPlayerMwId = GetLocalPlayerMwId();
     startnew(AwaitLocalPlayerMwId);
     startnew(RNGExtraLoop);
     startnew(MainMenuBg::OnPluginLoad);
@@ -443,7 +443,7 @@ uint g_LocalPlayerMwId = -1;
 void AwaitLocalPlayerMwId() {
     while (g_LocalPlayerMwId == -1) {
         g_LocalPlayerMwId = GetLocalPlayerMwId();
-        if (g_LocalPlayerMwId == -1) sleep(1000);
+        if (g_LocalPlayerMwId == -1) yield();
         else break;
     }
     // for (uint i = 0; i < PS::players.Length; i++) {
