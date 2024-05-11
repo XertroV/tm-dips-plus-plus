@@ -868,7 +868,7 @@ namespace TwitchNames {
         HandleMsg(_NewMsg("b05db0f8-d845-47d2-b0e5-795717038ac6", "MASSA")); yield();
         HandleMsg(_NewMsg("e387f7d8-afb0-4bf6-bb29-868d1a62de3b", "Tarpor")); yield();
         HandleMsg(_NewMsg("d320a237-1b0a-4069-af83-f2c09fbf042e", "Mudda_tm")); yield();
-        HandleMsg(_NewMsg("21029447-5895-4e1e-829c-14dedb4af788", "Kubas")); yield();
+        // HandleMsg(_NewMsg("21029447-5895-4e1e-829c-14dedb4af788", "Kubas")); yield();
         HandleMsg(_NewMsg("3bb0d130-637d-46a6-9c19-87fe4bda3c52", "Spammiej")); yield();
         // HandleMsg(_NewMsg("0fd26a9f-8f70-4f51-85e1-fe99a4ed6ffb", "Schmaniol")); yield();
         HandleMsg(_NewMsg("af30b7a1-fc37-485f-94bf-f00e39805d8c", "Ixxonn")); yield();
