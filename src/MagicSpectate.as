@@ -253,9 +253,12 @@ namespace Spectate {
     }
 
     void ServerSpectatePlayer(PlayerState@ p) {
-        auto api = GetApp().Network.PlaygroundClientScriptAPI;
-        api.SetWantedSpectatorCameraType(CGamePlaygroundClientScriptAPI::ESpectatorCameraType::Follow);
+        auto net = GetApp().Network;
+        auto api = net.PlaygroundClientScriptAPI;
+        auto client = net.ClientManiaAppPlayground;
         api.SetSpectateTarget(p.playerLogin);
+        client.ClientUI.Spectator_SetForcedTarget_Clear();
+        api.SetWantedSpectatorCameraType(CGamePlaygroundClientScriptAPI::ESpectatorCameraType::Follow);
     }
 
     void ServerStopSpectatingIfSpectator() {
