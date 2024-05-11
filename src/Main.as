@@ -48,7 +48,7 @@ const string KEM_LOGIN = "oNhUUAthQx6SkVe2YK9PXw";
 
 void Main() {
     auto GameVer = GetApp().SystemPlatform.ExeVersion;
-    if (GameVer > "2024-03-19_14_47" && GetLocalLogin() != KEM_LOGIN) {
+    if (GameVer > "2024-03-19_14_47" && GetLocalLogin() != KEM_LOGIN && GetLocalLogin() != XERTROV_LOGIN) {
         NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
         NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
         NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
@@ -56,6 +56,7 @@ void Main() {
         // startnew(UnloadSelfSoon);
         return;
     }
+    yield();
     startnew(LoadFonts);
     startnew(LoadGlobalTextures);
     startnew(PreloadCriticalSounds);
@@ -73,6 +74,7 @@ void Main() {
     startnew(GreenTimer::OnPluginStart);
     startnew(Wizard::OnPluginLoad);
     startnew(SF::LoadPtrs);
+    startnew(WelcomeScreen::OnLoad);
     sleep(100);
     startnew(Donations::SetUpCheers);
     startnew(TwitchNames::AddDefaults);
@@ -157,6 +159,7 @@ void RenderMenuMain() {
     if (!g_Active) return;
     DrawPluginMenuItem(true);
 }
+
 
 void Render() {
     if (!G_Initialized) return;
