@@ -130,17 +130,17 @@ namespace SF {
 
     uint64 FindPtr(uint i) {
         switch (i) {
-            case 0: return GetGameAddr("8B 15 4D A5 EF 01 33 DB 4C 8B 6C 24 30 48 8B 74 24 40 85 D2 74 5E 0F 1F 44 00 00", 6);
-            case 1: return GetGameAddr("8B 05 C0 D9 CE 01 8B FA 85 C0 74 1C 85 D2 75 18 45 33 C0 8D 57 01 48 8D 0D", 6);
-            case 2: return GetGameAddr("83 3D 3A 54 AA 00 00 0F 84 08 01 00 00 45 85 C9 0F 84 FF 00 00 00", 7, 2);
-            case 4: return GetGameAddr("44 39 05 9A B3 48 01 74 2A 49 8B 82 98 04 00 00 44 89 05 8A B3 48 01 48 8B", 7);
-            case 5: return GetGameAddr("8B 05 1F FB DB 01 89 43 40 8B 05 1A FB DB 01 89 43 44 8B 86 80 00 00 00 89 43 74 8B", 6);
-            case 6: return GetGameAddr("8B 0D 29 7D 7B 01 33 D2 8B 05 AD 38 5C 01 44 8B C2 0F 10 05 7B 38 5C 01 89 05", 6);
-            case 8: return GetGameAddr("44 8B 0D 49 4D 76 01 F3 0F 5C CA F3 0F 58 E5 F3 0F 58 D0 F3 0F 11 5C 24 60", 7);
-            case 9: return GetGameAddr("39 35 EB 7E 58 01 8D 04 45 01 00 00 00 41 89 87 18 03 00 00 0F 85 33 01 00 00", 6);
-            case 12: return GetGameAddr("83 3D B5 77 6D 01 00 4C 8B AC 24 90 01 00 00 74 2B 83 3D A8 77 6D 01 00 74 22", 7, 2);
-            case 13: return GetGameAddr("83 3D 39 E5 6F 01 00 44 0F 28 84 24 80 01 00 00 0F 28 B4 24 A0 01 00 00 75 0A C7", 7, 2);
-            case 14: return GetGameAddr("89 05 3D 43 10 01 48 8B 07 4C 89 68 10 48 8B 37 48 8B 4E 10 48 8D 56 10 41", 6);
+            case 0: return GetGameAddr("8B 15 ?? ?? ?? ?? 33 DB 4C 8B 6C 24 30 48 8B 74 24 40 85 D2 74 5E 0F 1F 44 00 00", 6);
+            case 1: return GetGameAddr("8B 05 ?? ?? ?? ?? 8B FA 85 C0 74 1C 85 D2 75 18 45 33 C0 8D 57 01 48 8D 0D", 6);
+            case 2: return GetGameAddr("83 3D ?? ?? ?? ?? 00 0F 84 08 01 00 00 45 85 C9 0F 84 FF 00 00 00", 7, 2);
+            case 4: return GetGameAddr("44 39 05 ?? ?? ?? ?? 74 2A 49 8B 82 98 04 00 00 44 89 05 ?? ?? ?? ?? 48 8B", 7);
+            case 5: return GetGameAddr("8B 05 ?? ?? ?? ?? 89 43 40 8B 05 ?? ?? ?? ?? 89 43 44 8B 86 80 00 00 00 89 43 74 8B", 6);
+            case 6: return GetGameAddr("8B 0D ?? ?? ?? ?? 33 D2 8B 05 ?? ?? ?? ?? 44 8B C2 0F 10 05 ?? ?? ?? ?? 89 05", 6);
+            case 8: return GetGameAddr("44 8B 0D ?? ?? ?? ?? F3 0F 5C CA F3 0F 58 E5 F3 0F 58 D0 F3 0F 11 5C 24 60", 7);
+            case 9: return GetGameAddr("39 35 ?? ?? ?? ?? 8D 04 45 01 00 00 00 41 89 87 18 03 00 00 0F 85 33 01 00 00", 6);
+            case 12: return GetGameAddr("83 3D ?? ?? ?? ?? 00 4C 8B AC 24 90 01 00 00 74 2B 83 3D ?? ?? ?? ?? 00 74 22", 7, 2);
+            case 13: return GetGameAddr("83 3D ?? ?? ?? ?? 00 44 0F 28 84 24 80 01 00 00 0F 28 B4 24 A0 01 00 00 75 0A C7", 7, 2);
+            case 14: return GetGameAddr("89 05 ?? ?? ?? ?? 48 8B 07 4C 89 68 10 48 8B 37 48 8B 4E 10 48 8D 56 10 41", 6);
         }
         return 0;
     }
