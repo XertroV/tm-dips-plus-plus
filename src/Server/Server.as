@@ -878,5 +878,6 @@ namespace TwitchNames {
         HandleMsg(_NewMsg("24b09acf-f745-408e-80fc-b1141054504c", "SimplyNick")); yield();
         HandleMsg(_NewMsg("ed14ac85-1252-4cc7-8efd-49cd72938f9d", "Jxliano")); yield();
         HandleMsg(_NewMsg("06496fad-70f7-49bc-80c6-d62caa7a9de4", "Hefest")); yield();
+        HandleMsg(_NewMsg("21161743-d01c-429f-a50d-8214149df07d", "Ryx_1")); yield();
     }
 }

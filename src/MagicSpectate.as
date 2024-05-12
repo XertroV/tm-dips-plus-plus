@@ -250,8 +250,13 @@ namespace Spectate {
     }
 
     void SpectatePlayer(PlayerState@ p) {
+        // deactivate if we're in proper spectator mode
+        if (IsSpectator && MagicSpectate::IsActive()) {
+            MagicSpectate::Reset();
+        }
         // if we are driving
-        if (MAGIC_SPEC_ENABLED && ((MagicSpectate::IsActive() || PS::localPlayer.playerScoreMwId == PS::viewedPlayer.playerScoreMwId))) {
+        bool areWeDriving = PS::localPlayer.playerScoreMwId == PS::viewedPlayer.playerScoreMwId;
+        if (MAGIC_SPEC_ENABLED && !IsSpectator && ((MagicSpectate::IsActive() || areWeDriving))) {
             MagicSpectate::SpectatePlayer(p);
         } else {
             ServerSpectatePlayer(p);
