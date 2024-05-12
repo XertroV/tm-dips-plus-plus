@@ -561,7 +561,7 @@ namespace Minimap {
             rank = ranks[i];
             if (label.Length > 0) label += " / ";
             if (rank < 1) {
-                height = Stats::pbHeight;
+                height = pbHeight;
                 name = "Personal Best";
             } else {
                 height = Global::top3[rank - 1].height;
