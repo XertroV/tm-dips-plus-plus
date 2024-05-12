@@ -30,6 +30,7 @@ namespace Minimap {
     vec2 minimapOuterPos;
     vec2 minimapSize = vec2(12, 900);
     vec2 minimapOuterSize = vec2(16, 900);
+    float minimapYOffset = 0.;
     // vec2 worldMin = vec2(0, -64);
     // vec2 worldMax = vec2(1650, 2000);
     // mat3 worldXYToUv;
@@ -66,10 +67,7 @@ namespace Minimap {
             startnew(UpdateMapValues);
         }
 
-        if (updateMatrices || lastScreenSize != g_screen || S_ScaleMinimapToPlayers) {
-            if (S_ScaleMinimapToPlayers) {
-                UpdateMinimapScaleForMap();
-            }
+        if (updateMatrices || S_ScaleMinimapToPlayers || lastScreenSize != g_screen) {
             lastScreenSize = g_screen;
             if (g_screen.y > 1.0) {
                 vScale = g_screen.y / stdHeightPx;
@@ -78,6 +76,15 @@ namespace Minimap {
             mmPadding = vec2(S_MinimapLeftPad, S_MinimapTopBottomPad);
             minimapSize.y = (stdHeightPx - mmPadding.y * 2.) * vScale;
             minimapCenterPos = mmPadding * vScale;
+            minimapYOffset = 0.;
+            if (S_ScaleMinimapToPlayers) {
+                int drawToBottomOfFloor = Math::Clamp(int(HeightToFloor(playerMaxHeightLast)) + 2, 0, DD2_FLOOR_HEIGHTS.Length - 1);
+                auto maxH = DD2_FLOOR_HEIGHTS[drawToBottomOfFloor];
+                auto propShown = (maxH - DD2_FLOOR_HEIGHTS[0]) / DD2_FLOOR_HEIGHTS[17.];
+                minimapSize.y /= propShown;
+                minimapYOffset = minimapSize.y * (1. - propShown);
+                minimapCenterPos.y -= minimapYOffset;
+            }
             mmPadding *= vScale;
             minimapPad = minimapSize.x / 2.0;
             minimapOuterPos = minimapCenterPos - minimapPad;
@@ -108,15 +115,11 @@ namespace Minimap {
         if (lastMapMwId != GetMapMwIdVal(GetApp().RootMap)) return;
         mapMinMax = GetMinMaxHeight(cp);
         origMapMinMax = mapMinMax;
-        UpdateMinimapScaleForMap();
-        updateMatrices = true;
-    }
-
-    void UpdateMinimapScaleForMap() {
         mapHeightDelta = Math::Max(mapMinMax.y - mapMinMax.x, 8.0);
         // (-0.013, 0.01) and 1.04 perfect for dd2
         mapMinMax += vec2(-0.013, 0.009) * mapHeightDelta;
         mapHeightDelta *= 1.04;
+        updateMatrices = true;
     }
 
     PlayerState@[] fallers;
@@ -156,10 +159,12 @@ namespace Minimap {
         PlayerState@ localPlayer;
         float size;
         nvg::FontFace(f_Nvg_ExoRegular);
+        playerMaxHeightLast = 0.;
         for (uint i = 0; i < nbPlayers; i++) {
             @p = PS::players[i];
             if (p.IsIdleOrNotUpdated()) continue;
             h = p.pos.y;
+            playerMaxHeightLast = Math::Max(h, playerMaxHeightLast);
             if (Math::IsNaN(h)) continue;
             screenPos.y = HeightToMinimapY(h);
             if (screenPos.y < minMaxLabelHeight.x || screenPos.y > minMaxLabelHeight.y) continue;
@@ -215,7 +220,7 @@ namespace Minimap {
             }
         }
 
-        pbHeight = localPlayer.isLocal ? Stats::pbHeight : Global::GetPlayersPBHeight(localPlayer);
+        pbHeight = (localPlayer is null || localPlayer.isLocal) ? Stats::pbHeight : Global::GetPlayersPBHeight(localPlayer);
         RenderMinimapTop3();
     }
 
@@ -726,7 +731,7 @@ uint GetMapMwIdVal(CGameCtnChallenge@ map) {
 
 
 const float[] DD2_FLOOR_HEIGHTS = {
-    4.0,
+    8.0,
     104.0, // 01
     208.0, // 02
     312.0, // 03
