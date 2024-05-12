@@ -19,6 +19,8 @@ float S_MinimapLeftPad = 50.0;
 float S_MinimapTopBottomPad = 150.0;
 [Setting hidden]
 float S_MinimapMaxFallingGlobalExtraScale = 1.3;
+[Setting hidden]
+bool S_ScaleMinimapToPlayers = false;
 
 namespace Minimap {
     vec3 camPos;
@@ -37,6 +39,7 @@ namespace Minimap {
     uint lastMapMwId;
     vec2 lastScreenSize;
     vec2 mapMinMax = vec2(8, 2000);
+    vec2 origMapMinMax = vec2(8, 2000);
     float mapHeightDelta = 2000;
     vec2 mmPadding = vec2(50.0, 150);
     const float stdHeightPx = 1440.0;
@@ -63,7 +66,10 @@ namespace Minimap {
             startnew(UpdateMapValues);
         }
 
-        if (updateMatrices || lastScreenSize != g_screen) {
+        if (updateMatrices || lastScreenSize != g_screen || S_ScaleMinimapToPlayers) {
+            if (S_ScaleMinimapToPlayers) {
+                UpdateMinimapScaleForMap();
+            }
             lastScreenSize = g_screen;
             if (g_screen.y > 1.0) {
                 vScale = g_screen.y / stdHeightPx;
@@ -101,11 +107,16 @@ namespace Minimap {
         if (app.CurrentPlayground is null) return;
         if (lastMapMwId != GetMapMwIdVal(GetApp().RootMap)) return;
         mapMinMax = GetMinMaxHeight(cp);
+        origMapMinMax = mapMinMax;
+        UpdateMinimapScaleForMap();
+        updateMatrices = true;
+    }
+
+    void UpdateMinimapScaleForMap() {
         mapHeightDelta = Math::Max(mapMinMax.y - mapMinMax.x, 8.0);
         // (-0.013, 0.01) and 1.04 perfect for dd2
         mapMinMax += vec2(-0.013, 0.009) * mapHeightDelta;
         mapHeightDelta *= 1.04;
-        updateMatrices = true;
     }
 
     PlayerState@[] fallers;
@@ -124,6 +135,7 @@ namespace Minimap {
     }
 
     PlayerState@ hovered;
+    float playerMaxHeightLast = 2000.;
 
     void Render() {
         @hovered = null;
@@ -173,6 +185,7 @@ namespace Minimap {
             p.minimapLabel.Draw(p, cWhite, cBlack);
             if (p.minimapLabel.isHovered_Right) @hovered = p;
         }
+        if (drivingPlayers.Length > 0)
         drivingPlayers.RemoveRange(0, drivingPlayers.Length);
 
         if (fallers.Length > 1) {
@@ -202,6 +215,7 @@ namespace Minimap {
             }
         }
 
+        pbHeight = localPlayer.isLocal ? Stats::pbHeight : Global::GetPlayersPBHeight(localPlayer);
         RenderMinimapTop3();
     }
 
@@ -499,6 +513,7 @@ namespace Minimap {
     }
 
 
+    float pbHeight;
     float hoverTime = 0.;
     float hoverDelta;
     void RenderMinimapTop3() {
@@ -512,7 +527,7 @@ namespace Minimap {
         for (int i = Math::Min(S_NbTopTimes, Global::top3.Length) - 1; i >= 0; i--) {
             // render pb under WR
             if (i == 0) {
-                if (RenderTop3Instance(pos, -1, textBounds, Stats::pbHeight)) {
+                if (RenderTop3Instance(pos, -1, textBounds, pbHeight)) {
                     hovered.InsertLast(-1);
                 }
             }
@@ -673,6 +688,7 @@ namespace Minimap {
         if (UI::BeginMenu("Minimap")) {
             S_ShowMinimap = UI::Checkbox("Show Minimap", S_ShowMinimap);
             if (MAGIC_SPEC_ENABLED) S_ClickMinimapToMagicSpectate = UI::Checkbox("Click Minimap to Magic Spectate", S_ClickMinimapToMagicSpectate);
+            S_ScaleMinimapToPlayers = UI::Checkbox("Scale Minimap to Players", S_ScaleMinimapToPlayers);
             S_MinimapPlayerLabelFS = UI::SliderInt("Player Label Font Size", S_MinimapPlayerLabelFS, 10, 40);
             S_MinimapLeftPad = UI::SliderFloat("Minimap Left Padding", S_MinimapLeftPad, 0, 200);
             S_MinimapTopBottomPad = UI::SliderFloat("Minimap Top/Bottom Padding", S_MinimapTopBottomPad, 0, 500);
