@@ -357,8 +357,8 @@ GameTrigger@[]@ generateVoiceLineTriggers() {
     ret.InsertLast(FloorVLTrigger(vec3(800, 1640, 610), vec3(833, 1647, 637), "VL Floor 15 - Kubas", 15));
     ret.InsertLast(FloorVLTrigger(vec3(796, 1690, 544), vec3(860, 1700, 576), "VL Floor 16 - Jumper471", 16));
     // ret.InsertLast(FloorVLTrigger(vec3(), vec3(), "Finish"));
-    ret.InsertLast(TitleGagTrigger(vec3(424, 7, 424),	vec3(1100, 57, 1100), "Floor Gang"));
-    ret.InsertLast(TitleGagTrigger(vec3(384, 7, 760),	vec3(424, 57, 776), "Floor Gang"));
+    ret.InsertLast(TitleGagTrigger(vec3(424, 7, 424),	vec3(1100, 55, 1100), "Floor Gang"));
+    ret.InsertLast(TitleGagTrigger(vec3(384, 7, 760),	vec3(424, 55, 776), "Floor Gang"));
     return ret;
 }
 
@@ -384,8 +384,10 @@ GameTrigger@[]@ genSpecialTriggers() {
 GameTrigger@[]@ genEasterEggTriggers() {
     GameTrigger@[] ret;
     ret.InsertLast(PlaySoundTrigger(vec3(916.0, 382.0, 769.15), vec3(970.0, 408.0, 780.0), "Mario: Bye Bye", "ee/mario-byebye.mp3"));
-    ret.InsertLast(SpecialTextTrigger(vec3(826.000, 857.000, 993.000), vec3(830.000, 862.000, 999.000), "Bleb", 4000, onTrigger: CoroutineFunc(Stats::LogBleb)));
+    ret.InsertLast(SpecialTextTrigger(vec3(826.000, 857.000, 993.000), vec3(830.000, 862.000, 999.000), "Blessed by Bleb", 4000, 30000, CoroutineFunc(Stats::LogBleb)));
+    ret.InsertLast(SpecialTextTrigger(vec3(567.886, 728.578, 959.905), vec3(584.008, 731.0, 984.005), "Quack", 4000, 30000, CoroutineFunc(Stats::LogQuack)));
     ret.InsertLast(SpecialTextTrigger(vec3(158.607, 11.5963, 789.121), vec3(192.883, 17.1845, 802.433), "gz. You found the debug trigger!", 4000, 1000, CoroutineFunc(Stats::LogDebugTrigger)));
+
     // ret.InsertLast(SpecialTextTrigger(vec3(602.000, 1091.000, 834.000), vec3(630.000, 1098.000, 862.000), "360!", 4000));
     return ret;
 }

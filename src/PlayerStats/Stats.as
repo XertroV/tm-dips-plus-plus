@@ -243,6 +243,11 @@ namespace Stats {
         UpdateStatsSoon();
     }
 
+    void LogQuack() {
+        IncrJsonIntCounter(extra, "quacks");
+        UpdateStatsSoon();
+    }
+
     void LogDebugTrigger() {
         IncrJsonIntCounter(extra, "debugTs");
         UpdateStatsSoon();

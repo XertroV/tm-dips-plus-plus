@@ -92,6 +92,8 @@ void UnloadSelfSoon() {
     Meta::UnloadPlugin(self);
 }
 
+
+
 //remove any hooks
 void OnDestroyed() { _Unload(); }
 void OnDisabled() { _Unload(); }
@@ -103,6 +105,9 @@ void _Unload() {
     ClearAnimations();
     MagicSpectate::Unload();
     MainMenuBg::Unload();
+    if (g_api !is null) {
+        g_api.Shutdown();
+    }
 }
 
 

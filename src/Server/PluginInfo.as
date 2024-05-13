@@ -253,8 +253,12 @@ namespace Map {
         auto v = m.Value;
         int nb = map.AnchoredObjects.Length;
         if (nb == 0) return false;
+        CGameCtnAnchoredObject@ ao;
         for (int i = nb - 1; i >= Math::Max(0, nb - 7777); i--) {
-            @item = map.AnchoredObjects[i].ItemModel;
+            @ao = map.AnchoredObjects[i];
+            if (ao is null) continue;
+            @item = ao.ItemModel;
+            if (item is null) continue;
             if (item.Id.Value == v) {
                 return true;
             }

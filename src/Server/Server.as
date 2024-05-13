@@ -376,12 +376,22 @@ class DD2API {
                 currentMapRelevant = MapMatchesDD2Uid(app.RootMap)
                     || (Math::Abs(20522 - int(bi.x)) < 500 && Math::Abs(38369 - int(bi.y)) < 500);
                 if (IsBadNonce(nonce)) break;
-                auto ctx = ReportContextMsg(nextu64, nextMI, bi, currentMapRelevant);
+                OutgoingMsg@ ctx;
+                try {
+                    @ctx = ReportContextMsg(nextu64, nextMI, bi, currentMapRelevant);
+                } catch {
+                    warn("exception creating context: " + getExceptionInfo());
+                    continue;
+                }
                 if (IsBadNonce(nonce)) break;
                 QueueMsg(ctx);
                 trace("sent context");
                 HasContext = true;
-                currentMapRelevant = currentMapRelevant || (bool(ctx.msgPayload["ReportContext"]["i"]));
+                try {
+                    currentMapRelevant = currentMapRelevant || (bool(ctx.msgPayload["ReportContext"]["i"]));
+                } catch {
+                    warn('exception updating r: ' + getExceptionInfo());
+                }
                 yield();
                 sleep(1000);
                 yield();
