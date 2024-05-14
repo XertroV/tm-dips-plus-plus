@@ -21,6 +21,7 @@ class GameTrigger : OctTreeRegion {
         super(min, max);
         this.name = name;
         this.mat = mat4::Translate(min);
+        debug_strokeColor = GenRandomColor();
     }
 
     vec4 debug_strokeColor = vec4(1, 0, 0, 1);
@@ -59,6 +60,22 @@ class GameTrigger : OctTreeRegion {
         }
     }
 }
+
+
+class ResetFallTrigger : GameTrigger {
+    ResetFallTrigger(vec3 &in min, vec3 &in max, const string &in name) {
+        super(min, max, name);
+        debug_strokeColor = GenRandomColor();
+        resetOnLeave = true;
+    }
+
+    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+        if (PS::localPlayer !is null) {
+            PS::localPlayer.OnResetFallTrigger();
+        }
+    }
+}
+
 
 // triggers when the point is > radius away from center, and height is between min and max heights
 class AntiCylinderTrigger : GameTrigger {
@@ -378,6 +395,8 @@ GameTrigger@[]@ generateMonumentTriggers() {
 GameTrigger@[]@ genSpecialTriggers() {
     GameTrigger@[] ret;
     ret.InsertLast(GG_VLineTrigger(360, vec2(768, 768), vec2(169, 2000.0), "Geep Gip"));
+    ret.InsertLast(ResetFallTrigger(vec3(959.984, 451.77, 705.71), vec3(984.956, 463.224, 724.154), "reset fall f4 1/2pipe to bob"));
+    ret.InsertLast(ResetFallTrigger(vec3(287.004, 9.79429, 613.66), vec3(305.533, 14.9831, 640.668), "reset fall ground test"));
     return ret;
 }
 
@@ -457,11 +476,11 @@ void TriggerCheck_Update() {
     }
 
     if (updateLast) {
+        @lastTriggerHit = t;
         if (t.name != lastTriggerName) {
+            lastTriggerName = t.name;
             OnNewTriggerHit(lastTriggerHit, t);
         }
-        lastTriggerName = t.name;
-        @lastTriggerHit = t;
     }
 }
 
@@ -470,7 +489,9 @@ void OnLeaveTrigger(GameTrigger@ prevTrigger, GameTrigger@ newTrigger) {
 }
 
 void OnNewTriggerHit(GameTrigger@ lastTriggerHit, GameTrigger@ newTrigger) {
+#if DEV
     dev_trace('OnNewTriggerHit @ ' + PS::localPlayer.pos.ToString());
+#endif
     // Notify("Hit trigger: " + newTrigger.name);
     // AddTitleScreenAnimation(MainTitleScreenAnim(newTrigger.name, "test", null));
     // NotifyWarning("Added title screen anim");

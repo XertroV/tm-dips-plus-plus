@@ -379,6 +379,19 @@ class PlayerState {
         return fallTracker !is null || lastFall !is null;
     }
 
+    void OnResetFallTrigger() {
+        auto ft = GetFallTracker();
+        if (!isFlying && ft !is null && ft.endTime > 0 && Time::Now - ft.endTime > 1000) {
+            // if we're not falling, reset the fall tracker
+            @fallTracker = null;
+            @lastFall = null;
+        } else {
+            // retrigger; don't reset fall if still flying
+            // Dev_Notify("reset trigger");
+            TriggerCheck_Reset();
+        }
+    }
+
     vec2 lastMinimapPos;
 
     vec3 vel;
