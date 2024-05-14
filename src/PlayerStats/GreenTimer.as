@@ -32,8 +32,8 @@ namespace GreenTimer {
         // wirtualMode = GetLocalLogin() == WRITUAL_LOGIN;
     }
 
-    void Render() {
-        if (!S_ShowGreenTimer) return;
+    void Render(bool doDraw) {
+        if (!S_ShowGreenTimer || !doDraw) return;
         nvg::Reset();
         nvg::FontSize(S_GreenTimerFontSize * Minimap::vScale);
         nvg::FontFace(f_Nvg_ExoBold);

@@ -140,10 +140,10 @@ namespace Minimap {
     PlayerState@ hovered;
     float playerMaxHeightLast = 2000.;
 
-    void Render() {
+    void Render(bool doDraw) {
         @hovered = null;
         // if (!g_Active) return;
-        if (!S_ShowMinimap) return;
+        if (!S_ShowMinimap || !doDraw) return;
         if (lastMapMwId == -1) return;
         RenderMinimapBg();
         RenderMinimapFloors();

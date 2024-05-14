@@ -19,8 +19,8 @@ namespace DipsPPSettings {
     float hovRound = 5.0;
     uint lastDraw = 0;
 
-    void RenderButton() {
-        if (S_HideDPPButtonInBottomRight) return;
+    void RenderButton(bool doDraw) {
+        if (S_HideDPPButtonInBottomRight || !doDraw) return;
         if (dips_pp_logo_sm is null) return;
         lastDraw = Time::Now;
         size = texDims * Minimap::vScale * .6;

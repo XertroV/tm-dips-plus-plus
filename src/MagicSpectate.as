@@ -15,7 +15,7 @@ namespace MagicSpectate {
     void Load() {
         trace("Registered ML Exec callback for Magic Spectator");
         MLHook::RegisterPlaygroundMLExecutionPointCallback(onMLExec);
-        if (!Meta::GetPluginFromSiteID(252).Enabled) {
+        if (!IsMLHookEnabled()) {
             NotifyWarning("MLHook is disabled! Click to spectate may not work correctly.");
         }
     }
@@ -288,4 +288,11 @@ namespace Spectate {
     bool get_IsSpectator() {
         return GetApp().Network.Spectator;
     }
+}
+
+
+
+bool IsMLHookEnabled() {
+    auto p = Meta::GetPluginFromSiteID(252);
+    return p !is null && p.Enabled;
 }

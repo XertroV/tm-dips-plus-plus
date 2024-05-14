@@ -63,8 +63,8 @@ namespace HUD {
         }
     }
 
-    void Render(PlayerState@ player) {
-        if (player is null) {
+    void Render(PlayerState@ player, bool doDraw) {
+        if (player is null || !doDraw) {
             return;
         }
         if (player.pos.y > 3000 || player.pos.y < -1000) {

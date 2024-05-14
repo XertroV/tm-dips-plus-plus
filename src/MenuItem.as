@@ -127,7 +127,11 @@ namespace DebugMenu {
                 UI::EndMenu();
             }
             if (UI::BeginMenu("Features")) {
-                UI::Text("Magic Spectate: " + (MAGIC_SPEC_ENABLED ? cCheckMark : cCrossMark));
+                bool isEnabled = IsMLHookEnabled();
+                UI::Text("Magic Spectate: " + (MAGIC_SPEC_ENABLED ? (isEnabled ? cCheckMark : cWarningMark) : cCrossMark));
+                if (!isEnabled) {
+                    AddSimpleTooltip("MLHook is disabled!");
+                }
                 UI::EndMenu();
             }
 #if DEV
@@ -159,6 +163,7 @@ namespace DebugMenu {
 
 
 const string cCheckMark = "\\$<\\$2f2" + Icons::Check + "\\$>";
+const string cWarningMark = "\\$<\\$fa2" + Icons::ExclamationTriangle + "\\$>";
 const string cCrossMark = "\\$<\\$f22" + Icons::Times + "\\$>";
 
 

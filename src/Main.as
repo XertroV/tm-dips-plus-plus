@@ -180,15 +180,15 @@ void Render() {
     if (drawAnywhereUI) {
         MainUI::Render();
     }
-    if (g_Active && drawAnywhereGame) {
-        GreenTimer::Render();
-        HUD::Render(PS::viewedPlayer);
-        RenderAnimations();
-        RenderTextOveralys();
-        RenderSubtitles();
-        Minimap::Render();
-        DipsPPSettings::RenderButton();
-        RenderTitleScreenAnims();
+    if (g_Active) {
+        GreenTimer::Render(drawAnywhereGame);
+        HUD::Render(PS::viewedPlayer, drawAnywhereGame);
+        RenderAnimations(drawAnywhereGame);
+        RenderTextOveralys(drawAnywhereGame);
+        RenderSubtitles(drawAnywhereGame);
+        Minimap::Render(drawAnywhereGame);
+        DipsPPSettings::RenderButton(drawAnywhereGame);
+        RenderTitleScreenAnims(drawAnywhereGame);
     }
     RenderDebugWindow();
 }
@@ -252,15 +252,15 @@ bool g_ShowFalls = true;
 
 
 
-void RenderSubtitles() {
-    RenderSubtitleAnims();
+void RenderSubtitles(bool doDraw) {
+    RenderSubtitleAnims(doDraw);
 }
 
-void RenderTextOveralys() {
+void RenderTextOveralys(bool doDraw) {
     if (textOverlayAnims.Length == 0) return;
     for (uint i = 0; i < textOverlayAnims.Length; i++) {
         if (textOverlayAnims[i].Update()) {
-            textOverlayAnims[i].Draw();
+            if (doDraw) textOverlayAnims[i].Draw();
         } else {
             textOverlayAnims[i].OnEndAnim();
             textOverlayAnims.RemoveAt(i);
@@ -269,10 +269,10 @@ void RenderTextOveralys() {
     }
 }
 
-void RenderSubtitleAnims() {
+void RenderSubtitleAnims(bool doDraw) {
     if (subtitleAnims.Length == 0) return;
     if (subtitleAnims[0].Update()) {
-        subtitleAnims[0].Draw();
+        if (doDraw) subtitleAnims[0].Draw();
     } else {
         subtitleAnims.RemoveAt(0);
     }
@@ -287,10 +287,10 @@ void RenderSubtitleAnims() {
     // }
 }
 
-void RenderTitleScreenAnims() {
+void RenderTitleScreenAnims(bool doDraw) {
     if (titleScreenAnimations.Length == 0) return;
     if (titleScreenAnimations[0].Update()) {
-        titleScreenAnimations[0].Draw();
+        if (doDraw) titleScreenAnimations[0].Draw();
     } else {
         titleScreenAnimations[0].OnEndAnim();
         trace("Removing title anim: " + titleScreenAnimations[0].ToString());
@@ -302,7 +302,7 @@ void RenderTitleScreenAnims() {
 }
 
 
-void RenderAnimations() {
+void RenderAnimations(bool doDraw) {
     nvg::Reset();
     nvg::FontFace(f_Nvg_ExoRegularItalic);
     nvg::FontSize(40.0);
@@ -317,19 +317,21 @@ void RenderAnimations() {
     for (uint i = 0; i < statusAnimations.Length; i++) {
         @anim = statusAnimations[i];
         if (anim !is null && anim.Update()) {
-            s = Time::Now;
-            auto y = anim.Draw().y;
-            if (Time::Now - s > 1) {
-                warn("Draw took " + (Time::Now - s) + "ms: " + anim.ToString(i) + " y-nan: " + Math::IsNaN(y) + ", y-inf: " + Math::IsInf(y) + ", y: " + y);
+            if (doDraw) {
+                s = Time::Now;
+                auto y = anim.Draw().y;
+                if (Time::Now - s > 1) {
+                    warn("Draw took " + (Time::Now - s) + "ms: " + anim.ToString(i) + " y-nan: " + Math::IsNaN(y) + ", y-inf: " + Math::IsInf(y) + ", y: " + y);
+                }
+                if (Math::IsNaN(y)) continue;
+                // if (Math::IsNaN(y)) {
+                //     trace("NaN " + i + ", " + anim.name);
+                // }
+                // if (Math::IsInf(y)) {
+                //     trace("Inf " + i + ", " + anim.name);
+                // }
+                if (y > 0.05) nvg::Translate(vec2(0, y));
             }
-            if (Math::IsNaN(y)) continue;
-            // if (Math::IsNaN(y)) {
-            //     trace("NaN " + i + ", " + anim.name);
-            // }
-            // if (Math::IsInf(y)) {
-            //     trace("Inf " + i + ", " + anim.name);
-            // }
-            if (y > 0.05) nvg::Translate(vec2(0, y));
         } else {
             anim.OnEndAnim();
             toRem.InsertLast(i);
