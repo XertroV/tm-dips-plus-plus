@@ -304,9 +304,9 @@ namespace MainUI {
     void DrawLeaderboardTab() {
         CheckUpdateLeaderboard();
         DrawCenteredText("Leaderboard", f_DroidBigger, 26.);
-        DrawCenteredText("Top " + S_NbTopTimes, f_DroidBigger, 26.);
         auto @top3 = Global::top3;
-        auto len = Math::Min(int(top3.Length), S_NbTopTimes);
+        auto len = int(top3.Length);
+        DrawCenteredText("Top " + len, f_DroidBigger, 26.);
         auto nbCols = len > 5 ? 2 : 1;
         auto startNewAt = nbCols == 1 ? len : (len + 1) / nbCols;
         UI::Columns(nbCols);
