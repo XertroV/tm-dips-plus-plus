@@ -90,10 +90,11 @@ namespace Stats {
         trace("loading stats from server: " + Json::Write(j));
         // are these better than the stats we have?
         float statsHeight = j['pb_height'];
-        if (statsHeight > pbHeight + 1.0) {
+        if (statsHeight > pbHeight) {
             warn("Updating with stats from server since pbHeight is greater");
             pbHeight = statsHeight;
-            pbFloor = MapFloor(int(j['pb_floor']));
+            pbFloor = HeightToFloor(pbHeight);
+            // pbFloor = MapFloor(int(j['pb_floor']));
             lastPbSetTs = j['last_pb_set_ts'];
             lastPbSet = Time::Now;
         }
@@ -147,7 +148,8 @@ namespace Stats {
         totalDistFallen = j["total_dist_fallen"];
         // don't restore pb height
         // pbHeight = j["pb_height"];
-        pbFloor = MapFloor(int(j["pb_floor"]));
+        // pbFloor = MapFloor(int(j["pb_floor"]));
+        pbFloor = HeightToFloor(pbHeight);
         nbResets = j["nb_resets"];
         ggsTriggered = j["ggs_triggered"];
         titleGagsTriggered = j["title_gags_triggered"];
