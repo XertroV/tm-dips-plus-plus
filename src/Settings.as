@@ -21,6 +21,9 @@ bool S_HideMovieTitles = false;
 bool S_JustSilenceMovieTitles = false;
 
 [Setting hidden]
+bool S_VoiceLinesInSpec = true;
+
+[Setting hidden]
 uint S_NbTopTimes = 3;
 
 [Setting hidden]

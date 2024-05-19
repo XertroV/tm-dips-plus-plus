@@ -28,6 +28,7 @@ namespace Volume {
             DrawVolumeSlider();
             S_PauseWhenGameUnfocused = UI::Checkbox("Pause audio when the game is unfocused", S_PauseWhenGameUnfocused);
             S_JustSilenceMovieTitles = UI::Checkbox("Silence fake movie titles?", S_JustSilenceMovieTitles);
+            S_VoiceLinesInSpec = UI::Checkbox("Play Voice Lines when Spectating", S_VoiceLinesInSpec);
             UI::EndMenu();
         }
     }

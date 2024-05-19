@@ -105,6 +105,7 @@ namespace Visibility {
             UI::Indent();
             S_JustSilenceMovieTitles = UI::Checkbox("Just silence fake movie titles?", S_JustSilenceMovieTitles);
             UI::Unindent();
+            S_VoiceLinesInSpec = UI::Checkbox("Play Voice Lines when Spectating", S_VoiceLinesInSpec);
             S_HideDPPButtonInBottomRight = UI::Checkbox("Hide Dips++ button in bottom right?", S_HideDPPButtonInBottomRight);
             S_NbTopTimes = Math::Clamp(UI::InputInt("Number of Top Times to show (1-10)", S_NbTopTimes, 1), 1, 10);
             UI::EndMenu();

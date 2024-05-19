@@ -146,6 +146,7 @@ dipkirk.mp3
 diplander.mp3
 diplash.mp3
 diplasshrugged.mp3
+diplericanbeauty.mp3
 diplericanbeuaty.mp3
 diplomaticimmunity.mp3
 diploriousbasterds.mp3
@@ -557,7 +558,7 @@ theroadtodeepdipardo.mp3
 thesocialdipwork.mp3
 thethreemuskedippers.mp3
 theultimatedippingmachine.mp3
-theyseemedippintheyhatinpatrollinandtyrnacatchmedeepanddippy.mp3
+theyseemedippintheyhatinpatrollinandtrynacatchmedeepanddippy.mp3
 thordipnarok.mp3
 time_to_dip.mp3
 to_defeat_the_dip_you_must_know_the_dip_feel_the_dip_be_the_dip.mp3

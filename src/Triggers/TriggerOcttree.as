@@ -204,10 +204,12 @@ class FloorVLTrigger : PlaySoundTrigger {
     }
 
     void RunTrigger() {
-        PlaySoundTrigger::OnEnteredTrigger(_tmpPrevTrigger);
         if (PS::viewedPlayer.isLocal) {
             Stats::SetVoiceLinePlayed(floor);
+        } else if (!S_VoiceLinesInSpec) {
+            return;
         }
+        PlaySoundTrigger::OnEnteredTrigger(_tmpPrevTrigger);
         while (audioChain is null || !audioChain.isPlaying) {
             yield();
         }
