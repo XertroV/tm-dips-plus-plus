@@ -333,12 +333,14 @@ class PlayerState {
         if (updatedThisFrame & UpdatedFlags::Falling > 0) {
             AfterUpdate_FallTracker();
         }
-        if (isLocal) {
-            climbTracker.Update(this.pos.y);
+        if (isLocal || isViewed) {
+            if (climbTracker !is null) {
+                climbTracker.Update(this.pos.y);
+            }
             if (!TitleGag::IsReady() && this.pos.y >= 106.0) {
                 TitleGag::OnReachFloorOne();
             }
-            if (updatedThisFrame & UpdatedFlags::Position > 0) {
+            if (isLocal && updatedThisFrame & UpdatedFlags::Position > 0) {
                 Stats::OnLocalPlayerPosUpdate(this);
             }
         }
