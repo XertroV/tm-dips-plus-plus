@@ -17,10 +17,12 @@ namespace TitleGag {
 
     void MarkWaiting() {
         state = TGState::WaitingForReset;
+        dev_trace('title gags: waiting for reset');
     }
 
     void Reset() {
         state = TGState::Ready;
+        dev_trace('title gags: reset');
     }
 
     void OnPlayerRespawn() {

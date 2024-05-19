@@ -1,6 +1,9 @@
 [Setting hidden]
 bool S_ClickMinimapToMagicSpectate = true;
 
+[Setting hidden]
+bool S_DrawInputsWhileMagicSpec = true;
+
 #if DEPENDENCY_MLHOOK
 const bool MAGIC_SPEC_ENABLED = true;
 
@@ -138,6 +141,20 @@ namespace MagicSpectate {
         if (twitchName.Length > 0) {
             DrawTwitchName(twitchName, fs, pad, true);
         }
+        if (S_DrawInputsWhileMagicSpec) {
+            if (S_ShowInputsWhenUIHidden || UI::IsGameUIVisible()) {
+                MS_RenderInputs(p);
+            }
+        }
+    }
+
+    void MS_RenderInputs(PlayerState@ p) {
+        auto inputsSize = vec2(S_InputsHeight * 2, S_InputsHeight) * g_screen.y;
+        auto inputsPos = (g_screen - inputsSize) * vec2(S_InputsPosX, S_InputsPosY);
+        inputsPos += inputsSize;
+        nvg::Translate(inputsPos);
+        Inputs::DrawInputs(p.vehicle.AsyncState, p.color, inputsSize);
+        nvg::ResetTransform();
     }
 
     void _DrawMovementAlarm() {
@@ -150,8 +167,10 @@ namespace MagicSpectate {
     }
 
     void DrawMenu() {
-        if (UI::BeginMenu("Spec")) {
+        if (UI::BeginMenu("Magic Spectate")) {
             S_ClickMinimapToMagicSpectate = UI::Checkbox("Click Minimap to Magic Spectate", S_ClickMinimapToMagicSpectate);
+            S_DrawInputsWhileMagicSpec = UI::Checkbox("Show Inputs While Magic Spectating", S_DrawInputsWhileMagicSpec);
+            DrawInputsSettingsMenu();
             UI::EndMenu();
         }
     }

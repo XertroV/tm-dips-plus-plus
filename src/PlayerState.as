@@ -573,10 +573,7 @@ class PlayerState {
             UI::TreePop();
         }
         UI::PopID();
-
     }
-
-
 }
 
 enum PlayerNetStructFlags {

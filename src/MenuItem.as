@@ -171,6 +171,7 @@ namespace Gameplay {
     void DrawMenu() {
         if (UI::BeginMenu("Gameplay")) {
             S_BlockCam7Drivable = UI::Checkbox("Block camera 7 drivable?", S_BlockCam7Drivable);
+            MagicSpectate::DrawMenu();
             UI::EndMenu();
         }
     }

@@ -456,6 +456,8 @@ void EmitOnPlayerRespawn(PlayerState@ ps) {
             lastReportedRespawn = Time::Now;
             Stats::LogRestart(ps.lastRaceTime);
         }
+    }
+    if (ps.isViewed) {
         TitleGag::OnPlayerRespawn();
     }
 }
