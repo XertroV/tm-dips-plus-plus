@@ -11,6 +11,7 @@ TitleCollection@ GLOBAL_TITLE_COLLECTION = TitleCollection();
 TitleCollection@ GLOBAL_GG_TITLE_COLLECTION = GG_TitleCollection();
 
 class TitleCollection : Collection {
+    bool initialized = false;
     bool isGeepGip = false;
     TitleCollection(bool isGeepGip = false) {
         this.isGeepGip = isGeepGip;
@@ -131,6 +132,7 @@ class TitleCollection : Collection {
             }
         }
         UpdateUncollected();
+        initialized = true;
     }
 }
 

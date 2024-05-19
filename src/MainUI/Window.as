@@ -205,12 +205,67 @@ namespace MainUI {
     void DrawMainCollectionsTab() {
         DrawCenteredText("Collections", f_DroidBigger, 26.);
         GLOBAL_TITLE_COLLECTION.DrawStats();
+        DrawCollectionElements(GLOBAL_TITLE_COLLECTION);
         UI::Separator();
         GLOBAL_GG_TITLE_COLLECTION.DrawStats();
-        UI::Separator();
-        UI::AlignTextToFramePadding();
-        UI::TextWrapped("Details and things coming soon!");
+        DrawCollectionElements(GLOBAL_GG_TITLE_COLLECTION);
+        // UI::Separator();
+        // UI::AlignTextToFramePadding();
+        // UI::TextWrapped("Details and things coming soon!");
     }
+
+
+    void DrawCollectionElements(Collection@ collection) {
+        auto tc = cast<TitleCollection>(collection);
+        if (tc is null) return;
+        bool isMainTc = tc is GLOBAL_TITLE_COLLECTION;
+        if (UI::BeginChild("clctn" + tc.FileName, vec2(-1, 300))) {
+            auto nbItems = tc.items.Length;
+            auto nbPerCol = (nbItems + 2) / 3;
+
+            if (UI::BeginTable("clctnTable", 3, UI::TableFlags::SizingStretchSame)) {
+                int ix;
+                UI::ListClipper clip(nbPerCol);
+                while (clip.Step()) {
+                    for (int i = clip.DisplayStart; i < clip.DisplayEnd; i++) {
+                        UI::TableNextRow();
+                        UI::TableNextColumn();
+                        DrawCollectionItem(tc.items[i]);
+                        UI::TableNextColumn();
+                        DrawCollectionItem(tc.items[i + nbPerCol]);
+                        UI::TableNextColumn();
+                        if ((ix = i + nbPerCol * 2) < nbItems) {
+                            DrawCollectionItem(tc.items[ix]);
+                        }
+                    }
+                }
+
+                UI::EndTable();
+            }
+        }
+        UI::EndChild();
+    }
+
+    void DrawCollectionItem(CollectionItem@ ci) {
+        bool isSpecial = cast<TitleCollectionItem_Special>(ci) !is null;
+        UI::PushID(ci.name);
+        UI::AlignTextToFramePadding();
+        if (ci.collected) {
+            if (UI::Button("Play")) {
+                ci.PlayItem(false);
+            }
+            UI::SameLine();
+            if (isSpecial) {
+                UI::Text("\\$fd4" + ci.name);
+            } else {
+                UI::Text(ci.name);
+            }
+        } else {
+            UI::Text(ci.BlankedName);
+        }
+        UI::PopID();
+    }
+
 
     bool donationsShowingDonors = true;
     void DrawDonationsTab() {

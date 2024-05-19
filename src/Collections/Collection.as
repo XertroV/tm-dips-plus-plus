@@ -56,6 +56,7 @@ class Collection {
 
 class CollectionItem {
     string name;
+    string _blankedName;
     // whether to automatically collect this when a trigger has been met
     bool autocollect;
     bool collected;
@@ -68,6 +69,19 @@ class CollectionItem {
 
     CollectionItem(Json::Value@ spec) {
         FromSpecJson(spec);
+    }
+
+    string get_BlankedName() {
+        if (_blankedName == "") {
+            _blankedName = name;
+            for (uint i = 0; i < _blankedName.Length; i++) {
+                if (_blankedName[i] != 0x20) {
+                    _blankedName[i] = 0x3F; // Math::Rand(0x21, 0x41);
+                }
+            }
+            _blankedName = "\\$999" + _blankedName;
+        }
+        return _blankedName;
     }
 
     // this should collect it at some point

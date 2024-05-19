@@ -232,7 +232,17 @@ class TitleGagTrigger : GagVoiceLineTrigger {
         bool isLocalPlayer = PS::viewedPlayer !is null && PS::viewedPlayer.isLocal;
         uint lastRespawn = PS::viewedPlayer !is null ? PS::viewedPlayer.lastRespawn : 0;
         if (isLocalPlayer) {
-            @gag = GLOBAL_TITLE_COLLECTION.SelectOneUncollected();
+            bool selectUnselected = true;
+            if (GLOBAL_TITLE_COLLECTION.uncollected.Length < 5) {
+                selectUnselected = Rand01() < 0.2;
+            } else if (GLOBAL_TITLE_COLLECTION.uncollected.Length < 10) {
+                selectUnselected = Rand01() < 0.3;
+            } else if (GLOBAL_TITLE_COLLECTION.uncollected.Length < 30) {
+                selectUnselected = Rand01() < 0.5;
+            }
+            if (selectUnselected) {
+                @gag = GLOBAL_TITLE_COLLECTION.SelectOneUncollected();
+            }
         }
         if (gag is null) {
             @gag = GLOBAL_TITLE_COLLECTION.SelectOne();
@@ -253,6 +263,10 @@ class TitleGagTrigger : GagVoiceLineTrigger {
             Dev_Notify("No title gags left to select.");
         }
     }
+}
+
+float Rand01() {
+    return Math::Rand(0.0f, 1.0f);
 }
 
 class GG_VLineTrigger : AntiCylinderTrigger {
