@@ -70,8 +70,8 @@ class ResetFallTrigger : GameTrigger {
     }
 
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
-        if (PS::localPlayer !is null) {
-            PS::localPlayer.OnResetFallTrigger();
+        if (PS::viewedPlayer !is null) {
+            PS::viewedPlayer.OnResetFallTrigger();
         }
     }
 }
@@ -135,7 +135,7 @@ class PlaySoundTrigger : GameTrigger {
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
         Dev_Notify(name + " entered.");
         startnew(CoroutineFunc(PlayItem));
-        Stats::LogTriggeredSound(name, audioFile);
+        if (PS::viewedPlayer.isLocal) Stats::LogTriggeredSound(name, audioFile);
     }
 
     void OnLeftTrigger(OctTreeRegion@ newTrigger) override {
@@ -205,7 +205,9 @@ class FloorVLTrigger : PlaySoundTrigger {
 
     void RunTrigger() {
         PlaySoundTrigger::OnEnteredTrigger(_tmpPrevTrigger);
-        Stats::SetVoiceLinePlayed(floor);
+        if (PS::viewedPlayer.isLocal) {
+            Stats::SetVoiceLinePlayed(floor);
+        }
         while (audioChain is null || !audioChain.isPlaying) {
             yield();
         }
@@ -241,17 +243,25 @@ class TitleGagTrigger : GagVoiceLineTrigger {
         bool isLocalPlayer = PS::viewedPlayer !is null && PS::viewedPlayer.isLocal;
         uint lastRespawn = PS::viewedPlayer !is null ? PS::viewedPlayer.lastRespawn : 0;
         if (isLocalPlayer) {
-            bool selectUnselected = true;
-            if (GLOBAL_TITLE_COLLECTION.uncollected.Length < 5) {
-                selectUnselected = Rand01() < 0.2;
-            } else if (GLOBAL_TITLE_COLLECTION.uncollected.Length < 10) {
-                selectUnselected = Rand01() < 0.3;
-            } else if (GLOBAL_TITLE_COLLECTION.uncollected.Length < 30) {
-                selectUnselected = Rand01() < 0.5;
-            }
-            if (selectUnselected) {
-                @gag = GLOBAL_TITLE_COLLECTION.SelectOneUncollected();
-            }
+            uint count = 0;
+            do {
+                bool selectUncollected = true;
+                if (GLOBAL_TITLE_COLLECTION.uncollected.Length < 5) {
+                    selectUncollected = Rand01() < 0.2;
+                } else if (GLOBAL_TITLE_COLLECTION.uncollected.Length < 10) {
+                    selectUncollected = Rand01() < 0.3;
+                } else if (GLOBAL_TITLE_COLLECTION.uncollected.Length < 30) {
+                    selectUncollected = Rand01() < 0.5;
+                }
+                if (selectUncollected) {
+                    @gag = GLOBAL_TITLE_COLLECTION.SelectOneUncollected();
+                }
+                // if it's uncollected special, on failed coin flip, choose another.
+                if (cast<TitleCollectionItem_Special>(gag) !is null) {
+                    if (Rand01() < 0.5) break;
+                } else { break; }
+                count++;
+            } while (count < 2);
         }
         if (gag is null) {
             @gag = GLOBAL_TITLE_COLLECTION.SelectOne();
@@ -482,7 +492,7 @@ bool triggerHit = false;
 
 void TriggerCheck_Update() {
     triggerHit = false;
-    auto @player = PS::localPlayer;
+    auto @player = PS::viewedPlayer;
     if (player is null) return;
     // don't trigger immediately after (re)spawn
     if (player.lastRespawn + 100 > Time::Now) return;

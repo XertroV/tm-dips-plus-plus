@@ -200,7 +200,7 @@ class SpecialTextTrigger : GameTrigger {
         if (Time::Now - lastTriggerTime < debounce) return;
         lastTriggerTime = Time::Now;
         EmitStatusAnimation(RainbowStaticStatusMsg(name).WithDuration(duration));
-        if (onTrigger !is null) {
+        if (onTrigger !is null && PS::viewedPlayer.isLocal) {
             startnew(onTrigger);
         }
     }
