@@ -80,10 +80,10 @@ void Main() {
     startnew(TwitchNames::AddDefaults);
     sleep(100);
     @g_api = DD2API();
-    G_Initialized = true;
     sleep(300);
     startnew(RefreshAssets);
     startnew(MagicSpectate::Load);
+    G_Initialized = true;
 }
 
 void UnloadSelfSoon() {
