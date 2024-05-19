@@ -47,7 +47,7 @@ class BetterSocket {
         } else {
             @s = socket;
         }
-        sleep(1000);
+        sleep(800);
         IsConnecting = false;
     }
 

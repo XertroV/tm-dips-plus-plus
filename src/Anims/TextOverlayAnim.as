@@ -76,7 +76,7 @@ class TextOverlayAnim : Animation {
         if (t <= 0.0) {
             t = 0.0;
             prog = 0.0;
-            return !IsVoiceLinePlaying();
+            return IsVoiceLinePlaying();
         }
         return true;
     }
@@ -122,11 +122,12 @@ class TextOverlayAnim : Animation {
 }
 
 TextOverlayAnim@ Jave_TextOverlayAnim() {
+    // dev_trace("adding monument overlay anim: Jave");
     return TextOverlayAnim("Jave Monument", MONUMENT_JAVE, AudioChain({"after_months_of_grinding_the_tower_jave_finally_managed_to_secure_the_deep_dip_world_record_on_o_2.mp3"}));
 }
 
-// ! test
 TextOverlayAnim@ Bren_TextOverlayAnim() {
+    // dev_trace("adding monument overlay anim: Bren");
     return TextOverlayAnim2("Bren Monument", MONUMENT_BREN, 29350, MONUMENT_BREN_CLOVER, 22400,
         AudioChain({"following_a_spectacular_battle_bren_managed_to_be_the_first_to_conquer_deep_dip_on_november_23rd_3.mp3",
             "monument_bren_correction_12_finishers.mp3"}));
@@ -159,6 +160,12 @@ class TextOverlayAnim2 : TextOverlayAnim {
             return true;
         }
         auto r = TextOverlayAnim::Update();
+        if (!r) {
+            dev_trace('TextOverlayAnim2: TextOverlayAnim::Update() returned false');
+            triggered2 = true;
+            audio.StartFadeOutLoop();
+            cloverSubs.endTime = 1;
+        }
         if (!triggered2 && playingStartTime > 0 && (Time::Now - playingStartTime) > audio1Len) {
             triggered2 = true;
             startnew(CoroutineFunc(this.BeginAudio2Subs));
@@ -168,8 +175,12 @@ class TextOverlayAnim2 : TextOverlayAnim {
     }
 
     void BeginAudio2Subs() {
+        dev_trace('TextOverlayAnim2: BeginAudio2Subs');
         AddSubtitleAnimation(cloverSubs);
-        while (Time::Now - playingStartTime < audio2Len) yield();
+        while (Time::Now < audio2Len + playingStartTime + audio1Len + 1000 && StillInTrigger) yield();
+        dev_trace('TextOverlayAnim2: Ending Audio2Subs');
+        cloverSubs.endTime = 1;
+        audio.StartFadeOutLoop();
     }
 }
 

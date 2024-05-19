@@ -194,6 +194,7 @@ void Render() {
 }
 
 bool RenderEarlyInner() {
+    if (!G_Initialized) return false;
     bool wasActive = g_Active;
     // calling Inactive sets g_Active to false
     if (!S_Enabled) return Inactive(wasActive);
@@ -262,6 +263,7 @@ void RenderTextOveralys(bool doDraw) {
         if (textOverlayAnims[i].Update()) {
             if (doDraw) textOverlayAnims[i].Draw();
         } else {
+            dev_trace('removed text overlay anim at ' + i);
             textOverlayAnims[i].OnEndAnim();
             textOverlayAnims.RemoveAt(i);
             i--;

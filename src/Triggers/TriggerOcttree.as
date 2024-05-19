@@ -317,8 +317,12 @@ class MonumentTrigger : TextOverlayTrigger {
     }
 
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+        dev_trace("MonumentTrigger entered: " + name);
         // in same trigger group, do nothing
-        if (prevTrigger !is null && prevTrigger.name == name) return;
+        if (prevTrigger !is null && prevTrigger.name == name) {
+            dev_trace('skipping monumnet, same trigger');
+            return;
+        }
         // add text overlay anim
         if (subject == MonumentSubject::Bren) {
             textOverlayAnims.InsertLast(Bren_TextOverlayAnim());
@@ -477,10 +481,12 @@ void TriggerCheck_Update() {
     }
 
     if (updateLast) {
-        @lastTriggerHit = t;
         if (t.name != lastTriggerName) {
             lastTriggerName = t.name;
             OnNewTriggerHit(lastTriggerHit, t);
+        }
+        if (lastTriggerName.Length > 0) {
+            @lastTriggerHit = t;
         }
     }
 }
