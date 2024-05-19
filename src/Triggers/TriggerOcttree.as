@@ -248,11 +248,11 @@ class TitleGagTrigger : GagVoiceLineTrigger {
             uint count = 0;
             do {
                 bool selectUncollected = true;
-                if (GLOBAL_TITLE_COLLECTION.uncollected.Length < 5) {
+                if (GLOBAL_TITLE_COLLECTION.uncollected.Length <= 5) {
                     selectUncollected = Rand01() < 0.2;
-                } else if (GLOBAL_TITLE_COLLECTION.uncollected.Length < 10) {
+                } else if (GLOBAL_TITLE_COLLECTION.uncollected.Length <= 10) {
                     selectUncollected = Rand01() < 0.3;
-                } else if (GLOBAL_TITLE_COLLECTION.uncollected.Length < 30) {
+                } else if (GLOBAL_TITLE_COLLECTION.uncollected.Length <= 30) {
                     selectUncollected = Rand01() < 0.5;
                 }
                 if (selectUncollected) {
