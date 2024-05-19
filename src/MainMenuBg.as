@@ -42,9 +42,13 @@ namespace MainMenuBg {
         if (!IsReady()) return false;
         auto l = GetMenuSceneLayer();
         if (l is null) return false;
-        auto patch = GetMenuPatches(S_MenuBgTimeOfDay, S_MenuBgSeason);
-        EngageIntercepts();
-        l.ManialinkPageUtf8 = patch.Apply(origML);
+        if (!l.ManialinkPageUtf8.Contains("Ident DD2ItemId;")) {
+            auto patch = GetMenuPatches(S_MenuBgTimeOfDay, S_MenuBgSeason);
+            EngageIntercepts();
+            l.ManialinkPageUtf8 = patch.Apply(origML);
+        } else {
+            gotOrigML = false;
+        }
         applied = true;
         return true;
     }

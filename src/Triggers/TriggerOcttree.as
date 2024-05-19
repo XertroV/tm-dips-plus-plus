@@ -145,6 +145,11 @@ class PlaySoundTrigger : GameTrigger {
         }
     }
 
+    bool playNextAnywhere = false;
+    void PlayNextAnywhere() {
+        playNextAnywhere = true;
+    }
+
     void PlayItem() {
         if (audioChain !is null) {
             audioChain.StartFadeOutLoop();
@@ -161,6 +166,10 @@ class PlaySoundTrigger : GameTrigger {
             return;
         }
         @audioChain = AudioChain({audioFile});
+        if (playNextAnywhere) {
+            audioChain.WithPlayAnywhere();
+            playNextAnywhere = false;
+        }
         audioChain.Play();
     }
 }

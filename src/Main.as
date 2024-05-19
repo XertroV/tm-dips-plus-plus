@@ -152,7 +152,7 @@ void RenderEarly() {
     g_screen = vec2(Draw::GetWidth(), Draw::GetHeight());
     RenderEarlyInner();
     UpdateDownloads();
-    if (g_Active) {
+    if (g_Active || Minimap::updateMatrices) {
         Minimap::RenderEarly();
     }
     if (int(GetApp().InputPort.MouseVisibility) == 2) {
@@ -165,6 +165,8 @@ void RenderMenuMain() {
     DrawPluginMenuItem(true);
 }
 
+int g_TitleCollectionOutsideMapCount = 0;
+int g_SubtitlesOutsideMapCount = 0;
 
 void Render() {
     if (!G_Initialized) return;
@@ -189,6 +191,13 @@ void Render() {
         Minimap::Render(drawAnywhereGame);
         DipsPPSettings::RenderButton(drawAnywhereGame);
         RenderTitleScreenAnims(drawAnywhereGame);
+    } else {
+        if (g_TitleCollectionOutsideMapCount > 0) {
+            RenderTitleScreenAnims(true);
+        }
+        if (g_SubtitlesOutsideMapCount > 0) {
+            RenderSubtitles(true);
+        }
     }
     RenderDebugWindow();
 }
@@ -277,6 +286,9 @@ void RenderSubtitleAnims(bool doDraw) {
         if (doDraw) subtitleAnims[0].Draw();
     } else {
         subtitleAnims.RemoveAt(0);
+        if (g_SubtitlesOutsideMapCount > 0) {
+            g_SubtitlesOutsideMapCount--;
+        }
     }
     // for (uint i = 0; i < subtitleAnims.Length; i++) {
     //     if (subtitleAnims[i].Update()) {
@@ -297,6 +309,9 @@ void RenderTitleScreenAnims(bool doDraw) {
         titleScreenAnimations[0].OnEndAnim();
         trace("Removing title anim: " + titleScreenAnimations[0].ToString());
         titleScreenAnimations.RemoveAt(0);
+        if (g_TitleCollectionOutsideMapCount > 0) {
+            g_TitleCollectionOutsideMapCount--;
+        }
     }
     // for (uint i = 0; i < titleScreenAnimations.Length; i++) {
     //     // titleScreenAnimations[i].Draw();

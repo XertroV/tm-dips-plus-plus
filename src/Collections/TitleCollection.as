@@ -194,9 +194,9 @@ class TitleCollectionItem_Special : TitleCollectionItem {
             CollectTitleSoon();
         }
         if (titleLines.Length == 1) {
-            AddTitleScreenAnimation(MainTitleScreenAnim(titleLines[0], AudioChain({audioFile})));
+            AddTitleScreenAnimation(MainTitleScreenAnim(titleLines[0], AudioChain({audioFile}).WithPlayAnywhere()));
         } else if (titleLines.Length >= 2) {
-            AddTitleScreenAnimation(MainTitleScreenAnim(titleLines[0], titleLines[1], AudioChain({audioFile}), 0.0));
+            AddTitleScreenAnimation(MainTitleScreenAnim(titleLines[0], titleLines[1], AudioChain({audioFile}).WithPlayAnywhere(), 0.0));
         } else {
             throw('cant deal with more than 2 title lines');
         }
@@ -248,7 +248,7 @@ class TitleCollectionItem_Norm : TitleCollectionItem {
         if (collect) {
             CollectTitleSoon();
         }
-        AddTitleScreenAnimation(MainTitleScreenAnim(MainTitleText, title, AudioChain({MainTitlePath, audioFile})));
+        AddTitleScreenAnimation(MainTitleScreenAnim(MainTitleText, title, AudioChain({MainTitlePath, audioFile}).WithPlayAnywhere()));
     }
 
     void LogCollected() override {

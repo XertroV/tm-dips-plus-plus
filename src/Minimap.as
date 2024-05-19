@@ -46,7 +46,7 @@ namespace Minimap {
     const float stdHeightPx = 1440.0;
     const float stdWidthPx = 2560.0;
     const float stdTriLableTextOffset = 16.0;
-    bool updateMatrices = false;
+    bool updateMatrices = true;
 
     void DrawMinimapDebug() {
         CopiableLabeledValue("lastMapMwId", Text::Format("%08x", lastMapMwId));

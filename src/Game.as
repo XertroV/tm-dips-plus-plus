@@ -18,6 +18,7 @@ bool IsPauseMenuOpen(bool requireFocused = true) {
     auto app = GetApp();
     bool isUnfocused = !app.InputPort.IsFocused && S_PauseWhenGameUnfocused;
     if (requireFocused && isUnfocused) return true;
+    if (app.CurrentPlayground is null) return false;
     auto psapi = app.Network.PlaygroundClientScriptAPI;
     if (psapi is null) return false;
     return psapi.IsInGameMenuDisplayed;

@@ -251,6 +251,7 @@ namespace MainUI {
         UI::PushID(ci.name);
         UI::AlignTextToFramePadding();
         if (ci.collected) {
+            g_TitleCollectionOutsideMapCount++;
             if (UI::Button("Play")) {
                 ci.PlayItem(false);
             }
@@ -419,7 +420,7 @@ namespace MainUI {
     void DrawVoiceLinesTab() {
         DrawCenteredText("Voice Lines", f_DroidBigger, 26.);
         UI::Separator();
-        UI::BeginDisabled(!g_Active || IsVoiceLinePlaying());
+        UI::BeginDisabled(IsVoiceLinePlaying());
         for (uint i = 0; i < 18; i++) {
             if (Stats::HasPlayedVoiceLine(i)) {
                 UI::AlignTextToFramePadding();
@@ -449,8 +450,11 @@ namespace MainUI {
         if (!Stats::HasPlayedVoiceLine(floor)) return;
         auto @vlTrigger = cast<FloorVLTrigger>(voiceLineTriggers[floor]);
         if (vlTrigger is null) return;
+        vlTrigger.PlayNextAnywhere();
         startnew(CoroutineFunc(vlTrigger.PlayItem));
         AddSubtitleAnimation(vlTrigger.subtitles);
+        dev_trace('subtitle play is vae? ' + vlTrigger.subtitles.isVae);
+        g_SubtitlesOutsideMapCount++;
     }
 }
 
