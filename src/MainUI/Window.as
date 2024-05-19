@@ -353,7 +353,14 @@ namespace MainUI {
         if (lastLbUpdate + 60000 < Time::Now) {
             lastLbUpdate = Time::Now;
             PushMessage(GetMyRankMsg());
-            PushMessage(GetGlobalLBMsg(1, 501));
+            PushMessage(GetGlobalLBMsg(1, 205));
+            PushMessage(GetGlobalLBMsg(201, 405));
+            PushMessage(GetGlobalLBMsg(401, 605));
+            PushMessage(GetGlobalLBMsg(601, 805));
+            PushMessage(GetGlobalLBMsg(801, 1005));
+            PushMessage(GetGlobalLBMsg(1001, 1205));
+            PushMessage(GetGlobalLBMsg(1201, 1405));
+            PushMessage(GetGlobalLBMsg(1401, 1605));
         }
     }
 
@@ -366,7 +373,7 @@ namespace MainUI {
         auto nbCols = len > 5 ? 2 : 1;
         auto startNewAt = nbCols == 1 ? len : (len + 1) / nbCols;
         UI::Columns(nbCols);
-        auto cFlags = UI::ChildFlags::AlwaysAutoResize;
+        auto cFlags = UI::ChildFlags::None;
         auto cSize = vec2(-1, (UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.) * startNewAt);
         UI::BeginChild("lbc1", cSize, false, cFlags);
         for (uint i = 0; i < Math::Min(S_NbTopTimes, top3.Length); i++) {
@@ -403,7 +410,7 @@ namespace MainUI {
                         UI::TableNextColumn();
                         UI::Text(Text::Format("%d.", item.rank));
                         UI::TableNextColumn();
-                        UI::Text(Text::Format("%.1f m", item.height));
+                        UI::Text(Text::Format("%.04f m", item.height));
                         UI::TableNextColumn();
                         UI::Text(item.name);
                         UI::PopID();

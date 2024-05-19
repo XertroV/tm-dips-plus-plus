@@ -135,7 +135,7 @@ class BetterSocket {
                 yield();
                 yield();
                 if (Available < len) {
-                    warn("ReadMsg timed out while reading msg");
+                    warn("ReadMsg timed out while reading msg; Available: " + Available + '; len: ' + len);
                     warn("Disconnecting socket");
                     Shutdown();
                     return null;

@@ -614,13 +614,24 @@ namespace Global {
 
     LBEntry@[] globalLB = {};
     void UpdateLBFromJson(Json::Value@ j) {
-        while (globalLB.Length < j.Length) {
+        int firstRank = j[0]["rank"];
+        int lastRank = j[j.Length-1]["rank"];
+        while (globalLB.Length < lastRank) {
             globalLB.InsertLast(LBEntry());
         }
+        int rank;
+        // repurpose lastRank
+        lastRank = 0;
         for (uint i = 0; i < j.Length; i++) {
-            globalLB[i].SetFromJson(j[i]);
+            rank = int(j[i]["rank"]);
+            // equal places?
+            if (rank <= lastRank) {
+                rank = lastRank + 1;
+            }
+            globalLB[rank - 1].SetFromJson(j[i]);
             @pbCache[globalLB[i].name] = globalLB[i];
             wsidToPlayerName[globalLB[i].wsid] = globalLB[i].name;
+            lastRank = rank;
             if (i % 50 == 0) yield();
         }
         EmitUpdatedGlobalLB();
