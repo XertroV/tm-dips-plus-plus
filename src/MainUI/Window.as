@@ -366,7 +366,7 @@ namespace MainUI {
         auto nbCols = len > 5 ? 2 : 1;
         auto startNewAt = nbCols == 1 ? len : (len + 1) / nbCols;
         UI::Columns(nbCols);
-        auto cFlags = UI::WindowFlags::AlwaysAutoResize;
+        auto cFlags = UI::ChildFlags::AlwaysAutoResize;
         auto cSize = vec2(-1, (UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.) * startNewAt);
         UI::BeginChild("lbc1", cSize, false, cFlags);
         for (uint i = 0; i < Math::Min(S_NbTopTimes, top3.Length); i++) {

@@ -104,7 +104,7 @@ namespace Wizard {
         DrawCenteredText("Do you like options? Would it make you feel better to change some?", f_DroidBig, 20.);
         UI::Dummy(vec2(avail.x * 0.125, 0));
         UI::SameLine();
-        if (UI::BeginChild("##wizstep1", vec2(avail.x * .75, 0), false, UI::WindowFlags::AlwaysAutoResize)) {
+        if (UI::BeginChild("##wizstep1", vec2(avail.x * .75, 0), false, UI::ChildFlags::AlwaysAutoResize)) {
             S_EnableMainMenuPromoBg = UI::Checkbox("Enable Main Menu Surprise?", S_EnableMainMenuPromoBg);
             if (S_EnableMainMenuPromoBg) {
                 S_MenuBgTimeOfDay = ComboTimeOfDay("Main Menu Background Time of Day", S_MenuBgTimeOfDay);
