@@ -30,6 +30,10 @@ void RenderDebugWindow() {
             DrawPlayersAndVehiclesTab();
             UI::EndTabItem();
         }
+        if (UI::BeginTabItem("TimeOfDay")) {
+            // DrawTimeOfDayDebugTab();
+            UI::EndTabItem();
+        }
         if (UI::BeginTabItem("Animations")) {
             DrawAnimationsTab();
             UI::EndTabItem();
@@ -371,3 +375,19 @@ uint8 HexCharToUint8(uint8 char) {
     if (char < 0x40) return char - 0x30;
     return char - 0x61 + 10;
 }
+
+
+
+
+
+// float m_tod_azumith = Math::PI;
+// float m_tod_elevation = Math::PI;
+
+// void DrawTimeOfDayDebugTab() {
+//     vec2 pre_ae = vec2(m_tod_azumith, m_tod_elevation);
+//     m_tod_azumith = UI::SliderFloat("Azumith", pre_ae.x, 0, TAU);
+//     m_tod_elevation = UI::SliderFloat("Elevation", pre_ae.y, 0, TAU);
+//     if (m_tod_azumith != pre_ae.x || m_tod_elevation != pre_ae.y) {
+//         SetTimeOfDay::SetSunAngle(m_tod_azumith, m_tod_elevation);
+//     }
+// }

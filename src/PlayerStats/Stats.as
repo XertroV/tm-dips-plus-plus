@@ -137,6 +137,7 @@ namespace Stats {
 
         if (!F_HaveDoneEasyMapCheck) {
             S_EnableForEasyMap = pbHeight < 90.;
+            F_PlayedDD2BeforeEasyMap = !S_EnableForEasyMap;
             F_HaveDoneEasyMapCheck = true;
             MatchDD2::lastMapMwId = 0;
             Meta::SaveSettings();
