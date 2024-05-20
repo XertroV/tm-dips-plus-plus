@@ -42,7 +42,9 @@ void DrawPluginMenuInner(bool isMenuBar = false) {
     menuBarStartedDrawingExtra = false;
     menuBarHideUnlessSDE = false;
     float maxW = UI::GetWindowContentRegionWidth();
-    Visibility::DrawMenu();
+    EasyMap::DrawMenu();
+    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
+    if (_Menu_DrawNextMenu) Visibility::DrawMenu();
     if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
     if (_Menu_DrawNextMenu) Volume::DrawMenu();
     if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
@@ -136,6 +138,9 @@ namespace DebugMenu {
                 UI::EndMenu();
             }
 #if DEV
+            if (UI::MenuItem("Wizard", "", g_WizardOpen)) {
+                g_WizardOpen = !g_WizardOpen;
+            }
             if (UI::BeginMenu("Anims")) {
                 if (UI::MenuItem("Add Bleb")) {
                     EmitStatusAnimation(RainbowStaticStatusMsg("Bleb").WithDuration(4000));

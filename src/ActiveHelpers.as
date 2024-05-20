@@ -19,7 +19,9 @@ namespace MatchDD2 {
         if (map.EdChallengeId.Length == 0) return false;
         if (lastMapMwId == map.Id.Value) return lastMapMatchesDD2Uid;
         lastMapMwId = map.Id.Value;
-        isEasyDD2Map = S_ActiveForMapUids == S_DD2EasyMapUid;
+        isEasyDD2Map = S_EnableForEasyMap
+                    && (map.EdChallengeId == S_DD2EasyMapUid
+                    ||  map.EdChallengeId == DD2_EASY_MAP_UID2);
         lastMapMatchesDD2Uid = isEasyDD2Map
             || S_ActiveForMapUids == map.EdChallengeId
             ;

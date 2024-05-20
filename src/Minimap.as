@@ -78,9 +78,10 @@ namespace Minimap {
             minimapCenterPos = mmPadding * vScale;
             minimapYOffset = 0.;
             if (S_ScaleMinimapToPlayers) {
-                int drawToBottomOfFloor = Math::Clamp(int(HeightToFloor(playerMaxHeightLast)) + 2, 0, DD2_FLOOR_HEIGHTS.Length - 1);
-                auto maxH = DD2_FLOOR_HEIGHTS[drawToBottomOfFloor];
-                auto propShown = (maxH - DD2_FLOOR_HEIGHTS[0]) / DD2_FLOOR_HEIGHTS[18];
+                auto @heights = GetFloorHeights();
+                int drawToBottomOfFloor = Math::Clamp(int(HeightToFloor(playerMaxHeightLast)) + 2, 0, heights.Length - 1);
+                auto maxH = heights[drawToBottomOfFloor];
+                auto propShown = (maxH - heights[0]) / heights[heights.Length - 1];
                 minimapSize.y /= propShown;
                 minimapYOffset = minimapSize.y * (1. - propShown);
                 minimapCenterPos.y -= minimapYOffset;
@@ -629,8 +630,9 @@ namespace Minimap {
         vec2 textBounds = nvg::TextBounds("00") + vec2(textPad * 2.0, 0);
 
         vec2 pos = vec2(minimapCenterPos.x, 0);
-        for (uint i = 0; i < DD2_FLOOR_HEIGHTS.Length; i++) {
-            pos.y = HeightToMinimapY(DD2_FLOOR_HEIGHTS[i]);
+        auto @heights = GetFloorHeights();
+        for (uint i = 0; i < heights.Length; i++) {
+            pos.y = HeightToMinimapY(heights[i]);
             nvg::BeginPath();
             nvg::LineCap(nvg::LineCapType::Round);
             drawLabelBackgroundTagLinesRev(pos, floorNumberBaseHeight, stdTriHeight * .75, textBounds);
@@ -651,11 +653,13 @@ namespace Minimap {
             nvg::BeginPath();
             nvg::FillColor(cBlack);
             nvg::TextAlign(nvg::Align::Right | nvg::Align::Middle);
+            int numbersBelowEq = MatchDD2::isEasyDD2Map ? 5 : 16;
+            int finNumber = MatchDD2::isEasyDD2Map ? 6 : 18;
             nvg::Text(
-                pos - vec2(floorNumberBaseHeight * (i < 1 || i > 16 ? .8 : 1.0), floorNumberBaseHeight * -0.12),
+                pos - vec2(floorNumberBaseHeight * (i < 1 || i > numbersBelowEq ? .8 : 1.0), floorNumberBaseHeight * -0.12),
                 i == 0 ? "F.G." :
                 i == 17 ? "End" :
-                i >= 18 ? "Fin" : Text::Format("%02d", i)
+                i >= finNumber ? "Fin" : Text::Format("%02d", i)
             );
             nvg::ClosePath();
         }
@@ -766,6 +770,21 @@ const float[] DD2_FLOOR_HEIGHTS = {
     1480.0, // 14 -- 56 -> 80
     1584.0, // 15 -- 60 -> 84
     1688.0, // 16 -- 64 -> 88
-    1793.0, // 17
+    1793.0, // 17 - end
     1910.0  // fin
 };
+
+const float [] DD2_EASY_FLOOR_HEIGHTS = {
+    8.0,
+    104.0, // 01
+    208.0, // 02
+    312.0, // 03
+    416.0, // 04
+    520.0, // 05
+    624.0 // Fin
+};
+
+const float[]@ GetFloorHeights() {
+    if (MatchDD2::isEasyDD2Map) return DD2_EASY_FLOOR_HEIGHTS;
+    return DD2_FLOOR_HEIGHTS;
+}

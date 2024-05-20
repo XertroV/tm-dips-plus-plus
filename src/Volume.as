@@ -46,15 +46,24 @@ namespace Volume {
     void ToggleAudioTest() {
         if (vtAudio is null) return;
         if (vtAudio.isPlaying) {
-            vtAudio.StartFadeOutLoop();
-            if (subtitleAnims.Length > 0 && subtitleAnims[0].file == vtFile) {
-                subtitleAnims.RemoveAt(0);
-            }
+            StopAudioTest();
             return;
         }
+        PlayAudioTest();
+    }
+
+    void PlayAudioTest() {
+        ClearSubtitleAnimations();
+        VolumeOnPluginStart();
         @vtSubtitlesAnim = SubtitlesAnim(vtFile, false);
         AddSubtitleAnimation(vtSubtitlesAnim);
         vtAudio.Play();
+    }
+
+    void StopAudioTest() {
+        ClearSubtitleAnimations();
+        if (vtAudio is null) return;
+        vtAudio.StartFadeOutLoop();
     }
 
     void RenderSubtitlesVolumeIfNotActive() {

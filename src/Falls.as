@@ -25,23 +25,25 @@ enum MapFloor {
     Floor14 = 14,
     Floor15 = 15,
     Floor16 = 16,
-    Finish = 17,
+    Floor17 = 17,
+    Finish = 18,
 }
 
-string ChooseF13BounceLine() {
-    int x = Math::Rand(0, 8);
-    switch (x) {
-        case 0: return "Good Job!";
-        case 1: return "Nice Bounce!";
-        case 2: return "#NotBait";
-        case 3: return "Wicked!";
-        case 4: return "Amazing!";
-        case 5: return "You're a pro!";
-        case 6: return "You're doing great!";
-        case 7: return "Impressive!";
-        default: return "Good Job!";
-    }
-    return "Good Job!";
+const string[] F13_BOUNCE_LINES = {
+    "Good Job!",
+    "Nice Bounce!",
+    "#NotBait",
+    "#NotBait",
+    "Wicked!",
+    "Amazing!",
+    "You're a pro!",
+    "You're doing great!",
+    "Keep it up!",
+    "Impressive!"
+};
+
+const string ChooseF13BounceLine() {
+    return F13_BOUNCE_LINES[Math::Rand(0, F13_BOUNCE_LINES.Length)];
 }
 
 const float MIN_FALL_HEIGHT_FOR_STATS = 31.0;
@@ -209,19 +211,20 @@ class ClimbTracker {
 
 MapFloor HeightToFloor(float h) {
     return HeightToFloorBinarySearch(h);
-    if (h < DD2_FLOOR_HEIGHTS[1]) return MapFloor::FloorGang;
-    for (int i = 1; i < 17; i++) {
-        if (h < DD2_FLOOR_HEIGHTS[i+1]) return MapFloor(i);
-    }
-    return MapFloor::Finish;
+    // if (h < DD2_FLOOR_HEIGHTS[1]) return MapFloor::FloorGang;
+    // for (int i = 1; i < 18; i++) {
+    //     if (h < DD2_FLOOR_HEIGHTS[i+1]) return MapFloor(i);
+    // }
+    // return MapFloor::Finish;
 }
 
 MapFloor HeightToFloorBinarySearch(float h) {
+    const float[]@ heights = GetFloorHeights();
     int l = 0;
-    int r = 18;
+    int r = heights.Length - 1;
     while (l < r) {
         int m = (l + r) / 2;
-        if (h < DD2_FLOOR_HEIGHTS[m]) {
+        if (h < heights[m]) {
             r = m;
 
         } else {
@@ -233,6 +236,8 @@ MapFloor HeightToFloorBinarySearch(float h) {
 
 
 #if DEV
+
+
 void test_HeightToFloorBinSearch() {
     for (int i = 0; i < 18; i++) {
         assert_eq(HeightToFloor(DD2_FLOOR_HEIGHTS[i]), MapFloor(i), "HeightToFloorBinSearch failed at " + i + " " + DD2_FLOOR_HEIGHTS[i]);

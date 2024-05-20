@@ -48,10 +48,17 @@ FloorTitleGeneric@[] titleScreenAnimations;
 
 
 void ClearAnimations() {
-    subtitleAnims.Resize(0);
+    ClearSubtitleAnimations();
     textOverlayAnims.Resize(0);
     statusAnimations.Resize(0);
     titleScreenAnimations.Resize(0);
+}
+
+void ClearSubtitleAnimations() {
+    for (uint i = 0; i < subtitleAnims.Length; i++) {
+        subtitleAnims[i].endTime = 1;
+    }
+    subtitleAnims.RemoveRange(0, subtitleAnims.Length);
 }
 
 bool IsVoiceLinePlaying() {

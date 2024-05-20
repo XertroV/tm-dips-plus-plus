@@ -44,19 +44,16 @@ void LoadFonts() {
 DD2API@ g_api;
 bool G_Initialized = false;
 
-const string KEM_LOGIN = "oNhUUAthQx6SkVe2YK9PXw";
-
 void Main() {
     g_LocalPlayerMwId = GetLocalPlayerMwId();
-    // auto GameVer = GetApp().SystemPlatform.ExeVersion;
-    // if (GameVer > "2024-03-19_14_47" && GetLocalLogin() != KEM_LOGIN && GetLocalLogin() != XERTROV_LOGIN) {
-    //     NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
-    //     NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
-    //     NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
-    //     NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
-    //     // startnew(UnloadSelfSoon);
-    //     return;
-    // }
+    auto opVer = Meta::OpenplanetVersion();
+    trace('opVer: ' + opVer);
+    if (opVer > '1.26.19') {
+        NotifyWarning("This verison of Dips++ is not compatible with Openplanet versions newer than 1.26.19");
+        NotifyWarning("This verison of Dips++ is not compatible with Openplanet versions newer than 1.26.19");
+        NotifyWarning("This verison of Dips++ is not compatible with Openplanet versions newer than 1.26.19");
+        NotifyWarning("This verison of Dips++ is not compatible with Openplanet versions newer than 1.26.19");
+    }
     yield();
     startnew(LoadFonts);
     startnew(LoadGlobalTextures);

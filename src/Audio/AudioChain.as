@@ -158,4 +158,4 @@ class AudioChain {
     }
 }
 
-const uint VoiceFadeOutDurationMs = 500;
+const uint VoiceFadeOutDurationMs = 1000;

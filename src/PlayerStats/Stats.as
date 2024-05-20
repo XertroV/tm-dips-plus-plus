@@ -134,6 +134,13 @@ namespace Stats {
             }
             floorVoiceLinesPlayed[i] = floorVoiceLinesPlayed[i] || bool(jFVL[i]);
         }
+
+        if (!F_HaveDoneEasyMapCheck) {
+            S_EnableForEasyMap = pbHeight < 90.;
+            F_HaveDoneEasyMapCheck = true;
+            MatchDD2::lastMapMwId = 0;
+            Meta::SaveSettings();
+        }
     }
 
     void LoadStatsFromJson(Json::Value@ j) {
