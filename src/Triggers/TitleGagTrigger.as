@@ -40,5 +40,6 @@ namespace TitleGag {
 
 bool NewTitleGagOkay() {
     return TitleGag::IsReady()
-        && !S_HideMovieTitles;
+        && !S_HideMovieTitles
+        && (!Spectate::IsSpectatorOrMagicSpectator || S_TitleGagsInSpec);
 }
