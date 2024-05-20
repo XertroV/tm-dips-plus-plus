@@ -108,7 +108,7 @@ class SubtitlesAnim : Animation {
             //     warn("[subtitles] Large delta: " + delta);
             // }
         }
-        if (!IsPauseMenuOpen()) {
+        if (!IsPauseMenuOpen(S_PauseWhenGameUnfocused)) {
             progressMs += delta;
             UpdateInner();
         }
@@ -379,7 +379,7 @@ class DeepDip2LogoAnim : Animation {
         } else {
             delta = time - lastUpdate;
         }
-        if (!IsPauseMenuOpen()) {
+        if (!IsPauseMenuOpen(S_PauseWhenGameUnfocused)) {
             progressMs += delta;
             UpdateInner();
         }

@@ -94,9 +94,9 @@ class AudioChain {
         trace("Starting audio " + this.samplesStr);
         bool done = false;
         while (true) {
-            if (IsPauseMenuOpen() && voice !is null) {
+            if (IsPauseMenuOpen(S_PauseWhenGameUnfocused) && voice !is null) {
                 voice.Pause();
-                while (IsPauseMenuOpen()) yield();
+                while (IsPauseMenuOpen(S_PauseWhenGameUnfocused)) yield();
                 if (voice !is null) voice.Play();
             }
             if (voice is null && startFadeOut == 0) {

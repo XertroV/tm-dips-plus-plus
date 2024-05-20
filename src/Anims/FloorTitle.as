@@ -77,7 +77,7 @@ class FloorTitleGeneric : Animation {
 
 	bool Update() override {
         // frame 1 glitch?
-        if (IsPauseMenuOpen()) return true;
+        if (IsPauseMenuOpen(S_PauseWhenGameUnfocused)) return true;
         currTime += g_DT * 0.001;
         for (uint i = stage; i < keyframes.Length; i++) {
             if (currTime >= keyframes[i]) {

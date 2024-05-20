@@ -49,7 +49,7 @@ class ProgressAnim : Animation {
         } else {
             delta = time - lastUpdate;
         }
-        if (!pauseWhenMenuOpen || !IsPauseMenuOpen()) {
+        if (!pauseWhenMenuOpen || !IsPauseMenuOpen(S_PauseWhenGameUnfocused)) {
             progressMs += delta;
             t = Math::Clamp(float(progressMs - startTime) / float(endTime - startTime), 0., 1.);
             gAlpha = progressMs < fadeIn

@@ -16,7 +16,7 @@ uint GetCurrentCPRulesTime() {
 
 bool IsPauseMenuOpen(bool requireFocused = true) {
     auto app = GetApp();
-    bool isUnfocused = !app.InputPort.IsFocused && S_PauseWhenGameUnfocused;
+    bool isUnfocused = !app.InputPort.IsFocused;
     if (requireFocused && isUnfocused) return true;
     if (app.CurrentPlayground is null) return false;
     auto psapi = app.Network.PlaygroundClientScriptAPI;
