@@ -153,9 +153,10 @@ namespace Stats {
         nbFloorsFallen = j["nb_floors_fallen"];
         lastPbSetTs = j["last_pb_set_ts"];
         totalDistFallen = j["total_dist_fallen"];
-        // don't restore pb height
-        // pbHeight = j["pb_height"];
-        // pbFloor = MapFloor(int(j["pb_floor"]));
+        // don't restore pb height unless easy map enabled
+        if (S_EnableForEasyMap) {
+            pbHeight = j["pb_height"];
+        }
         pbFloor = HeightToFloor(pbHeight);
         nbResets = j["nb_resets"];
         ggsTriggered = j["ggs_triggered"];
