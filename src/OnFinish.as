@@ -32,7 +32,6 @@ namespace OnFinish {
     }
 
     void StartCelebrationAnim() {
-        EmitStatusAnimation(FinCelebrationAnim());
         EmitStatusAnimation(RainbowStaticStatusMsg(ChooseEzFinLine()).WithDuration(7000).WithSize(140.).WithScreenUv(vec2(.5, .25)));
         EmitStatusAnimation(RainbowStaticStatusMsg(ChooseEzFinLine()).WithDuration(10000).WithSize(140.).WithScreenUv(vec2(.5, .60)));
     }
@@ -66,10 +65,11 @@ namespace OnFinish {
         auto pos = (int2(g_screen.x / ui_scale, g_screen.y / ui_scale) - windowSize) / 2;
         UI::SetNextWindowPos(pos.x, pos.y, UI::Cond::Always);
         if (UI::Begin("dpp ez fin epilogue", flags)) {
-            UI::Dummy(vec2(0, 75));
+            UI::Dummy(vec2(0, 90));
             DrawCenteredText("Congratulations!", f_DroidBigger, 26);
             if (DrawCenteredButton("Play Epilogue", f_DroidBigger, 26)) {
                 startnew(PlayEzEpilogue);
+                EmitStatusAnimation(FinCelebrationAnim());
                 g_ShowEzFinishEpilogueScreen = false;
             }
         }
@@ -81,16 +81,59 @@ namespace OnFinish {
     }
 
     class FinCelebrationAnim : ProgressAnim {
+        uint startMoveAt = 6500;
+        uint endMoveAt = 17000;
+        vec2 startAE = vec2(5.467, 1.959);
+        vec2 midAE = vec2(4.645, 2.370);
+        vec2 midAE2 = vec2(4.041, 2.697);
+        vec2 endAE = vec2(3.766, 3.113);
+        iso4 origIso4;
         FinCelebrationAnim() {
-            super("fin celebration", nat2(0, 10000));
-            fadeIn = 1000;
+            super("fin celebration", nat2(0, 155000));
+            fadeIn = 500;
             fadeOut = 500;
             pauseWhenMenuOpen = false;
+            origIso4 = SetTimeOfDay::GetSunIso4();
+        }
+
+        ~FinCelebrationAnim() {
+            if (origIso4.yy < 1.0 || origIso4.xx < 1.0 || origIso4.zz < 1.0) {
+                SetTimeOfDay::SetSunIso4(origIso4);
+            }
         }
 
         vec2 Draw() override {
-
+            if (progressMs > startMoveAt) {
+                float t = Math::Clamp(float(progressMs - startMoveAt) / float(endMoveAt - startMoveAt), 0.0, 1.0);
+                if (t < 1.0) {
+                    SetTimeOfDay::SetSunAngle(GetAzEl(t));
+                }
+            }
             return vec2();
+        }
+
+        vec2 GetAzEl(float t) {
+            if (t < 0.43668) {
+                return Math::Lerp(startAE, midAE, t / 0.43668);
+            } else if (t < 0.763046) {
+                return Math::Lerp(midAE, midAE2, (t - 0.43668) / (0.763046 - 0.43668));
+            } else {
+                return Math::Lerp(midAE2, endAE, (t - 0.763046) / (1.0 - 0.763046));
+            }
+            return endAE;
         }
     }
 }
+
+// Meta::PluginCoroutine@ eh = startnew(function() {
+//     vec2 startAE = vec2(5.467, 1.959);
+//     vec2 midAE = vec2(4.645, 2.370);
+//     vec2 midAE2 = vec2(4.041, 2.697);
+//     vec2 endAE = vec2(3.766, 3.113);
+//     print("l1: " + (startAE - midAE).Length());
+//     print("l2: " + (midAE - midAE2).Length());
+//     print("l3: " + (midAE2 - endAE).Length());
+//     // 0.919024
+//     // 0.686837
+//     // 0.498679
+// });

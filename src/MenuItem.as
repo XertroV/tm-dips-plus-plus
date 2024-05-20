@@ -149,6 +149,9 @@ namespace DebugMenu {
             //     if (map !is null) DD2_EASY_MAP_UID2 = map.EdChallengeId;
             //     MatchDD2::lastMapMwId = 0;
             // }
+            if (UI::MenuItem("Play Ez Finish")) {
+                OnLocalPlayerFinished(null);
+            }
             if (UI::BeginMenu("Anims")) {
                 if (UI::MenuItem("Add Bleb")) {
                     EmitStatusAnimation(RainbowStaticStatusMsg("Bleb").WithDuration(4000));
