@@ -81,12 +81,14 @@ namespace OnFinish {
     }
 
     class FinCelebrationAnim : ProgressAnim {
-        uint startMoveAt = 6500;
-        uint endMoveAt = 17000;
+        // uint startMoveAt = 6500;
+        // uint endMoveAt = 17000;
+        uint startMoveAt = 3000;
+        uint endMoveAt = 25000;
         vec2 startAE = vec2(5.467, 1.959);
         vec2 midAE = vec2(4.645, 2.370);
         vec2 midAE2 = vec2(4.041, 2.697);
-        vec2 endAE = vec2(3.766, 3.113);
+        vec2 endAE = vec2(3.566, 3.113);
         iso4 origIso4;
         FinCelebrationAnim() {
             super("fin celebration", nat2(0, 155000));
@@ -104,8 +106,8 @@ namespace OnFinish {
 
         vec2 Draw() override {
             if (progressMs > startMoveAt) {
-                float t = Math::Clamp(float(progressMs - startMoveAt) / float(endMoveAt - startMoveAt), 0.0, 1.0);
-                if (t < 1.0) {
+                float t = Math::Clamp(float(progressMs - startMoveAt) / float(endMoveAt - startMoveAt), 0.0, 1.5);
+                if (t < 1.5) {
                     SetTimeOfDay::SetSunAngle(GetAzEl(t));
                 }
             }
@@ -115,11 +117,14 @@ namespace OnFinish {
         vec2 GetAzEl(float t) {
             if (t < 0.43668) {
                 return Math::Lerp(startAE, midAE, t / 0.43668);
-            } else if (t < 0.763046) {
-                return Math::Lerp(midAE, midAE2, (t - 0.43668) / (0.763046 - 0.43668));
             } else {
-                return Math::Lerp(midAE2, endAE, (t - 0.763046) / (1.0 - 0.763046));
+                return Math::Lerp(midAE, midAE2, (t - 0.43668) / (0.763046 - 0.43668));
             }
+            // } else if (t < 0.763046) {
+            //     return Math::Lerp(midAE, midAE2, (t - 0.43668) / (0.763046 - 0.43668));
+            // } else {
+            //     return Math::Lerp(midAE2, endAE, (t - 0.763046) / (1.0 - 0.763046));
+            // }
             return endAE;
         }
     }

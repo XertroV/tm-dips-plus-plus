@@ -3,6 +3,7 @@
 // Does affect some shadows, but not substantially
 // Mostly just moves the sun.
 // The lightmap/mood still plays the dominant role in lighting.
+// resets when leaving map
 namespace SetTimeOfDay {
     uint16 O_CHMSLIGHT_LOCATION2 = 0;
     void SetSunAngle(vec2 AzumithElevation) {
