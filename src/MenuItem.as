@@ -141,6 +141,14 @@ namespace DebugMenu {
             if (UI::MenuItem("Wizard", "", g_WizardOpen)) {
                 g_WizardOpen = !g_WizardOpen;
             }
+            if (UI::MenuItem("Disable UI In Editor", "", S_DisableUiInEditor)) {
+                S_DisableUiInEditor = !S_DisableUiInEditor;
+            }
+            // if (UI::Button("Set current map uid to ez map testing")) {
+            //     auto map = GetApp().RootMap;
+            //     if (map !is null) DD2_EASY_MAP_UID2 = map.EdChallengeId;
+            //     MatchDD2::lastMapMwId = 0;
+            // }
             if (UI::BeginMenu("Anims")) {
                 if (UI::MenuItem("Add Bleb")) {
                     EmitStatusAnimation(RainbowStaticStatusMsg("Bleb").WithDuration(4000));

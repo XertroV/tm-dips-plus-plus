@@ -137,6 +137,7 @@ namespace Stats {
 
         if (!F_HaveDoneEasyMapCheck) {
             S_EnableForEasyMap = pbHeight < 90.;
+            S_EnableSavingStatsOnEasyMap = S_EnableForEasyMap;
             F_PlayedDD2BeforeEasyMap = !S_EnableForEasyMap;
             F_HaveDoneEasyMapCheck = true;
             MatchDD2::lastMapMwId = 0;
@@ -263,6 +264,11 @@ namespace Stats {
 
     void LogDebugTrigger() {
         IncrJsonIntCounter(extra, "debugTs");
+        UpdateStatsSoon();
+    }
+
+    void LogEasyVlPlayed(const string &in name) {
+        IncrJsonIntCounter(extra, name);
         UpdateStatsSoon();
     }
 

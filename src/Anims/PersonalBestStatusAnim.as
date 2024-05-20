@@ -28,7 +28,7 @@ class ProgressAnim : Animation {
         super(name);
         startTime = startEndMsTimes.x;
         endTime = startEndMsTimes.y;
-        duration = endTime - startTime;
+        duration = endTime;
     }
 
     string ToString(int i) override {
@@ -99,6 +99,14 @@ class PersonalBestStatusAnim : ProgressAnim {
         return Text::Format("NEW PB %.0f m", Stats::GetPBHeight());
     }
 
+    float fontSize = -1.;
+    // apply vScale after
+    float GetFontSize() {
+        return (fontSize < 0) ? S_PBAlertFontSize : fontSize;
+    }
+
+    vec2 screenUv = vec2(0.5, 0.1);
+
     vec2 Draw() override {
         nvg::Reset();
         nvg::GlobalAlpha(gAlpha);
@@ -120,10 +128,10 @@ class PersonalBestStatusAnim : ProgressAnim {
 
         pbText = GetPbText();
         nbChars = pbText.Length;
-        textSize.y = S_PBAlertFontSize * Minimap::vScale;
+        textSize.y = GetFontSize() * Minimap::vScale;
         charWidth = textSize.y * .8;
         textSize.x = charWidth * nbChars;
-        pos = vec2(0.5, 0.1) * g_screen;
+        pos = screenUv * g_screen;
         tl = pos - textSize / 2.;
         fullRect = vec4(tl, textSize);
         float heightOffsetMag = textSize.y / 3.;
@@ -171,8 +179,26 @@ class RainbowStaticStatusMsg : PersonalBestStatusAnim {
         return staticMsg;
     }
 
+    RainbowStaticStatusMsg@ WithDelay(uint delay) {
+        startTime += delay;
+        endTime += delay;
+        duration += delay;
+        return this;
+    }
+
     RainbowStaticStatusMsg@ WithDuration(uint duration) {
         this.duration = duration;
+        endTime = duration;
+        return this;
+    }
+
+    RainbowStaticStatusMsg@ WithSize(float fontSize) {
+        this.fontSize = fontSize;
+        return this;
+    }
+
+    RainbowStaticStatusMsg@ WithScreenUv(vec2 screenUv) {
+        this.screenUv = screenUv;
         return this;
     }
 }

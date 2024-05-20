@@ -282,6 +282,9 @@ class DD2API {
     }
 
     void PersistCachedStats() {
+        if (!S_EnableSavingStatsOnEasyMap && MatchDD2::isEasyDD2Map) {
+            return;
+        }
         if (IO::FileExists(STATS_FILE)) {
             IO::Move(STATS_FILE, STATS_FILE + ".bak");
         }

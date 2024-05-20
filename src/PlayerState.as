@@ -437,6 +437,25 @@ class PlayerState {
             || updatedThisFrame & UpdatedFlags::Position == 0;
     }
 
+    bool isFinished = false;
+    bool wasFinished = false;
+    bool finishedThisFrame = false;
+    void UpdateFinishCheck(CGamePlaygroundUIConfig::EUISequence seq) {
+        if (!isLocal) return;
+        if (seq == CGamePlaygroundUIConfig::EUISequence::Finish) {
+            isFinished = true;
+            finishedThisFrame = !wasFinished;
+            wasFinished = true;
+        } else {
+            isFinished = false;
+            finishedThisFrame = false;
+            wasFinished = false;
+        }
+        if (finishedThisFrame) {
+            OnLocalPlayerFinished(this);
+        }
+    }
+
     void DrawDebugTree_Player(uint i) {
         UI::PushFont(f_MonoSpace);
         UI::PushID(i);

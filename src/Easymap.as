@@ -8,8 +8,11 @@ bool F_HaveDoneEasyMapCheck = false;
 [Setting hidden]
 bool F_PlayedDD2BeforeEasyMap = false;
 
+[Setting hidden]
+bool S_EnableSavingStatsOnEasyMap = true;
+
 // before post processing
-const string DD2_EASY_MAP_UID2 = "NKvTW5AJPyoibZmpNhuEqkLpCB9";
+string DD2_EASY_MAP_UID2 = "NKvTW5AJPyoibZmpNhuEqkLpCB9";
 
 namespace EasyMap {
     void DrawMenu() {
@@ -19,8 +22,12 @@ namespace EasyMap {
             if (S_EnableForEasyMap != pre) {
                 MatchDD2::lastMapMwId = 0;
             }
+            S_EnableSavingStatsOnEasyMap = UI::Checkbox("Enable saving stats on Easy Map", S_EnableSavingStatsOnEasyMap);
             if (F_PlayedDD2BeforeEasyMap) {
-                UI::TextWrapped("\\$f80Warning\\$z, if you enable this, your stats will count both the normal DD2 map and the [E] version. Recommendation: do \\$f80NOT\\$z climb the [E] tower with this enabled. (Respawning and spectating or whatever is okay.)");
+                if (UI::BeginChild("ezmwarn", vec2(300., 0))) {
+                    UI::TextWrapped("\\$f80Warning\\$z, if you enable the easy map, your stats will count both the normal DD2 map and the [E] version unless you disable saving stats. Recommendation: do \\$f80NOT\\$z climb the [E] tower with these options enabled. (Respawning and spectating or whatever is okay.)");
+                }
+                UI::EndChild();
             }
             UI::EndMenu();
         }

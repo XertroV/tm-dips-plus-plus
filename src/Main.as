@@ -181,6 +181,7 @@ void Render() {
         MainUI::Render();
     }
     if (g_Active) {
+        OnFinish::RenderEzEpilogue();
         GreenTimer::Render(drawAnywhereGame);
         HUD::Render(PS::viewedPlayer, drawAnywhereGame);
         RenderAnimations(drawAnywhereGame);
@@ -200,6 +201,13 @@ void Render() {
     RenderDebugWindow();
 }
 
+#if DEV
+[Setting hidden]
+bool S_DisableUiInEditor = true;
+#else
+const bool S_DisableUiInEditor = true;
+#endif
+
 bool RenderEarlyInner() {
     if (!G_Initialized) return false;
     bool wasActive = g_Active;
@@ -211,7 +219,11 @@ bool RenderEarlyInner() {
     if (app.CurrentPlayground.GameTerminals.Length == 0) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals[0].ControlledPlayer is null) return Inactive(wasActive);
     if (app.CurrentPlayground.UIConfigs.Length == 0) return Inactive(wasActive);
+#if DEV
+    if (app.Editor !is null && S_DisableUiInEditor) return Inactive(wasActive);
+#else
     if (app.Editor !is null) return Inactive(wasActive);
+#endif
     // if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
     // ! uncomment this to enable map UID check
     if (!MatchDD2::MapMatchesDD2Uid(app.RootMap)) return Inactive(wasActive);
@@ -219,6 +231,9 @@ bool RenderEarlyInner() {
     g_Active = true;
     PS::UpdatePlayers();
     BlockCam7Drivable::Update();
+    if (PS::localPlayer !is null) {
+        PS::localPlayer.UpdateFinishCheck(app.CurrentPlayground.UIConfigs[0].UISequence);
+    }
     return true;
 }
 
