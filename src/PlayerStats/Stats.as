@@ -15,8 +15,8 @@ namespace Stats {
     uint nbJumps = 0;
     uint nbFalls = 0;
     uint nbFloorsFallen = 0;
-    bool[] floorVoiceLinesPlayed = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
-    uint[] reachedFloorCount = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    bool[] floorVoiceLinesPlayed = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+    uint[] reachedFloorCount = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     uint nbResets = 0;
     float pbHeight;
     MapFloor pbFloor = MapFloor::FloorGang;
@@ -24,7 +24,7 @@ namespace Stats {
     uint lastPbSet = 0;
     uint lastPbSetTs = 0;
     float totalDistFallen;
-    uint[] monumentTriggers = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    uint[] monumentTriggers = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     uint ggsTriggered = 0;
     uint titleGagsTriggered = 0;
     uint titleGagsSpecialTriggered = 0;
@@ -184,8 +184,9 @@ namespace Stats {
     LBEntry@[] globalLB;
 
     void LogTimeInMapMs(uint deltaMs) {
-        msSpentInMap += deltaMs;
         lastLoadedDeepDip2Ts = Time::Now;
+        if (S_PauseTimerWhenWindowUnfocused && IsPauseMenuOpen(true)) return;
+        msSpentInMap += deltaMs;
         UpdateStatsSoon();
     }
 

@@ -80,7 +80,7 @@ namespace Minimap {
             if (S_ScaleMinimapToPlayers) {
                 int drawToBottomOfFloor = Math::Clamp(int(HeightToFloor(playerMaxHeightLast)) + 2, 0, DD2_FLOOR_HEIGHTS.Length - 1);
                 auto maxH = DD2_FLOOR_HEIGHTS[drawToBottomOfFloor];
-                auto propShown = (maxH - DD2_FLOOR_HEIGHTS[0]) / DD2_FLOOR_HEIGHTS[17.];
+                auto propShown = (maxH - DD2_FLOOR_HEIGHTS[0]) / DD2_FLOOR_HEIGHTS[18];
                 minimapSize.y /= propShown;
                 minimapYOffset = minimapSize.y * (1. - propShown);
                 minimapCenterPos.y -= minimapYOffset;
@@ -654,7 +654,8 @@ namespace Minimap {
             nvg::Text(
                 pos - vec2(floorNumberBaseHeight * (i < 1 || i > 16 ? .8 : 1.0), floorNumberBaseHeight * -0.12),
                 i == 0 ? "F.G." :
-                i >= 17 ? "Fin" : Text::Format("%02d", i)
+                i == 17 ? "End" :
+                i >= 18 ? "Fin" : Text::Format("%02d", i)
             );
             nvg::ClosePath();
         }
@@ -729,6 +730,23 @@ uint GetMapMwIdVal(CGameCtnChallenge@ map) {
     return map.Id.Value;
 }
 
+// Cold Beginning - f1
+// xddlent
+// Summer Slide
+// You're Skewed
+// Thawing Temple - f5
+// The Knot
+// The Sponge
+// Koopa Troopa
+// Strawberry Cheesecake
+// Ice Gold - f10
+// Missing Pieces
+// Paarse Ramp
+// Iolites Trace
+// Spider Sense
+// Scared Of Dragons?
+// On the Edge - f16
+// The End (1793m)
 
 const float[] DD2_FLOOR_HEIGHTS = {
     8.0,
