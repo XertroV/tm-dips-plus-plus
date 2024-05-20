@@ -12,7 +12,7 @@ bool F_PlayedDD2BeforeEasyMap = false;
 bool S_EnableSavingStatsOnEasyMap = true;
 
 // before post processing
-string DD2_EASY_MAP_UID2 = "NKvTW5AJPyoibZmpNhuEqkLpCB9";
+const string DD2_EASY_MAP_UID2 = "NKvTW5AJPyoibZmpNhuEqkLpCB9";
 
 namespace EasyMap {
     void DrawMenu() {
