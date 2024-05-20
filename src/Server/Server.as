@@ -443,15 +443,11 @@ class DD2API {
         //     warn("Message type " + msg.msgType + " does not have a key for its type. Message: " + msg.msgData);
         //     return;
         // }
-        Json::Value@ j;
         try {
             msgHandlers[msg.msgType](msg.msgJson);
         } catch {
             print("msg: " + Json::Write(msg.msgJson));
             warn("Failed to handle message type: " + MessageResponseTypes(msg.msgType) + ". " + getExceptionInfo());
-// #if DEV
-//             msgHandlers[msg.msgType](msg.msgJson);
-// #endif
         }
     }
 
@@ -616,7 +612,8 @@ namespace Global {
     void UpdateLBFromJson(Json::Value@ j) {
         int firstRank = j[0]["rank"];
         int lastRank = j[j.Length-1]["rank"];
-        while (globalLB.Length < lastRank) {
+        lastRank = Math::Max(j.Length, lastRank);
+        while (globalLB.Length <= lastRank) {
             globalLB.InsertLast(LBEntry());
         }
         int rank;
