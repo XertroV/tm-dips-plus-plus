@@ -75,7 +75,10 @@ namespace GreenTimer {
         }
         nvg::TextAlign(nvg::Align::Top | nvg::Align::Left);
 
-        vec4 col = (S_PauseTimerWhenWindowUnfocused && IsPauseMenuOpen(true)) ? cGray : S_GreenTimerColor;
+        bool paused = (S_PauseTimerWhileSpectating && Spectate::IsSpectatorOrMagicSpectator)
+                || S_PauseTimerWhenWindowUnfocused && IsPauseMenuOpen(true)
+                ;
+        vec4 col = paused ? cGray : S_GreenTimerColor;
 
         // DrawTextWithShadow(textTL, label, col);
         // return;
@@ -106,7 +109,8 @@ namespace GreenTimer {
             // UI::Text("wmd:" + wirtModeDone);
 #endif
             S_ShowGreenTimer = UI::Checkbox("Green Timer", S_ShowGreenTimer);
-            S_PauseTimerWhenWindowUnfocused = UI::Checkbox("Pause when paused or game unfocused", S_PauseTimerWhenWindowUnfocused);
+            S_PauseTimerWhenWindowUnfocused = UI::Checkbox("Pause when game paused or unfocused", S_PauseTimerWhenWindowUnfocused);
+            S_PauseTimerWhileSpectating = UI::Checkbox("Pause when spectating", S_PauseTimerWhileSpectating);
             S_GreenTimerFontSize = UI::SliderFloat("Font Size", S_GreenTimerFontSize, 10, 200);
             S_GreenTimerPos = UI::InputFloat2("Pos (0-1)", S_GreenTimerPos);
             S_GreenTimerAlign = InputAlign("Align", S_GreenTimerAlign);

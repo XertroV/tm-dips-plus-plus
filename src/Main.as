@@ -155,6 +155,7 @@ void RenderEarly() {
     if (g_Active || Minimap::updateMatrices) {
         Minimap::RenderEarly();
     }
+    // when focusing ImgUI elements
     if (int(GetApp().InputPort.MouseVisibility) == 2) {
         g_MousePos = vec2(-1000);
     }

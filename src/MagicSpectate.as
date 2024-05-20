@@ -4,6 +4,9 @@ bool S_ClickMinimapToMagicSpectate = true;
 [Setting hidden]
 bool S_DrawInputsWhileMagicSpec = true;
 
+[Setting hidden]
+bool S_PauseTimerWhileSpectating = true;
+
 #if DEPENDENCY_MLHOOK
 const bool MAGIC_SPEC_ENABLED = true;
 
@@ -306,6 +309,10 @@ namespace Spectate {
 
     bool get_IsSpectator() {
         return GetApp().Network.Spectator;
+    }
+
+    bool get_IsSpectatorOrMagicSpectator() {
+        return MagicSpectate::IsActive() || IsSpectator;
     }
 }
 

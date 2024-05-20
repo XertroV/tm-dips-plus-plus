@@ -186,6 +186,7 @@ namespace Stats {
     void LogTimeInMapMs(uint deltaMs) {
         lastLoadedDeepDip2Ts = Time::Now;
         if (S_PauseTimerWhenWindowUnfocused && IsPauseMenuOpen(true)) return;
+        if (S_PauseTimerWhileSpectating && Spectate::IsSpectatorOrMagicSpectator) return;
         msSpentInMap += deltaMs;
         UpdateStatsSoon();
     }

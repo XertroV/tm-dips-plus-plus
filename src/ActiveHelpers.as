@@ -18,3 +18,5 @@ bool MapMatchesDD2Uid(CGameCtnChallenge@ map) {
 
 // [Setting hidden]
 const string S_ActiveForMapUids = DD2_MAP_UID;
+
+const string S_DD2EasyMapUid = "DeepDip2_SummerBreeze";
