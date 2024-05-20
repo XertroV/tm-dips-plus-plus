@@ -373,7 +373,7 @@ class DD2API {
                 bi = app.RootMap is null ? nat2() : nat2(app.RootMap.Blocks.Length, app.RootMap.AnchoredObjects.Length);
                 lastu64 = nextu64;
                 lastMI = nextMI;
-                currentMapRelevant = MapMatchesDD2Uid(app.RootMap)
+                currentMapRelevant = app.RootMap !is null && app.RootMap.Id.GetName() == DD2_MAP_UID
                     || (Math::Abs(20522 - int(bi.x)) < 500 && Math::Abs(38369 - int(bi.y)) < 500);
                 if (IsBadNonce(nonce)) break;
                 OutgoingMsg@ ctx;

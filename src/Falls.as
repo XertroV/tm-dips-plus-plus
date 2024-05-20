@@ -28,6 +28,22 @@ enum MapFloor {
     Finish = 17,
 }
 
+string ChooseF13BounceLine() {
+    int x = Math::Rand(0, 8);
+    switch (x) {
+        case 0: return "Good Job!";
+        case 1: return "Nice Bounce!";
+        case 2: return "#NotBait";
+        case 3: return "Wicked!";
+        case 4: return "Amazing!";
+        case 5: return "You're a pro!";
+        case 6: return "You're doing great!";
+        case 7: return "Impressive!";
+        default: return "Good Job!";
+    }
+    return "Good Job!";
+}
+
 const float MIN_FALL_HEIGHT_FOR_STATS = 31.0;
 
 class FallTracker {
@@ -141,8 +157,8 @@ class FallTracker {
         if (f13DropStartCheck && !f13DropEndCheck) {
             f13DropEndCheck = f13_dropEnd.PointInside(player.pos);
             if (f13DropEndCheck) {
-                Dev_Notify("F13 drop end check passed");
-                EmitStatusAnimation(RainbowStaticStatusMsg("Good Job!"));
+                // Dev_Notify("F13 drop end check passed");
+                EmitStatusAnimation(RainbowStaticStatusMsg(ChooseF13BounceLine()));
             }
         }
     }

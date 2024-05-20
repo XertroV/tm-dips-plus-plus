@@ -217,7 +217,7 @@ bool RenderEarlyInner() {
     if (app.Editor !is null) return Inactive(wasActive);
     // if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
     // ! uncomment this to enable map UID check
-    if (!MapMatchesDD2Uid(app.RootMap)) return Inactive(wasActive);
+    if (!MatchDD2::MapMatchesDD2Uid(app.RootMap)) return Inactive(wasActive);
     if (!wasActive) EmitGoingActive(true);
     g_Active = true;
     PS::UpdatePlayers();

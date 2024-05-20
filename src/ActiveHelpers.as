@@ -9,14 +9,26 @@ Thank you.
 */
 // Helpers for whether we're active or not
 
-bool MapMatchesDD2Uid(CGameCtnChallenge@ map) {
-    if (map is null) return false;
-    if (map.EdChallengeId.Length == 0) return false;
-    if (S_ActiveForMapUids != "*" && !S_ActiveForMapUids.Contains(map.EdChallengeId)) return false;
-    return true;
+namespace MatchDD2 {
+    uint lastMapMwId = 0;
+    bool lastMapMatchesDD2Uid = false;
+    bool isEasyDD2Map = false;
+
+    bool MapMatchesDD2Uid(CGameCtnChallenge@ map) {
+        if (map is null) return false;
+        if (map.EdChallengeId.Length == 0) return false;
+        if (lastMapMwId == map.Id.Value) return lastMapMatchesDD2Uid;
+        lastMapMwId = map.Id.Value;
+        isEasyDD2Map = S_ActiveForMapUids == S_DD2EasyMapUid;
+        lastMapMatchesDD2Uid = isEasyDD2Map
+            || S_ActiveForMapUids == map.EdChallengeId
+            ;
+        return lastMapMatchesDD2Uid;
+            // || S_ActiveForMapUids == "*"
+    }
 }
 
 // [Setting hidden]
 const string S_ActiveForMapUids = DD2_MAP_UID;
 
-const string S_DD2EasyMapUid = "DeepDip2_SummerBreeze";
+const string S_DD2EasyMapUid = "DeepDip2__The_Gentle_Breeze";
