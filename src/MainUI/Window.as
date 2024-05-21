@@ -368,7 +368,7 @@ namespace MainUI {
         UI::Columns(nbCols);
         auto cSize = vec2(-1, (UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.) * startNewAt);
         UI::BeginChild("lbc1", cSize);
-        for (uint i = 0; i < Math::Min(S_NbTopTimes, top3.Length); i++) {
+        for (uint i = 0; i < len; i++) {
             if (i == startNewAt) {
                 UI::EndChild();
                 UI::NextColumn();

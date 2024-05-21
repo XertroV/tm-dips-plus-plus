@@ -34,12 +34,15 @@ const string[] F13_BOUNCE_LINES = {
     "Nice Bounce!",
     "#NotBait",
     "#NotBait",
+    "#NotBait",
     "Wicked!",
     "Amazing!",
     "You're a pro!",
     "You're doing great!",
     "Keep it up!",
-    "Impressive!"
+    "Impressive!",
+    "Exciting Maneuver!"
+    "plaxxdd"
 };
 
 const string ChooseF13BounceLine() {

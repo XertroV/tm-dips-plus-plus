@@ -26,6 +26,8 @@ namespace OnFinish {
         if (isFinishSeqRunning) {
             return;
         }
+        // keep this to true means it won't reply. that's sorta a bug, but it's excessive to play it more than once.
+        // set it false when skipping epilogue in case you miss it or something.
         isFinishSeqRunning = true;
         StartCelebrationAnim();
         WaitForRespawn();
@@ -71,6 +73,10 @@ namespace OnFinish {
                 startnew(PlayEzEpilogue);
                 EmitStatusAnimation(FinCelebrationAnim());
                 g_ShowEzFinishEpilogueScreen = false;
+            }
+            if (GetApp().RootMap is null && DrawCenteredButton("Skip Epilogue", f_DroidBig, 20.)) {
+                g_ShowEzFinishEpilogueScreen = false;
+                isFinishSeqRunning = false;
             }
         }
         UI::End();
