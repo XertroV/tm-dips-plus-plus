@@ -228,7 +228,9 @@ class PlayerState {
 
     void UpdatePlayerFromRawValues(const vec3 &in vel, const vec3 &in pos, const quat &in rot, bool anyWheelFlying, bool allWheelsFlying, uint newDiscontCount, bool newFrozen) {
         if (Math::IsNaN(pos.y) || Math::IsInf(pos.y) || Math::Abs(pos.y) > 3000.0 || Math::Abs(pos.x) < 1. || Math::Abs(pos.z) < 1.) {
+#if DEV
             dev_trace("Player " + playerName + " has NaN/Inf/oob pos: " + pos.ToString());
+#endif
             return;
         }
         if (discontinuityCount == newDiscontCount) {
@@ -433,6 +435,25 @@ class PlayerState {
     bool IsIdleOrNotUpdated() {
         return isIdle || updatedThisFrame == UpdatedFlags::None
             || updatedThisFrame & UpdatedFlags::Position == 0;
+    }
+
+    bool isFinished = false;
+    bool wasFinished = false;
+    bool finishedThisFrame = false;
+    void UpdateFinishCheck(CGamePlaygroundUIConfig::EUISequence seq) {
+        if (!isLocal) return;
+        if (seq == CGamePlaygroundUIConfig::EUISequence::Finish) {
+            isFinished = true;
+            finishedThisFrame = !wasFinished;
+            wasFinished = true;
+        } else {
+            isFinished = false;
+            finishedThisFrame = false;
+            wasFinished = false;
+        }
+        if (finishedThisFrame) {
+            OnLocalPlayerFinished(this);
+        }
     }
 
     void DrawDebugTree_Player(uint i) {

@@ -15,8 +15,8 @@ namespace Stats {
     uint nbJumps = 0;
     uint nbFalls = 0;
     uint nbFloorsFallen = 0;
-    bool[] floorVoiceLinesPlayed = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
-    uint[] reachedFloorCount = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    bool[] floorVoiceLinesPlayed = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+    uint[] reachedFloorCount = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     uint nbResets = 0;
     float pbHeight;
     MapFloor pbFloor = MapFloor::FloorGang;
@@ -24,7 +24,7 @@ namespace Stats {
     uint lastPbSet = 0;
     uint lastPbSetTs = 0;
     float totalDistFallen;
-    uint[] monumentTriggers = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    uint[] monumentTriggers = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     uint ggsTriggered = 0;
     uint titleGagsTriggered = 0;
     uint titleGagsSpecialTriggered = 0;
@@ -90,7 +90,13 @@ namespace Stats {
         trace("loading stats from server: " + Json::Write(j));
         // are these better than the stats we have?
         float statsHeight = j['pb_height'];
-        if (statsHeight > pbHeight) {
+        if (S_EnableForEasyMap && S_EnableSavingStatsOnEasyMap) {
+            warn("Updating stats: easy map compatibility");
+            pbHeight = Math::Max(pbHeight, statsHeight);
+            pbFloor = HeightToFloor(pbHeight);
+            lastPbSetTs = j['last_pb_set_ts'];
+            lastPbSet = Time::Now;
+        } else if (statsHeight > pbHeight) {
             warn("Updating with stats from server since pbHeight is greater");
             pbHeight = statsHeight;
             pbFloor = HeightToFloor(pbHeight);
@@ -134,6 +140,15 @@ namespace Stats {
             }
             floorVoiceLinesPlayed[i] = floorVoiceLinesPlayed[i] || bool(jFVL[i]);
         }
+
+        if (!F_HaveDoneEasyMapCheck) {
+            S_EnableForEasyMap = pbHeight < 90.;
+            S_EnableSavingStatsOnEasyMap = S_EnableForEasyMap;
+            F_PlayedDD2BeforeEasyMap = !S_EnableForEasyMap;
+            F_HaveDoneEasyMapCheck = true;
+            MatchDD2::lastMapMwId = 0;
+            Meta::SaveSettings();
+        }
     }
 
     void LoadStatsFromJson(Json::Value@ j) {
@@ -146,9 +161,10 @@ namespace Stats {
         nbFloorsFallen = j["nb_floors_fallen"];
         lastPbSetTs = j["last_pb_set_ts"];
         totalDistFallen = j["total_dist_fallen"];
-        // don't restore pb height
-        // pbHeight = j["pb_height"];
-        // pbFloor = MapFloor(int(j["pb_floor"]));
+        // don't restore pb height unless easy map enabled
+        if (S_EnableForEasyMap && S_EnableSavingStatsOnEasyMap) {
+            pbHeight = j["pb_height"];
+        }
         pbFloor = HeightToFloor(pbHeight);
         nbResets = j["nb_resets"];
         ggsTriggered = j["ggs_triggered"];
@@ -184,8 +200,10 @@ namespace Stats {
     LBEntry@[] globalLB;
 
     void LogTimeInMapMs(uint deltaMs) {
-        msSpentInMap += deltaMs;
         lastLoadedDeepDip2Ts = Time::Now;
+        if (S_PauseTimerWhenWindowUnfocused && IsPauseMenuOpen(true)) return;
+        if (S_PauseTimerWhileSpectating && Spectate::IsSpectatorOrMagicSpectator) return;
+        msSpentInMap += deltaMs;
         UpdateStatsSoon();
     }
 
@@ -252,6 +270,21 @@ namespace Stats {
 
     void LogDebugTrigger() {
         IncrJsonIntCounter(extra, "debugTs");
+        UpdateStatsSoon();
+    }
+
+    void LogDD2Finish() {
+        IncrJsonIntCounter(extra, "finish");
+        UpdateStatsSoon();
+    }
+
+    void LogDD2EasyFinish() {
+        IncrJsonIntCounter(extra, "finishSD");
+        UpdateStatsSoon();
+    }
+
+    void LogEasyVlPlayed(const string &in name) {
+        IncrJsonIntCounter(extra, "evl/" + name);
         UpdateStatsSoon();
     }
 

@@ -9,6 +9,7 @@ Thank you.
 */
 
 void PushStatsUpdateToServer() {
+    if (MatchDD2::isEasyDD2Map) return;
     while (g_api is null || !g_api.HasContext) yield();
     auto sj = Stats::GetStatsJson();
     g_api.QueueMsg(ReportStatsMsg(sj));
@@ -18,6 +19,7 @@ uint Count_PushPBHeightUpdateToServer = 0;
 uint Count_PushPBHeightUpdateToServerQueued = 0;
 
 void PushPBHeightUpdateToServer() {
+    if (MatchDD2::isEasyDD2Map) return;
     Count_PushPBHeightUpdateToServer++;
     while (g_api is null || !g_api.HasContext) yield();
     auto pb = Stats::GetPBHeight();
@@ -282,6 +284,9 @@ class DD2API {
     }
 
     void PersistCachedStats() {
+        if (!S_EnableSavingStatsOnEasyMap && MatchDD2::isEasyDD2Map) {
+            return;
+        }
         if (IO::FileExists(STATS_FILE)) {
             IO::Move(STATS_FILE, STATS_FILE + ".bak");
         }
@@ -373,8 +378,9 @@ class DD2API {
                 bi = app.RootMap is null ? nat2() : nat2(app.RootMap.Blocks.Length, app.RootMap.AnchoredObjects.Length);
                 lastu64 = nextu64;
                 lastMI = nextMI;
-                currentMapRelevant = MapMatchesDD2Uid(app.RootMap)
+                currentMapRelevant = app.RootMap !is null && app.RootMap.Id.GetName() == DD2_MAP_UID
                     || (Math::Abs(20522 - int(bi.x)) < 500 && Math::Abs(38369 - int(bi.y)) < 500);
+                currentMapRelevant = currentMapRelevant && !MatchDD2::isEasyDD2Map;
                 if (IsBadNonce(nonce)) break;
                 OutgoingMsg@ ctx;
                 try {
@@ -389,6 +395,7 @@ class DD2API {
                 HasContext = true;
                 try {
                     currentMapRelevant = currentMapRelevant || (bool(ctx.msgPayload["ReportContext"]["i"]));
+                    currentMapRelevant = currentMapRelevant && !MatchDD2::isEasyDD2Map;
                 } catch {
                     warn('exception updating r: ' + getExceptionInfo());
                 }

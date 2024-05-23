@@ -42,7 +42,9 @@ void DrawPluginMenuInner(bool isMenuBar = false) {
     menuBarStartedDrawingExtra = false;
     menuBarHideUnlessSDE = false;
     float maxW = UI::GetWindowContentRegionWidth();
-    Visibility::DrawMenu();
+    EasyMap::DrawMenu();
+    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
+    if (_Menu_DrawNextMenu) Visibility::DrawMenu();
     if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
     if (_Menu_DrawNextMenu) Volume::DrawMenu();
     if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
@@ -136,6 +138,20 @@ namespace DebugMenu {
                 UI::EndMenu();
             }
 #if DEV
+            if (UI::MenuItem("Wizard", "", g_WizardOpen)) {
+                g_WizardOpen = !g_WizardOpen;
+            }
+            if (UI::MenuItem("Disable UI In Editor", "", S_DisableUiInEditor)) {
+                S_DisableUiInEditor = !S_DisableUiInEditor;
+            }
+            // if (UI::Button("Set current map uid to ez map testing")) {
+            //     auto map = GetApp().RootMap;
+            //     if (map !is null) DD2_EASY_MAP_UID2 = map.EdChallengeId;
+            //     MatchDD2::lastMapMwId = 0;
+            // }
+            if (UI::MenuItem("Play Ez Finish")) {
+                OnLocalPlayerFinished(null);
+            }
             if (UI::BeginMenu("Anims")) {
                 if (UI::MenuItem("Add Bleb")) {
                     EmitStatusAnimation(RainbowStaticStatusMsg("Bleb").WithDuration(4000));

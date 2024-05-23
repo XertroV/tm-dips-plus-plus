@@ -1,0 +1,44 @@
+0: After a moment to compose themselves,
+3111: Trackmania Driver 19101 looked up to behold the tower,
+9111: standing proud, silhouetted against the setting sun...
+13995: Everest had been conquered.
+14800:
+17500: Brimming with a sense of accomplishment, the driver knew:
+21379: All those hours had finally paid off.
+24950: It truly had been an afternoon well spent.
+26500:
+29333: To think, Trackmania Driver 19101 had summited
+33461: the most challenging Trackmania map ever built,
+36991: and with so little practice at the game, too!
+39000:
+41200: "I must be one dang hot gamer!" thought the driver.
+44960: "This game doesn't seem so hard after all..."
+47550: "I dunno what all the fuss is about."
+49000:
+50100: But then, a new thought entered their mind...
+52500:
+54186: "This tower... it looks kind of wrong..."
+56000:
+58050: "Kind of... unfinished..."
+60500: and the doubts started to creep in.
+62000:
+63700: Mind reeling, their eyes glace to the map name
+67200: and suddenly the driver freezes.
+69000:
+70000: Yes, Trackmania Driver 19101, you are correct.
+75200: That *is* what '[E]' means.
+77000:
+79111: The _easy_ version.
+80500:
+82600: Now that you know the truth, you have a choice.
+86400: One that will change the course of your life, forever.
+88000:
+91250: You can leave the game, now, if you want.
+94378: Go back to your life, knowing that you conquered Deep Dip 2 [E].
+99400: The story ends, you uninstall the game
+102090: and you believe whatever you want to believe.
+103400:
+105153: Or you can choose to stay,
+107731: to try the *real* map,
+110491: and see how far the Deep Dip goes.
+112307:

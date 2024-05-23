@@ -53,6 +53,8 @@ namespace DownloadProgress {
         if (UI::Begin(currLabel + " Progress", UI::WindowFlags::AlwaysAutoResize | UI::WindowFlags::NoCollapse | UI::WindowFlags::NoCollapse)) {
             UI::Text(currLabel + " Progress:          ");
             UI::ProgressBar(float(done) / float(count), vec2(UI::GetContentRegionAvail().x, 40), tostring(done) + " / " + tostring(count) + (errored > 0 ? " / Err: " + errored : ""));
+            UI::Separator();
+            UI::TextWrapped("\\$aaaIf this appears to hang for a long time, try reloading the plugin under Developer > Reload > Dips++");
         }
         UI::End();
     }

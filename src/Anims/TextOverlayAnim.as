@@ -152,7 +152,7 @@ class TextOverlayAnim2 : TextOverlayAnim {
     bool triggered2 = false;
     uint lastUpdate = 0;
     bool Update() override {
-        if (IsPauseMenuOpen(true)) {
+        if (IsPauseMenuOpen(S_PauseWhenGameUnfocused)) {
             if (lastUpdate > 0) {
                 playingStartTime += (Time::Now - lastUpdate);
             }

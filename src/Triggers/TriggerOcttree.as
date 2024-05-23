@@ -219,6 +219,45 @@ class FloorVLTrigger : PlaySoundTrigger {
     }
 }
 
+class EasyFloorVLTrigger : PlaySoundTrigger {
+    string voiceLineFile;
+    string subtitlesFile;
+    SubtitlesAnim@ subtitles;
+
+    EasyFloorVLTrigger(const string &in vlName) {
+        voiceLineFile = "vl/"+vlName+".mp3";
+        super(vec3(), vec3(), vlName, voiceLineFile);
+        subtitlesFile = "subtitles/" + voiceLineFile.Replace(".mp3", ".txt");
+        resetOnLeave = false;
+        @subtitles = SubtitlesAnim(subtitlesFile, false);
+    }
+
+    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+        // not used
+    }
+
+    // will start the RunTrigger coro
+    void StartTrigger() {
+        startnew(CoroutineFunc(this.RunTrigger));
+    }
+
+    // is a coro, run with startnew
+    void RunTrigger() {
+        if (PS::viewedPlayer.isLocal) {
+            Stats::LogEasyVlPlayed(name);
+        } else if (!S_VoiceLinesInSpec) {
+            return;
+        }
+        startnew(CoroutineFunc(PlayItem));
+        while (audioChain is null || !audioChain.isPlaying) {
+            yield();
+        }
+        if (subtitles !is null) {
+            AddSubtitleAnimation(subtitles);
+        }
+    }
+}
+
 const uint TITLE_GAG_DELAY_AFTER_FALLING = 3000;
 
 class TitleGagTrigger : GagVoiceLineTrigger {
@@ -417,6 +456,10 @@ GameTrigger@[]@ generateVoiceLineTriggers() {
     ret.InsertLast(TitleGagTrigger(vec3(384, 7, 760),	vec3(424, 55, 776), "Floor Gang"));
     return ret;
 }
+
+// for easy map
+EasyFloorVLTrigger@ t_EasyMapFinishVL = EasyFloorVLTrigger("ez-vl-preludial-epiloge"); /* keep typo */
+
 
 GameTrigger@[]@ generateMonumentTriggers() {
     GameTrigger@[] ret;

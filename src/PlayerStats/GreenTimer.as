@@ -16,6 +16,9 @@ vec4 S_GreenTimerColor = vec4(0.14f, 0.74f, 0.3f, 1.f);
 [Setting hidden]
 float S_GreenTimerFontSize = 120.;
 
+[Setting hidden]
+bool S_PauseTimerWhenWindowUnfocused = true;
+
 const string WRITUAL_LOGIN = "vUUgTIDxSAm5gziz8P_B7w";
 const string XERTROV_LOGIN = "Ci0bwEqqQ3Sy2z1WG9qxyQ";
 
@@ -71,7 +74,13 @@ namespace GreenTimer {
             nvg::BeginPath();
         }
         nvg::TextAlign(nvg::Align::Top | nvg::Align::Left);
-        // DrawTextWithShadow(textTL, label, S_GreenTimerColor);
+
+        bool paused = (S_PauseTimerWhileSpectating && Spectate::IsSpectatorOrMagicSpectator)
+                || S_PauseTimerWhenWindowUnfocused && IsPauseMenuOpen(true)
+                ;
+        vec4 col = paused ? cGray : S_GreenTimerColor;
+
+        // DrawTextWithShadow(textTL, label, col);
         // return;
         auto parts = label.Split(":");
         string p;
@@ -80,15 +89,15 @@ namespace GreenTimer {
             p = parts[i];
             for (uint c = 0; c < p.Length; c++) {
                 adj.x = p[c] == 0x31 ? digitWidth / 4 : 0;
-                DrawTextWithShadow(textTL+adj, p.SubStr(c, 1), S_GreenTimerColor);
+                DrawTextWithShadow(textTL+adj, p.SubStr(c, 1), col);
                 textTL.x += digitWidth;
             }
             if (i < 2) {
-                DrawTextWithShadow(textTL, ":", S_GreenTimerColor);
+                DrawTextWithShadow(textTL, ":", col);
                 textTL.x += colonWidth;
             }
         }
-        // DrawTextWithShadow(g_screen * pos, label, S_GreenTimerColor);
+        // DrawTextWithShadow(g_screen * pos, label, col);
     }
 
     string setTimerTo = "";
@@ -100,10 +109,9 @@ namespace GreenTimer {
             // UI::Text("wmd:" + wirtModeDone);
 #endif
             S_ShowGreenTimer = UI::Checkbox("Green Timer", S_ShowGreenTimer);
+            S_PauseTimerWhenWindowUnfocused = UI::Checkbox("Pause when game paused or unfocused", S_PauseTimerWhenWindowUnfocused);
+            S_PauseTimerWhileSpectating = UI::Checkbox("Pause when spectating", S_PauseTimerWhileSpectating);
             S_GreenTimerFontSize = UI::SliderFloat("Font Size", S_GreenTimerFontSize, 10, 200);
-            if (!wirtModeDone && wirtualMode) {
-                startnew(WirtModeIncrement);
-            }
             S_GreenTimerPos = UI::InputFloat2("Pos (0-1)", S_GreenTimerPos);
             S_GreenTimerAlign = InputAlign("Align", S_GreenTimerAlign);
             S_GreenTimerBg = UI::Checkbox("Semi-transparent Background", S_GreenTimerBg);

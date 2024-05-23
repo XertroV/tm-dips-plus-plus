@@ -44,19 +44,8 @@ void LoadFonts() {
 DD2API@ g_api;
 bool G_Initialized = false;
 
-const string KEM_LOGIN = "oNhUUAthQx6SkVe2YK9PXw";
-
 void Main() {
     g_LocalPlayerMwId = GetLocalPlayerMwId();
-    // auto GameVer = GetApp().SystemPlatform.ExeVersion;
-    // if (GameVer > "2024-03-19_14_47" && GetLocalLogin() != KEM_LOGIN && GetLocalLogin() != XERTROV_LOGIN) {
-    //     NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
-    //     NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
-    //     NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
-    //     NotifyError("Dips++ is not compatible with future game versions, please use 2024-03-19_14_47");
-    //     // startnew(UnloadSelfSoon);
-    //     return;
-    // }
     yield();
     startnew(LoadFonts);
     startnew(LoadGlobalTextures);
@@ -155,6 +144,7 @@ void RenderEarly() {
     if (g_Active || Minimap::updateMatrices) {
         Minimap::RenderEarly();
     }
+    // when focusing ImgUI elements
     if (int(GetApp().InputPort.MouseVisibility) == 2) {
         g_MousePos = vec2(-1000);
     }
@@ -183,6 +173,7 @@ void Render() {
         MainUI::Render();
     }
     if (g_Active) {
+        OnFinish::RenderEzEpilogue();
         GreenTimer::Render(drawAnywhereGame);
         HUD::Render(PS::viewedPlayer, drawAnywhereGame);
         RenderAnimations(drawAnywhereGame);
@@ -202,6 +193,13 @@ void Render() {
     RenderDebugWindow();
 }
 
+#if DEV
+[Setting hidden]
+bool S_DisableUiInEditor = true;
+#else
+const bool S_DisableUiInEditor = true;
+#endif
+
 bool RenderEarlyInner() {
     if (!G_Initialized) return false;
     bool wasActive = g_Active;
@@ -213,14 +211,21 @@ bool RenderEarlyInner() {
     if (app.CurrentPlayground.GameTerminals.Length == 0) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals[0].ControlledPlayer is null) return Inactive(wasActive);
     if (app.CurrentPlayground.UIConfigs.Length == 0) return Inactive(wasActive);
+#if DEV
+    if (app.Editor !is null && S_DisableUiInEditor) return Inactive(wasActive);
+#else
     if (app.Editor !is null) return Inactive(wasActive);
+#endif
     // if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
     // ! uncomment this to enable map UID check
-    if (!MapMatchesDD2Uid(app.RootMap)) return Inactive(wasActive);
+    if (!MatchDD2::MapMatchesDD2Uid(app.RootMap)) return Inactive(wasActive);
     if (!wasActive) EmitGoingActive(true);
     g_Active = true;
     PS::UpdatePlayers();
     BlockCam7Drivable::Update();
+    if (PS::localPlayer !is null) {
+        PS::localPlayer.UpdateFinishCheck(app.CurrentPlayground.UIConfigs[0].UISequence);
+    }
     return true;
 }
 

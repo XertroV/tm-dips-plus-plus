@@ -4,6 +4,9 @@ bool S_ClickMinimapToMagicSpectate = true;
 [Setting hidden]
 bool S_DrawInputsWhileMagicSpec = true;
 
+[Setting hidden]
+bool S_PauseTimerWhileSpectating = true;
+
 #if DEPENDENCY_MLHOOK
 const bool MAGIC_SPEC_ENABLED = true;
 
@@ -76,6 +79,11 @@ namespace MagicSpectate {
             return;
         }
         uint vehicleId = currentlySpectating.lastVehicleId;
+        if (currentlySpectating.vehicle is null || currentlySpectating.vehicle.AsyncState is null) {
+            NotifyWarning("Turn on opponents to use magic spectate. (Otherwise, this is a bug.)");
+            Reset();
+            return;
+        }
         // do nothing if the vehicle id is invalid, it might become valid
         if (vehicleId == 0 || vehicleId & 0x0f000000 > 0x05000000) {
             // dev_trace("Bad vehicle id: " + Text::Format("%08x", vehicleId));
@@ -149,6 +157,8 @@ namespace MagicSpectate {
     }
 
     void MS_RenderInputs(PlayerState@ p) {
+        if (p.vehicle is null) return;
+        if (p.vehicle.AsyncState is null) return;
         auto inputsSize = vec2(S_InputsHeight * 2, S_InputsHeight) * g_screen.y;
         auto inputsPos = (g_screen - inputsSize) * vec2(S_InputsPosX, S_InputsPosY);
         inputsPos += inputsSize;
@@ -306,6 +316,10 @@ namespace Spectate {
 
     bool get_IsSpectator() {
         return GetApp().Network.Spectator;
+    }
+
+    bool get_IsSpectatorOrMagicSpectator() {
+        return MagicSpectate::IsActive() || IsSpectator;
     }
 }
 

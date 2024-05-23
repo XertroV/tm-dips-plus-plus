@@ -18,7 +18,7 @@ namespace Wizard {
     }
 
     const int2 windowSize = int2(1100, 700);
-    int flags = UI::WindowFlags::NoCollapse | UI::WindowFlags::NoResize | UI::WindowFlags::NoSavedSettings | UI::WindowFlags::AlwaysAutoResize | UI::WindowFlags::NoTitleBar;
+    int flags = UI::WindowFlags::NoCollapse | UI::WindowFlags::NoResize | UI::WindowFlags::NoSavedSettings | UI::WindowFlags::AlwaysAutoResize;
     float ui_scale = UI::GetScale();
 
     void DrawWindow() {
@@ -31,6 +31,13 @@ namespace Wizard {
             DrawInner();
         }
         UI::End();
+        if (!g_WizardOpen) {
+            OnWizardClosed();
+        }
+    }
+
+    void OnWizardClosed() {
+        startnew(Volume::StopAudioTest);
     }
 
     uint wizardStep = 0;
@@ -75,7 +82,7 @@ namespace Wizard {
 
         if (!showVolumeSlider) {
             if (DrawCenteredButton("Begin Volume Test", f_DroidBig, 20.)) {
-                Volume::ToggleAudioTest();
+                Volume::PlayAudioTest();
                 showVolumeSlider = true;
             }
         } else if (Volume::IsAudioTestRunning()) {
@@ -87,12 +94,12 @@ namespace Wizard {
             UI::SetNextItemWidth(avail.x * .75);
             UI::PushFont(f_DroidBig);
             Volume::DrawVolumeSlider(false);
-            UI::Dummy(vec2(avail.x * .4, 0));
+            UI::Dummy(vec2(avail.x * .33, 0));
             UI::SameLine();
             S_PauseWhenGameUnfocused = UI::Checkbox("Pause audio when the game is unfocused", S_PauseWhenGameUnfocused);
             UI::PopFont();
             if (DrawCenteredButton("Skip Audio Test", f_DroidBig, 20.)) {
-                Volume::ToggleAudioTest();
+                Volume::StopAudioTest();
                 wizardStep++;
             }
         } else if (DrawCenteredButton("Proceed", f_DroidBig, 20.)) {
@@ -104,7 +111,7 @@ namespace Wizard {
         DrawCenteredText("Do you like options? Would it make you feel better to change some?", f_DroidBig, 20.);
         UI::Dummy(vec2(avail.x * 0.125, 0));
         UI::SameLine();
-        if (UI::BeginChild("##wizstep1", vec2(avail.x * .75, 0), false)) {
+        if (UI::BeginChild("##wizstep1", vec2(avail.x * .75, 0))) {
             S_EnableMainMenuPromoBg = UI::Checkbox("Enable Main Menu Surprise?", S_EnableMainMenuPromoBg);
             if (S_EnableMainMenuPromoBg) {
                 S_MenuBgTimeOfDay = ComboTimeOfDay("Main Menu Background Time of Day", S_MenuBgTimeOfDay);
