@@ -353,7 +353,14 @@ namespace MainUI {
         if (lastLbUpdate + 60000 < Time::Now) {
             lastLbUpdate = Time::Now;
             PushMessage(GetMyRankMsg());
-            PushMessage(GetGlobalLBMsg(1, 501));
+            PushMessage(GetGlobalLBMsg(1, 205));
+            PushMessage(GetGlobalLBMsg(201, 405));
+            PushMessage(GetGlobalLBMsg(401, 605));
+            PushMessage(GetGlobalLBMsg(601, 805));
+            PushMessage(GetGlobalLBMsg(801, 1005));
+            PushMessage(GetGlobalLBMsg(1001, 1205));
+            PushMessage(GetGlobalLBMsg(1201, 1405));
+            PushMessage(GetGlobalLBMsg(1401, 1605));
         }
     }
 
@@ -402,7 +409,7 @@ namespace MainUI {
                         UI::TableNextColumn();
                         UI::Text(Text::Format("%d.", item.rank));
                         UI::TableNextColumn();
-                        UI::Text(Text::Format("%.1f m", item.height));
+                        UI::Text(Text::Format("%.04f m", item.height));
                         UI::TableNextColumn();
                         UI::Text(item.name);
                         UI::PopID();

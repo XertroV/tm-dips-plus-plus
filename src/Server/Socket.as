@@ -7,6 +7,9 @@ Please do not distribute altered copies of the DD2 map.
 Thank you.
 - XertroV
 */
+
+// updated 2024-05-19 for new openplanet socket
+
 class BetterSocket {
     Net::Socket@ s;
     bool IsConnecting = false;
@@ -40,14 +43,13 @@ class BetterSocket {
             IsConnecting = false;
             return;
         }
-        // @s = Net::Socket();
         Net::Socket@ socket = Net::Socket();
         if (!socket.Connect(addr, port)) {
             warn("Failed to connect to " + addr + ":" + port);
         } else {
             @s = socket;
+            while (!s.IsReady()) yield();
         }
-        sleep(800);
         IsConnecting = false;
     }
 
@@ -60,11 +62,11 @@ class BetterSocket {
     }
 
     bool get_IsClosed() {
-        return s is null || !s.CanWrite();
+        return s is null || s.IsHungUp();
     }
 
     bool get_IsUnclosed() {
-        return s !is null && s.CanWrite();
+        return s !is null && !s.IsHungUp();
     }
 
     protected bool hasWaitingAvailable = false;
@@ -73,19 +75,8 @@ class BetterSocket {
         if (s is null) {
             return true;
         }
-        if (hasWaitingAvailable) return false;
-        auto _avail = s.Available();
-        bool _canRead = s.CanRead();
-        if (_avail <= 0 && _canRead) {
-            return s.CanRead() && s.Available() <= 0;
-        }
-        hasWaitingAvailable = _avail > 0 && _canRead;
-        // don't return true if we still have data to read
+        if (s.IsHungUp()) return true;
         return false;
-    }
-
-    protected bool TestServerDisconnected() {
-        return s !is null && s.CanRead() && s.CanRead();
     }
 
     bool get_HasNewDataToRead() {
@@ -93,7 +84,7 @@ class BetterSocket {
             hasWaitingAvailable = false;
             return true;
         }
-        return s !is null && s.CanRead() && s.Available() > 0 && !s.CanRead();
+        return s !is null && s.Available() > 0;
     }
 
     int get_Available() {
@@ -144,7 +135,7 @@ class BetterSocket {
                 yield();
                 yield();
                 if (Available < len) {
-                    warn("ReadMsg timed out while reading msg");
+                    warn("ReadMsg timed out while reading msg; Available: " + Available + '; len: ' + len);
                     warn("Disconnecting socket");
                     Shutdown();
                     return null;
