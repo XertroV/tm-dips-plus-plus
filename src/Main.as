@@ -46,14 +46,6 @@ bool G_Initialized = false;
 
 void Main() {
     g_LocalPlayerMwId = GetLocalPlayerMwId();
-    auto opVer = Meta::OpenplanetVersion();
-    trace('opVer: ' + opVer);
-    if (opVer > '1.26.19') {
-        NotifyWarning("This verison of Dips++ is not compatible with Openplanet versions newer than 1.26.19");
-        NotifyWarning("This verison of Dips++ is not compatible with Openplanet versions newer than 1.26.19");
-        NotifyWarning("This verison of Dips++ is not compatible with Openplanet versions newer than 1.26.19");
-        NotifyWarning("This verison of Dips++ is not compatible with Openplanet versions newer than 1.26.19");
-    }
     yield();
     startnew(LoadFonts);
     startnew(LoadGlobalTextures);
