@@ -1,14 +1,21 @@
 void OnLocalPlayerFinished(PlayerState@ p) {
+    if (p.isLocal) {
+        Stats::LogDD2EasyFinish();
+    }
     startnew(OnFinish::RunFinishSequenceCoro);
+    OnFinish::playerFinishedLastAt = Time::Now;
 }
 
 namespace OnFinish {
+    uint playerFinishedLastAt = 0;
+
     const string[] EZ_FIN_RAINBOW_LINES = {
         "Amazing!",
         "You're a pro!",
         "That was great!",
         "You did it!",
-        "Impressive!"
+        "Impressive!",
+        "Sick Jump!"
     };
 
     int lastChosen = -1;
@@ -66,15 +73,18 @@ namespace OnFinish {
         UI::SetNextWindowSize(windowSize.x, windowSize.y, UI::Cond::Always);
         auto pos = (int2(g_screen.x / ui_scale, g_screen.y / ui_scale) - windowSize) / 2;
         UI::SetNextWindowPos(pos.x, pos.y, UI::Cond::Always);
+        // timeout or no map
+        bool drawSkip = (playerFinishedLastAt > 0 && Time::Now - playerFinishedLastAt > 25000) || GetApp().RootMap is null;
         if (UI::Begin("dpp ez fin epilogue", flags)) {
-            UI::Dummy(vec2(0, 90));
+            UI::Dummy(vec2(0, 85));
             DrawCenteredText("Congratulations!", f_DroidBigger, 26);
             if (DrawCenteredButton("Play Epilogue", f_DroidBigger, 26)) {
                 startnew(PlayEzEpilogue);
                 EmitStatusAnimation(FinCelebrationAnim());
                 g_ShowEzFinishEpilogueScreen = false;
             }
-            if (GetApp().RootMap is null && DrawCenteredButton("Skip Epilogue", f_DroidBig, 20.)) {
+            UI::Dummy(vec2(0, 18));
+            if (drawSkip && DrawCenteredButton("Skip Epilogue", f_DroidBig, 20.)) {
                 g_ShowEzFinishEpilogueScreen = false;
                 isFinishSeqRunning = false;
             }

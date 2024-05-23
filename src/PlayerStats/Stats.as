@@ -90,7 +90,13 @@ namespace Stats {
         trace("loading stats from server: " + Json::Write(j));
         // are these better than the stats we have?
         float statsHeight = j['pb_height'];
-        if (statsHeight > pbHeight) {
+        if (S_EnableForEasyMap && S_EnableSavingStatsOnEasyMap) {
+            warn("Updating stats: easy map compatibility");
+            pbHeight = Math::Max(pbHeight, statsHeight);
+            pbFloor = HeightToFloor(pbHeight);
+            lastPbSetTs = j['last_pb_set_ts'];
+            lastPbSet = Time::Now;
+        } else if (statsHeight > pbHeight) {
             warn("Updating with stats from server since pbHeight is greater");
             pbHeight = statsHeight;
             pbFloor = HeightToFloor(pbHeight);
@@ -156,7 +162,7 @@ namespace Stats {
         lastPbSetTs = j["last_pb_set_ts"];
         totalDistFallen = j["total_dist_fallen"];
         // don't restore pb height unless easy map enabled
-        if (S_EnableForEasyMap) {
+        if (S_EnableForEasyMap && S_EnableSavingStatsOnEasyMap) {
             pbHeight = j["pb_height"];
         }
         pbFloor = HeightToFloor(pbHeight);
@@ -267,8 +273,18 @@ namespace Stats {
         UpdateStatsSoon();
     }
 
+    void LogDD2Finish() {
+        IncrJsonIntCounter(extra, "finish");
+        UpdateStatsSoon();
+    }
+
+    void LogDD2EasyFinish() {
+        IncrJsonIntCounter(extra, "finishSD");
+        UpdateStatsSoon();
+    }
+
     void LogEasyVlPlayed(const string &in name) {
-        IncrJsonIntCounter(extra, name);
+        IncrJsonIntCounter(extra, "evl/" + name);
         UpdateStatsSoon();
     }
 
