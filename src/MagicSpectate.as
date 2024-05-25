@@ -126,7 +126,7 @@ namespace MagicSpectate {
         auto namePosCM = SPEC_NAME_POS * g_screen;
         string name = p.playerName;
         if (p.clubTag.Length > 0) {
-            name = "["+StripFormatCodes(p.clubTag)+"] " + name;
+            name = "["+Text::StripFormatCodes(p.clubTag)+"] " + name;
         }
         // Draw name at same place as normal spectate name
         nvg::Reset();

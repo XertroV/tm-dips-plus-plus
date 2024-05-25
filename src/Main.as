@@ -97,6 +97,9 @@ void _Unload() {
     if (g_api !is null) {
         g_api.Shutdown();
     }
+#if DEV && DEPENDENCY_MLHOOK
+    MLHook::UnregisterMLHooksAndRemoveInjectedML();
+#endif
 }
 
 
@@ -182,6 +185,7 @@ void Render() {
         Minimap::Render(drawAnywhereGame);
         DipsPPSettings::RenderButton(drawAnywhereGame);
         RenderTitleScreenAnims(drawAnywhereGame);
+        MainMenuBg::ClearRefs();
     } else {
         if (g_TitleCollectionOutsideMapCount > 0) {
             RenderTitleScreenAnims(true);
@@ -189,8 +193,19 @@ void Render() {
         if (g_SubtitlesOutsideMapCount > 0) {
             RenderSubtitles(true);
         }
+        if (S_EnableMainMenuPromoBg && IsInMainMenu()) {
+            MainMenuBg::Update();
+        } else {
+            MainMenuBg::ClearRefs();
+        }
     }
     RenderDebugWindow();
+}
+
+bool IsInMainMenu() {
+    auto switcher = GetApp().Switcher;
+    if (switcher.ModuleStack.Length == 0) return false;
+    return cast<CTrackManiaMenus>(switcher.ModuleStack[0]) !is null;
 }
 
 #if DEV

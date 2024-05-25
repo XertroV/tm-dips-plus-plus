@@ -65,8 +65,8 @@ class PlayerState {
         lowVelocitySince = Time::Now;
         isSpectator = player.ScriptAPI.RequestsSpectate;
         clubTag = player.User.ClubTag;
-        clubTagClean = StripFormatCodes(clubTag);
-        clubTagColored = ColoredString(clubTag);
+        clubTagClean = Text::StripFormatCodes(clubTag);
+        clubTagColored = Text::OpenplanetFormatCodes(clubTag);
         if (isLocal) {
             @climbTracker = ClimbTracker(this);
         }

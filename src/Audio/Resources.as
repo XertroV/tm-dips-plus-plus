@@ -110,16 +110,14 @@ void RefreshAssets() {
 }
 
 const string MENU_ITEM_RELPATH = "Skins/Models/CharacterPilot/DeepDip2_MenuItem.zip";
-const string MENU_ITEM_RELPATH2 = "Skins/Models/CharacterPilot/DeepDip2_MenuItem_v2.zip";
-const string MENU_ITEM_RELPATH3 = "Skins/Models/CharacterPilot/DeepDip2_MenuItem_v3.zip";
+const string MENU_ITEM2_RELPATH = "Skins/Models/CharacterPilot/DD2_SponsorsSign.zip";
 
 void AddNonAudioAssetDownloads() {
     AddArbitraryAssetDownload("img/Deep_dip_2_logo.png");
     AddArbitraryAssetDownload("img/vae_square.png");
     AddArbitraryAssetDownload("img/vae.png");
     GameFolderAssetDownload(MENU_ITEM_RELPATH);
-    // GameFolderAssetDownload(MENU_ITEM_RELPATH2);
-    // GameFolderAssetDownload(MENU_ITEM_RELPATH3);
+    GameFolderAssetDownload(MENU_ITEM2_RELPATH);
     AddArbitraryAssetDownload("img/floor0.jpg");
     AddArbitraryAssetDownload("img/floor1.jpg");
     AddArbitraryAssetDownload("img/floor2.jpg");

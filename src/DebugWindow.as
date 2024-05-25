@@ -162,7 +162,6 @@ void DrawAnimationsTab() {
     // }
 }
 
-
 void DrawCurrentStatusesTab() {
     PlayerState@[] flying;
     PlayerState@[] falling;

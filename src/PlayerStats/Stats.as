@@ -9,6 +9,7 @@ Thank you.
 */
 
 const string STATS_FILE = IO::FromStorageFolder("stats.json");
+const string AUX_STATS_DIR = IO::FromStorageFolder("map_stats");
 
 namespace Stats {
     uint64 msSpentInMap = 0;
@@ -90,6 +91,7 @@ namespace Stats {
         trace("loading stats from server: " + Json::Write(j));
         // are these better than the stats we have?
         float statsHeight = j['pb_height'];
+        warn("[server stats] Server height " + statsHeight + ", local height " + pbHeight);
         if (S_EnableForEasyMap && S_EnableSavingStatsOnEasyMap) {
             warn("Updating stats: easy map compatibility");
             pbHeight = Math::Max(pbHeight, statsHeight);
@@ -103,13 +105,15 @@ namespace Stats {
             // pbFloor = MapFloor(int(j['pb_floor']));
             lastPbSetTs = j['last_pb_set_ts'];
             lastPbSet = Time::Now;
+        } else {
+            // ! todo
         }
         msSpentInMap = Math::Max(msSpentInMap, uint(j['seconds_spent_in_map']) * 1000);
         nbJumps = Math::Max(nbJumps, j['nb_jumps']);
         nbFalls = Math::Max(nbFalls, j['nb_falls']);
         nbFloorsFallen = Math::Max(nbFloorsFallen, j['nb_floors_fallen']);
         totalDistFallen = Math::Max(totalDistFallen, j['total_dist_fallen']);
-        nbResets = Math::Max(nbResets, j['nb_resets']);
+        nbResets = Math::Max(nbResets, int(j['nb_resets']));
         ggsTriggered = Math::Max(ggsTriggered, j['ggs_triggered']);
         titleGagsTriggered = Math::Max(titleGagsTriggered, j['title_gags_triggered']);
         titleGagsSpecialTriggered = Math::Max(titleGagsSpecialTriggered, j['title_gags_special_triggered']);
@@ -149,6 +153,8 @@ namespace Stats {
             MatchDD2::lastMapMwId = 0;
             Meta::SaveSettings();
         }
+
+        trace("Loaded server stats; after: " + Json::Write(GetStatsJson()));
     }
 
     void LoadStatsFromJson(Json::Value@ j) {
@@ -174,7 +180,10 @@ namespace Stats {
         monumentTriggers = JsonToUintArray(j["monument_triggers"]);
         reachedFloorCount = JsonToUintArray(j["reached_floor_count"]);
         floorVoiceLinesPlayed = JsonToBoolArray(j["floor_voice_lines_played"]);
-        dev_trace('loaded json stats; floor vls played len: ' + floorVoiceLinesPlayed.Length);
+        if (j.HasKey("extra")) {
+            extra = j["extra"];
+        }
+        trace('loaded json stats; floor vls played len: ' + floorVoiceLinesPlayed.Length);
     }
 
     void OnStartTryRestoreFromFile() {

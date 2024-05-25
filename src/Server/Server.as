@@ -371,7 +371,7 @@ class DD2API {
             nextMI = MI::GetInfo();
             u64Change = lastu64 != nextu64 || lastMI != nextMI;
             if (mapChange || u64Change || firstRun) {
-                trace('context change');
+                // dev_trace('context change');
                 firstRun = false;
                 lastCheck = Time::Now;
                 lastMapMwId = app.RootMap !is null ? app.RootMap.Id.Value : 0;
@@ -391,7 +391,7 @@ class DD2API {
                 }
                 if (IsBadNonce(nonce)) break;
                 QueueMsg(ctx);
-                trace("sent context");
+                // dev_trace("sent context");
                 HasContext = true;
                 try {
                     currentMapRelevant = currentMapRelevant || (bool(ctx.msgPayload["ReportContext"]["i"]));
@@ -509,7 +509,7 @@ class DD2API {
 
     void StatsHandler(Json::Value@ msg) {
         //warn("Stats received.");
-        trace('stats from server: ' + Json::Write(msg));
+        // trace('stats from server: ' + Json::Write(msg));
         Stats::LoadStatsFromServer(msg["stats"]);
     }
 
@@ -886,16 +886,12 @@ namespace TwitchNames {
         HandleMsg(_NewMsg("803695f6-8319-4b8e-8c28-44856834fe3b", "simo_900")); yield();
         HandleMsg(_NewMsg("c1e8bbec-8bb3-40b3-9b0e-52e3cb36015e", "SkandeaR")); yield();
         HandleMsg(_NewMsg("05477e79-25fd-48c2-84c7-e1621aa46517", "GranaDyy")); yield();
-        // iiHugo
         HandleMsg(_NewMsg("da4642f9-6acf-43fe-88b6-b120ff1308ba", "Scrapie")); yield();
         HandleMsg(_NewMsg("a4699c4c-e6c1-4005-86f6-55888f854e6f", "Talliebird")); yield();
-        // HandleMsg(_NewMsg("7f1707fe-bc7d-4b3c-90f7-a95e5be5f0da", "Korchii")); yield();
         HandleMsg(_NewMsg("b05db0f8-d845-47d2-b0e5-795717038ac6", "MASSA")); yield();
         HandleMsg(_NewMsg("e387f7d8-afb0-4bf6-bb29-868d1a62de3b", "Tarpor")); yield();
         HandleMsg(_NewMsg("d320a237-1b0a-4069-af83-f2c09fbf042e", "Mudda_tm")); yield();
-        // HandleMsg(_NewMsg("21029447-5895-4e1e-829c-14dedb4af788", "Kubas")); yield();
         HandleMsg(_NewMsg("3bb0d130-637d-46a6-9c19-87fe4bda3c52", "Spammiej")); yield();
-        // HandleMsg(_NewMsg("0fd26a9f-8f70-4f51-85e1-fe99a4ed6ffb", "Schmaniol")); yield();
         HandleMsg(_NewMsg("af30b7a1-fc37-485f-94bf-f00e39805d8c", "Ixxonn")); yield();
         HandleMsg(_NewMsg("fc54a67c-7bd3-4b33-aa7d-a77f13a7b621", "mtat_TM")); yield();
         HandleMsg(_NewMsg("0c857beb-fd95-4449-a669-21fb310cacae", "CarlJrtm")); yield();
