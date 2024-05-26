@@ -222,7 +222,7 @@ namespace Minimap {
         }
 
         pbHeight = (localPlayer is null || localPlayer.isLocal) ? Stats::GetPBHeight() : Global::GetPlayersPBHeight(localPlayer);
-        if (CurrMap::isDD2) RenderMinimapTop3();
+        if (MatchDD2::isDD2Proper) RenderMinimapTop3();
     }
 
     float HeightToMinimapY(float h) {
@@ -653,13 +653,15 @@ namespace Minimap {
             nvg::BeginPath();
             nvg::FillColor(cBlack);
             nvg::TextAlign(nvg::Align::Right | nvg::Align::Middle);
-            int numbersBelowEq = MatchDD2::isEasyDD2Map ? 5 : 16;
             int finNumber = heights.Length - 1.;
+            int endNumber = MatchDD2::lastMapMatchesAnyDD2Uid ? 17 : (g_CustomMap !is null && g_CustomMap.lastFloorEnd ? finNumber - 1 : finNumber);
+            int numbersBelowEq = MatchDD2::isEasyDD2Map ? 5 : endNumber - 1;
             nvg::Text(
                 pos - vec2(floorNumberBaseHeight * (i < 1 || i > numbersBelowEq ? .8 : 1.0), floorNumberBaseHeight * -0.12),
                 i == 0 ? "F.G." :
-                i == 17 ? "End" :
-                i >= finNumber ? "Fin" : Text::Format("%02d", i)
+                i >= finNumber ? "Fin" :
+                i == endNumber ? "End" :
+                Text::Format("%02d", i)
             );
             nvg::ClosePath();
         }
@@ -795,7 +797,7 @@ const float [] DD2_EASY_FLOOR_HEIGHTS = {
 };
 
 const float[]@ GetDd2FloorHeights() {
-    if (CurrMap::isDD2) return DD2_FLOOR_HEIGHTS;
+    if (MatchDD2::isDD2Proper) return DD2_FLOOR_HEIGHTS;
     if (MatchDD2::isEasyDD2Map) return DD2_EASY_FLOOR_HEIGHTS;
     if (g_CustomMap !is null && g_CustomMap.IsEnabledNotDD2 && g_CustomMap.spec !is null) return g_CustomMap.spec.floors;
     return {};

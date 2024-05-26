@@ -4,9 +4,10 @@ namespace MapCustomInfo {
 
     class DipsSpec {
         string url;
-        float start;
-        float finish;
+        float start = -1.0;
+        float finish = -1.0;
         float[] floors;
+        bool lastFloorEnd = false;
 
         DipsSpec(const string &in mapComment) {
             auto @parts = mapComment.Split(BEGIN_DPP_COMMENT, 2);
@@ -42,6 +43,11 @@ namespace MapCustomInfo {
             if (floors.Find(finish) < 0) {
                 floors.InsertLast(finish);
             }
+            if (start < 0 || finish < 0) {
+                auto minMax = GetMinMaxHeight(cast<CSmArenaClient>(GetApp().CurrentPlayground));
+                if (start < 0) start = minMax.x;
+                if (finish < 0) finish = minMax.y;
+            }
         }
 
         void LoadFromUrl() {
@@ -62,6 +68,7 @@ namespace MapCustomInfo {
                 floors[floorIx] = ParseFloat(value);
             } else if (key == "start") start = ParseFloat(value);
             else if (key == "finish") finish = ParseFloat(value);
+            else if (key == "lastFloorEnd") lastFloorEnd = value.ToLower() == "true";
             else {
                 warn("Unknown key: " + key + " with value: " + value);
             }
@@ -91,10 +98,13 @@ namespace MapCustomInfo {
     }
 
     bool ShouldActivateForMap(CGameCtnChallenge@ map) {
-        return HasBuiltInInfo(map.Id.Value)
-            || CommentContainsBegin(map.Comments)
-            || map.MapInfo.MapUid == S_DD2EasyMapUid
-            || map.MapInfo.MapUid == DD2_MAP_UID;
+        return ShouldActivateForMap(map.MapInfo.MapUid, map.Comments);
+    }
+    bool ShouldActivateForMap(const string &in mapUid, const string &in comments) {
+        return HasBuiltInInfo(GetMwIdValue(mapUid))
+            || CommentContainsBegin(comments)
+            || mapUid == S_DD2EasyMapUid
+            || mapUid == DD2_MAP_UID;
     }
 
     bool CommentContainsBegin(const string &in comment) {
@@ -145,8 +155,26 @@ namespace MapCustomInfo {
         if (builtInUidMwIds.Length > 0) {
             return;
         }
+        // deep dip
         builtInUidMwIds.InsertLast(GetMwIdValue("368fb3vahQeVfD0mP6amCNoYqWc"));
         builtInMapComments.InsertLast(DeepDip1_MapComment);
+        // deep dip cp per floor
+        builtInUidMwIds.InsertLast(GetMwIdValue("xkSwOrkadsrSGx6L2WSlz7gqMr3"));
+        builtInMapComments.InsertLast(DeepDip1_MapComment);
+        // deep dip many cps
+        builtInUidMwIds.InsertLast(GetMwIdValue("NKGeJgC73K1Yw9IHHpoCzbYTXU6"));
+        builtInMapComments.InsertLast(DeepDip1_MapComment);
+    }
+
+    void AddNewMapComment(const string &in uid, const string &in comment) {
+        auto uidMwId = GetMwIdValue(uid);
+        auto ix = builtInUidMwIds.Find(uidMwId);
+        if (ix >= 0) {
+            builtInMapComments[ix] = comment;
+            return;
+        }
+        builtInUidMwIds.InsertLast(uidMwId);
+        builtInMapComments.InsertLast(comment);
     }
 }
 
@@ -164,7 +192,7 @@ url = https://assets.xk.io/d++/deepdip1-spec.json
 
 -- start and finish will be inferred if not present based on map waypoint locations.
 start = 26.0
-finish = 1938.0
+finish = 1970.0
 
 -- floors start at 00 for the ground and increase from there. If you miss a number,
 --   it will be set to a height of -1.0.
@@ -183,6 +211,11 @@ floor11 = 1426.0
 floor12 = 1554.0
 floor13 = 1680.0
 floor14 = 1824.0
+floor15 = 1938.0
+
+-- if true, the last floor's label will be 'End' instead of '15' or whatever floor it is.
+--   (default: false)
+lastFloorEnd = true
 
 -- blank lines are ignored.
 

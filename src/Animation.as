@@ -56,7 +56,7 @@ void ClearAnimations() {
 
 void ClearSubtitleAnimations() {
     for (uint i = 0; i < subtitleAnims.Length; i++) {
-        subtitleAnims[i].endTime = 1;
+        subtitleAnims[i].Reset();
     }
     subtitleAnims.RemoveRange(0, subtitleAnims.Length);
 }

@@ -203,12 +203,18 @@ class FloorVLTrigger : PlaySoundTrigger {
         startnew(CoroutineFunc(this.RunTrigger));
     }
 
+    // will start the RunTrigger coro
+    void StartTrigger() {
+        startnew(CoroutineFunc(this.RunTrigger));
+    }
+
     void RunTrigger() {
         if (PS::viewedPlayer.isLocal) {
             Stats::SetVoiceLinePlayed(floor);
         } else if (!S_VoiceLinesInSpec) {
             return;
         }
+        ClearSubtitleAnimations();
         PlaySoundTrigger::OnEnteredTrigger(_tmpPrevTrigger);
         while (audioChain is null || !audioChain.isPlaying) {
             yield();
@@ -459,6 +465,8 @@ GameTrigger@[]@ generateVoiceLineTriggers() {
 
 // for easy map
 EasyFloorVLTrigger@ t_EasyMapFinishVL = EasyFloorVLTrigger("ez-vl-preludial-epiloge"); /* keep typo */
+// for main map
+FloorVLTrigger@ t_DD2MapFinishVL = FloorVLTrigger(vec3(), vec3() , "DD2 Epilogue", 17);
 
 
 GameTrigger@[]@ generateMonumentTriggers() {

@@ -164,7 +164,7 @@ class TextOverlayAnim2 : TextOverlayAnim {
             dev_trace('TextOverlayAnim2: TextOverlayAnim::Update() returned false');
             triggered2 = true;
             audio.StartFadeOutLoop();
-            cloverSubs.endTime = 1;
+            cloverSubs.Reset();
         }
         if (!triggered2 && playingStartTime > 0 && (Time::Now - playingStartTime) > audio1Len) {
             triggered2 = true;
@@ -179,7 +179,7 @@ class TextOverlayAnim2 : TextOverlayAnim {
         AddSubtitleAnimation(cloverSubs);
         while (Time::Now < audio2Len + playingStartTime + audio1Len + 1000 && StillInTrigger) yield();
         dev_trace('TextOverlayAnim2: Ending Audio2Subs');
-        cloverSubs.endTime = 1;
+        cloverSubs.Reset();
         audio.StartFadeOutLoop();
     }
 }

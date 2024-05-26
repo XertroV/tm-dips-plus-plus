@@ -149,7 +149,8 @@ namespace DebugMenu {
             //     if (map !is null) DD2_EASY_MAP_UID2 = map.EdChallengeId;
             //     MatchDD2::lastMapMwId = 0;
             // }
-            if (UI::MenuItem("Play Ez Finish")) {
+            if (UI::MenuItem("Play Finish")) {
+                OnFinish::isFinishSeqRunning = false;
                 OnLocalPlayerFinished(null);
             }
             if (UI::BeginMenu("Anims")) {

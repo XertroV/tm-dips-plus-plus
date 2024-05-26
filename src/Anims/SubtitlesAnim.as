@@ -75,9 +75,13 @@ class SubtitlesAnim : Animation {
             + " | ix: " + currIx + " | lineFade: " + currLineFadeProgress;
     }
 
+    void Reset() {
+        OnEndAnim();
+    }
+
     void OnEndAnim() override {
         lastUpdate = 0;
-        time = 0;
+        time = Time::Now;
         delta = 0;
         progressMs = 0;
         currIx = -1;
@@ -100,7 +104,7 @@ class SubtitlesAnim : Animation {
         }
 
         time = Time::Now;
-        if (lastUpdate == 0) {
+        if (lastUpdate < 1000) {
             delta = 0;
         } else {
             delta = time - lastUpdate;
@@ -109,7 +113,9 @@ class SubtitlesAnim : Animation {
             // }
         }
         if (!IsPauseMenuOpen(S_PauseWhenGameUnfocused)) {
+            // trace('progress pre: ' + progressMs + ' + ' + delta + ' < ' + endTime);
             progressMs += delta;
+            // trace('progress post: ' + progressMs + ' < ' + endTime);
             UpdateInner();
         }
         lastUpdate = time;

@@ -1,6 +1,8 @@
 void OnLocalPlayerFinished(PlayerState@ p) {
-    if (p.isLocal) {
-        Stats::LogDD2EasyFinish();
+    if (p !is null && p.isLocal) {
+        if (MatchDD2::isDD2Proper) Stats::LogDD2Finish();
+        else if (MatchDD2::isEasyDD2Map) Stats::LogDD2EasyFinish();
+        else Stats::LogFinish();
     }
     startnew(OnFinish::RunFinishSequenceCoro);
     OnFinish::playerFinishedLastAt = Time::Now;
@@ -41,8 +43,20 @@ namespace OnFinish {
     }
 
     void StartCelebrationAnim() {
+        if (MatchDD2::isEasyDD2Map) {
+            StartEzCelebrationAnim();
+        } else if (MatchDD2::isDD2Proper) {
+            StartDD2CelebrationAnim();
+        }
+    }
+
+    void StartEzCelebrationAnim() {
         EmitStatusAnimation(RainbowStaticStatusMsg(ChooseEzFinLine()).WithDuration(7000).WithSize(140.).WithScreenUv(vec2(.5, .25)));
         EmitStatusAnimation(RainbowStaticStatusMsg(ChooseEzFinLine()).WithDuration(10000).WithSize(140.).WithScreenUv(vec2(.5, .60)));
+    }
+
+    void StartDD2CelebrationAnim() {
+        EmitStatusAnimation(FinishFireworksAnim());
     }
 
     void WaitForRespawn() {
@@ -59,10 +73,23 @@ namespace OnFinish {
             break;
         }
         sleep(100);
-        g_ShowEzFinishEpilogueScreen = true;
+        if (MatchDD2::isEasyDD2Map) {
+            g_ShowEzFinishEpilogueScreen = true;
+        } else if (MatchDD2::isDD2Proper) {
+            g_ShowDD2FinishEpilogueScreen = true;
+        }
     }
 
     bool g_ShowEzFinishEpilogueScreen = false;
+    bool g_ShowDD2FinishEpilogueScreen = false;
+
+    void Render() {
+        if (g_ShowEzFinishEpilogueScreen) {
+            RenderEzEpilogue();
+        } else if (g_ShowDD2FinishEpilogueScreen) {
+            RenderDD2Epilogue();
+        }
+    }
 
     int flags = UI::WindowFlags::NoCollapse | UI::WindowFlags::NoResize | UI::WindowFlags::NoSavedSettings | UI::WindowFlags::AlwaysAutoResize | UI::WindowFlags::NoTitleBar;
     float ui_scale = UI::GetScale();
@@ -90,6 +117,34 @@ namespace OnFinish {
             }
         }
         UI::End();
+    }
+
+    void RenderDD2Epilogue() {
+        if (!g_ShowDD2FinishEpilogueScreen) return;
+        UI::SetNextWindowSize(windowSize.x, windowSize.y, UI::Cond::Always);
+        auto pos = (int2(g_screen.x / ui_scale, g_screen.y / ui_scale) - windowSize) / 2;
+        UI::SetNextWindowPos(pos.x, pos.y, UI::Cond::Always);
+        // timeout or no map
+        bool drawSkip = (playerFinishedLastAt > 0 && Time::Now - playerFinishedLastAt > 25000) || GetApp().RootMap is null;
+        if (UI::Begin("dpp ez fin epilogue", flags)) {
+            UI::Dummy(vec2(0, 85));
+            DrawCenteredText("Congratulations!", f_DroidBigger, 26);
+            if (DrawCenteredButton("Play Epilogue", f_DroidBigger, 26)) {
+                startnew(PlayDD2Epilogue);
+                EmitStatusAnimation(DD2FinCelebrationAnim());
+                g_ShowDD2FinishEpilogueScreen = false;
+            }
+            UI::Dummy(vec2(0, 18));
+            // if (drawSkip && DrawCenteredButton("Skip Epilogue", f_DroidBig, 20.)) {
+            //     g_ShowDD2FinishEpilogueScreen = false;
+            //     isFinishSeqRunning = false;
+            // }
+        }
+        UI::End();
+    }
+
+    void PlayDD2Epilogue() {
+        t_DD2MapFinishVL.StartTrigger();
     }
 
     void PlayEzEpilogue() {
@@ -146,15 +201,20 @@ namespace OnFinish {
     }
 }
 
-// Meta::PluginCoroutine@ eh = startnew(function() {
-//     vec2 startAE = vec2(5.467, 1.959);
-//     vec2 midAE = vec2(4.645, 2.370);
-//     vec2 midAE2 = vec2(4.041, 2.697);
-//     vec2 endAE = vec2(3.766, 3.113);
-//     print("l1: " + (startAE - midAE).Length());
-//     print("l2: " + (midAE - midAE2).Length());
-//     print("l3: " + (midAE2 - endAE).Length());
-//     // 0.919024
-//     // 0.686837
-//     // 0.498679
-// });
+class FinishFireworksAnim : ProgressAnim {
+    FinishFireworksAnim() {
+        super("finish fireworks", nat2(0, 155000));
+        fadeIn = 500;
+        fadeOut = 500;
+        pauseWhenMenuOpen = false;
+    }
+}
+
+class DD2FinCelebrationAnim : ProgressAnim {
+    DD2FinCelebrationAnim() {
+        super("dd2 fin celebration", nat2(0, 155000));
+        fadeIn = 500;
+        fadeOut = 500;
+        pauseWhenMenuOpen = false;
+    }
+}

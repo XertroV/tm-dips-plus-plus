@@ -35,7 +35,7 @@ namespace Stats {
     uint lastLoadedDeepDip2Ts = 0;
 
     void DrawStatsUI() {
-        DrawCenteredText("My Stats", f_DroidBigger, 26.);
+        DrawCenteredText("My Stats (DD2)", f_DroidBigger, 26.);
         UI::Columns(2, "myStatsColumns", true);
         UI::Text("Time spent in map");
         UI::Text("Jumps");
@@ -92,21 +92,13 @@ namespace Stats {
         // are these better than the stats we have?
         float statsHeight = j['pb_height'];
         warn("[server stats] Server height " + statsHeight + ", local height " + pbHeight);
-        if (S_EnableForEasyMap && S_EnableSavingStatsOnEasyMap) {
-            warn("Updating stats: easy map compatibility");
-            pbHeight = Math::Max(pbHeight, statsHeight);
-            pbFloor = HeightToFloor(pbHeight);
-            lastPbSetTs = j['last_pb_set_ts'];
-            lastPbSet = Time::Now;
-        } else if (statsHeight > pbHeight) {
+        if (statsHeight > pbHeight) {
             warn("Updating with stats from server since pbHeight is greater");
             pbHeight = statsHeight;
             pbFloor = HeightToFloor(pbHeight);
             // pbFloor = MapFloor(int(j['pb_floor']));
             lastPbSetTs = j['last_pb_set_ts'];
             lastPbSet = Time::Now;
-        } else {
-            // ! todo
         }
         msSpentInMap = Math::Max(msSpentInMap, uint(j['seconds_spent_in_map']) * 1000);
         nbJumps = Math::Max(nbJumps, j['nb_jumps']);
@@ -146,16 +138,14 @@ namespace Stats {
         }
 
         if (!F_HaveDoneEasyMapCheck) {
-            S_EnableForEasyMap = pbHeight < 90.;
-            S_EnableSavingStatsOnEasyMap = S_EnableForEasyMap;
-            F_PlayedDD2BeforeEasyMap = !S_EnableForEasyMap;
             F_HaveDoneEasyMapCheck = true;
-            MatchDD2::lastMapMwId = 0;
             Meta::SaveSettings();
         }
 
         trace("Loaded server stats; after: " + Json::Write(GetStatsJson()));
     }
+
+    float pbHeightFromJsonFile;
 
     void LoadStatsFromJson(Json::Value@ j) {
         if (j.HasKey("ReportStats")) @j = j['ReportStats'];
@@ -167,11 +157,11 @@ namespace Stats {
         nbFloorsFallen = j["nb_floors_fallen"];
         lastPbSetTs = j["last_pb_set_ts"];
         totalDistFallen = j["total_dist_fallen"];
-        // don't restore pb height unless easy map enabled
-        if (S_EnableForEasyMap && S_EnableSavingStatsOnEasyMap) {
-            pbHeight = j["pb_height"];
-        }
-        pbFloor = HeightToFloor(pbHeight);
+        // don't restore pb height for DD2, get from server
+        // pbHeight = j["pb_height"];
+        // pbFloor = HeightToFloor(pbHeight);
+        // save it for migration though
+        pbHeightFromJsonFile = j["pb_height"];
         nbResets = j["nb_resets"];
         ggsTriggered = j["ggs_triggered"];
         titleGagsTriggered = j["title_gags_triggered"];
@@ -349,6 +339,13 @@ namespace Stats {
         }
         IncrJsonIntCounter(extra, "debugTs");
         UpdateStatsSoon();
+    }
+
+    void LogFinish() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogNormalFinish();
+            return;
+        }
     }
 
     void LogDD2Finish() {

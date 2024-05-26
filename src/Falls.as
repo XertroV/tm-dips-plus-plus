@@ -226,10 +226,16 @@ int HeightToFloor(CustomMap@ cmap, float h) {
     return HeightToFloorBinarySearch(h, cmap.floors);
 }
 
-MapFloor HeightToFloorBinarySearch(float h, const float[]@ heights = null) {
+MapFloor HeightToFloor(float h, const float[]@ heights) {
+    return HeightToFloorBinarySearch(h, heights);
+}
+
+MapFloor HeightToFloorBinarySearch(float h, const float[]@ _heights = null) {
+    auto @heights = _heights;
     if (heights is null) {
         @heights = GetDd2FloorHeights();
     }
+    if (heights is null) throw("null heights");
     int l = 0;
     int r = heights.Length - 1;
     while (l < r) {
@@ -249,17 +255,19 @@ MapFloor HeightToFloorBinarySearch(float h, const float[]@ heights = null) {
 
 
 void test_HeightToFloorBinSearch() {
+    yield();
+    yield();
     for (int i = 0; i < 18; i++) {
-        assert_eq(HeightToFloor(DD2_FLOOR_HEIGHTS[i]), MapFloor(i), "HeightToFloorBinSearch failed at " + i + " " + DD2_FLOOR_HEIGHTS[i]);
+        assert_eq(HeightToFloor(DD2_FLOOR_HEIGHTS[i], DD2_FLOOR_HEIGHTS), MapFloor(i), "HeightToFloorBinSearch failed at " + i + " " + DD2_FLOOR_HEIGHTS[i] + " got: " + HeightToFloor(DD2_FLOOR_HEIGHTS[i], DD2_FLOOR_HEIGHTS) + ".");
     }
     for (int i = 0; i < 18; i++) {
-        assert_eq(HeightToFloor(DD2_FLOOR_HEIGHTS[i] - 0.01), MapFloor(Math::Max(0, i - 1)), "HeightToFloorBinSearch failed under " + i + " " + DD2_FLOOR_HEIGHTS[i]);
+        assert_eq(HeightToFloor(DD2_FLOOR_HEIGHTS[i] - 0.01, DD2_FLOOR_HEIGHTS), MapFloor(Math::Max(0, i - 1)), "HeightToFloorBinSearch failed under " + i + " " + DD2_FLOOR_HEIGHTS[i] + " got: " + HeightToFloor(DD2_FLOOR_HEIGHTS[i], DD2_FLOOR_HEIGHTS) + ".");
     }
     for (int i = 0; i < 18; i++) {
-        assert_eq(HeightToFloor(DD2_FLOOR_HEIGHTS[i] + 0.01), MapFloor(i), "HeightToFloorBinSearch failed over " + i + " " + DD2_FLOOR_HEIGHTS[i]);
+        assert_eq(HeightToFloor(DD2_FLOOR_HEIGHTS[i] + 0.01, DD2_FLOOR_HEIGHTS), MapFloor(i), "HeightToFloorBinSearch failed over " + i + " " + DD2_FLOOR_HEIGHTS[i] + " got: " + HeightToFloor(DD2_FLOOR_HEIGHTS[i], DD2_FLOOR_HEIGHTS) + ".");
     }
-    assert_eq(HeightToFloor(3000), MapFloor::Finish, "HeightToFloorBinSearch failed over finish");
-    assert_eq(HeightToFloor(-1000), MapFloor::FloorGang, "HeightToFloorBinSearch failed under ground");
+    assert_eq(HeightToFloor(3000, DD2_FLOOR_HEIGHTS), MapFloor::Finish, "HeightToFloorBinSearch failed over finish");
+    assert_eq(HeightToFloor(-1000, DD2_FLOOR_HEIGHTS), MapFloor::FloorGang, "HeightToFloorBinSearch failed under ground");
     print("\\$0f0HeightToFloorBinSearch done");
     return;
 }

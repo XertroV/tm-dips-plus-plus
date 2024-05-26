@@ -27,11 +27,21 @@ class MapStats {
     uint lastPbSet = 0;
     uint lastInMap = Time::Stamp;
 
+    MapStats(const string &in mapUid, const string &in name) {
+        this.mapUid = mapUid;
+        _mapMwId = GetMwIdValue(mapUid);
+        this.mapName = name;
+        AfterConstructor();
+    }
     MapStats(CGameCtnChallenge@ map) {
         mapUid = map.MapInfo.MapUid;
         _mapMwId = map.Id.Value;
-        isDD2 = mapUid == DD2_MAP_UID;
         mapName = map.MapInfo.Name;
+        AfterConstructor();
+    }
+
+    protected void AfterConstructor() {
+        isDD2 = mapUid == DD2_MAP_UID;
         jsonFile = GetMapStatsFileName(mapUid);
         if (!IO::FileExists(jsonFile)) {
             InitJsonFile();
@@ -39,7 +49,6 @@ class MapStats {
             Json::Value@ j = Json::FromFile(jsonFile);
             LoadJsonFromFile(j);
         }
-        startnew(CoroutineFunc(MapWatchLoop));
     }
 
     ~MapStats() {
@@ -55,6 +64,10 @@ class MapStats {
 
     void SaveToDisk() {
         Json::ToFile(jsonFile, this.ToJson());
+    }
+
+    void SaveToBackupStatsFile() {
+        Json::ToFile(jsonFile + ".bak", this.ToJson());
     }
 
     void LoadJsonFromFile(Json::Value@ j) {
@@ -118,37 +131,76 @@ class MapStats {
         return mapUid == S_DD2EasyMapUid;
     }
 
+    bool editStats = false;
     void DrawStatsUI() {
-        DrawCenteredText("My Stats", f_DroidBigger, 26.);
-        UI::Columns(2, "myStatsColumns", true);
-        UI::Text("Time spent in map");
-        UI::Text("Jumps");
-        UI::Text("Falls");
-        UI::Text("Floors fallen");
-        UI::Text("Total distance fallen");
-        UI::Text("Personal best height");
-        UI::Text("Personal best floor");
-        UI::Text("Resets");
-        UI::Text("Title gags triggered");
-        UI::Text("Special Title Gags triggered");
-        UI::Text("GGs triggered");
-        UI::Text("Bye Byes triggered");
-        UI::NextColumn();
-        UI::Text(Time::Format(msSpentInMap, false, true, true));
-        UI::Text("" + nbJumps);
-        UI::Text("" + nbFalls);
-        UI::Text("" + nbFloorsFallen);
-        UI::Text(Text::Format("%.1f m", totalDistFallen));
-        UI::Text(Text::Format("%.1f m", pbHeight));
-        UI::Text(tostring(pbFloor));
-        UI::Text("" + nbResets);
-        UI::Text("" + titleGagsTriggered);
-        UI::Text("" + titleGagsSpecialTriggered);
-        UI::Text("" + ggsTriggered);
-        UI::Text("" + byeByesTriggered);
-        UI::Columns(1);
+        DrawCenteredText("My Stats - " + mapName, f_DroidBigger, 26.);
+        editStats = UI::Checkbox("Edit stats", editStats);
+        if (!editStats) {
+            UI::Columns(2, "myStatsColumns", true);
+            UI::Text("Time spent in map");
+            UI::Text("Jumps");
+            UI::Text("Falls");
+            UI::Text("Floors fallen");
+            UI::Text("Total distance fallen");
+            UI::Text("Personal best height");
+            UI::Text("Personal best floor");
+            UI::Text("Resets");
+            UI::Text("Title gags triggered");
+            UI::Text("Special Title Gags triggered");
+            UI::Text("GGs triggered");
+            UI::Text("Bye Byes triggered");
+            UI::NextColumn();
+            UI::Text(Time::Format(msSpentInMap, false, true, true));
+            UI::Text("" + nbJumps);
+            UI::Text("" + nbFalls);
+            UI::Text("" + nbFloorsFallen);
+            UI::Text(Text::Format("%.1f m", totalDistFallen));
+            UI::Text(Text::Format("%.1f m", pbHeight));
+            UI::Text(tostring(pbFloor));
+            UI::Text("" + nbResets);
+            UI::Text("" + titleGagsTriggered);
+            UI::Text("" + titleGagsSpecialTriggered);
+            UI::Text("" + ggsTriggered);
+            UI::Text("" + byeByesTriggered);
+            UI::Columns(1);
+        } else {
+            UI::Text("Time spent in map: Edit via Green Timer settings");
+            UI::PushItemWidth(140.);
+            nbJumps = UI::InputInt("Jumps", nbJumps);
+            nbFalls = UI::InputInt("Falls", nbFalls);
+            nbFloorsFallen = UI::InputInt("Floors fallen", nbFloorsFallen);
+            totalDistFallen = UI::InputFloat("Total distance fallen", totalDistFallen);
+            pbHeight = UI::InputFloat("Personal best height", pbHeight);
+            pbFloor = UI::InputInt("Personal best floor", pbFloor);
+            nbResets = UI::InputInt("Resets", nbResets);
+            titleGagsTriggered = UI::InputInt("Title gags triggered", titleGagsTriggered);
+            titleGagsSpecialTriggered = UI::InputInt("Special Title Gags triggered", titleGagsSpecialTriggered);
+            ggsTriggered = UI::InputInt("GGs triggered", ggsTriggered);
+            byeByesTriggered = UI::InputInt("Bye Byes triggered", byeByesTriggered);
+            UI::PopItemWidth();
+            DrawUintRow(floorVoiceLinesPlayed, "Floor voice lines played", 20., "fvls");
+            UI::Separator();
+            if (UI::Button("Copy From Main Stats")) {
+                SaveToBackupStatsFile();
+                _RunEzMapStatsMigration();
+                Notify("Stats backed up to " + jsonFile + ".bak", 10000);
+            }
+        }
     }
 
+    void DrawUintRow(uint[]@ arr, const string &in label, float itemWidth, const string &in id) {
+        UI::Text(label);
+        UI::SameLine();
+        UI::PushItemWidth(itemWidth);
+        for (uint i = 0; i < arr.Length; i++) {
+            arr[i] = UI::InputInt("##" + i + id, arr[i], 0);
+            UI::SameLine();
+        }
+        if (UI::Button(Icons::Plus + "##" + id)) {
+            arr.InsertLast(0);
+        }
+        UI::PopItemWidth();
+    }
 
     void SaveStatsSoon() {
         // start coroutine that waits a bit and then updates stats
@@ -363,16 +415,23 @@ MapStats@ GetMapStats(CGameCtnChallenge@ map) {
     if (map is null) return null;
     return MapStatsCache::Get(map);
 }
+MapStats@ GetMapStats(const string &in mapUid, const string &in mapName) {
+    return MapStatsCache::Get(mapUid, mapName);
+}
 
 namespace MapStatsCache {
     dictionary _cachedMapStats;
 
     MapStats@ Get(CGameCtnChallenge@ map) {
-        if (_cachedMapStats.Exists(map.MapInfo.MapUid)) {
-            return cast<MapStats>(_cachedMapStats[map.MapInfo.MapUid]);
+        return Get(map.MapInfo.MapUid, map.MapInfo.Name);
+    }
+
+    MapStats@ Get(const string &in mapUid, const string &in mapName) {
+        if (_cachedMapStats.Exists(mapUid)) {
+            return cast<MapStats>(_cachedMapStats[mapUid]);
         }
-        MapStats@ stats = MapStats(map);
-        @_cachedMapStats[map.MapInfo.MapUid] = stats;
+        MapStats@ stats = MapStats(mapUid, mapName);
+        @_cachedMapStats[mapUid] = stats;
         return stats;
     }
 }

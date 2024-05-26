@@ -1,6 +1,3 @@
-[Setting hidden]
-bool S_EnableForEasyMap = true;
-
 // checked when getting stats from server
 [Setting hidden]
 bool F_HaveDoneEasyMapCheck = false;
@@ -10,6 +7,9 @@ bool F_PlayedDD2BeforeEasyMap = false;
 
 [Setting hidden]
 bool S_EnableSavingStatsOnEasyMap = true;
+
+[Setting hidden]
+bool S_EnableForEasyMap = true;
 
 // before post processing
 const string DD2_EASY_MAP_UID2 = "NKvTW5AJPyoibZmpNhuEqkLpCB9";

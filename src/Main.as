@@ -47,6 +47,10 @@ bool G_Initialized = false;
 void Main() {
     g_LocalPlayerMwId = GetLocalPlayerMwId();
     yield();
+    // ~~don't trust users not to just edit the file; get it from server instead.~~
+    Stats::BackupForSafety();
+    Stats::OnStartTryRestoreFromFile();
+    RunEzMapStatsMigration();
     startnew(LoadFonts);
     startnew(LoadGlobalTextures);
     startnew(PreloadCriticalSounds);
@@ -57,9 +61,6 @@ void Main() {
     // GenerateHeightStrings();
     InitDD2TriggerTree();
     yield();
-    // ~~don't trust users not to just edit the file; get it from server instead.~~
-    startnew(Stats::BackupForSafety);
-    startnew(Stats::OnStartTryRestoreFromFile);
     startnew(GreenTimer::OnPluginStart);
     startnew(Wizard::OnPluginLoad);
     startnew(SF::LoadPtrs);
@@ -175,7 +176,7 @@ void Render() {
         MainUI::Render();
     }
     if (g_Active) {
-        OnFinish::RenderEzEpilogue();
+        OnFinish::Render();
         GreenTimer::Render(drawAnywhereGame);
         HUD::Render(PS::viewedPlayer, drawAnywhereGame);
         RenderAnimations(drawAnywhereGame);
@@ -311,6 +312,7 @@ void RenderSubtitleAnims(bool doDraw) {
     if (subtitleAnims[0].Update()) {
         if (doDraw) subtitleAnims[0].Draw();
     } else {
+        dev_trace("removing subtitle at 0");
         subtitleAnims.RemoveAt(0);
         if (g_SubtitlesOutsideMapCount > 0) {
             g_SubtitlesOutsideMapCount--;
@@ -533,20 +535,20 @@ vec4 GenRandomColor(float alpha = 1.0) {
 
 
 
-void Notify(const string &in msg) {
-    UI::ShowNotification(Meta::ExecutingPlugin().Name, msg);
-    trace("Notified: " + msg);
+void Notify(const string &in msg, int time = 5000) {
+    UI::ShowNotification(Meta::ExecutingPlugin().Name, msg, time);
+    print("Notified: " + msg);
 }
 void Dev_Notify(const string &in msg) {
 #if DEV
     UI::ShowNotification(Meta::ExecutingPlugin().Name, msg);
-    trace("Notified: " + msg);
+    print("Notified: " + msg);
 #endif
 }
 
 void NotifySuccess(const string &in msg) {
     UI::ShowNotification(Meta::ExecutingPlugin().Name, msg, vec4(.4, .7, .1, .3), 10000);
-    trace("Notified: " + msg);
+    print("Notified Success: " + msg);
 }
 
 void NotifyError(const string &in msg) {

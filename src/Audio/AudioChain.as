@@ -16,6 +16,7 @@ class AudioChain {
     string[]@ samplePaths;
     string samplesStr;
     bool onlyInMap = true;
+    int channel = 0;
 
     AudioChain(string[]@ samplePaths) {
         @this.samplePaths = samplePaths;
@@ -25,6 +26,11 @@ class AudioChain {
 
     AudioChain@ WithPlayAnywhere() {
         onlyInMap = false;
+        return this;
+    }
+
+    AudioChain@ WithChannel(int channel) {
+        this.channel = channel;
         return this;
     }
 
@@ -59,6 +65,11 @@ class AudioChain {
             if (voice.IsPaused()) voice.Play();
             @voice = null;
         }
+        RemoveSelfFromChannel();
+    }
+
+    void RemoveSelfFromChannel() {
+        if (lastPlayingChs[channel] is this) @lastPlayingChs[channel] = null;
     }
 
     void AppendSample(Audio::Sample@ sample) {
@@ -89,6 +100,8 @@ class AudioChain {
     }
 
     void PlayLoop() {
+        TryClearingAudioChannel(this.channel);
+        @lastPlayingChs[channel] = this;
         trace("Awaiting audio " + this.samplesStr);
         while (IsLoading) yield();
         trace("Starting audio " + this.samplesStr);
@@ -132,6 +145,7 @@ class AudioChain {
         }
         dev_trace("Audio done " + this.samplesStr);
         isPlaying = false;
+        if (lastPlayingChs[channel] is this) @lastPlayingChs[channel] = null;
     }
 
     uint startFadeOut = 0;
@@ -147,6 +161,7 @@ class AudioChain {
                 float t = (Time::Now - startFadeOut);
                 if (t >= VoiceFadeOutDurationMs) {
                     voice.SetGain(0.0);
+                    voice.Play();
                     @voice = null;
                     break;
                 }
@@ -155,6 +170,16 @@ class AudioChain {
             }
             yield();
         }
+        RemoveSelfFromChannel();
+    }
+}
+
+AudioChain@[] lastPlayingChs = {null, null};
+
+void TryClearingAudioChannel(int channel = 0) {
+    if (lastPlayingChs[channel] !is null) {
+        lastPlayingChs[channel].StartFadeOutLoop();
+        @lastPlayingChs[channel] = null;
     }
 }
 

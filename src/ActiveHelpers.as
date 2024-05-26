@@ -11,21 +11,20 @@ Thank you.
 
 namespace MatchDD2 {
     uint lastMapMwId = 0;
-    bool lastMapMatchesDD2Uid = false;
+    bool lastMapMatchesAnyDD2Uid = false;
     bool isEasyDD2Map = false;
     bool isDD2Proper = false;
 
     bool MapMatchesDD2Uid(CGameCtnChallenge@ map) {
         if (map is null) return false;
         if (map.EdChallengeId.Length == 0) return false;
-        if (lastMapMwId == map.Id.Value) return lastMapMatchesDD2Uid;
+        if (lastMapMwId == map.Id.Value) return lastMapMatchesAnyDD2Uid;
         lastMapMwId = map.Id.Value;
-        isEasyDD2Map = S_EnableForEasyMap
-                    && (map.EdChallengeId == S_DD2EasyMapUid
+        isEasyDD2Map = (map.EdChallengeId == S_DD2EasyMapUid
                     ||  map.EdChallengeId == DD2_EASY_MAP_UID2);
         isDD2Proper = map.EdChallengeId == DD2_MAP_UID;
-        lastMapMatchesDD2Uid = isEasyDD2Map || isDD2Proper;
-        return lastMapMatchesDD2Uid;
+        lastMapMatchesAnyDD2Uid = isEasyDD2Map || isDD2Proper;
+        return lastMapMatchesAnyDD2Uid;
             // || S_ActiveForMapUids == "*"
     }
 }

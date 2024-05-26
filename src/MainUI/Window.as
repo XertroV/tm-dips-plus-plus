@@ -20,7 +20,7 @@ namespace MainUI {
                 UI::EndMenuBar();
             }
             UI::BeginTabBar("MainTabBar");
-            if (UI::BeginTabItem("Stats")) {
+            if (UI::BeginTabItem("DD2 Stats")) {
                 DrawStatsTab();
                 UI::EndTabItem();
             }
@@ -53,6 +53,15 @@ namespace MainUI {
             if (g_Active) {
                 if (UI::BeginTabItem("Spectate")) {
                     DrawSpectateTab();
+                    UI::EndTabItem();
+                }
+
+                if (!MatchDD2::isDD2Proper && UI::BeginTabItem("Map Stats")) {
+                    if (g_CustomMap is null) {
+                        UI::TextWrapped("Unknown error: g_CustomMap is null. (Bug)");
+                    } else {
+                        g_CustomMap.stats.DrawStatsUI();
+                    }
                     UI::EndTabItem();
                 }
             }
@@ -426,7 +435,7 @@ namespace MainUI {
     void DrawVoiceLinesTab() {
         DrawCenteredText("Voice Lines", f_DroidBigger, 26.);
         UI::Separator();
-        UI::BeginDisabled(IsVoiceLinePlaying());
+        UI::BeginDisabled(IsVoiceLinePlaying() && false);
         for (uint i = 0; i < 18; i++) {
             if (Stats::HasPlayedVoiceLine(i)) {
                 UI::AlignTextToFramePadding();
@@ -450,14 +459,15 @@ namespace MainUI {
     }
 
     void PlayVoiceLine(uint floor) {
-        if (floor >= 17) return;
+        if (floor > 17) return;
         if (voiceLineTriggers.Length < 17) return;
-        if (IsVoiceLinePlaying()) return;
         if (!Stats::HasPlayedVoiceLine(floor)) return;
         auto @vlTrigger = cast<FloorVLTrigger>(voiceLineTriggers[floor]);
         if (vlTrigger is null) return;
         vlTrigger.PlayNextAnywhere();
+        ClearSubtitleAnimations();
         startnew(CoroutineFunc(vlTrigger.PlayItem));
+        vlTrigger.subtitles.Reset();
         AddSubtitleAnimation(vlTrigger.subtitles);
         dev_trace('subtitle play is vae? ' + vlTrigger.subtitles.isVae);
         g_SubtitlesOutsideMapCount++;

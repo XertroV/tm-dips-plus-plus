@@ -2,7 +2,6 @@ CustomMap@ g_CustomMap;
 
 void CustomMap_SetOnNewCustomMap(CustomMap@ map) {
     @g_CustomMap = map;
-    CurrMap::isDD2 = map.isDD2;
 }
 
 class CustomMap {
@@ -14,6 +13,7 @@ class CustomMap {
     MapCustomInfo::DipsSpec@ spec;
     string loadError;
     float[] floors;
+    bool lastFloorEnd = false;
 
     CustomMap(CGameCtnChallenge@ map) {
         if (MapCustomInfo::ShouldActivateForMap(map)) {
@@ -22,6 +22,15 @@ class CustomMap {
             useDD2Triggers = stats.isDD2 || stats.isEzMap;
             map.MwAddRef();
             startnew(CoroutineFuncUserdata(LoadCustomMapData), map);
+        }
+    }
+
+    CustomMap(const string &in mapUid, const string &in mapName) {
+        if (MapCustomInfo::ShouldActivateForMap(mapUid, "")) {
+            @stats = GetMapStats(mapUid, mapName);
+            isDD2 = stats.isDD2;
+            useDD2Triggers = stats.isDD2 || stats.isEzMap;
+            startnew(CoroutineFuncUserdata(CheckForUploadedMapData), array<string> = {mapUid});
         }
     }
 
@@ -49,15 +58,40 @@ class CustomMap {
     // can yield
     bool TryLoadingCustomData(CGameCtnChallenge@ map) {
         if (map is null) return false;
-        if ((@spec = MapCustomInfo::GetBuiltInInfo_Async(map.Id.Value)) !is null) {
-            return true;
-        }
+        @spec = MapCustomInfo::GetBuiltInInfo_Async(map.Id.Value);
         mapComment = map.Comments;
-        @spec = MapCustomInfo::TryParse_Async(mapComment);
+        if (spec is null) {
+            @spec = MapCustomInfo::TryParse_Async(mapComment);
+        }
+        loadError = MapCustomInfo::lastParseFailReason;
+        if (spec is null) {
+            startnew(CoroutineFuncUserdata(CheckForUploadedMapData), array<string> = {stats.mapUid});
+            return false;
+        }
         for (uint i = 0; i < spec.floors.Length; i++) {
             floors.InsertLast(spec.floors[i]);
         }
-        loadError = MapCustomInfo::lastParseFailReason;
-        return spec !is null;
+        lastFloorEnd = spec.lastFloorEnd;
+        return true;
     }
+}
+
+const string MapInfosUploadedURL = "https://assets.xk.io/d++maps/";
+
+void CheckForUploadedMapData(ref@ data) {
+    auto mapUid = cast<string[]>(data)[0];
+    auto url = MapInfosUploadedURL + mapUid + ".txt";
+    Net::HttpRequest@ req = Net::HttpGet(url);
+    while (!req.Finished()) {
+        yield();
+    }
+    auto status = req.ResponseCode();
+    if (status < 200 || status > 299) {
+        // error
+        if (status != 404) warn("Failed to load map data from " + url + " - status " + status + " response: " + req.String());
+        return;
+    }
+    MapCustomInfo::AddNewMapComment(mapUid, req.String());
+    trace('found and added map data for ' + mapUid + ' from ' + url);
+    CurrMap::lastMapMwId = 0;
 }
