@@ -44,7 +44,7 @@ namespace PS {
             UpdatePlayersAsNeededFromCSmPlayer();
         }
 
-        TriggerCheck_Update();
+        if (MatchDD2::lastMapMatchesAnyDD2Uid) TriggerCheck_Update();
     }
 
     void SortPlayersAndUpdateVehicleIds(CSmArenaClient@ cp) {
