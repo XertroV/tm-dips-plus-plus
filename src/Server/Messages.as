@@ -25,6 +25,7 @@ enum MessageRequestTypes {
     ReportPBHeight = 39,
     ReportPlayerColor = 40,
     ReportTwitch = 41,
+    DowngradeStats = 42,
     // ReportSessionCL = ??,
 
     GetMyStats = 128,
@@ -48,6 +49,7 @@ enum MessageResponseTypes {
 
     Ping = 8,
     ServerInfo = 9,
+    NonFatalErrorMsg = 10,
 
     NewRecord = 32,
 
@@ -164,6 +166,12 @@ OutgoingMsg@ ReportStatsMsg(Json::Value@ statsJson) {
     auto @j = Json::Object();
     j["stats"] = statsJson;
     return WrapMsgJson(j, MessageRequestTypes::ReportStats);
+}
+
+OutgoingMsg@ DowngradeStatsMsg(Json::Value@ statsJson) {
+    auto @j = Json::Object();
+    j["stats"] = statsJson;
+    return WrapMsgJson(j, MessageRequestTypes::DowngradeStats);
 }
 
 // OutgoingMsg@ ReportMapLoad(const string &in uid) {

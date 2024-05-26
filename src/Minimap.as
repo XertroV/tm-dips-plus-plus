@@ -78,7 +78,7 @@ namespace Minimap {
             minimapCenterPos = mmPadding * vScale;
             minimapYOffset = 0.;
             if (S_ScaleMinimapToPlayers) {
-                auto @heights = GetFloorHeights();
+                auto @heights = GetDd2FloorHeights();
                 int drawToBottomOfFloor = Math::Clamp(int(HeightToFloor(playerMaxHeightLast)) + 2, 0, heights.Length - 1);
                 auto maxH = heights[drawToBottomOfFloor];
                 auto propShown = (maxH - heights[0]) / heights[heights.Length - 1];
@@ -221,8 +221,8 @@ namespace Minimap {
             }
         }
 
-        pbHeight = (localPlayer is null || localPlayer.isLocal) ? Stats::pbHeight : Global::GetPlayersPBHeight(localPlayer);
-        RenderMinimapTop3();
+        pbHeight = (localPlayer is null || localPlayer.isLocal) ? Stats::GetPBHeight() : Global::GetPlayersPBHeight(localPlayer);
+        if (CurrMap::isDD2) RenderMinimapTop3();
     }
 
     float HeightToMinimapY(float h) {
@@ -630,7 +630,7 @@ namespace Minimap {
         vec2 textBounds = nvg::TextBounds("00") + vec2(textPad * 2.0, 0);
 
         vec2 pos = vec2(minimapCenterPos.x, 0);
-        auto @heights = GetFloorHeights();
+        auto @heights = GetDd2FloorHeights();
         for (uint i = 0; i < heights.Length; i++) {
             pos.y = HeightToMinimapY(heights[i]);
             nvg::BeginPath();
@@ -654,7 +654,7 @@ namespace Minimap {
             nvg::FillColor(cBlack);
             nvg::TextAlign(nvg::Align::Right | nvg::Align::Middle);
             int numbersBelowEq = MatchDD2::isEasyDD2Map ? 5 : 16;
-            int finNumber = MatchDD2::isEasyDD2Map ? 6 : 18;
+            int finNumber = heights.Length - 1.;
             nvg::Text(
                 pos - vec2(floorNumberBaseHeight * (i < 1 || i > numbersBelowEq ? .8 : 1.0), floorNumberBaseHeight * -0.12),
                 i == 0 ? "F.G." :
@@ -734,6 +734,16 @@ uint GetMapMwIdVal(CGameCtnChallenge@ map) {
     return map.Id.Value;
 }
 
+string GetMwIdName(uint v) {
+    MwId id = MwId(v);
+    return id.GetName();
+}
+uint GetMwIdValue(const string &in name) {
+    MwId id = MwId();
+    id.SetName(name);
+    return id.Value;
+}
+
 // Cold Beginning - f1
 // xddlent
 // Summer Slide
@@ -784,7 +794,9 @@ const float [] DD2_EASY_FLOOR_HEIGHTS = {
     624.0 // Fin
 };
 
-const float[]@ GetFloorHeights() {
+const float[]@ GetDd2FloorHeights() {
+    if (CurrMap::isDD2) return DD2_FLOOR_HEIGHTS;
     if (MatchDD2::isEasyDD2Map) return DD2_EASY_FLOOR_HEIGHTS;
-    return DD2_FLOOR_HEIGHTS;
+    if (g_CustomMap !is null && g_CustomMap.IsEnabledNotDD2 && g_CustomMap.spec !is null) return g_CustomMap.spec.floors;
+    return {};
 }

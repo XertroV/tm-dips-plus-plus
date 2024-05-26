@@ -13,6 +13,7 @@ namespace MatchDD2 {
     uint lastMapMwId = 0;
     bool lastMapMatchesDD2Uid = false;
     bool isEasyDD2Map = false;
+    bool isDD2Proper = false;
 
     bool MapMatchesDD2Uid(CGameCtnChallenge@ map) {
         if (map is null) return false;
@@ -22,9 +23,8 @@ namespace MatchDD2 {
         isEasyDD2Map = S_EnableForEasyMap
                     && (map.EdChallengeId == S_DD2EasyMapUid
                     ||  map.EdChallengeId == DD2_EASY_MAP_UID2);
-        lastMapMatchesDD2Uid = isEasyDD2Map
-            || S_ActiveForMapUids == map.EdChallengeId
-            ;
+        isDD2Proper = map.EdChallengeId == DD2_MAP_UID;
+        lastMapMatchesDD2Uid = isEasyDD2Map || isDD2Proper;
         return lastMapMatchesDD2Uid;
             // || S_ActiveForMapUids == "*"
     }

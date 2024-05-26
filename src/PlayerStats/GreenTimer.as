@@ -54,7 +54,7 @@ namespace GreenTimer {
 
     void _DrawGreenTimer(vec2 pos, int align) {
         nvg::TextAlign(align);
-        string label = Time::Format(Stats::msSpentInMap, false, true, true);
+        string label = Time::Format(Stats::GetTimeInMapMs(), false, true, true);
         if (label.Length < 8) label = "0" + label;
         vec2 bounds = nvg::TextBounds(label.Length > 8 ? "000:00:00" : "00:00:00");
         int nbDigits = label.Length > 8 ? 7 : 6;
@@ -116,7 +116,7 @@ namespace GreenTimer {
             S_GreenTimerAlign = InputAlign("Align", S_GreenTimerAlign);
             S_GreenTimerBg = UI::Checkbox("Semi-transparent Background", S_GreenTimerBg);
 
-            string curr = Time::Format(Stats::msSpentInMap, false, true, true);
+            string curr = Time::Format(Stats::GetTimeInMapMs(), false, true, true);
             if (setTimerTo == "") setTimerTo = curr;
             UI::Text("Current Timer: " + curr);
             bool changed = false;
@@ -143,7 +143,7 @@ namespace GreenTimer {
             int hours = Text::ParseInt(parts[0]);
             int min = Text::ParseInt(parts[1]);
             int sec = Text::ParseInt(parts[2]);
-            Stats::msSpentInMap = (hours * 3600 + min * 60 + sec) * 1000;
+            Stats::SetTimeInMapMs((hours * 3600 + min * 60 + sec) * 1000);
             parseErr = "";
         } catch {
             parseErr = "exception: " + getExceptionInfo();

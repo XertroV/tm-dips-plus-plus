@@ -221,8 +221,15 @@ MapFloor HeightToFloor(float h) {
     // return MapFloor::Finish;
 }
 
-MapFloor HeightToFloorBinarySearch(float h) {
-    const float[]@ heights = GetFloorHeights();
+int HeightToFloor(CustomMap@ cmap, float h) {
+    if (cmap is null || cmap.floors.Length == 0) return 0;
+    return HeightToFloorBinarySearch(h, cmap.floors);
+}
+
+MapFloor HeightToFloorBinarySearch(float h, const float[]@ heights = null) {
+    if (heights is null) {
+        @heights = GetDd2FloorHeights();
+    }
     int l = 0;
     int r = heights.Length - 1;
     while (l < r) {

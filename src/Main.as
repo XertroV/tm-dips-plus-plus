@@ -75,11 +75,11 @@ void Main() {
     G_Initialized = true;
 }
 
-void UnloadSelfSoon() {
-    sleep(3000);
-    auto self = Meta::ExecutingPlugin();
-    Meta::UnloadPlugin(self);
-}
+// void UnloadSelfSoon() {
+//     sleep(3000);
+//     auto self = Meta::ExecutingPlugin();
+//     Meta::UnloadPlugin(self);
+// }
 
 
 
@@ -87,6 +87,7 @@ void UnloadSelfSoon() {
 void OnDestroyed() { _Unload(); }
 void OnDisabled() { _Unload(); }
 void _Unload() {
+    Stats::SaveToDisk();
     if (textOverlayAudio !is null) {
         textOverlayAudio.StartFadeOutLoop();
         @textOverlayAudio = null;
@@ -97,9 +98,6 @@ void _Unload() {
     if (g_api !is null) {
         g_api.Shutdown();
     }
-#if DEV && DEPENDENCY_MLHOOK
-    MLHook::UnregisterMLHooksAndRemoveInjectedML();
-#endif
 }
 
 
@@ -138,6 +136,7 @@ UI::InputBlocking OnKeyPress(bool down, VirtualKey key) {
 bool g_Active = false;
 vec2 g_screen;
 bool IsVehicleActionMap;
+
 
 void RenderEarly() {
     IsVehicleActionMap = UI::CurrentActionMap() == "Vehicle";
@@ -215,12 +214,18 @@ bool S_DisableUiInEditor = true;
 const bool S_DisableUiInEditor = true;
 #endif
 
+bool IsInEditor = true;
+
 bool RenderEarlyInner() {
     if (!G_Initialized) return false;
+    auto app = GetApp();
+    IsInEditor = app.Editor !is null;
+    if (!IsInEditor) {
+        CurrMap::CheckMapChange(app.RootMap);
+    }
     bool wasActive = g_Active;
     // calling Inactive sets g_Active to false
     if (!S_Enabled) return Inactive(wasActive);
-    auto app = GetApp();
     if (app.RootMap is null) return Inactive(wasActive);
     if (app.CurrentPlayground is null) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals.Length == 0) return Inactive(wasActive);
@@ -232,8 +237,9 @@ bool RenderEarlyInner() {
     if (app.Editor !is null) return Inactive(wasActive);
 #endif
     // if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
+    bool matchDd2 = MatchDD2::MapMatchesDD2Uid(app.RootMap);
     // ! uncomment this to enable map UID check
-    if (!MatchDD2::MapMatchesDD2Uid(app.RootMap)) return Inactive(wasActive);
+    if (!(matchDd2 || (g_CustomMap !is null && g_CustomMap.IsEnabled))) return Inactive(wasActive);
     if (!wasActive) EmitGoingActive(true);
     g_Active = true;
     PS::UpdatePlayers();

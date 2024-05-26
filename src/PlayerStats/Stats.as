@@ -186,6 +186,10 @@ namespace Stats {
         trace('loaded json stats; floor vls played len: ' + floorVoiceLinesPlayed.Length);
     }
 
+    void SaveToDisk() {
+        Json::ToFile(STATS_FILE, GetStatsJson());
+    }
+
     void OnStartTryRestoreFromFile() {
         if (IO::FileExists(STATS_FILE)) {
             auto statsJson = Json::FromFile(STATS_FILE);
@@ -205,10 +209,11 @@ namespace Stats {
         }
     }
 
-    // from server
-    LBEntry@[] globalLB;
-
     void LogTimeInMapMs(uint deltaMs) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogTimeInMapMs(deltaMs);
+            return;
+        }
         lastLoadedDeepDip2Ts = Time::Now;
         if (S_PauseTimerWhenWindowUnfocused && IsPauseMenuOpen(true)) return;
         if (S_PauseTimerWhileSpectating && Spectate::IsSpectatorOrMagicSpectator) return;
@@ -216,83 +221,159 @@ namespace Stats {
         UpdateStatsSoon();
     }
 
+    void SetTimeInMapMs(uint64 timeMs) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.SetTimeInMapMs(timeMs);
+            return;
+        }
+        msSpentInMap = timeMs;
+    }
+
+    uint64 GetTimeInMapMs() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            return g_CustomMap.stats.TimeInMapMs;
+        }
+        return msSpentInMap;
+    }
+
     void LogTriggeredSound(const string &in triggerName, const string &in audioFile) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogTriggeredSound(triggerName, audioFile);
+            return;
+        }
         // todo: player stats for triggering stuff
         // this is for arbitrary triggers
         // todo: add collections, etc
     }
 
     void LogTriggeredByeBye() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogTriggeredByeBye();
+            return;
+        }
         byeByesTriggered++;
         UpdateStatsSoon();
     }
 
     void LogTriggeredTitle(const string &in name) {
-        // todo
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogTriggeredTitle(name);
+            return;
+        }
         titleGagsTriggered++;
         UpdateStatsSoon();
     }
 
     void LogTriggeredGG(const string &in name) {
-        // todo
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogTriggeredGG(name);
+            return;
+        }
         ggsTriggered++;
         UpdateStatsSoon();
     }
 
     void LogTriggeredTitleSpecial(const string &in name) {
-        // todo
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogTriggeredTitleSpecial(name);
+            return;
+        }
         titleGagsSpecialTriggered++;
         UpdateStatsSoon();
     }
 
     void LogTriggeredMonuments(MonumentSubject subj) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogTriggeredMonuments(subj);
+            return;
+        }
         monumentTriggers[int(subj)]++;
         UpdateStatsSoon();
     }
 
     void LogJumpStart() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogJumpStart();
+            return;
+        }
         nbJumps++;
     }
 
     void LogFallStart() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogFallStart();
+            return;
+        }
         nbFalls++;
     }
 
     void LogFallEndedLessThanMin() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogFallEndedLessThanMin();
+            return;
+        }
         nbFalls--;
     }
 
     void LogRestart(int raceTime) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogRestart(raceTime);
+            return;
+        }
         nbResets++;
         PushMessage(ReportRespawnMsg(raceTime));
     }
 
     void LogBleb() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogBleb();
+            return;
+        }
         IncrJsonIntCounter(extra, "blebs");
         UpdateStatsSoon();
     }
 
     void LogQuack() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogQuack();
+            return;
+        }
         IncrJsonIntCounter(extra, "quacks");
         UpdateStatsSoon();
     }
 
     void LogDebugTrigger() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogDebugTrigger();
+            return;
+        }
         IncrJsonIntCounter(extra, "debugTs");
         UpdateStatsSoon();
     }
 
     void LogDD2Finish() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogDD2Finish();
+            return;
+        }
         IncrJsonIntCounter(extra, "finish");
         UpdateStatsSoon();
     }
 
     void LogDD2EasyFinish() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogDD2EasyFinish();
+            return;
+        }
         IncrJsonIntCounter(extra, "finishSD");
         UpdateStatsSoon();
     }
 
     void LogEasyVlPlayed(const string &in name) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogEasyVlPlayed(name);
+            return;
+        }
         IncrJsonIntCounter(extra, "evl/" + name);
         UpdateStatsSoon();
     }
@@ -302,6 +383,10 @@ namespace Stats {
     uint lastPlayerNoPbUpdateWarn = 0;
 
     void OnLocalPlayerPosUpdate(PlayerState@ player) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.OnLocalPlayerPosUpdate(player);
+            return;
+        }
         auto pos = player.pos;
         if (pos.y > pbHeight) {
             if (player.raceTime < 2000 || Time::Now - player.lastRespawn < 2000) {
@@ -326,38 +411,66 @@ namespace Stats {
     }
 
     float GetPBHeight() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            return g_CustomMap.stats.PBHeight;
+        }
         return pbHeight;
     }
 
     void AddFloorsFallen(int floors) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.AddFloorsFallen(floors);
+            return;
+        }
         nbFloorsFallen += floors;
         UpdateStatsSoon();
     }
 
     void AddDistanceFallen(float dist) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.AddDistanceFallen(dist);
+            return;
+        }
         totalDistFallen += dist;
         UpdateStatsSoon();
     }
 
     int GetTotalFalls() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            return g_CustomMap.stats.TotalFalls;
+        }
         return nbFalls;
     }
 
     int GetTotalFloorsFallen() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            return g_CustomMap.stats.TotalFloorsFallen;
+        }
         return nbFloorsFallen;
     }
 
     float GetTotalDistanceFallen() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            return g_CustomMap.stats.TotalDistanceFallen;
+        }
         return totalDistFallen;
     }
 
     // for when going up (don't add while falling)
     void LogFloorReached(int floor) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.LogFloorReached(floor);
+            return;
+        }
         reachedFloorCount[floor]++;
         UpdateStatsSoon();
     }
 
     void SetVoiceLinePlayed(int floor) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            g_CustomMap.stats.SetVoiceLinePlayed(floor);
+            return;
+        }
         if (floor < 0 || floor >= floorVoiceLinesPlayed.Length) {
             return;
         }
@@ -366,6 +479,9 @@ namespace Stats {
     }
 
     bool HasPlayedVoiceLine(int floor) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            return g_CustomMap.stats.HasPlayedVoiceLine(floor);
+        }
         if (floor < 0 || floor >= floorVoiceLinesPlayed.Length) {
             return false;
         }
@@ -421,9 +537,9 @@ void UpdatePBHeightWaitLoop() {
 }
 
 
-
+// Okay for unofficial
 void EmitNewHeightPB(PlayerState@ player) {
-    dev_trace("New PB at " + Stats::pbHeight + " on floor " + Stats::pbFloor);
+    // dev_trace("New PB at " + Stats::GetPBHeight() + " on floor " + Stats::GetPBFloor());
     // EmitStatusAnimation(PersonalBestStatusAnim(player));
     EmitStatusAnimation(PersonalBestStatusAnim());
 }

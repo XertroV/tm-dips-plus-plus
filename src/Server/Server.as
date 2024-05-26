@@ -470,6 +470,8 @@ class DD2API {
         @msgHandlers[MessageResponseTypes::Ping] = MsgHandler(PingHandler);
 
         @msgHandlers[MessageResponseTypes::ServerInfo] = MsgHandler(ServerInfoHandler);
+        @msgHandlers[MessageResponseTypes::NonFatalErrorMsg] = MsgHandler(NonFatalErrorMsgHandler);
+
         @msgHandlers[MessageResponseTypes::Stats] = MsgHandler(StatsHandler);
         @msgHandlers[MessageResponseTypes::GlobalLB] = MsgHandler(GlobalLBHandler);
         @msgHandlers[MessageResponseTypes::FriendsLB] = MsgHandler(FriendsLBHandler);
@@ -505,6 +507,19 @@ class DD2API {
         //warn("Server info received.");
         if (msg.HasKey("ServerInfo")) @msg = msg["ServerInfo"];
         Global::SetServerInfoFromJson(msg);
+    }
+
+    void NonFatalErrorMsgHandler(Json::Value@ msg) {
+        // 0 = error, 1 = warn, 2 = info, 3 = success, 4 = debug
+        uint level = msg.Get("level", 2);
+        string message = msg.Get("msg", "No Message");
+        switch (level) {
+            case 0: NotifyError(message); return;
+            case 1: NotifyWarning(message); return;
+            case 3: NotifySuccess(message); return;
+            case 4: Dev_Notify(message); return;
+        }
+        Notify(message);
     }
 
     void StatsHandler(Json::Value@ msg) {
