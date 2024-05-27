@@ -275,10 +275,11 @@ OutgoingMsg@ StressMeMsg() {
 
 
 
-OutgoingMsg@ ReportMapCurrPosMsg(const string &in uid, const vec3 &in pos) {
+OutgoingMsg@ ReportMapCurrPosMsg(const string &in uid, const vec3 &in pos, int64 race_time) {
     auto @j = Json::Object();
     j["uid"] = uid;
     j["pos"] = Vec3ToJson(pos);
+    j["race_time"] = race_time;
     return WrapMsgJson(j, MessageRequestTypes::ReportMapCurrPos);
 }
 

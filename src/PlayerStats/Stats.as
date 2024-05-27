@@ -554,6 +554,7 @@ class LBEntry {
     uint raceTimeAtHeight;
     vec3 color;
     vec3 pos;
+    int race_time;
 
     void SetFromJson(Json::Value@ j) {
         name = j["name"];
@@ -570,5 +571,6 @@ class LBEntry {
             pos = JsonToVec3(j["pos"]);
             height = pos.y;
         }
+        race_time = j.Get("race_time", -1);
     }
 }

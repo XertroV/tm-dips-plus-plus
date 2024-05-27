@@ -612,6 +612,7 @@ namespace Global {
     float height_fallen = 0;
     int nb_players_live = 0;
     int nb_players_climbing = 0;
+    int nb_climbing_shallow_dip = 0;
     dictionary pbCache;
 
     dictionary wsidToPlayerName;
@@ -637,6 +638,7 @@ namespace Global {
             height_fallen = j["height_fallen"];
             nb_players_climbing = JGetInt(j, "nb_players_climbing", 0);
             nb_players_live = JGetInt(j, "nb_players_live", 0);
+            nb_climbing_shallow_dip = JGetInt(j, "nb_climbing_shallow_dip", 0);
         } catch {
             warn("Failed to parse Global stats. " + getExceptionInfo());
         }

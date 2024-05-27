@@ -54,7 +54,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
             if (Time::Now - lastUpdate > 5000) {
                 if (PS::viewedPlayer !is null && PS::viewedPlayer.isLocal) {
                     lastUpdate = Time::Now;
-                    PushMessage(ReportMapCurrPosMsg(mapUid, PS::localPlayer.pos));
+                    PushMessage(ReportMapCurrPosMsg(mapUid, PS::localPlayer.pos, PS::localPlayer.raceTime));
                 }
             }
             yield();
