@@ -171,9 +171,9 @@ namespace DebugMenu {
     }
 
     void DrawPBSendStats() {
-        UI::Text("lastCallToPBHWaitLoop: " + lastCallToPBHWaitLoop);
-        UI::Text("lastPBHUpdate: " + lastPBHUpdate);
-        UI::Text("isWaitingToUpdatePBH: " + isWaitingToUpdatePBH);
+        UI::Text("lastCallToPBHWaitLoop: " + PBUpdate::lastCallToPBHWaitLoop);
+        UI::Text("lastPBHUpdate: " + PBUpdate::lastPBHUpdate);
+        UI::Text("isWaitingToUpdatePBH: " + PBUpdate::isWaitingToUpdatePBH);
         UI::Text("Count_PushPBHeightUpdateToServer: " + Count_PushPBHeightUpdateToServer);
         UI::Text("Count_PushPBHeightUpdateToServerQueued: " + Count_PushPBHeightUpdateToServerQueued);
     }
