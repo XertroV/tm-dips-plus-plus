@@ -395,7 +395,7 @@ namespace MainUI {
         auto nbCols = len > 5 ? 2 : 1;
         auto startNewAt = nbCols == 1 ? len : (len + 1) / nbCols;
         UI::Columns(nbCols);
-        auto cSize = vec2(-1, (UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.) * startNewAt * UI_SCALE);
+        auto cSize = vec2(-1, (UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.) * startNewAt * UI_SCALE * 1.1);
         UI::BeginChild("lbc1", cSize);
         for (uint i = 0; i < len; i++) {
             if (i == startNewAt) {
