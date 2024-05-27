@@ -19,7 +19,7 @@ namespace Wizard {
 
     const int2 windowSize = int2(1100, 700);
     int flags = UI::WindowFlags::NoCollapse | UI::WindowFlags::NoResize | UI::WindowFlags::NoSavedSettings | UI::WindowFlags::AlwaysAutoResize;
-    float ui_scale = UI::GetScale();
+    float ui_scale = UI_SCALE;
 
     void DrawWindow() {
         if (!g_WizardOpen) return;
@@ -165,7 +165,7 @@ namespace Wizard {
 // vec2 lastCenteredTextBounds = vec2(100, 20);
 void DrawCenteredText(const string &in msg, UI::Font@ font, float fontSize, bool alignToFramePadding = true) {
     UI::PushFont(font);
-    auto bounds = Draw::MeasureString(msg, font, fontSize, 0.0f) * UI::GetScale();
+    auto bounds = Draw::MeasureString(msg, font, fontSize, 0.0f) * UI_SCALE;
     auto pos = (UI::GetWindowContentRegionMax() - bounds) / 2.;
     pos.y = UI::GetCursorPos().y;
     UI::SetCursorPos(pos);
@@ -178,7 +178,7 @@ void DrawCenteredText(const string &in msg, UI::Font@ font, float fontSize, bool
 
 bool DrawCenteredButton(const string &in msg, UI::Font@ font, float fontSize, bool alignToFramePadding = true) {
     UI::PushFont(font);
-    auto bounds = Draw::MeasureString(msg, font, fontSize, 0.0f) * UI::GetScale() + UI::GetStyleVarVec2(UI::StyleVar::FramePadding).x * 2;
+    auto bounds = Draw::MeasureString(msg, font, fontSize, 0.0f) * UI_SCALE + UI::GetStyleVarVec2(UI::StyleVar::FramePadding).x * 2;
     auto pos = (UI::GetWindowContentRegionMax() - bounds) / 2.;
     pos.y = UI::GetCursorPos().y;
     UI::SetCursorPos(pos);

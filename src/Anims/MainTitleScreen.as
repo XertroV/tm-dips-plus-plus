@@ -55,7 +55,7 @@ class MainTitleScreenAnim : FloorTitleGeneric {
     vec4 GetPosSize() {
         float yTitleOff = 0;
         if (UI::IsOverlayShown()) {
-            yTitleOff = Math::Round(22 * UI::GetScale());
+            yTitleOff = Math::Round(22 * UI_SCALE);
         }
         return vec4(0, g_screen.y * 0.0 + yTitleOff, g_screen.x, g_screen.y * 0.15);
     }

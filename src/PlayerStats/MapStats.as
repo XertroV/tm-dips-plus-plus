@@ -180,7 +180,7 @@ class MapStats {
             UI::Columns(1);
         } else {
             UI::Text("Time spent in map: Edit via Green Timer settings");
-            UI::PushItemWidth(140. * UI::GetScale());
+            UI::PushItemWidth(140. * UI_SCALE);
             nbJumps = UI::InputInt("Jumps", nbJumps);
             nbFalls = UI::InputInt("Falls", nbFalls);
             nbFloorsFallen = UI::InputInt("Floors fallen", nbFloorsFallen);
@@ -206,7 +206,7 @@ class MapStats {
     void DrawUintRow(uint[]@ arr, const string &in label, float itemWidth, const string &in id) {
         UI::Text(label);
         UI::SameLine();
-        UI::PushItemWidth(itemWidth * UI::GetScale());
+        UI::PushItemWidth(itemWidth * UI_SCALE);
         for (uint i = 0; i < arr.Length; i++) {
             arr[i] = UI::InputInt("##" + i + id, arr[i], 0);
             UI::SameLine();

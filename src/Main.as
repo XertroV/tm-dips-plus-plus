@@ -216,6 +216,8 @@ const bool S_DisableUiInEditor = true;
 #endif
 
 bool IsInEditor = true;
+// requires game restart so only need to set once.
+const float UI_SCALE = UI::GetScale();
 
 bool RenderEarlyInner() {
     if (!G_Initialized) return false;

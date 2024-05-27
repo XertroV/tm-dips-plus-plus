@@ -92,7 +92,7 @@ namespace OnFinish {
     }
 
     int flags = UI::WindowFlags::NoCollapse | UI::WindowFlags::NoResize | UI::WindowFlags::NoSavedSettings | UI::WindowFlags::AlwaysAutoResize | UI::WindowFlags::NoTitleBar;
-    float ui_scale = UI::GetScale();
+    float ui_scale = UI_SCALE;
     const int2 windowSize = int2(500, 300);
 
     void RenderEzEpilogue() {
