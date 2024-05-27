@@ -171,6 +171,7 @@ mixin class WithMapLive {
         CheckUpdateLive();
         DrawCenteredText("Live Heights", f_DroidBigger, 26.);
         DrawCenteredText("# Players: " + nbLive, f_DroidBig, 20.);
+        if (nbLive == 0) return;
         if (UI::BeginChild("Live", vec2(0, 0), false, UI::WindowFlags::AlwaysVerticalScrollbar)) {
             if (UI::BeginTable('livtabel', 3, UI::TableFlags::SizingStretchSame)) {
                 UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80.);
@@ -185,7 +186,7 @@ mixin class WithMapLive {
                         UI::TableNextRow();
                         @item = mapLive[i];
                         UI::TableNextColumn();
-                        UI::Text(tostring(i = 1) + ".");
+                        UI::Text(tostring(i + 1) + ".");
                         UI::TableNextColumn();
                         UI::Text(Text::Format("%.04f m", item.height));
                         UI::TableNextColumn();

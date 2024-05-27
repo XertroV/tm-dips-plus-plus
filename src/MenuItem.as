@@ -42,8 +42,8 @@ void DrawPluginMenuInner(bool isMenuBar = false) {
     menuBarStartedDrawingExtra = false;
     menuBarHideUnlessSDE = false;
     float maxW = UI::GetWindowContentRegionWidth();
-    EasyMap::DrawMenu();
-    if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
+    // EasyMap::DrawMenu();
+    // if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
     if (_Menu_DrawNextMenu) Visibility::DrawMenu();
     if (isMenuBar && UI::GetCursorPos().x > (maxW - 120.)) StartDrawExtra();
     if (_Menu_DrawNextMenu) Volume::DrawMenu();
