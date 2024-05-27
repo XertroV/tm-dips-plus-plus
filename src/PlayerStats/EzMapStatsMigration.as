@@ -18,6 +18,8 @@ void _RunEzMapStatsMigration() {
     if (IO::FileExists(STATS_FILE)) {
         warn("Migrating stats for shallow dip");
         auto j = Json::FromFile(STATS_FILE);
+        if (j.HasKey("ReportStats")) @j = j['ReportStats'];
+        if (j.HasKey("stats")) @j = j['stats'];
         ConvertBoolToUintArray(j, "floor_voice_lines_played");
         map.stats.LoadJsonFromFile(j);
         map.stats.SaveToDisk();
@@ -28,7 +30,15 @@ void _RunEzMapStatsMigration() {
 }
 
 void ConvertBoolToUintArray(Json::Value@ j, const string &in key) {
+    if (!j.HasKey(key)) {
+        warn("Key not found: " + key);
+        return;
+    }
     auto arr = j[key];
+    if (arr.GetType() != Json::Type::Array) {
+        warn("Key is not an array: " + key + " / type: " + tostring(arr.GetType()));
+        return;
+    }
     if (arr is null) return;
     auto new_arr = Json::Array();
     for (uint i = 0; i < arr.Length; i++) {
