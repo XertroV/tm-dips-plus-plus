@@ -23,6 +23,8 @@ class MapStats {
     uint byeByesTriggered = 0;
     Json::Value@ extra = Json::Object();
     uint lastPbSetTs = 0;
+    int pbRaceTime = 0;
+    vec3 pbPos = vec3();
     // local time, don't send to server
     uint lastPbSet = 0;
     uint lastInMap = Time::Stamp;
@@ -89,6 +91,10 @@ class MapStats {
         reachedFloorCount = JsonToUintArray(j["reached_floor_count"]);
         floorVoiceLinesPlayed = JsonToUintArray(j["floor_voice_lines_played"]);
         lastInMap = j.Get("last_in_map", 0);
+        pbRaceTime = j.Get("pb_race_time", pbRaceTime);
+        if (j.HasKey("pb_pos")) {
+            pbPos = JsonToVec3(j["pb_pos"]);
+        }
         if (j.HasKey("extra")) {
             extra = j["extra"];
         }
@@ -115,6 +121,8 @@ class MapStats {
         stats["total_dist_fallen"] = totalDistFallen;
         stats["pb_height"] = pbHeight;
         stats["pb_floor"] = int(pbFloor);
+        stats["pb_race_time"] = pbRaceTime;
+        stats["pb_pos"] = Vec3ToJson(pbPos);
         stats["nb_resets"] = nbResets;
         stats["ggs_triggered"] = ggsTriggered;
         stats["title_gags_triggered"] = titleGagsTriggered;
@@ -149,6 +157,7 @@ class MapStats {
             UI::Text("Total distance fallen");
             UI::Text("Personal best height");
             UI::Text("Personal best floor");
+            UI::Text("PB Race Time");
             UI::Text("Resets");
             UI::Text("Title gags triggered");
             UI::Text("Special Title Gags triggered");
@@ -162,6 +171,7 @@ class MapStats {
             UI::Text(Text::Format("%.1f m", totalDistFallen));
             UI::Text(Text::Format("%.1f m", pbHeight));
             UI::Text(tostring(pbFloor));
+            UI::Text(Time::Format(pbRaceTime));
             UI::Text("" + nbResets);
             UI::Text("" + titleGagsTriggered);
             UI::Text("" + titleGagsSpecialTriggered);
@@ -350,10 +360,13 @@ class MapStats {
             lastPbSet = Time::Now;
             pbFloor = floor;
             pbHeight = pos.y;
+            pbRaceTime = player.raceTime;
+            pbPos = pos;
             // 3 minutes
             if (lastPbWasAWhileAgo && pbHeight > pbStartAlertLimit) {
                 EmitNewHeightPB(player);
             }
+            this.OnNewPB();
             this.SaveStatsSoon();
         }
     }
@@ -413,6 +426,31 @@ class MapStats {
             return 0;
         }
         return floorVoiceLinesPlayed[floor];
+    }
+
+
+    void OnNewPB() {
+        startnew(CoroutineFunc(this.UpdatePBHeightWaitLoop));
+    }
+
+    bool _isWaitingToUpdatePBH = false;
+    uint _lastPBHUpdate = 0;
+    uint _lastCallToPBHWaitLoop = 0;
+    void UpdatePBHeightWaitLoop() {
+        _lastCallToPBHWaitLoop = Time::Now;
+        if (_isWaitingToUpdatePBH) return;
+        _isWaitingToUpdatePBH = true;
+        while (Time::Now - _lastCallToPBHWaitLoop < PBH_UPDATE_MIN_WAIT && Time::Now - _lastPBHUpdate < PBH_UPDATE_INTERVAL) {
+            yield();
+        }
+        _lastPBHUpdate = Time::Now;
+        PushMapPBToServer();
+        _lastPBHUpdate = Time::Now;
+        _isWaitingToUpdatePBH = false;
+    }
+
+    void PushMapPBToServer() {
+        PushMessage(ReportMapCurrPosMsg(mapUid, pbPos, pbRaceTime));
     }
 }
 

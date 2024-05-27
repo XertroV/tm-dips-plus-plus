@@ -48,13 +48,23 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
 
     void RunMapLoop() {
         if (isDD2) return;
-        auto app = GetApp();
-        auto lastUpdate = Time::Now;
+        // auto app = GetApp();
+        auto lastUpdate = Time::Now + 25000;
+        uint updateCount = 0;
         while (mapMwId == CurrMap::lastMapMwId) {
             if (Time::Now - lastUpdate > 5000) {
-                if (PS::viewedPlayer !is null && PS::viewedPlayer.isLocal) {
+                if (PS::viewedPlayer !is null && PS::viewedPlayer.isLocal && PS::viewedPlayer.raceTime > 1500 && !PS::viewedPlayer.isIdle) {
+                    // 3 * 2000^2
+                    if (PS::localPlayer.pos.LengthSquared() > 12000000.) lastUpdate = Time::Now;
                     lastUpdate = Time::Now;
-                    PushMessage(ReportMapCurrPosMsg(mapUid, PS::localPlayer.pos, PS::localPlayer.raceTime));
+                    // skip first update in case of bad info
+                    if (updateCount > 0) {
+                        PushMessage(ReportMapCurrPosMsg(mapUid, PS::localPlayer.pos, PS::localPlayer.raceTime));
+                    }
+                    updateCount++;
+                } else {
+                    // check again in 1s
+                    lastUpdate += 1000;
                 }
             }
             yield();

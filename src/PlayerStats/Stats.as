@@ -403,7 +403,7 @@ namespace Stats {
             if (lastPbWasAWhileAgo && pbHeight > PB_START_ALERT_LIMIT) {
                 EmitNewHeightPB(player);
             }
-            UpdatePBHeightSoon();
+            PBUpdate::UpdatePBHeightSoon();
         }
     }
 
@@ -491,9 +491,6 @@ void UpdateStatsSoon() {
     startnew(UpdateStatsWaitLoop);
 }
 
-void UpdatePBHeightSoon() {
-    startnew(UpdatePBHeightWaitLoop);
-}
 
 const uint STATS_UPDATE_INTERVAL = 1000 * 20;
 const uint STATS_UPDATE_MIN_WAIT = 1000 * 5;
@@ -516,21 +513,28 @@ void UpdateStatsWaitLoop() {
 
 const uint PBH_UPDATE_INTERVAL = 2000;
 const uint PBH_UPDATE_MIN_WAIT = 1000;
-bool isWaitingToUpdatePBH = false;
-uint lastPBHUpdate = 0;
-uint lastCallToPBHWaitLoop = 0;
 
-void UpdatePBHeightWaitLoop() {
-    lastCallToPBHWaitLoop = Time::Now;
-    if (isWaitingToUpdatePBH) return;
-    isWaitingToUpdatePBH = true;
-    while (Time::Now - lastCallToPBHWaitLoop < PBH_UPDATE_MIN_WAIT && Time::Now - lastPBHUpdate < PBH_UPDATE_INTERVAL) {
-        yield();
+namespace PBUpdate {
+    void UpdatePBHeightSoon() {
+        startnew(PBUpdate::UpdatePBHeightWaitLoop);
     }
-    lastPBHUpdate = Time::Now;
-    PushPBHeightUpdateToServer();
-    lastPBHUpdate = Time::Now;
-    isWaitingToUpdatePBH = false;
+
+    bool isWaitingToUpdatePBH = false;
+    uint lastPBHUpdate = 0;
+    uint lastCallToPBHWaitLoop = 0;
+
+    void UpdatePBHeightWaitLoop() {
+        lastCallToPBHWaitLoop = Time::Now;
+        if (isWaitingToUpdatePBH) return;
+        isWaitingToUpdatePBH = true;
+        while (Time::Now - lastCallToPBHWaitLoop < PBH_UPDATE_MIN_WAIT && Time::Now - lastPBHUpdate < PBH_UPDATE_INTERVAL) {
+            yield();
+        }
+        lastPBHUpdate = Time::Now;
+        PushPBHeightUpdateToServer();
+        lastPBHUpdate = Time::Now;
+        isWaitingToUpdatePBH = false;
+    }
 }
 
 
