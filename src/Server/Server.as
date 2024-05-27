@@ -49,7 +49,7 @@ bool IsJsonTrue(Json::Value@ jv) {
     return bool(jv);
 }
 
-#if DEVx
+#if DEV
 const string ENDPOINT = "127.0.0.1";
 #else
 // 161.35.155.191
@@ -450,7 +450,7 @@ class DD2API {
         try {
             msgHandlers[msg.msgType](msg.msgJson);
         } catch {
-            print("msg: " + Json::Write(msg.msgJson));
+            warn("failed to handle msg: " + Json::Write(msg.msgJson));
             warn("Failed to handle message type: " + MessageResponseTypes(msg.msgType) + ". " + getExceptionInfo());
         }
     }
@@ -479,6 +479,11 @@ class DD2API {
         @msgHandlers[MessageResponseTypes::Donations] = MsgHandler(DonationsHandler);
         @msgHandlers[MessageResponseTypes::GfmDonations] = MsgHandler(GfmDonationsHandler);
         @msgHandlers[MessageResponseTypes::TwitchName] = MsgHandler(TwitchNameHandler);
+
+        @msgHandlers[MessageResponseTypes::MapOverview] = MsgHandler(MapOverviewHandler);
+        @msgHandlers[MessageResponseTypes::MapLB] = MsgHandler(MapLBHandler);
+        @msgHandlers[MessageResponseTypes::MapLivePlayers] = MsgHandler(MapLivePlayersHandler);
+        @msgHandlers[MessageResponseTypes::MapRank] = MsgHandler(MapRankHandler);
     }
 
 
@@ -564,6 +569,35 @@ class DD2API {
 
     void TwitchNameHandler(Json::Value@ msg) {
         TwitchNames::HandleMsg(msg);
+    }
+
+    // MapOverview
+    // MapLB
+    // MapLivePlayers
+    // MapRank
+
+    void MapOverviewHandler(Json::Value@ msg) {
+        if (g_CustomMap !is null) {
+            g_CustomMap.SetOverviewFromJson(msg);
+        }
+    }
+
+    void MapLBHandler(Json::Value@ msg) {
+        if (g_CustomMap !is null) {
+            g_CustomMap.SetLBFromJson(msg);
+        }
+    }
+
+    void MapLivePlayersHandler(Json::Value@ msg) {
+        if (g_CustomMap !is null) {
+            g_CustomMap.SetLivePlayersFromJson(msg);
+        }
+    }
+
+    void MapRankHandler(Json::Value@ msg) {
+        if (g_CustomMap !is null) {
+            g_CustomMap.SetRankFromJson(msg);
+        }
     }
 }
 

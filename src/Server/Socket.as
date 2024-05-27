@@ -48,7 +48,12 @@ class BetterSocket {
             warn("Failed to connect to " + addr + ":" + port);
         } else {
             @s = socket;
-            while (!s.IsReady()) yield();
+            auto timeout = Time::Now + 8000;
+            while (!s.IsReady() && Time::Now < timeout) yield();
+            if (!s.IsReady()) {
+                warn("Failed to connect to " + addr + ":" + port + " in time");
+                startnew(CoroutineFunc(StartConnect));
+            }
         }
         IsConnecting = false;
     }

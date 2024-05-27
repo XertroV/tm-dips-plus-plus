@@ -28,6 +28,9 @@ enum MessageRequestTypes {
     DowngradeStats = 42,
     // ReportSessionCL = ??,
 
+    // uid, pos
+    ReportMapCurrPos = 64,
+
     GetMyStats = 128,
     GetGlobalLB = 129,
     GetFriendsLB = 130,
@@ -38,6 +41,17 @@ enum MessageRequestTypes {
     GetDonations = 135,
     GetGfmDonations = 136,
     GetTwitch = 137,
+
+    // uid
+    GetMapOverview = 192,
+    // uid, start, end
+    GetMapLB = 193,
+    // uid
+    GetMapLive = 194,
+    // uid
+    GetMapMyRank = 195,
+    // uid, wsid
+    GetMapRank = 196,
 
     StressMe = 255,
 }
@@ -63,6 +77,11 @@ enum MessageResponseTypes {
     Donations = 135,
     GfmDonations = 136,
     TwitchName = 137,
+
+    MapOverview = 192,
+    MapLB = 193,
+    MapLivePlayers = 194,
+    MapRank = 195,
 }
 
 OutgoingMsg@ WrapMsgJson(Json::Value@ inner, MessageRequestTypes type) {
@@ -212,6 +231,10 @@ OutgoingMsg@ GetGlobalLBMsg(uint start, uint end) {
     // return OutgoingMsg(uint8(MessageRequestTypes::GetGlobalLB), Json::Object());
 }
 
+OutgoingMsg@ GetGlobalOverviewMsg() {
+    return WrapMsgJson(Json::Object(), MessageRequestTypes::GetGlobalOverview);
+}
+
 // takes WSIDs
 OutgoingMsg@ GetFriendsLBMsg(string[]@ friends) {
     auto @j = Json::Array();
@@ -247,4 +270,51 @@ OutgoingMsg@ GetTwitchMsg(const string &in wsid = "") {
 
 OutgoingMsg@ StressMeMsg() {
     return OutgoingMsg(uint8(MessageRequestTypes::StressMe), Json::Object());
+}
+
+
+
+
+OutgoingMsg@ ReportMapCurrPosMsg(const string &in uid, const vec3 &in pos) {
+    auto @j = Json::Object();
+    j["uid"] = uid;
+    j["pos"] = Vec3ToJson(pos);
+    return WrapMsgJson(j, MessageRequestTypes::ReportMapCurrPos);
+}
+
+OutgoingMsg@ GetMapOverviewMsg(const string &in uid) {
+    auto @j = Json::Object();
+    j["uid"] = uid;
+    return WrapMsgJson(j, MessageRequestTypes::GetMapOverview);
+}
+
+OutgoingMsg@ GetMapLBMsg(const string &in uid, uint start, uint end) {
+    auto @j = Json::Object();
+    j["uid"] = uid;
+    j["start"] = start;
+    j["end"] = end;
+    return WrapMsgJson(j, MessageRequestTypes::GetMapLB);
+}
+
+OutgoingMsg@ GetMapLiveMsg(const string &in uid) {
+    auto @j = Json::Object();
+    j["uid"] = uid;
+    return WrapMsgJson(j, MessageRequestTypes::GetMapLive);
+}
+
+OutgoingMsg@ GetMapMyRankMsg(const string &in uid) {
+    auto @j = Json::Object();
+    j["uid"] = uid;
+    return WrapMsgJson(j, MessageRequestTypes::GetMapMyRank);
+}
+
+OutgoingMsg@ GetMapRankMsg(const string &in uid, const string &in wsid) {
+    auto @j = Json::Object();
+    j["uid"] = uid;
+    j["wsid"] = wsid;
+    return WrapMsgJson(j, MessageRequestTypes::GetMapRank);
+}
+
+OutgoingMsg@ GetServerStatsMsg() {
+    return WrapMsgJson(Json::Object(), MessageRequestTypes::GetServerStats);
 }

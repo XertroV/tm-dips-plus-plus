@@ -60,7 +60,7 @@ namespace MainUI {
                     if (g_CustomMap is null) {
                         UI::TextWrapped("Unknown error: g_CustomMap is null. (Bug)");
                     } else {
-                        g_CustomMap.stats.DrawStatsUI();
+                        g_CustomMap.DrawMapTabs();
                     }
                     UI::EndTabItem();
                 }
@@ -209,6 +209,17 @@ namespace MainUI {
         UI::Columns(1);
         UI::Separator();
         Stats::DrawStatsUI();
+
+        CheckReRequestOverview();
+    }
+
+    uint lastOverviewReq = 0;
+    void CheckReRequestOverview() {
+        if (lastOverviewReq == 0) lastOverviewReq = Time::Now;
+        if (lastOverviewReq + 60000 < Time::Now) {
+            lastOverviewReq = Time::Now;
+            PushMessage(GetGlobalOverviewMsg());
+        }
     }
 
     void DrawMainCollectionsTab() {
@@ -459,10 +470,10 @@ namespace MainUI {
     }
 
     void PlayVoiceLine(uint floor) {
-        if (floor > 17) return;
         if (voiceLineTriggers.Length < 17) return;
         if (!Stats::HasPlayedVoiceLine(floor)) return;
-        auto @vlTrigger = cast<FloorVLTrigger>(voiceLineTriggers[floor]);
+        auto @vlTrigger = floor < 17 ? cast<FloorVLTrigger>(voiceLineTriggers[floor])
+            : floor == 17 ? t_DD2MapFinishVL : null;
         if (vlTrigger is null) return;
         vlTrigger.PlayNextAnywhere();
         ClearSubtitleAnimations();

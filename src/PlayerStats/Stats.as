@@ -553,15 +553,22 @@ class LBEntry {
     uint ts;
     uint raceTimeAtHeight;
     vec3 color;
+    vec3 pos;
 
     void SetFromJson(Json::Value@ j) {
         name = j["name"];
         wsid = j["wsid"];
-        height = j["height"];
         rank = j["rank"];
         ts = j["ts"];
         if (j.HasKey("color")) {
             color = JsonToVec3(j["color"]);
+        }
+        if (j.HasKey("height")) {
+            height = j["height"];
+        }
+        if (j.HasKey("pos")) {
+            pos = JsonToVec3(j["pos"]);
+            height = pos.y;
         }
     }
 }

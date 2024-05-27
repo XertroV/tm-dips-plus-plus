@@ -134,7 +134,12 @@ class MapStats {
     bool editStats = false;
     void DrawStatsUI() {
         DrawCenteredText("My Stats - " + mapName, f_DroidBigger, 26.);
-        editStats = UI::Checkbox("Edit stats", editStats);
+        UI::PushStyleColor(UI::Col::FrameBg, vec4(.4, .2, .1, .8));
+        UI::PushStyleColor(UI::Col::Border, vec4(.8, .4, .1, 1.));
+        UI::PushStyleVar(UI::StyleVar::FrameBorderSize, 1.);
+        editStats = UI::Checkbox("\\$f80Edit stats", editStats);
+        UI::PopStyleVar(1);
+        UI::PopStyleColor(2);
         if (!editStats) {
             UI::Columns(2, "myStatsColumns", true);
             UI::Text("Time spent in map");

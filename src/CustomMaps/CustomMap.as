@@ -4,7 +4,7 @@ void CustomMap_SetOnNewCustomMap(CustomMap@ map) {
     @g_CustomMap = map;
 }
 
-class CustomMap {
+class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
     bool isDD2;
     bool useDD2Triggers;
     bool hasCustomData;
@@ -14,18 +14,26 @@ class CustomMap {
     string loadError;
     float[] floors;
     bool lastFloorEnd = false;
+    string mapUid;
+    uint mapMwId;
 
     CustomMap(CGameCtnChallenge@ map) {
+        mapUid = map.Id.GetName();
+        mapMwId = GetMwIdValue(mapUid);
         if (MapCustomInfo::ShouldActivateForMap(map)) {
             @stats = GetMapStats(map);
             isDD2 = stats.isDD2;
             useDD2Triggers = stats.isDD2 || stats.isEzMap;
             map.MwAddRef();
             startnew(CoroutineFuncUserdata(LoadCustomMapData), map);
+            startnew(CoroutineFunc(RunMapLoop));
         }
     }
 
+    // used for access outside the map
     CustomMap(const string &in mapUid, const string &in mapName) {
+        this.mapUid = mapUid;
+        mapMwId = GetMwIdValue(mapUid);
         if (MapCustomInfo::ShouldActivateForMap(mapUid, "")) {
             @stats = GetMapStats(mapUid, mapName);
             isDD2 = stats.isDD2;
@@ -36,6 +44,21 @@ class CustomMap {
 
     ~CustomMap() {
 
+    }
+
+    void RunMapLoop() {
+        if (isDD2) return;
+        auto app = GetApp();
+        auto lastUpdate = Time::Now;
+        while (mapMwId == CurrMap::lastMapMwId) {
+            if (Time::Now - lastUpdate > 5000) {
+                if (PS::viewedPlayer !is null && PS::viewedPlayer.isLocal) {
+                    lastUpdate = Time::Now;
+                    PushMessage(ReportMapCurrPosMsg(mapUid, PS::localPlayer.pos));
+                }
+            }
+            yield();
+        }
     }
 
     // for hardcoded heights and things
@@ -74,6 +97,29 @@ class CustomMap {
         lastFloorEnd = spec.lastFloorEnd;
         return true;
     }
+
+    void DrawMapTabs() {
+        UI::BeginTabBar("cmtabs" + mapUid);
+        if (UI::BeginTabItem("Stats")) {
+            CheckUpdateMapOverview();
+            DrawMapOverviewUI();
+            if (stats !is null) {
+                stats.DrawStatsUI();
+            } else {
+                UI::Text("Stats Missing! :(");
+            }
+            UI::EndTabItem();
+        }
+        if (UI::BeginTabItem("Leaderboard")) {
+            this.DrawLeaderboard();
+            UI::EndTabItem();
+        }
+        if (UI::BeginTabItem("Live")) {
+            this.DrawLiveUI();
+            UI::EndTabItem();
+        }
+        UI::EndTabBar();
+    }
 }
 
 const string MapInfosUploadedURL = "https://assets.xk.io/d++maps/";
@@ -94,4 +140,254 @@ void CheckForUploadedMapData(ref@ data) {
     MapCustomInfo::AddNewMapComment(mapUid, req.String());
     trace('found and added map data for ' + mapUid + ' from ' + url);
     CurrMap::lastMapMwId = 0;
+}
+
+
+mixin class WithMapLive {
+    uint lastLiveUpdate = 0;
+    void CheckUpdateLive() {
+        if (lastLiveUpdate + 30000 < Time::Now) {
+            lastLiveUpdate = Time::Now;
+            PushMessage(GetMapLiveMsg(mapUid));
+        }
+    }
+
+    void SetLivePlayersFromJson(Json::Value@ j) {
+        if (!j.HasKey("uid") || mapUid != string(j["uid"])) { warn("Live got unexpected map uid: " + Json::Write(j["uid"])); return; }
+        auto arr = j['players'];
+        auto nbPlayers = arr.Length;
+        while (mapLive.Length < nbPlayers) {
+            mapLive.InsertLast(LBEntry());
+        }
+        for (uint i = 0; i < nbPlayers; i++) {
+            mapLive[i].SetFromJson(arr[i]);
+        }
+    }
+
+    LBEntry@[] mapLive = {};
+
+    void DrawLiveUI() {
+        int nbLive = mapLive.Length;
+        CheckUpdateLive();
+        DrawCenteredText("Live Heights", f_DroidBigger, 26.);
+        DrawCenteredText("# Players: " + nbLive, f_DroidBig, 20.);
+        if (UI::BeginChild("Live", vec2(0, 0), false, UI::WindowFlags::AlwaysVerticalScrollbar)) {
+            if (UI::BeginTable('livtabel', 3, UI::TableFlags::SizingStretchSame)) {
+                UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80.);
+                UI::TableSetupColumn("Height (m)", UI::TableColumnFlags::WidthFixed, 100.);
+                UI::TableSetupColumn("Player");
+                // UI::TableSetupColumn("Time");
+                UI::ListClipper clip(nbLive);
+                LBEntry@ item;
+                while (clip.Step()) {
+                    for (int i = clip.DisplayStart; i < clip.DisplayEnd; i++) {
+                        UI::PushID(i);
+                        UI::TableNextRow();
+                        @item = mapLive[i];
+                        UI::TableNextColumn();
+                        UI::Text(tostring(i = 1) + ".");
+                        UI::TableNextColumn();
+                        UI::Text(Text::Format("%.04f m", item.height));
+                        UI::TableNextColumn();
+                        UI::Text(item.name);
+                        // UI::Text(Text::Format("%.02f s", item.ts));
+                        UI::PopID();
+                    }
+                }
+                UI::EndTable();
+            }
+        }
+        UI::EndChild();
+    }
+}
+
+
+mixin class WithMapOverview {
+    uint lastMapOverviewUpdate = 0;
+    // update at most once per minute
+    void CheckUpdateMapOverview() {
+        if (lastMapOverviewUpdate + 60000 < Time::Now) {
+            lastMapOverviewUpdate = Time::Now;
+            PushMessage(GetMapOverviewMsg(mapUid));
+        }
+    }
+
+    void SetOverviewFromJson(Json::Value@ j) {
+        if (!j.HasKey("uid") || mapUid != string(j["uid"])) { warn("Overview got unexpected map uid: " + Json::Write(j["uid"])); return; }
+        nb_players_on_lb = j["nb_players_on_lb"];
+        nb_playing_now = j["nb_playing_now"];
+    }
+
+    int nb_players_on_lb;
+    int nb_playing_now;
+
+    void DrawMapOverviewUI() {
+        CheckUpdateMapOverview();
+        DrawCenteredText("Map Overview", f_DroidBigger, 26.);
+        UI::Columns(2);
+        auto cSize = vec2(-1, (UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.));
+        UI::BeginChild("mov1", cSize);
+        DrawCenteredText("Total Players: " + nb_players_on_lb, f_DroidBig, 20.);
+        UI::EndChild();
+        UI::NextColumn();
+        UI::BeginChild("mov2", cSize);
+        DrawCenteredText("Currently Climbing: " + nb_playing_now, f_DroidBig, 20.);
+        UI::EndChild();
+        UI::Columns(1);
+        UI::Separator();
+    }
+}
+
+
+mixin class WithLeaderboard {
+
+    LBEntry@ myRank = LBEntry();
+
+    dictionary pbCache;
+    dictionary wsidToPlayerName;
+    dictionary colorCache;
+
+    void SetRankFromJson(Json::Value@ j) {
+        if (!j.HasKey("uid") || mapUid != string(j["uid"])) { warn("PB got unexpected map uid: " + Json::Write(j["uid"])); return; }
+        if (!j.HasKey("r")) { warn("PB missing r key"); return; }
+        auto r = j["r"];
+        if (r.GetType() != Json::Type::Object) return;
+        if (PS::localPlayer !is null && PS::localPlayer.playerWsid == string(r["wsid"])) {
+            myRank.SetFromJson(r);
+            @pbCache[myRank.name] = myRank;
+        } else {
+            auto name = r["name"];
+            if (pbCache.Exists(name)) {
+                cast<LBEntry>(pbCache[name]).SetFromJson(r);
+            } else {
+                auto @entry = LBEntry();
+                entry.SetFromJson(r);
+                @pbCache[name] = entry;
+            }
+        }
+    }
+
+    dictionary lastPlayerUpdateTimes;
+    void CheckUpdatePlayersHeight(const string &in login) {
+        if (lastPlayerUpdateTimes.Exists(login)) {
+            if (Time::Now - int(lastPlayerUpdateTimes[login]) < 30000) return;
+        }
+        lastPlayerUpdateTimes[login] = Time::Now;
+        PushMessage(GetMapRankMsg(mapUid, LoginToWSID(login)));
+    }
+
+    uint lastLbUpdate = 0;
+    uint lbLoadAtLeastNb = 200;
+    // update at most once per minute
+    void CheckUpdateLeaderboard() {
+        if (lastLbUpdate + 60000 < Time::Now) {
+            lastLbUpdate = Time::Now;
+            PushMessage(GetMapMyRankMsg(mapUid));
+            for (uint i = 0; i <= lbLoadAtLeastNb; i += 200) {
+                PushMessage(GetMapLBMsg(mapUid, i, i + 205));
+            }
+        }
+    }
+
+    uint lastLbIncrSize = 0;
+    void IncrLBLoadSize() {
+        lastLbIncrSize = Time::Now;
+        PushMessage(GetMapLBMsg(mapUid, lbLoadAtLeastNb, lbLoadAtLeastNb + 205));
+        lbLoadAtLeastNb += 200;
+    }
+
+    void SetLBFromJson(Json::Value@ j) {
+#if DEV
+        // trace("SetLBFromJson: " + Json::Write(j));
+#endif
+        if (!j.HasKey("uid") || mapUid != string(j["uid"])) { warn("LB got unexpected map uid: " + Json::Write(j["uid"])); return; }
+        auto arr = j["entries"];
+        auto nbEntries = arr.Length;
+        if (nbEntries == 0) {
+            // warn("Got 0 entries for LB " + mapUid);
+            return;
+        }
+        int rank = arr[0]["rank"];
+        int maxRank = arr[nbEntries - 1]["rank"];
+        maxRank = Math::Max(maxRank, rank + nbEntries - 1);
+        while (maxRank > mapLB.Length) {
+            mapLB.InsertLast(LBEntry());
+        }
+        int lastRank = 0;
+        for (uint i = 0; i < nbEntries; i++) {
+            rank = int(arr[i]["rank"]);
+            if (rank <= lastRank) {
+                rank = lastRank + 1;
+            }
+            mapLB[rank - 1].SetFromJson(arr[i]);
+            @pbCache[mapLB[rank - 1].name] = mapLB[rank - 1];
+            wsidToPlayerName[mapLB[rank - 1].wsid] = mapLB[rank - 1].name;
+            lastRank = rank;
+            if ((i + 1) % 100 == 0) yield();
+        }
+    }
+
+
+    LBEntry@[] mapLB = {};
+
+    void DrawLeaderboard() {
+        CheckUpdateLeaderboard();
+        DrawCenteredText("Leaderboard", f_DroidBigger, 26.);
+        auto len = int(Math::Min(mapLB.Length, 10));
+        DrawCenteredText("Top " + len, f_DroidBigger, 26.);
+        auto nbCols = len > 5 ? 2 : 1;
+        auto startNewAt = nbCols == 1 ? len : (len + 1) / nbCols;
+        UI::Columns(nbCols);
+        auto cSize = vec2(-1, Math::Max(1.0, (UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.) * startNewAt));
+        UI::BeginChild("lbc1", cSize);
+        for (uint i = 0; i < len; i++) {
+            if (i == startNewAt) {
+                UI::EndChild();
+                UI::NextColumn();
+                UI::BeginChild("lbc2", cSize);
+            }
+            auto @player = mapLB[i];
+            if (player.name == "") {
+                DrawCenteredText(tostring(i + 1) + ". ???", f_DroidBig, 20.);
+            } else {
+                DrawCenteredText(tostring(i + 1) + ". " + player.name + Text::Format(" - %.1f m", player.height), f_DroidBig, 20.);
+            }
+        }
+        UI::EndChild();
+        UI::Columns(1);
+        UI::Separator();
+        DrawCenteredText("My Rank", f_DroidBigger, 26.);
+        DrawCenteredText(Text::Format("%d. ", myRank.rank) + Text::Format("%.1f m", myRank.height), f_DroidBig, 20.);
+        UI::Separator();
+        DrawCenteredText("Global Leaderboard", f_DroidBigger, 26.);
+        if (UI::BeginChild("GlobalLeaderboard", vec2(0, 0), false, UI::WindowFlags::AlwaysVerticalScrollbar)) {
+            if (UI::BeginTable('lbtabel', 3, UI::TableFlags::SizingStretchSame)) {
+                UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80.);
+                UI::TableSetupColumn("Height (m)", UI::TableColumnFlags::WidthFixed, 100.);
+                UI::TableSetupColumn("Player");
+                UI::ListClipper clip(mapLB.Length);
+                while (clip.Step()) {
+                    for (int i = clip.DisplayStart; i < clip.DisplayEnd; i++) {
+                        UI::PushID(i);
+                        UI::TableNextRow();
+                        auto item = mapLB[i];
+                        UI::TableNextColumn();
+                        UI::Text(Text::Format("%d.", item.rank));
+                        UI::TableNextColumn();
+                        UI::Text(Text::Format("%.04f m", item.height));
+                        UI::TableNextColumn();
+                        UI::Text(item.name);
+                        UI::PopID();
+                    }
+                }
+                UI::EndTable();
+            }
+        }
+        UI::BeginDisabled(Time::Now - lastLbIncrSize < 5000 || mapLB.Length < lbLoadAtLeastNb);
+        if (DrawCenteredButton("Load More", f_DroidBig, 20.)) {
+            IncrLBLoadSize();
+        }
+        UI::EndDisabled();
+        UI::EndChild();
+    }
 }
