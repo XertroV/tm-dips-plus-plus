@@ -140,9 +140,9 @@ namespace GreenTimer {
                 parseErr = "format: h:mm:ss";
                 return;
             }
-            int hours = Text::ParseInt(parts[0]);
-            int min = Text::ParseInt(parts[1]);
-            int sec = Text::ParseInt(parts[2]);
+            int64 hours = Text::ParseInt(parts[0]);
+            int64 min = Text::ParseInt(parts[1]);
+            int64 sec = Text::ParseInt(parts[2]);
             Stats::SetTimeInMapMs((hours * 3600 + min * 60 + sec) * 1000);
             parseErr = "";
         } catch {

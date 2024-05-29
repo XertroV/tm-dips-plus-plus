@@ -50,7 +50,7 @@ namespace Stats {
         UI::Text("GGs triggered");
         UI::Text("Bye Byes triggered");
         UI::NextColumn();
-        UI::Text(Time::Format(msSpentInMap, false, true, true));
+        UI::Text(Time::Format(msSpentInMap, false, true, true) + (Text::Format("\\$aaa\\$i  (total ms: %lld)", msSpentInMap)));
         UI::Text("" + nbJumps);
         UI::Text("" + nbFalls);
         UI::Text("" + nbFloorsFallen);
@@ -199,7 +199,7 @@ namespace Stats {
         }
     }
 
-    void LogTimeInMapMs(uint deltaMs) {
+    void LogTimeInMapMs(uint64 deltaMs) {
         if (g_CustomMap !is null && !g_CustomMap.isDD2) {
             g_CustomMap.stats.LogTimeInMapMs(deltaMs);
             return;

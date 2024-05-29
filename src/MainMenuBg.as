@@ -9,7 +9,7 @@ Thank you.
 */
 namespace MainMenuBg {
     const string SKIN_ML_PATH = "Skins\\Models\\CharacterPilot\\DeepDip2_MenuItem.zip";
-    const string SKIN2_ML_PATH = "Skins\\Models\\CharacterPilot\\DD2_SponsorsSign3.zip";
+    // const string SKIN2_ML_PATH = "Skins\\Models\\CharacterPilot\\DD2_SponsorsSign.zip";
 
     string origML;
     bool gotOrigML = false;

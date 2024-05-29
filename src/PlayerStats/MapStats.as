@@ -239,7 +239,7 @@ class MapStats {
         _isWaitingToSaveStats = false;
     }
 
-    void LogTimeInMapMs(uint deltaMs) {
+    void LogTimeInMapMs(uint64 deltaMs) {
         lastInMap = Time::Now;
         if (S_PauseTimerWhenWindowUnfocused && IsPauseMenuOpen(true)) return;
         if (S_PauseTimerWhileSpectating && Spectate::IsSpectatorOrMagicSpectator) return;
