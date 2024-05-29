@@ -644,6 +644,13 @@ namespace Global {
         }
     }
 
+    LBEntry@[]@ GetTop3() {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            return g_CustomMap.mapLB;
+        }
+        return top3;
+    }
+
     LBEntry@[] top3 = {LBEntry(), LBEntry(), LBEntry()};
     void SetTop3FromJson(Json::Value@ j) {
         auto @leader = top3[0];
@@ -740,6 +747,9 @@ namespace Global {
 
     LBEntry@ GetPlayersPBEntry(PlayerState@ p) {
         if (p is null) return null;
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            return g_CustomMap.GetPlayersPBEntry(p);
+        }
         CheckUpdatePlayersHeight(p.playerLogin);
         if (pbCache.Exists(p.playerName)) {
             return cast<LBEntry@>(pbCache[p.playerName]);
@@ -748,6 +758,9 @@ namespace Global {
     }
 
     float GetPlayersPBHeight(PlayerState@ player) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            return g_CustomMap.GetPlayersPBHeight(player);
+        }
         if (player is null) return -2.;
         auto @pb = GetPlayersPBEntry(player);
         if (pb is null) {

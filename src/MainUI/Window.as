@@ -134,9 +134,9 @@ namespace MainUI {
 
         UI::PushStyleColor(UI::Col::TableRowBgAlt, cGray35);
         if (UI::BeginTable("specplayers", 4, UI::TableFlags::SizingStretchProp | UI::TableFlags::ScrollY | UI::TableFlags::RowBg)) {
-            UI::TableSetupColumn("Spec", UI::TableColumnFlags::WidthFixed, 40.);
-            UI::TableSetupColumn("Height", UI::TableColumnFlags::WidthFixed, 80.);
-            UI::TableSetupColumn("From PB", UI::TableColumnFlags::WidthFixed, 100.);
+            UI::TableSetupColumn("Spec", UI::TableColumnFlags::WidthFixed, 40. * UI_SCALE);
+            UI::TableSetupColumn("Height", UI::TableColumnFlags::WidthFixed, 80. * UI_SCALE);
+            UI::TableSetupColumn("From PB", UI::TableColumnFlags::WidthFixed, 100. * UI_SCALE);
             UI::TableSetupColumn("Name", UI::TableColumnFlags::WidthStretch);
             UI::TableHeadersRow();
 
@@ -323,8 +323,8 @@ namespace MainUI {
 
     void DrawDonations_Donations() {
         if (UI::BeginTable("donations", 3, UI::TableFlags::SizingStretchProp)) {
-            UI::TableSetupColumn("Amount", UI::TableColumnFlags::WidthFixed, 100.);
-            UI::TableSetupColumn("Name", UI::TableColumnFlags::WidthFixed, 180.);
+            UI::TableSetupColumn("Amount", UI::TableColumnFlags::WidthFixed, 100. * UI_SCALE);
+            UI::TableSetupColumn("Name", UI::TableColumnFlags::WidthFixed, 180. * UI_SCALE);
             UI::TableSetupColumn("Message");
             UI::ListClipper clip(Global::donations.Length);
             while (clip.Step()) {
@@ -347,8 +347,8 @@ namespace MainUI {
 
     void DrawDonations_Donors() {
         if (UI::BeginTable("donors", 3, UI::TableFlags::SizingStretchProp)) {
-            UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80.);
-            UI::TableSetupColumn("Amount", UI::TableColumnFlags::WidthFixed, 100.);
+            UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80. * UI_SCALE);
+            UI::TableSetupColumn("Amount", UI::TableColumnFlags::WidthFixed, 100. * UI_SCALE);
             UI::TableSetupColumn("Donor");
             UI::ListClipper clip(Global::donors.Length);
             while (clip.Step()) {
@@ -419,8 +419,8 @@ namespace MainUI {
         DrawCenteredText("Global Leaderboard", f_DroidBigger, 26.);
         if (UI::BeginChild("GlobalLeaderboard", vec2(0, 0), false, UI::WindowFlags::AlwaysVerticalScrollbar)) {
             if (UI::BeginTable('lbtabel', 3, UI::TableFlags::SizingStretchSame)) {
-                UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80.);
-                UI::TableSetupColumn("Height (m)", UI::TableColumnFlags::WidthFixed, 100.);
+                UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80. * UI_SCALE);
+                UI::TableSetupColumn("Height (m)", UI::TableColumnFlags::WidthFixed, 100. * UI_SCALE);
                 UI::TableSetupColumn("Player");
                 UI::ListClipper clip(Global::globalLB.Length);
                 while (clip.Step()) {

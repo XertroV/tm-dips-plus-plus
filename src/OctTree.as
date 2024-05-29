@@ -11,6 +11,7 @@ Thank you.
 class OctTree {
     OctTreeNode@ root;
 
+    // input is in blocks, not world units
     OctTree(vec3 &in mapSize = vec3(48, 255, 48)) {
         @root = OctTreeNode(null, 0, vec3(0, 0, 0), mapSize * vec3(32, 8, 32));
     }

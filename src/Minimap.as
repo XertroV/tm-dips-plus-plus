@@ -222,7 +222,7 @@ namespace Minimap {
         }
 
         pbHeight = (localPlayer is null || localPlayer.isLocal) ? Stats::GetPBHeight() : Global::GetPlayersPBHeight(localPlayer);
-        if (MatchDD2::isDD2Proper) RenderMinimapTop3();
+        RenderMinimapTop3();
     }
 
     float HeightToMinimapY(float h) {
@@ -518,7 +518,7 @@ namespace Minimap {
         }
     }
 
-
+    LBEntry@[]@ top3;
     float pbHeight;
     float hoverTime = 0.;
     float hoverDelta;
@@ -530,7 +530,8 @@ namespace Minimap {
         vec2 pos = vec2(minimapCenterPos.x, 0);
         uint rank;
         int[] hovered = {};
-        for (int i = Math::Min(S_NbTopTimes, Global::top3.Length) - 1; i >= 0; i--) {
+        @top3 = Global::GetTop3();
+        for (int i = Math::Min(S_NbTopTimes, top3.Length) - 1; i >= 0; i--) {
             // render pb under WR
             if (i == 0) {
                 if (RenderTop3Instance(pos, -1, textBounds, pbHeight)) {
@@ -538,7 +539,7 @@ namespace Minimap {
                 }
             }
             rank = i + 1;
-            if (RenderTop3Instance(pos, rank, textBounds, Global::top3[i].height)) {
+            if (RenderTop3Instance(pos, rank, textBounds, top3[i].height)) {
                 hovered.InsertLast(rank);
             }
         }
@@ -565,8 +566,8 @@ namespace Minimap {
                 height = pbHeight;
                 name = "Personal Best";
             } else {
-                height = Global::top3[rank - 1].height;
-                name = Global::top3[rank - 1].name;
+                height = top3[rank - 1].height;
+                name = top3[rank - 1].name;
             }
             heightSum += height;
             label += name + Text::Format(" @ %.1f m", height);

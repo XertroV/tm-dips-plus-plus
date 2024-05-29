@@ -45,6 +45,7 @@ namespace PS {
         }
 
         if (MatchDD2::lastMapMatchesAnyDD2Uid) TriggerCheck_Update();
+        else if (g_CustomMap !is null) g_CustomMap.TriggerCheck_Update();
     }
 
     void SortPlayersAndUpdateVehicleIds(CSmArenaClient@ cp) {

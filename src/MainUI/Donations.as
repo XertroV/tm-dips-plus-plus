@@ -3,7 +3,7 @@
 namespace Donations {
 
     void DrawDonoCheers() {
-        if (UI::BeginChild("donocheers", vec2(-1, 140), true, UI::WindowFlags::AlwaysVerticalScrollbar)) {
+        if (UI::BeginChild("donocheers", vec2(-1, 140 * UI_SCALE), true, UI::WindowFlags::AlwaysVerticalScrollbar)) {
             float maxAmt = cheers.Length == 0 ? 100. : cheers[0].TotalAmt;
             maxAmt = Math::Max(maxAmt, 1.0);
             float tWidth;

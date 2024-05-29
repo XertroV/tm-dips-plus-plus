@@ -16,6 +16,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
     bool lastFloorEnd = false;
     string mapUid;
     uint mapMwId;
+    TriggersMgr@ triggersMgr;
 
     CustomMap(CGameCtnChallenge@ map) {
         mapUid = map.Id.GetName();
@@ -25,8 +26,10 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
             isDD2 = stats.isDD2;
             useDD2Triggers = stats.isDD2 || stats.isEzMap;
             map.MwAddRef();
+            if (!useDD2Triggers) @triggersMgr = TriggersMgr();
             startnew(CoroutineFuncUserdata(LoadCustomMapData), map);
             startnew(CoroutineFunc(RunMapLoop));
+            startnew(CoroutineFunc(this.CheckUpdateLeaderboard));
         }
     }
 
@@ -44,6 +47,12 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
 
     ~CustomMap() {
 
+    }
+
+    void TriggerCheck_Update() {
+        if (triggersMgr !is null) {
+            triggersMgr.TriggerCheck_Update();
+        }
     }
 
     void RunMapLoop() {
@@ -153,6 +162,26 @@ void CheckForUploadedMapData(ref@ data) {
 }
 
 
+class TriggersMgr {
+    OctTree@ octTree;
+    bool triggerHit = false;
+
+    TriggersMgr(nat3 mapSize = nat3(48, 255, 48)) {
+        @octTree = OctTree(Nat3ToVec3(mapSize));
+    }
+
+    void TriggerCheck_Update() {
+        if (octTree is null) return;
+        triggerHit = false;
+        auto @player = PS::viewedPlayer;
+        if (player is null) return;
+        // don't trigger immediately after (re)spawn
+        if (player.lastRespawn + 100 > Time::Now) return;
+        auto t = cast<GameTrigger>(octTree.root.PointToDeepestRegion(player.pos));
+    }
+}
+
+
 mixin class WithMapLive {
     uint lastLiveUpdate = 0;
     void CheckUpdateLive() {
@@ -184,8 +213,8 @@ mixin class WithMapLive {
         if (nbLive == 0) return;
         if (UI::BeginChild("Live", vec2(0, 0), false, UI::WindowFlags::AlwaysVerticalScrollbar)) {
             if (UI::BeginTable('livtabel', 3, UI::TableFlags::SizingStretchSame)) {
-                UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80.);
-                UI::TableSetupColumn("Height (m)", UI::TableColumnFlags::WidthFixed, 100.);
+                UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80. * UI_SCALE);
+                UI::TableSetupColumn("Height (m)", UI::TableColumnFlags::WidthFixed, 100. * UI_SCALE);
                 UI::TableSetupColumn("Player");
                 // UI::TableSetupColumn("Time");
                 UI::ListClipper clip(nbLive);
@@ -236,7 +265,7 @@ mixin class WithMapOverview {
         CheckUpdateMapOverview();
         DrawCenteredText("Map Overview", f_DroidBigger, 26.);
         UI::Columns(2);
-        auto cSize = vec2(-1, (UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.));
+        auto cSize = vec2(-1, ((UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.) * UI_SCALE));
         UI::BeginChild("mov1", cSize);
         DrawCenteredText("Total Players: " + nb_players_on_lb, f_DroidBig, 20.);
         UI::EndChild();
@@ -287,8 +316,24 @@ mixin class WithLeaderboard {
         PushMessage(GetMapRankMsg(mapUid, LoginToWSID(login)));
     }
 
+    LBEntry@ GetPlayersPBEntry(PlayerState@ p) {
+        if (p is null) return null;
+        CheckUpdatePlayersHeight(p.playerLogin);
+        if (pbCache.Exists(p.playerName)) {
+            return cast<LBEntry>(pbCache[p.playerName]);
+        }
+        return null;
+    }
+
+    float GetPlayersPBHeight(PlayerState@ p) {
+        if (p is null) return -2.;
+        auto pb = GetPlayersPBEntry(p);
+        if (pb is null) return -1.;
+        return pb.height;
+    }
+
     uint lastLbUpdate = 0;
-    uint lbLoadAtLeastNb = 200;
+    uint lbLoadAtLeastNb = 605;
     // update at most once per minute
     void CheckUpdateLeaderboard() {
         if (lastLbUpdate + 60000 < Time::Now) {
@@ -307,6 +352,8 @@ mixin class WithLeaderboard {
         lbLoadAtLeastNb += 200;
     }
 
+    bool reachedEndOfLB = false;
+
     void SetLBFromJson(Json::Value@ j) {
 #if DEV
         // trace("SetLBFromJson: " + Json::Write(j));
@@ -315,15 +362,18 @@ mixin class WithLeaderboard {
         auto arr = j["entries"];
         auto nbEntries = arr.Length;
         if (nbEntries == 0) {
+            reachedEndOfLB = true;
             // warn("Got 0 entries for LB " + mapUid);
             return;
         }
+        reachedEndOfLB = false;
         int rank = arr[0]["rank"];
         int maxRank = arr[nbEntries - 1]["rank"];
         maxRank = Math::Max(maxRank, rank + nbEntries - 1);
         while (maxRank > mapLB.Length) {
             mapLB.InsertLast(LBEntry());
         }
+        reachedEndOfLB = maxRank < lbLoadAtLeastNb;
         int lastRank = 0;
         for (uint i = 0; i < nbEntries; i++) {
             rank = int(arr[i]["rank"]);
@@ -349,7 +399,7 @@ mixin class WithLeaderboard {
         auto nbCols = len > 5 ? 2 : 1;
         auto startNewAt = nbCols == 1 ? len : (len + 1) / nbCols;
         UI::Columns(nbCols);
-        auto cSize = vec2(-1, Math::Max(1.0, (UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.) * startNewAt * UI_SCALE * 1.1));
+        auto cSize = vec2(-1, Math::Max(1.0, (UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.) * startNewAt * UI_SCALE * 1.07));
         UI::BeginChild("lbc1", cSize);
         for (uint i = 0; i < len; i++) {
             if (i == startNewAt) {
@@ -368,13 +418,13 @@ mixin class WithLeaderboard {
         UI::Columns(1);
         UI::Separator();
         DrawCenteredText("My Rank", f_DroidBigger, 26.);
-        DrawCenteredText(Text::Format("%d. ", myRank.rank) + Text::Format("%.1f m", myRank.height), f_DroidBig, 20.);
+        DrawCenteredText(Text::Format("%d. ", myRank.rank) + Text::Format("%.4f m", myRank.height), f_DroidBig, 20.);
         UI::Separator();
         DrawCenteredText("Global Leaderboard", f_DroidBigger, 26.);
         if (UI::BeginChild("GlobalLeaderboard", vec2(0, 0), false, UI::WindowFlags::AlwaysVerticalScrollbar)) {
             if (UI::BeginTable('lbtabel', 3, UI::TableFlags::SizingStretchSame)) {
-                UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80.);
-                UI::TableSetupColumn("Height (m)", UI::TableColumnFlags::WidthFixed, 100.);
+                UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80. * UI_SCALE);
+                UI::TableSetupColumn("Height (m)", UI::TableColumnFlags::WidthFixed, 100. * UI_SCALE);
                 UI::TableSetupColumn("Player");
                 UI::ListClipper clip(mapLB.Length);
                 while (clip.Step()) {
@@ -394,7 +444,7 @@ mixin class WithLeaderboard {
                 UI::EndTable();
             }
         }
-        UI::BeginDisabled(Time::Now - lastLbIncrSize < 5000 || mapLB.Length < lbLoadAtLeastNb);
+        UI::BeginDisabled(mapLB.Length < lbLoadAtLeastNb || reachedEndOfLB);
         if (DrawCenteredButton("Load More", f_DroidBig, 20.)) {
             IncrLBLoadSize();
         }
