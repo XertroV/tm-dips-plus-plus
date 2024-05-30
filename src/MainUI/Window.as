@@ -77,11 +77,14 @@ namespace MainUI {
 
     string m_TwitchID;
     void DrawProfileTab() {
+        UI::PushItemWidth(UI::GetContentRegionAvail().x * 0.5);
         bool changed;
         m_TwitchID = UI::InputText("Twitch username", m_TwitchID, changed);
         if (changed) {
             TwitchNames::UpdateMyTwitchName(m_TwitchID);
         }
+        UserProfiles::DrawEditProfile();
+        UI::PopItemWidth();
     }
 
 
@@ -218,7 +221,7 @@ namespace MainUI {
     uint lastOverviewReq = 0;
     void CheckReRequestOverview() {
         if (lastOverviewReq == 0) lastOverviewReq = Time::Now;
-        if (lastOverviewReq + 60000 < Time::Now) {
+        if (lastOverviewReq + 60000 < Time::Now && g_api !is null && g_api.HasContext) {
             lastOverviewReq = Time::Now;
             PushMessage(GetGlobalOverviewMsg());
         }
@@ -482,7 +485,7 @@ namespace MainUI {
         startnew(CoroutineFunc(vlTrigger.PlayItem));
         vlTrigger.subtitles.Reset();
         AddSubtitleAnimation(vlTrigger.subtitles);
-        dev_trace('subtitle play is vae? ' + vlTrigger.subtitles.isVae);
+        dev_trace('subtitle play is vae? ' + vlTrigger.subtitles.hasHead);
         g_SubtitlesOutsideMapCount++;
     }
 }

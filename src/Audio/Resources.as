@@ -7,13 +7,15 @@ Please do not distribute altered copies of the DD2 map.
 Thank you.
 - XertroV
 */
+//
+const string StorageBaseDir = IO::FromStorageFolder("");
 const string AudioBaseDir = IO::FromStorageFolder("Audio/");
 // const string AudioS3SourceUrl = "https://xert.s3.us-east-1.wasabisys.com/d++/audio/";
 const string AudioS3SourceUrl = "https://assets.xk.io/d++/audio/";
 const string AssetsS3SourceUrl = "https://assets.xk.io/d++/";
 
 string Audio_GetPath(const string &in name) {
-    if (name.Contains(AudioBaseDir)) return name;
+    if (name.Contains(StorageBaseDir)) return name;
     return AudioBaseDir + name;
 }
 

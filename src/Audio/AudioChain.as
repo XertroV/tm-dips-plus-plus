@@ -17,6 +17,7 @@ class AudioChain {
     string samplesStr;
     bool onlyInMap = true;
     int channel = 0;
+    bool samplesLoaded = false;
 
     AudioChain(string[]@ samplePaths) {
         @this.samplePaths = samplePaths;
@@ -37,14 +38,18 @@ class AudioChain {
     void LoadSamples() {
         for (uint i = 0; i < samplePaths.Length; i++) {
             auto sample = Audio_LoadFromCache_Async(samplePaths[i]);
-            // MemoryBuffer@ buf = ReadToBuf(Audio_GetPath(samplePaths[i]));
-            // Audio::Sample@ sample = Audio::LoadSample(buf, false);
             samples.InsertLast(sample);
             auto v = Audio::Start(sample);
             v.SetGain(S_VolumeGain);
             totalDuration += v.GetLength();
             queued.InsertLast(v);
         }
+        samplesLoaded = true;
+    }
+
+    AudioChain@ WithAwaitLoaded() {
+        while (!samplesLoaded) yield();
+        return this;
     }
 
     ~AudioChain() {
@@ -181,6 +186,11 @@ void TryClearingAudioChannel(int channel = 0) {
         lastPlayingChs[channel].StartFadeOutLoop();
         @lastPlayingChs[channel] = null;
     }
+}
+
+bool IsAudioChannelPlaying(int channel = 0) {
+    return lastPlayingChs[channel] !is null
+        && lastPlayingChs[channel].isPlaying;
 }
 
 const uint VoiceFadeOutDurationMs = 1000;

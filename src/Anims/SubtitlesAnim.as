@@ -14,21 +14,25 @@ class SubtitlesAnim : Animation {
     string[] lines;
     uint endTime;
     DeepDip2LogoAnim@ dd2LogoAnim;
-    bool isVae;
+    bool hasHead;
+    DTexture@ customHead;
 
-    SubtitlesAnim(const string &in file, bool isVae = true) {
+    SubtitlesAnim(const string &in file, bool isVae = true, const string &in custSubtiltesText = "", DTexture@ tex = null) {
         super(file);
-        this.isVae = isVae;
+        this.hasHead = isVae;
+        @customHead = tex;
         this.file = file;
-        bool fileExists = false;
-        try {
-            IO::FileSource f(file);
-            fileExists = true;
-        } catch {
-            warn("Failed to find subtitles file: " + file);
+        bool fileExists = custSubtiltesText.Length > 0;
+        if (!fileExists) {
+            try {
+                IO::FileSource f(file);
+                fileExists = true;
+            } catch {
+                warn("Failed to find subtitles file: " + file);
+            }
         }
         if (fileExists) {
-            LoadSubtitles();
+            LoadSubtitles(custSubtiltesText);
             // delay slightly to avoid fading out too fast
             endTime = startTimes[startTimes.Length - 1] + 350;
             // trace('Subtitles duration: ' + endTime);
@@ -42,7 +46,44 @@ class SubtitlesAnim : Animation {
         }
     }
 
-    void LoadSubtitles() {
+    void LoadSubtitles(const string &in customText) {
+        if (customText.Length > 0) {
+            LoadCustomSubtitles(customText);
+        } else {
+            LoadFileSubtitles();
+        }
+    }
+
+    void LoadCustomSubtitles(const string &in subtitlesRaw) {
+        string[]@ lines = subtitlesRaw.Split("\n");
+        string l;
+        string[]@ parts;
+        uint start;
+        for (uint i = 0; i < lines.Length; i++) {
+            l = lines[i];
+            if (l == "") continue;
+            @parts = l.Split(":", 2);
+            if (parts.Length != 2) {
+                warn("Bad subtitle parts: " + Json::Write(parts.ToJson()));
+            }
+            if (parts.Length < 2) continue;
+            try {
+                start = Text::ParseUInt(parts[0].Trim());
+            } catch {
+                warn("Bad subtitle start time: " + parts[0]);
+                continue;
+            }
+            startTimes.InsertLast(start);
+            this.lines.InsertLast(parts[1].Trim());
+        }
+        if (this.lines[this.lines.Length - 1] != "") {
+            throw("Last subtitle line is not empty");
+        }
+        startTimes.InsertLast(startTimes[startTimes.Length - 1] + fadeDuration + 100);
+        this.lines.InsertLast("");
+    }
+
+    void LoadFileSubtitles() {
         IO::FileSource f(file);
         string l;
         string[]@ parts;
@@ -204,7 +245,7 @@ class SubtitlesAnim : Animation {
         fontSize = g_screen.y / 40.0;
         maxWidth = g_screen.x * .5;
         maxWidthTextOnly = maxWidth;
-        if (isVae) maxWidthTextOnly -= Minimap::vScale * VAE_HEAD_SIZE / 3.;
+        if (hasHead) maxWidthTextOnly -= Minimap::vScale * VAE_HEAD_SIZE / 3.;
         SetupNvgFonts();
         fullTextBounds = vec2(maxWidth, 0);
         lineBounds.RemoveRange(0, lineBounds.Length);
@@ -267,7 +308,7 @@ class SubtitlesAnim : Animation {
 
         DrawBackgroundBox(alpha);
         DrawSubtitleLines();
-        if (isVae) DrawVae();
+        if (hasHead) DrawHead();
 
         nvg::GlobalAlpha(1.0);
 
@@ -313,9 +354,10 @@ class SubtitlesAnim : Animation {
     }
 
 
-    void DrawVae() {
-        if (Vae_Head is null) return;
-        auto paint = Vae_Head.GetPaint(textVaePos - vaeSize.x * .5, vaeSize, 0.0);
+    void DrawHead() {
+        DTexture@ tex = customHead is null ? Vae_Head : customHead;
+        if (tex is null || tex.Get() is null) return;
+        auto paint = tex.GetPaint(textVaePos - vaeSize.x * .5, vaeSize, 0.0);
         nvg::BeginPath();
         nvg::ShapeAntiAlias(true);
         nvg::Circle(textVaePos, vaeSize.x * .5);

@@ -49,17 +49,23 @@ bool IsJsonTrue(Json::Value@ jv) {
     return bool(jv);
 }
 
-#if DEVx
-const string ENDPOINT = "127.0.0.1";
+#if DEV
+[Setting hidden]
+string ENDPOINT = "127.0.0.1";
+[SettingsTab name="DEV"]
+void R_ST_Dev() {
+    UI::Text("Endpoint: " + ENDPOINT);
+    if (UI::Button("Dev Endpoint")) { ENDPOINT = "127.0.0.1"; }
+    if (UI::Button("Prod Endpoint")) { ENDPOINT = "dips-plus-plus-server.xk.io"; }
+    if (UI::Button("Reconnect")) {
+        g_api.Shutdown();
+        @g_api = null;
+        @g_api = DD2API();
+    }
+}
+
 #else
-// 161.35.155.191
 const string ENDPOINT = "dips-plus-plus-server.xk.io";
-// const string ENDPOINT = "161.35.155.191";
-// const string ENDPOINT = "203.221.134.67";
-// const string ENDPOINT = "dpps.xk.io";
-// const string ENDPOINT = "167.71.143.101";
-// const string ENDPOINT = "openplanet.dev";
-// const string ENDPOINT = "map-together-au.xk.io";
 #endif
 
 class DD2API {
@@ -95,14 +101,15 @@ class DD2API {
         uint lastDead = Time::Now;
         bool wasDead = false;
         uint connStart = Time::Now;
-        while (socket.IsConnecting && Time::Now - connStart < 5000) yield();
+        while (!_isShutdown && socket.IsConnecting && Time::Now - connStart < 5000) yield();
         sleep(21230);
-        while (true) {
+        while (!_isShutdown) {
             if (socket.IsConnecting) {
                 connStart = Time::Now;
                 while (socket.IsConnecting && Time::Now - connStart < 5000) yield();
             }
-            if (socket.IsClosed || socket.ServerDisconnected) {
+            if (IsShutdownClosedOrDC) {
+                if (_isShutdown) return;
                 if (!wasDead) {
                     wasDead = true;
                     lastDead = Time::Now;
@@ -123,10 +130,17 @@ class DD2API {
         Shutdown();
     }
 
+    bool _isShutdown = false;
     void Shutdown() {
+        _isShutdown = true;
         socket.Shutdown();
+        @socket = null;
         IsReady = false;
         HasContext = false;
+    }
+
+    bool get_IsShutdownClosedOrDC() {
+        return _isShutdown || socket.IsClosed || socket.ServerDisconnected;
     }
 
     protected void InitMsgHandlers() {
@@ -141,6 +155,7 @@ class DD2API {
         HasContext = false;
         lastPingTime = Time::Now;
         trace("ReconnectSocket");
+        if (_isShutdown) return;
         socket.ReconnectToServer();
         startnew(CoroutineFuncUserdataUint64(BeginLoop), nonce);
     }
@@ -154,10 +169,12 @@ class DD2API {
 
     protected void BeginLoop(uint64 nonce) {
         lastPingTime = Time::Now;
-        while (socket.IsConnecting && !IsBadNonce(nonce)) yield();
+        while (!_isShutdown && socket.IsConnecting && !IsBadNonce(nonce)) yield();
+        if (_isShutdown) return;
         AuthenticateWithServer(nonce);
         if (IsBadNonce(nonce)) return;
-        if (socket.IsClosed || socket.ServerDisconnected || sessionToken == "") {
+        if (IsShutdownClosedOrDC || sessionToken == "") {
+            if (_isShutdown) return;
             // sessionToken = "";
             warn("Failed to connect to DD2API server.");
             warn("Waiting 15s and trying again.");
@@ -202,7 +219,7 @@ class DD2API {
         } else {
             SendMsgNow(ResumeSessionMsg(sessionToken));
         }
-        if (IsBadNonce(nonce)) return;
+        if (IsBadNonce(nonce) || socket is null) return;
         auto msg = socket.ReadMsg();
         if (msg is null) {
             trace("Recieved null msg from server after auth.");
@@ -259,7 +276,7 @@ class DD2API {
         uint loopStarted = Time::Now;
         while (!IsReady && Time::Now - loopStarted < 10000) yield();
         while (!IsBadNonce(nonce)) {
-            if (socket.IsClosed || socket.ServerDisconnected) break;
+            if (IsShutdownClosedOrDC) break;
             auto nbOutgoing = Math::Min(queuedMsgs.Length, 10);
             for (uint i = 0; i < nbOutgoing; i++) {
                 @next = queuedMsgs[i];
@@ -273,6 +290,7 @@ class DD2API {
 
     string lastStatsJson;
     protected void SendMsgNow(OutgoingMsg@ msg) {
+        if (socket is null) return;
         if (msg.getTy() == MessageRequestTypes::ReportStats) {
             lastStatsJson = Json::Write(msg.msgPayload);
             socket.WriteMsg(msg.type, lastStatsJson);
@@ -312,7 +330,7 @@ class DD2API {
         pingTimeoutCount = 0;
         while (!IsBadNonce(nonce)) {
             sleep(6789);
-            if (socket.IsClosed || socket.ServerDisconnected) {
+            if (IsShutdownClosedOrDC) {
                 return;
             }
             if (IsBadNonce(nonce)) return;
@@ -334,7 +352,7 @@ class DD2API {
 
     void ReconnectWhenDisconnected(uint64 nonce) {
         while (!IsBadNonce(nonce)) {
-            if (socket.IsClosed || socket.ServerDisconnected) {
+            if (IsShutdownClosedOrDC) {
                 trace("disconnect detected.");
                 ReconnectSocket();
                 return;
@@ -401,7 +419,7 @@ class DD2API {
                 yield();
             }
             sleep(117);
-            // if (socket.IsClosed || socket.ServerDisconnected) break;
+            // if (IsShutdownClosedOrDC) break;
             if (Time::Now - lastVSReport > (currentMapRelevant ? 5000 : 25000)) {
                 if (IsBadNonce(nonce)) break;
                 CSceneVehicleVisState@ state = GetVehicleStateOfControlledPlayer();
@@ -419,7 +437,7 @@ class DD2API {
                         warn("exception reporting VS: " + getExceptionInfo());
                         }
                 }
-                // if (socket.IsClosed || socket.ServerDisconnected) break;
+                // if (IsShutdownClosedOrDC) break;
             }
             if (IsBadNonce(nonce)) break;
             if (Time::Now - lastGC > 300000) {
@@ -428,7 +446,7 @@ class DD2API {
             }
             sleep(117);
             if (IsBadNonce(nonce)) break;
-            if (Time::Now - started > 15000 && (socket.IsClosed || socket.ServerDisconnected)) {
+            if (Time::Now - started > 15000 && (IsShutdownClosedOrDC)) {
                 trace("breaking context loop");
                 break;
             }
@@ -480,10 +498,15 @@ class DD2API {
         @msgHandlers[MessageResponseTypes::GfmDonations] = MsgHandler(GfmDonationsHandler);
         @msgHandlers[MessageResponseTypes::TwitchName] = MsgHandler(TwitchNameHandler);
 
+        @msgHandlers[MessageResponseTypes::UsersProfile] = MsgHandler(UsersProfileHandler);
+        @msgHandlers[MessageResponseTypes::YourPreferences] = MsgHandler(MyPreferencesHandler);
+
         @msgHandlers[MessageResponseTypes::MapOverview] = MsgHandler(MapOverviewHandler);
         @msgHandlers[MessageResponseTypes::MapLB] = MsgHandler(MapLBHandler);
         @msgHandlers[MessageResponseTypes::MapLivePlayers] = MsgHandler(MapLivePlayersHandler);
         @msgHandlers[MessageResponseTypes::MapRank] = MsgHandler(MapRankHandler);
+
+        @msgHandlers[MessageResponseTypes::SecretAssets] = MsgHandler(SecretAssetsHandler);
     }
 
 
@@ -571,6 +594,14 @@ class DD2API {
         TwitchNames::HandleMsg(msg);
     }
 
+    void UsersProfileHandler(Json::Value@ msg) {
+        UserProfiles::HandleMsg(msg);
+    }
+
+    void MyPreferencesHandler(Json::Value@ msg) {
+        MyPreferences::HandleMsg(msg);
+    }
+
     // MapOverview
     // MapLB
     // MapLivePlayers
@@ -598,6 +629,10 @@ class DD2API {
         if (g_CustomMap !is null) {
             g_CustomMap.SetRankFromJson(msg);
         }
+    }
+
+    void SecretAssetsHandler(Json::Value@ msg) {
+        SecretAssets::Load(msg);
     }
 }
 
@@ -672,24 +707,27 @@ namespace Global {
 
     LBEntry@[] globalLB = {};
     void UpdateLBFromJson(Json::Value@ j) {
+        if (j.Length == 0) return;
         int firstRank = j[0]["rank"];
         int lastRank = j[j.Length-1]["rank"];
         lastRank = Math::Max(j.Length, lastRank);
-        while (globalLB.Length <= lastRank) {
+        while (globalLB.Length < lastRank) {
             globalLB.InsertLast(LBEntry());
         }
         int rank;
         // repurpose lastRank
         lastRank = 0;
+        LBEntry@ entry;
         for (uint i = 0; i < j.Length; i++) {
             rank = int(j[i]["rank"]);
             // equal places?
             if (rank <= lastRank) {
                 rank = lastRank + 1;
             }
-            globalLB[rank - 1].SetFromJson(j[i]);
-            @pbCache[globalLB[i].name] = globalLB[i];
-            wsidToPlayerName[globalLB[i].wsid] = globalLB[i].name;
+            @entry = globalLB[rank - 1];
+            entry.SetFromJson(j[i]);
+            @pbCache[entry.name] = entry;
+            wsidToPlayerName[entry.wsid] = entry.name;
             lastRank = rank;
             if (i % 50 == 0) yield();
         }

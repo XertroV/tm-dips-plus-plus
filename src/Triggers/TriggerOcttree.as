@@ -460,6 +460,24 @@ GameTrigger@[]@ generateVoiceLineTriggers() {
     // ret.InsertLast(FloorVLTrigger(vec3(), vec3(), "Finish"));
     ret.InsertLast(TitleGagTrigger(vec3(424, 7, 424),	vec3(1100, 55, 1100), "Floor Gang"));
     ret.InsertLast(TitleGagTrigger(vec3(384, 7, 760),	vec3(424, 55, 776), "Floor Gang"));
+
+
+    // SET 1
+    ret.InsertLast(SATrigger(vec3(696, 1799.8, 534), vec3(726, 1804.0, 618)));
+    ret.InsertLast(SATrigger(vec3(810, 1799.8, 534), vec3(840, 1804.0, 618)));
+    ret.InsertLast(SATrigger(vec3(696, 1799.8, 504), vec3(840, 1804.0, 534)));
+    ret.InsertLast(SATrigger(vec3(696, 1799.8, 618), vec3(840, 1804.0, 648)));
+    // SET 2
+    ret.InsertLast(SATrigger(vec3(504, 1799.8, 726), vec3(534, 1804.0, 810)));
+    ret.InsertLast(SATrigger(vec3(618, 1799.8, 726), vec3(648, 1804.0, 810)));
+    ret.InsertLast(SATrigger(vec3(504, 1799.8, 696), vec3(648, 1804.0, 726)));
+    ret.InsertLast(SATrigger(vec3(504, 1799.8, 810), vec3(648, 1804.0, 840)));
+    // SET 3
+    ret.InsertLast(SATrigger(vec3(696, 1799.8, 918), vec3(726, 1804.0, 1002)));
+    ret.InsertLast(SATrigger(vec3(810, 1799.8, 918), vec3(840, 1804.0, 1002)));
+    ret.InsertLast(SATrigger(vec3(696, 1799.8, 888), vec3(840, 1804.0, 918)));
+    ret.InsertLast(SATrigger(vec3(696, 1799.8, 1002), vec3(840, 1804.0, 1032)));
+
     return ret;
 }
 
@@ -467,7 +485,6 @@ GameTrigger@[]@ generateVoiceLineTriggers() {
 EasyFloorVLTrigger@ t_EasyMapFinishVL = EasyFloorVLTrigger("ez-vl-preludial-epiloge"); /* keep typo */
 // for main map
 FloorVLTrigger@ t_DD2MapFinishVL = FloorVLTrigger(vec3(), vec3() , "DD2 Epilogue", 17);
-
 
 GameTrigger@[]@ generateMonumentTriggers() {
     GameTrigger@[] ret;
@@ -496,11 +513,25 @@ GameTrigger@[]@ genEasterEggTriggers() {
     ret.InsertLast(SpecialTextTrigger(vec3(826.000, 857.000, 993.000), vec3(830.000, 862.000, 999.000), "Blessed by Bleb", 4000, 30000, CoroutineFunc(Stats::LogBleb)));
     ret.InsertLast(SpecialTextTrigger(vec3(567.886, 728.0, 959.905), vec3(584.008, 734.0, 984.005), "Quack", 4000, 30000, CoroutineFunc(Stats::LogQuack)));
     // ret.InsertLast(SpecialTextTrigger(vec3(729.397, 1239.54, 760.962), vec3(734.313, 1242.24, 767.316), "Nice One!", 4000, 30000, CoroutineFunc(Stats::LogL11NiceOneTrigger)));
-    ret.InsertLast(SpecialTextTrigger(vec3(158.607, 11.5963, 789.121), vec3(192.883, 17.1845, 802.433), "gz. You found the debug trigger!", 4000, 1000, CoroutineFunc(Stats::LogDebugTrigger)));
+    ret.InsertLast(DebugTrigger(vec3(158.607, 11.5963, 789.121), vec3(192.883, 17.1845, 802.433), "gz. You found the debug trigger!", 4000, 1000, CoroutineFunc(Stats::LogDebugTrigger)));
 
     // ret.InsertLast(SpecialTextTrigger(vec3(602.000, 1091.000, 834.000), vec3(630.000, 1098.000, 862.000), "360!", 4000));
     return ret;
 }
+
+class DebugTrigger : SpecialTextTrigger {
+    DebugTrigger(vec3 &in min, vec3 &in max, const string &in name, int delay, int debounce, CoroutineFunc@ onTrigger) {
+        super(min, max, name, delay, debounce, onTrigger);
+    }
+
+    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+        SpecialTextTrigger::OnEnteredTrigger(prevTrigger);
+#if DEV
+        // SecretAssets::OnTriggerHit();
+#endif
+    }
+}
+
 
 GameTrigger@[]@ specialTriggers = genSpecialTriggers();
 GameTrigger@[]@ voiceLineTriggers = generateVoiceLineTriggers();

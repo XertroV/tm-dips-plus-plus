@@ -50,6 +50,6 @@ class DTexture {
     }
 }
 
-DTexture@ Vae_Head = DTexture("img/vae_square.png");
-DTexture@ Vae_Full = DTexture("img/vae.png");
-DTexture@ DD2_Logo = DTexture("img/Deep_dip_2_logo.png");
+DTexture@ Vae_Head;
+DTexture@ Vae_Full;
+DTexture@ DD2_Logo;

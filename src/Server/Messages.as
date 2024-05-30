@@ -42,6 +42,12 @@ enum MessageRequestTypes {
     GetGfmDonations = 136,
     GetTwitch = 137,
 
+    GetMyProfile = 138,
+    SetMyProfile = 139,
+    GetMyPreferences = 140,
+    SetMyPreferences = 141,
+    GetUsersProfile = 142,
+
     // uid
     GetMapOverview = 192,
     // uid, start, end
@@ -52,6 +58,8 @@ enum MessageRequestTypes {
     GetMapMyRank = 195,
     // uid, wsid
     GetMapRank = 196,
+
+    GetSecretAssets = 254,
 
     StressMe = 255,
 }
@@ -77,11 +85,15 @@ enum MessageResponseTypes {
     Donations = 135,
     GfmDonations = 136,
     TwitchName = 137,
+    UsersProfile = 138,
+    YourPreferences = 139,
 
     MapOverview = 192,
     MapLB = 193,
     MapLivePlayers = 194,
     MapRank = 195,
+
+    SecretAssets = 254,
 }
 
 OutgoingMsg@ WrapMsgJson(Json::Value@ inner, MessageRequestTypes type) {
@@ -318,4 +330,30 @@ OutgoingMsg@ GetMapRankMsg(const string &in uid, const string &in wsid) {
 
 OutgoingMsg@ GetServerStatsMsg() {
     return WrapMsgJson(Json::Object(), MessageRequestTypes::GetServerStats);
+}
+
+
+OutgoingMsg@ GetMyProfileMsg() {
+    return WrapMsgJson(Json::Object(), MessageRequestTypes::GetMyProfile);
+}
+
+OutgoingMsg@ SetMyProfileMsg(Json::Value@ profile) {
+    auto @j = Json::Object();
+    j["body"] = profile;
+    return WrapMsgJson(j, MessageRequestTypes::SetMyProfile);
+}
+
+OutgoingMsg@ GetMyPreferencesMsg() {
+    return WrapMsgJson(Json::Object(), MessageRequestTypes::GetMyPreferences);
+}
+
+OutgoingMsg@ SetMyPreferencesMsg(Json::Value@ prefs) {
+    auto @j = Json::Object();
+    j["body"] = prefs;
+    return WrapMsgJson(j, MessageRequestTypes::SetMyPreferences);
+}
+
+
+OutgoingMsg@ GetSecretAssetsMsg() {
+    return WrapMsgJson(Json::Object(), MessageRequestTypes::GetSecretAssets);
 }

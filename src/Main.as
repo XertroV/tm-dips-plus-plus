@@ -73,6 +73,7 @@ void Main() {
     sleep(300);
     startnew(RefreshAssets);
     startnew(MagicSpectate::Load);
+    startnew(SecretAssets::OnPluginStart);
     G_Initialized = true;
 }
 

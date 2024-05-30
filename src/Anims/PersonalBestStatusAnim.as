@@ -108,6 +108,7 @@ class PersonalBestStatusAnim : ProgressAnim {
     vec2 screenUv = vec2(0.5, 0.1);
 
     vec2 Draw() override {
+        if (gAlpha < 0.01) return vec2();
         nvg::Reset();
         nvg::GlobalAlpha(gAlpha);
 

@@ -62,7 +62,7 @@ void ClearSubtitleAnimations() {
 }
 
 bool IsVoiceLinePlaying() {
-    return subtitleAnims.Length > 0;
+    return subtitleAnims.Length > 0 || IsAudioChannelPlaying(0);
 }
 
 bool IsTitleGagPlaying() {
