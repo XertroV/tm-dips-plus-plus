@@ -186,12 +186,12 @@ namespace MainUI {
 
 
     void DrawStatsTab() {
-        DrawCenteredText("Global Stats", f_DroidBigger, 26.);
+        DrawCenteredText("Global Stats (DD2)", f_DroidBigger, 26.);
         UI::Columns(2, "GlobalStatsColumns", true);
         UI::Text("Players");
         UI::Text("Connected Players");
         UI::Text("Currently Climbing");
-        UI::Text("Climbing Shallow Dip");
+        UI::Text("\\$i\\$aaaClimbing Shallow Dip");
         UI::Text("Total Falls");
         UI::Text("Total Floors Fallen");
         UI::Text("Total Height Fallen");
@@ -203,7 +203,7 @@ namespace MainUI {
         UI::Text(tostring(Global::players));
         UI::Text(tostring(Global::nb_players_live));
         UI::Text(tostring(Global::nb_players_climbing));
-        UI::Text(tostring(Global::nb_climbing_shallow_dip));
+        UI::Text("\\$i\\$aaa" + tostring(Global::nb_climbing_shallow_dip));
         UI::Text(tostring(Global::falls));
         UI::Text(tostring(Global::floors_fallen));
         UI::Text(Text::Format("%.1f km", Global::height_fallen / 1000.));
