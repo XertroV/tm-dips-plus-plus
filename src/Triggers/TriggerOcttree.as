@@ -16,6 +16,7 @@ enum GameTriggerTy {
 class GameTrigger : OctTreeRegion {
     mat4 mat;
     bool resetOnLeave = false;
+    vec4 debug_strokeColor = vec4(1, 0, 0, 1);
 
     GameTrigger(vec3 &in min, vec3 &in max, const string &in name) {
         super(min, max);
@@ -24,7 +25,6 @@ class GameTrigger : OctTreeRegion {
         debug_strokeColor = GenRandomColor();
     }
 
-    vec4 debug_strokeColor = vec4(1, 0, 0, 1);
     vec3 screenPos;
 
     void Debug_NvgDrawTrigger() {
