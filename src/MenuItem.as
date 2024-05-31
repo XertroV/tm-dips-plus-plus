@@ -153,6 +153,9 @@ namespace DebugMenu {
                 OnFinish::isFinishSeqRunning = false;
                 OnLocalPlayerFinished(null);
             }
+            if (UI::MenuItem("Play Fanfare")) {
+                Fanfare::OnFinishHit();
+            }
             if (UI::BeginMenu("Anims")) {
                 if (UI::MenuItem("Add Bleb")) {
                     EmitStatusAnimation(RainbowStaticStatusMsg("Bleb").WithDuration(4000));

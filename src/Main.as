@@ -76,7 +76,9 @@ void Main() {
     startnew(SecretAssets::OnPluginStart);
     G_Initialized = true;
 #if DEV
-    RunFireworksTest();
+    // OnCameraUpdateHook.Apply();
+    // OnCameraUpdateHook_Other.Apply();
+    // RunFireworksTest();
 #endif
 }
 
@@ -97,12 +99,13 @@ void _Unload() {
         textOverlayAudio.StartFadeOutLoop();
         @textOverlayAudio = null;
     }
-    ClearAnimations();
-    MagicSpectate::Unload();
-    MainMenuBg::Unload();
     if (g_api !is null) {
         g_api.Shutdown();
     }
+    CheckUnhookAllRegisteredHooks();
+    ClearAnimations();
+    MagicSpectate::Unload();
+    MainMenuBg::Unload();
 }
 
 
@@ -168,7 +171,7 @@ int g_SubtitlesOutsideMapCount = 0;
 void Render() {
     if (!G_Initialized) return;
 #if DEV
-    RenderFireworkTest();
+    // RenderFireworkTest();
 #endif
     bool drawAnywhereUI = S_ShowWhenUIHidden || UI::IsOverlayShown();
     bool drawAnywhereGame = S_ShowWhenUIHidden || UI::IsGameUIVisible();

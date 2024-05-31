@@ -10,7 +10,7 @@ Thank you.
 class DTexture {
     string path;
     bool fileExists;
-    nvg::Texture@ tex;
+    protected nvg::Texture@ tex;
     vec2 dims;
 
     DTexture(const string &in path) {
@@ -21,12 +21,22 @@ class DTexture {
         startnew(CoroutineFunc(WaitForTexture));
     }
 
-    void WaitForTexture() {
+    void WaitForTextureSilent() {
         while (!IO::FileExists(path)) {
             yield();
         }
+    }
+    void WaitForTexture() {
+        WaitForTextureSilent();
         dev_trace("Found texture: " + path);
         fileExists = true;
+    }
+
+    vec2 GetSize() {
+        if (tex !is null) {
+            return dims;
+        }
+        return vec2(60.);
     }
 
     nvg::Texture@ Get() {
@@ -47,6 +57,44 @@ class DTexture {
         auto t = Get();
         if (t is null) return nvg::LinearGradient(vec2(), g_screen, cBlack50, cBlack50);
         return nvg::TexturePattern(origin, size, angle, t, alpha);
+    }
+
+    DTextureSprite@ GetSprite(nat2 topLeft, nat2 size) {
+        return DTextureSprite(this, topLeft, size);
+    }
+}
+
+class DTextureSprite : DTexture {
+    vec2 topLeft;
+    vec2 spriteSize;
+    DTexture@ parent;
+
+    DTextureSprite(DTexture@ tex, nat2 topLeft, nat2 size) {
+        super("?nonexistant;*");
+        this.topLeft.x = topLeft.x;
+        this.topLeft.y = topLeft.y;
+        this.spriteSize.x = size.x;
+        this.spriteSize.y = size.y;
+        @this.parent = tex;
+    }
+
+    void WaitForTexture() override {
+        parent.WaitForTextureSilent();
+    }
+
+    vec2 GetSize() override {
+        return spriteSize;
+    }
+
+    nvg::Texture@ Get() override {
+        return parent.Get();
+    }
+
+    nvg::Paint GetPaint(vec2 origin, vec2 size, float angle, float alpha = 1.0) override {
+        vec2 scale = size / spriteSize;
+        auto t = parent.Get();
+        if (t is null) return nvg::LinearGradient(vec2(), g_screen, cBlack50, cBlack50);
+        return nvg::TexturePattern(origin - topLeft * scale, t.GetSize(), angle, t, alpha);
     }
 }
 

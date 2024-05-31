@@ -118,6 +118,7 @@ void AddNonAudioAssetDownloads() {
     AddArbitraryAssetDownload("img/Deep_dip_2_logo.png");
     AddArbitraryAssetDownload("img/vae_square.png");
     AddArbitraryAssetDownload("img/vae.png");
+    AddArbitraryAssetDownload("img/fanfare-spritesheet.png");
     GameFolderAssetDownload(MENU_ITEM_RELPATH);
     GameFolderAssetDownload(MENU_ITEM2_RELPATH);
     AddArbitraryAssetDownload("img/floor0.jpg");

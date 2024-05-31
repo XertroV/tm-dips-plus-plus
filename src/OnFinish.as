@@ -56,13 +56,14 @@ namespace OnFinish {
     }
 
     void StartDD2CelebrationAnim() {
-        EmitStatusAnimation(FinishFireworksAnim());
+        startnew(Fanfare::OnFinishHit);
     }
 
     void WaitForRespawn() {
         auto app = GetApp();
         CGamePlayground@ pg;
         CGamePlaygroundUIConfig@ ui;
+        uint startedWaiting = Time::Now;
         while (true) {
             yield();
             if ((@pg = app.CurrentPlayground) is null) return;
@@ -71,6 +72,9 @@ namespace OnFinish {
             if (ui.UISequence == CGamePlaygroundUIConfig::EUISequence::Finish) continue;
             if (ui.UISequence != CGamePlaygroundUIConfig::EUISequence::Playing) continue;
             break;
+        }
+        while (Time::Now - startedWaiting < 30000) {
+            yield();
         }
         sleep(100);
         if (MatchDD2::isEasyDD2Map) {
@@ -131,7 +135,7 @@ namespace OnFinish {
             DrawCenteredText("Congratulations!", f_DroidBigger, 26);
             if (DrawCenteredButton("Play Epilogue", f_DroidBigger, 26)) {
                 startnew(PlayDD2Epilogue);
-                EmitStatusAnimation(DD2FinCelebrationAnim());
+                // EmitStatusAnimation(DD2FinCelebrationAnim());
                 g_ShowDD2FinishEpilogueScreen = false;
             }
             UI::Dummy(vec2(0, 18));
@@ -198,23 +202,5 @@ namespace OnFinish {
             // }
             return endAE;
         }
-    }
-}
-
-class FinishFireworksAnim : ProgressAnim {
-    FinishFireworksAnim() {
-        super("finish fireworks", nat2(0, 155000));
-        fadeIn = 500;
-        fadeOut = 500;
-        pauseWhenMenuOpen = false;
-    }
-}
-
-class DD2FinCelebrationAnim : ProgressAnim {
-    DD2FinCelebrationAnim() {
-        super("dd2 fin celebration", nat2(0, 155000));
-        fadeIn = 500;
-        fadeOut = 500;
-        pauseWhenMenuOpen = false;
     }
 }

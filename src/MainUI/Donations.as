@@ -47,7 +47,7 @@ namespace Donations {
         cheers.InsertLast(DonoCheerCount("Schmaniol", "schman", "0fd26a9f-8f70-4f51-85e1-fe99a4ed6ffb"));
         cheers.InsertLast(DonoCheerCount("iiHugo", "hugo", "3433b0f2-5acd-47a8-b32c-8c811c984a9f"));
         cheers.InsertLast(DonoCheerCount("Spammiej", "spam", "3bb0d130-637d-46a6-9c19-87fe4bda3c52"));
-        cheers.InsertLast(DonoCheerCount("Kubas.", "kubas", "21029447-5895-4e1e-829c-14dedb4af788"));
+        // cheers.InsertLast(DonoCheerCount("Kubas.", "kubas", "21029447-5895-4e1e-829c-14dedb4af788"));
         cheers.InsertLast(DonoCheerCount("mtat_tm", "mtat", "fc54a67c-7bd3-4b33-aa7d-a77f13a7b621"));
         cheers.InsertLast(DonoCheerCount("CarlJr.", "carl", "0c857beb-fd95-4449-a669-21fb310cacae"));
         cheers.InsertLast(DonoCheerCount("Loupphok", "loupphok", "faedcf21-d61a-4305-9ffe-680b2ee5d65e"));

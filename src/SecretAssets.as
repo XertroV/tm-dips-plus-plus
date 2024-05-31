@@ -49,7 +49,9 @@ namespace SecretAssets {
             while (head.Get() is null) yield();
         } else if (name == "fanfare") {
             @fanfarePfp = DTexture(filename);
-            Fanfare::AddFireworkParticle(fanfarePfp);
+            for (uint i = 0; i < 3; i++) {
+                Fanfare::AddFireworkParticle(fanfarePfp);
+            }
             while (fanfarePfp.Get() is null) yield();
         } else if (name == "s-flight-vae") {
             s_flight_vae = ReadTextFileFromStorage(filename);
