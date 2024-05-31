@@ -164,7 +164,7 @@ namespace SecretAssets {
 class SATrigger : GameTrigger {
     SATrigger(vec3 &in min, vec3 &in max) {
         super(min, max, "Secret");
-        debug_strokeColor = cGold;
+        this.debug_strokeColor = vec4(1, 0.84, 0, 1);
     }
 
     void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
