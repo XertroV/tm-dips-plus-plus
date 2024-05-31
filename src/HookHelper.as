@@ -146,16 +146,16 @@
 
 
 
-// funcdef bool UnapplyHookFn();
+funcdef bool UnapplyHookFn();
+UnapplyHookFn@[] unapplyHookFns;
 
-// UnapplyHookFn@[] unapplyHookFns;
 // void RegisterUnhookFunction(UnapplyHookFn@ fn) {
 //     if (fn is null) throw("null fn passted to reg unhook fn");
 //     unapplyHookFns.InsertLast(fn);
 // }
 
-// void CheckUnhookAllRegisteredHooks() {
-//     for (uint i = 0; i < unapplyHookFns.Length; i++) {
-//         unapplyHookFns[i]();
-//     }
-// }
+void CheckUnhookAllRegisteredHooks() {
+    for (uint i = 0; i < unapplyHookFns.Length; i++) {
+        unapplyHookFns[i]();
+    }
+}
