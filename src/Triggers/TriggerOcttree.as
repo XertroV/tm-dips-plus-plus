@@ -220,6 +220,7 @@ class FloorVLTrigger : PlaySoundTrigger {
             yield();
         }
         if (subtitles !is null) {
+            subtitles.Reset();
             AddSubtitleAnimation(subtitles);
         }
     }
@@ -289,7 +290,10 @@ class TitleGagTrigger : GagVoiceLineTrigger {
         while (IsVoiceLinePlaying()) yield();
         bool isLocalPlayer = PS::viewedPlayer !is null && PS::viewedPlayer.isLocal;
         uint lastRespawn = PS::viewedPlayer !is null ? PS::viewedPlayer.lastRespawn : 0;
-        if (isLocalPlayer) {
+        if (S_PickRandomTitleGag) {
+            @gag = GLOBAL_TITLE_COLLECTION.SelectOne();
+        }
+        if (isLocalPlayer && gag is null) {
             uint count = 0;
             do {
                 bool selectUncollected = true;

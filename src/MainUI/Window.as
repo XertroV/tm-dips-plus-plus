@@ -229,6 +229,10 @@ namespace MainUI {
 
     void DrawMainCollectionsTab() {
         DrawCenteredText("Collections", f_DroidBigger, 26.);
+        UI::Separator();
+        S_PickRandomTitleGag = UI::Checkbox("[Workaround] Always Pick Random Title Gag", S_PickRandomTitleGag);
+        AddSimpleTooltip("This is a workaround in case you get the bug where you get one title gag over and over. You probably don't need to enable this.");
+        UI::Separator();
         GLOBAL_TITLE_COLLECTION.DrawStats();
         DrawCollectionElements(GLOBAL_TITLE_COLLECTION);
         UI::Separator();

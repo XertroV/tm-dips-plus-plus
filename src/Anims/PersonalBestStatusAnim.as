@@ -35,11 +35,15 @@ class ProgressAnim : Animation {
         return Animation::ToString(i) + " t=" + t + " progressMs=" + progressMs + " gAlpha: " + gAlpha;
     }
 
-    void OnEndAnim() override {
+    void Reset() {
         lastUpdate = 0;
         time = 0;
         delta = 0;
         progressMs = 0;
+    }
+
+    void OnEndAnim() override {
+        Reset();
     }
 
     bool Update() override {

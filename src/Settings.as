@@ -15,6 +15,9 @@ bool S_ShowWhenUIHidden = false;
 bool S_HideDPPButtonInBottomRight = false;
 
 [Setting hidden]
+bool S_PickRandomTitleGag = false;
+
+[Setting hidden]
 bool S_HideMovieTitles = false;
 
 [Setting hidden]

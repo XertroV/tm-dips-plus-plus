@@ -403,7 +403,7 @@ class DeepDip2LogoAnim : Animation {
         while (!IO::FileExists(Audio_GetPath("lightning2.mp3"))) {
             yield();
         }
-        @audio = AudioChain({"lightning2.mp3"});
+        @audio = AudioChain({"lightning2.mp3"}).WithChannel(1);
     }
 
     void OnEndAnim() override {

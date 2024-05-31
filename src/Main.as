@@ -75,6 +75,9 @@ void Main() {
     startnew(MagicSpectate::Load);
     startnew(SecretAssets::OnPluginStart);
     G_Initialized = true;
+#if DEV
+    RunFireworksTest();
+#endif
 }
 
 // void UnloadSelfSoon() {
@@ -164,6 +167,9 @@ int g_SubtitlesOutsideMapCount = 0;
 
 void Render() {
     if (!G_Initialized) return;
+#if DEV
+    RenderFireworkTest();
+#endif
     bool drawAnywhereUI = S_ShowWhenUIHidden || UI::IsOverlayShown();
     bool drawAnywhereGame = S_ShowWhenUIHidden || UI::IsGameUIVisible();
     DownloadProgress::Draw();
@@ -316,6 +322,7 @@ void RenderSubtitleAnims(bool doDraw) {
         if (doDraw) subtitleAnims[0].Draw();
     } else {
         dev_trace("removing subtitle at 0");
+        subtitleAnims[0].OnEndAnim();
         subtitleAnims.RemoveAt(0);
         if (g_SubtitlesOutsideMapCount > 0) {
             g_SubtitlesOutsideMapCount--;
