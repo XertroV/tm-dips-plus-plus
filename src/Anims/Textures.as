@@ -25,6 +25,7 @@ class DTexture {
         while (!IO::FileExists(path)) {
             yield();
         }
+        yield();
     }
     void WaitForTexture() {
         WaitForTextureSilent();
@@ -98,6 +99,6 @@ class DTextureSprite : DTexture {
     }
 }
 
-DTexture@ Vae_Head;
-DTexture@ Vae_Full;
-DTexture@ DD2_Logo;
+DTexture@ Vae_Head = DTexture("img/vae_square.png");
+// DTexture@ Vae_Full;
+DTexture@ DD2_Logo = DTexture("img/Deep_dip_2_logo.png");

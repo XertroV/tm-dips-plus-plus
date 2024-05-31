@@ -31,11 +31,6 @@ void LoadGlobalTextures() {
     // @dips_pp_logo_horiz_vsm = nvg::LoadTexture(dpp_horiz.Read(dpp_horiz.Size()), nvg::TextureFlags::None);
     @dips_pp_logo_horiz_vsm = UI::LoadTexture(dpp_horiz.Read(dpp_horiz.Size()));
     dips_pp_logo_horiz_vsm_dims = dips_pp_logo_horiz_vsm.GetSize();
-
-    @Vae_Head = DTexture("img/vae_square.png");
-    yield();
-    // @Vae_Full = DTexture("img/vae.png");
-    @DD2_Logo = DTexture("img/Deep_dip_2_logo.png");
     yield();
     @Fanfare::FanfareSpritesheet = DTexture("img/fanfare-spritesheet.png");
     yield();
