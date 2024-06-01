@@ -13,11 +13,9 @@ FunctionHookHelper@ OnCameraUpdateHook_Other = FunctionHookHelper(
 // );
 
 /**
- * Matrix at 0x1C0 is used during intro and finish, not used during forced MT cams
+ * Matrix at 0x1C0 is used during intro and finish, not used during forced MT cams (of any kind it seems)
  * Another Cam Matrix at 0x260 -- overwriting at either hook doesn't seem to do anything
- * Matrix at 0x560 is used during normal play (overwrites cam1/2/3 position).
- *
- *
+ * Matrix at 0x560 is used during normal play (overwrites cam1/2/3 position, not MT).
  */
 
 namespace CameraUpdateHook {
@@ -54,6 +52,13 @@ namespace CameraUpdateHook {
     // time is miliseconds and mod 100k
     float TimeToAngle(float time) {
         return time / 12500.0 * TAU;
+    }
+
+
+    void Run15Test() {
+        OnCameraUpdateHook_Other.Apply();
+        sleep(15000);
+        OnCameraUpdateHook_Other.Unapply();
     }
 }
 

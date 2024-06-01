@@ -156,6 +156,9 @@ namespace DebugMenu {
             if (UI::MenuItem("Play Fanfare")) {
                 Fanfare::OnFinishHit();
             }
+            if (UI::MenuItem("Test Cam Control 15s")) {
+                startnew(CameraUpdateHook::Run15Test);
+            }
             if (UI::MenuItem("Explore Campaign Nod")) {
                 auto fid = GetCampaignScriptFid(PatchModeTarget::Campaign);
                 if (fid !is null) ExploreNod("Campaign Script Fid", fid);
