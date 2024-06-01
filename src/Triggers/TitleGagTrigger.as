@@ -26,9 +26,11 @@ namespace TitleGag {
     }
 
     void OnPlayerRespawn() {
+        dev_trace('reset title gag on respawn');
         Reset();
     }
     void OnReachFloorOne() {
+        dev_trace('reset title gag on reach floor 1');
         Reset();
     }
 

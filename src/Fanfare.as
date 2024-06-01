@@ -44,7 +44,7 @@ class FinishFireworksFanfareAnim : ProgressAnim {
     uint particles;
     uint nbSpawned = 0;
 
-    FinishFireworksFanfareAnim(uint nbFireworks = 40, uint durationMs = 30000, uint particles=40) {
+    FinishFireworksFanfareAnim(uint nbFireworks = 80, uint durationMs = 55000, uint particles=40) {
         super("MultiFireworks", nat2(0, durationMs));
         this.nbFireworks = nbFireworks;
         this.durationMs = durationMs;

@@ -151,6 +151,7 @@ class MapStats {
         if (!editStats) {
             UI::Columns(2, "myStatsColumns", true);
             UI::Text("Time spent in map");
+            UI::Text("Finishes");
             UI::Text("Jumps");
             UI::Text("Falls");
             UI::Text("Floors fallen");
@@ -165,6 +166,7 @@ class MapStats {
             UI::Text("Bye Byes triggered");
             UI::NextColumn();
             UI::Text(Time::Format(msSpentInMap, false, true, true));
+            UI::Text("" + GetNbFinishes());
             UI::Text("" + nbJumps);
             UI::Text("" + nbFalls);
             UI::Text("" + nbFloorsFallen);
@@ -253,6 +255,10 @@ class MapStats {
 
     uint64 get_TimeInMapMs() {
         return msSpentInMap;
+    }
+
+    int GetNbFinishes() {
+        return JGetInt(extra, "finish", 0);
     }
 
     void LogTriggeredSound(const string &in triggerName, const string &in audioFile) {

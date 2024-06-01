@@ -61,6 +61,8 @@ void Main() {
     // GenerateHeightStrings();
     InitDD2TriggerTree();
     yield();
+    UpdateGameModes();
+    yield();
     startnew(GreenTimer::OnPluginStart);
     startnew(Wizard::OnPluginLoad);
     startnew(SF::LoadPtrs);
@@ -103,7 +105,9 @@ void _Unload() {
         g_api.Shutdown();
     }
     CheckUnhookAllRegisteredHooks();
-    OnFinish::Disengage_Spectator_SetForcedTarget_Ghost_Intercept();
+    // OnFinish::Disengage_Spectator_SetForcedTarget_Ghost_Intercept();
+    // OnFinish::ResetForcedUISequence();
+    RevertGameModeChanges();
     ClearAnimations();
     MagicSpectate::Unload();
     MainMenuBg::Unload();

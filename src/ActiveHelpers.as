@@ -9,6 +9,8 @@ Thank you.
 */
 // Helpers for whether we're active or not
 
+const string TESTING_MAP_UID = "dh2ewtzDJcWByHcAmI7j6rnqjga";
+
 namespace MatchDD2 {
     uint lastMapMwId = 0;
     bool lastMapMatchesAnyDD2Uid = false;
@@ -24,7 +26,7 @@ namespace MatchDD2 {
                     ||  map.EdChallengeId == DD2_EASY_MAP_UID2);
         isDD2Proper = map.EdChallengeId == DD2_MAP_UID;
 #if DEV
-        isDD2Proper = isDD2Proper || map.EdChallengeId == "dh2ewtzDJcWByHcAmI7j6rnqjga";
+        isDD2Proper = isDD2Proper || map.EdChallengeId == TESTING_MAP_UID;
 #endif
         lastMapMatchesAnyDD2Uid = isEasyDD2Map || isDD2Proper;
         return lastMapMatchesAnyDD2Uid;
@@ -38,7 +40,7 @@ namespace MatchDD2 {
 
     bool VerifyIsDD2(const string &in uid) {
 #if DEV
-        if (uid == "dh2ewtzDJcWByHcAmI7j6rnqjga") {
+        if (uid == TESTING_MAP_UID) {
             return true;
         }
 #endif

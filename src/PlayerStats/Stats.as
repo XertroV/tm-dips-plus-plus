@@ -38,6 +38,7 @@ namespace Stats {
         DrawCenteredText("My Stats (DD2)", f_DroidBigger, 26.);
         UI::Columns(2, "myStatsColumns", true);
         UI::Text("Time spent in map");
+        UI::Text("Finishes");
         UI::Text("Jumps");
         UI::Text("Falls");
         UI::Text("Floors fallen");
@@ -51,6 +52,7 @@ namespace Stats {
         UI::Text("Bye Byes triggered");
         UI::NextColumn();
         UI::Text(Time::Format(msSpentInMap, false, true, true) + (Text::Format("\\$aaa\\$i  (total ms: %lld)", msSpentInMap)));
+        UI::Text("" + GetDD2Finishes());
         UI::Text("" + nbJumps);
         UI::Text("" + nbFalls);
         UI::Text("" + nbFloorsFallen);
@@ -355,6 +357,10 @@ namespace Stats {
         }
         IncrJsonIntCounter(extra, "finish");
         UpdateStatsSoon();
+    }
+
+    int GetDD2Finishes() {
+        return JGetInt(extra, "finish", 0);
     }
 
     void LogDD2EasyFinish() {

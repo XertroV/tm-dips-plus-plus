@@ -136,7 +136,7 @@ class PlayerState {
         if (updatedThisFrame & UpdatedFlags::Position > 0) return;
         if (this.player is null) return;
 
-        if (lastSeq != CGamePlaygroundUIConfig::EUISequence::Playing) {
+        if (!GoodUISequence(lastSeq)) {
             return;
         }
 
@@ -202,7 +202,7 @@ class PlayerState {
         // updatedThisFrame |= UpdatedFlags::Flying | UpdatedFlags::Falling | UpdatedFlags::Position;
         auto @state = vis.AsyncState;
 
-        if (lastSeq != CGamePlaygroundUIConfig::EUISequence::Playing) {
+        if (!GoodUISequence(lastSeq)) {
             return;
         }
         groundDist = state.GroundDist;

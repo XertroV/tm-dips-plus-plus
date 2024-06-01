@@ -156,6 +156,16 @@ namespace DebugMenu {
             if (UI::MenuItem("Play Fanfare")) {
                 Fanfare::OnFinishHit();
             }
+            if (UI::MenuItem("Explore Campaign Nod")) {
+                auto fid = GetCampaignScriptFid(PatchModeTarget::Campaign);
+                if (fid !is null) ExploreNod("Campaign Script Fid", fid);
+                else NotifyError("No campaign script fid found");
+            }
+            if (UI::MenuItem("Explore PlayMap Nod")) {
+                auto fid = GetCampaignScriptFid(PatchModeTarget::PlayMap);
+                if (fid !is null) ExploreNod("Challenge Script Fid", fid);
+                else NotifyError("No challenge script fid found");
+            }
             if (UI::BeginMenu("Anims")) {
                 if (UI::MenuItem("Add Bleb")) {
                     EmitStatusAnimation(RainbowStaticStatusMsg("Bleb").WithDuration(4000));
