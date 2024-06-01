@@ -73,7 +73,6 @@ namespace Minimap {
                 vScale = g_screen.y / stdHeightPx;
                 widthScaleForRelative = Math::Max(g_screen.x / g_screen.y * stdHeightPx / stdWidthPx, 1.0);
             }
-            if (!g_Active) return;
             mmPadding = vec2(S_MinimapLeftPad, S_MinimapTopBottomPad);
             minimapSize.y = (stdHeightPx - mmPadding.y * 2.) * vScale;
             minimapCenterPos = mmPadding * vScale;
