@@ -379,7 +379,7 @@ APatchSet@ GetMenuPatches(int setTimeOfDay = -1, int setSeason = -1) {
 		MenuSceneMgr.ItemSetLocation(
 			HomeBackground.CameraScene.SceneId,
 			HomeBackground.CameraScene.DD2ItemIds[1],
-			<-1.1, .2, -1.6>,
+			<-1.1, .25, -1.6>,
 			170.,
 			False
 		);

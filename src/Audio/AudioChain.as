@@ -183,6 +183,7 @@ AudioChain@[] lastPlayingChs = {null, null};
 
 void TryClearingAudioChannel(int channel = 0) {
     if (lastPlayingChs[channel] !is null) {
+        warn("Clearing existing audio chain on channel " + channel + " / " + lastPlayingChs[channel].samplesStr);
         lastPlayingChs[channel].StartFadeOutLoop();
         @lastPlayingChs[channel] = null;
     }

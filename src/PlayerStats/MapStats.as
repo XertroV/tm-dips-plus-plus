@@ -43,7 +43,7 @@ class MapStats {
     }
 
     protected void AfterConstructor() {
-        isDD2 = mapUid == DD2_MAP_UID;
+        isDD2 = MatchDD2::VerifyIsDD2(mapUid);
         jsonFile = GetMapStatsFileName(mapUid);
         if (!IO::FileExists(jsonFile)) {
             InitJsonFile();

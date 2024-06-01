@@ -582,6 +582,7 @@ void TriggerCheck_Update() {
     triggerHit = false;
     auto @player = PS::viewedPlayer;
     if (player is null) return;
+    if (lastSeq != CGamePlaygroundUIConfig::EUISequence::Playing) return;
     // don't trigger immediately after (re)spawn
     if (player.lastRespawn + 100 > Time::Now) return;
 

@@ -23,9 +23,26 @@ namespace MatchDD2 {
         isEasyDD2Map = (map.EdChallengeId == S_DD2EasyMapUid
                     ||  map.EdChallengeId == DD2_EASY_MAP_UID2);
         isDD2Proper = map.EdChallengeId == DD2_MAP_UID;
+#if DEV
+        isDD2Proper = isDD2Proper || map.EdChallengeId == "dh2ewtzDJcWByHcAmI7j6rnqjga";
+#endif
         lastMapMatchesAnyDD2Uid = isEasyDD2Map || isDD2Proper;
         return lastMapMatchesAnyDD2Uid;
             // || S_ActiveForMapUids == "*"
+    }
+
+    bool VerifyIsDD2(CGameCtnApp@ app) {
+        if (app.RootMap is null) return false;
+        return VerifyIsDD2(app.RootMap.EdChallengeId);
+    }
+
+    bool VerifyIsDD2(const string &in uid) {
+#if DEV
+        if (uid == "dh2ewtzDJcWByHcAmI7j6rnqjga") {
+            return true;
+        }
+#endif
+        return uid == DD2_MAP_UID;
     }
 }
 

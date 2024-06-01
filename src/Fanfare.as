@@ -88,7 +88,7 @@ class FireworkAnim : ProgressAnim {
         float aspect = g_screen.x / g_screen.y;
         do {
             basePos = vec2(Math::Rand(-aspect*.8, aspect*.8), Math::Rand(-0.9, 0.19));
-        } while ((basePos - lastBasePos).LengthSquared() < 1.0);
+        } while ((basePos - lastBasePos).LengthSquared() < 0.7);
         lastBasePos = basePos;
 
         super("Firework " + (++fireworkCount), nat2(0, totalDur));

@@ -455,9 +455,21 @@ namespace MainUI {
     void DrawVoiceLinesTab() {
         DrawCenteredText("Voice Lines", f_DroidBigger, 26.);
         UI::Separator();
-        UI::BeginDisabled(IsVoiceLinePlaying() && false);
         for (uint i = 0; i < 18; i++) {
-            if (Stats::HasPlayedVoiceLine(i)) {
+            // instead of drawing f17, draw the secret VL. Then draw epilogue (f17) later.
+            if (i == 17) {
+                // secret VL
+                if (F_PlayedSecretAudio) {
+                    UI::Text("End VL unlocked!");
+                    UI::SameLine();
+                    if (UI::Button("Replay End Voice Line")) {
+                        startnew(CoroutineFunc(SecretAssets::PlaySecretAudio));
+                    }
+                } else {
+                    // just hide it
+                    // UI::Text("??? locked");
+                }
+            } else if (Stats::HasPlayedVoiceLine(i)) {
                 UI::AlignTextToFramePadding();
                 UI::Text("Floor " + tostring(i) + " unlocked!");
                 UI::SameLine();
@@ -470,7 +482,16 @@ namespace MainUI {
                 UI::Text("Floor " + tostring(i) + " locked");
             }
         }
-        UI::EndDisabled();
+        if (F_HasUnlockedEpilogue) {
+            UI::Text("Epilogue unlocked!");
+            UI::SameLine();
+            if (UI::Button("Replay Epilogue")) {
+                voiceLineToPlay = 17;
+                startnew(CoroutineFunc(MainUI::PlayVoiceLine));
+            }
+        } else {
+            UI::Text("Epilogue locked");
+        }
     }
 
     uint voiceLineToPlay;

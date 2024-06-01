@@ -103,6 +103,7 @@ void _Unload() {
         g_api.Shutdown();
     }
     CheckUnhookAllRegisteredHooks();
+    OnFinish::Disengage_Spectator_SetForcedTarget_Ghost_Intercept();
     ClearAnimations();
     MagicSpectate::Unload();
     MainMenuBg::Unload();
@@ -229,6 +230,8 @@ bool IsInEditor = true;
 // requires game restart so only need to set once.
 const float UI_SCALE = UI::GetScale();
 
+CGamePlaygroundUIConfig::EUISequence lastSeq = CGamePlaygroundUIConfig::EUISequence::None;
+
 bool RenderEarlyInner() {
     if (!G_Initialized) return false;
     auto app = GetApp();
@@ -250,6 +253,7 @@ bool RenderEarlyInner() {
     if (app.Editor !is null) return Inactive(wasActive);
 #endif
     // if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
+    lastSeq = app.CurrentPlayground.UIConfigs[0].UISequence;
     bool matchDd2 = MatchDD2::MapMatchesDD2Uid(app.RootMap);
     // ! uncomment this to enable map UID check
     if (!(matchDd2 || (g_CustomMap !is null && g_CustomMap.IsEnabled))) return Inactive(wasActive);
@@ -572,6 +576,13 @@ void NotifyError(const string &in msg) {
 void NotifyWarning(const string &in msg) {
     warn(msg);
     UI::ShowNotification(Meta::ExecutingPlugin().Name + ": Warning", msg, vec4(.9, .6, .2, .3), 15000);
+}
+
+void Dev_NotifyWarning(const string &in msg) {
+    warn(msg);
+#if DEV
+    UI::ShowNotification(Meta::ExecutingPlugin().Name + ": Warning", msg, vec4(.9, .6, .2, .3), 15000);
+#endif
 }
 
 dictionary warnDebounce;

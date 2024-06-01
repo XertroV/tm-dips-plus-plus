@@ -136,6 +136,10 @@ class PlayerState {
         if (updatedThisFrame & UpdatedFlags::Position > 0) return;
         if (this.player is null) return;
 
+        if (lastSeq != CGamePlaygroundUIConfig::EUISequence::Playing) {
+            return;
+        }
+
         auto nextIx = Dev::GetOffsetUint32(player, O_CSmPlayer_NetPacketsBuf_NextIx);
         auto currIx = (nextIx + 200) % LEN_CSmPlayer_NetPacketsBuf;
         auto prevIx = (currIx + 200) % LEN_CSmPlayer_NetPacketsBuf;
@@ -194,11 +198,13 @@ class PlayerState {
     }
 
     void UpdateVehicleState(CSceneVehicleVis@ vis) {
-
         @vehicle = vis;
         // updatedThisFrame |= UpdatedFlags::Flying | UpdatedFlags::Falling | UpdatedFlags::Position;
         auto @state = vis.AsyncState;
 
+        if (lastSeq != CGamePlaygroundUIConfig::EUISequence::Playing) {
+            return;
+        }
         groundDist = state.GroundDist;
 
         bool anyWheelFlying = state.FLGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null

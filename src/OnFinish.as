@@ -1,3 +1,6 @@
+[Setting hidden]
+bool F_HasUnlockedEpilogue = false;
+
 void OnLocalPlayerFinished(PlayerState@ p) {
     if (p !is null && p.isLocal) {
         if (MatchDD2::isDD2Proper) Stats::LogDD2Finish();
@@ -40,12 +43,16 @@ namespace OnFinish {
         isFinishSeqRunning = true;
         StartCelebrationAnim();
         WaitForRespawn();
+#if DEV
+        isFinishSeqRunning = false;
+#endif
     }
 
     void StartCelebrationAnim() {
+        auto app = GetApp();
         if (MatchDD2::isEasyDD2Map) {
             StartEzCelebrationAnim();
-        } else if (MatchDD2::isDD2Proper) {
+        } else if (MatchDD2::isDD2Proper || MatchDD2::VerifyIsDD2(app)) {
             StartDD2CelebrationAnim();
         }
     }
@@ -56,7 +63,10 @@ namespace OnFinish {
     }
 
     void StartDD2CelebrationAnim() {
+        startnew(ExtendFinishUISeqIfSolo).WithRunContext(Meta::RunContext::AfterScripts);
         startnew(Fanfare::OnFinishHit);
+        F_HasUnlockedEpilogue = true;
+        Meta::SaveSettings();
     }
 
     void WaitForRespawn() {
@@ -138,11 +148,13 @@ namespace OnFinish {
                 // EmitStatusAnimation(DD2FinCelebrationAnim());
                 g_ShowDD2FinishEpilogueScreen = false;
             }
-            UI::Dummy(vec2(0, 18));
-            // if (drawSkip && DrawCenteredButton("Skip Epilogue", f_DroidBig, 20.)) {
-            //     g_ShowDD2FinishEpilogueScreen = false;
-            //     isFinishSeqRunning = false;
-            // }
+            UI::Dummy(vec2(0, 24));
+#if DEV
+            if (drawSkip && DrawCenteredButton("Skip Epilogue", f_DroidBig, 20.)) {
+                g_ShowDD2FinishEpilogueScreen = false;
+                isFinishSeqRunning = false;
+            }
+#endif
         }
         UI::End();
     }
@@ -202,5 +214,79 @@ namespace OnFinish {
             // }
             return endAE;
         }
+    }
+
+
+    void ExtendFinishUISeqIfSolo() {
+        auto app = GetApp();
+        // only on DD2
+        if (!MatchDD2::VerifyIsDD2(app)) return;
+        // only in solo
+        if (app.PlaygroundScript is null) return;
+
+        OnCameraUpdateHook_Other.Apply();
+        Engage_Spectator_SetForcedTarget_Ghost_Intercept();
+        try {
+            ExtendFinishUISeqIfSolo_Inner(app);
+        } catch {
+            NotifyWarning("Exception in finish sequence. Enabling safety features.");
+            warn(getExceptionInfo());
+            ResetForcedUISequence();
+        }
+        Disengage_Spectator_SetForcedTarget_Ghost_Intercept();
+        OnCameraUpdateHook_Other.Unapply();
+    }
+
+    void ResetForcedUISequence() {
+        try {
+            auto app = GetApp();
+            app.Network.PlaygroundInterfaceScriptHandler.ClientUI.UISequence = CGamePlaygroundUIConfig::EUISequence::None;
+        } catch {
+            NotifyError("Failed to reset UI sequence after exception in finish sequence. " + getExceptionInfo());
+            error(getExceptionInfo());
+        }
+    }
+
+    void ExtendFinishUISeqIfSolo_Inner(CGameCtnApp@ app) {
+        trace('ExtendFinishUISeqIfSolo running');
+        // check stuff we expect to exist
+        if (app.Network.PlaygroundInterfaceScriptHandler is null) return;
+        if (app.Network.PlaygroundInterfaceScriptHandler.ClientUI is null) return;
+        if (app.Network.PlaygroundInterfaceScriptHandler.ClientUI.UISequence != CGamePlaygroundUIConfig::EUISequence::None) {
+            Dev_Notify("Unexpected: a.N.PISH.CUI.UISequence is not None");
+        }
+        trace('ExtendFinishUISeqIfSolo overriding UI seq; setting timeout for 60s');
+        // override UI sequence
+        auto startedAt = Time::Now;
+        while (Time::Now - startedAt < 60000) {
+            if (app.Network.PlaygroundInterfaceScriptHandler is null) return;
+            if (app.Network.PlaygroundInterfaceScriptHandler.ClientUI is null) return;
+            app.Network.PlaygroundInterfaceScriptHandler.ClientUI.UISequence = CGamePlaygroundUIConfig::EUISequence::Finish;
+            app.Network.PlaygroundInterfaceScriptHandler.ClientUI.ForceSpectator = false;
+            yield();
+        }
+        trace('ExtendFinishUISeqIfSolo timeout reached');
+        // finish by resetting to None
+        if (app.Network.PlaygroundInterfaceScriptHandler is null) return;
+        if (app.Network.PlaygroundInterfaceScriptHandler.ClientUI is null) return;
+        app.Network.PlaygroundInterfaceScriptHandler.ClientUI.UISequence = CGamePlaygroundUIConfig::EUISequence::None;
+        trace('ExtendFinishUISeqIfSolo done');
+    }
+
+    bool interceptingSetForcedTarget = false;
+    void Engage_Spectator_SetForcedTarget_Ghost_Intercept() {
+        if (interceptingSetForcedTarget) return;
+        interceptingSetForcedTarget = true;
+        Dev::InterceptProc("CGamePlaygroundUIConfig", "Spectator_SetForcedTarget_Ghost", OnCalled_Spectator_SetForcedTarget_Ghost);
+    }
+
+    void Disengage_Spectator_SetForcedTarget_Ghost_Intercept() {
+        if (!interceptingSetForcedTarget) return;
+        interceptingSetForcedTarget = false;
+        Dev::ResetInterceptProc("CGamePlaygroundUIConfig", "Spectator_SetForcedTarget_Ghost", OnCalled_Spectator_SetForcedTarget_Ghost);
+    }
+
+    bool OnCalled_Spectator_SetForcedTarget_Ghost(CMwStack &in stack) {
+        return false;
     }
 }

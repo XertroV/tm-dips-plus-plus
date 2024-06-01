@@ -104,7 +104,7 @@ namespace MapCustomInfo {
         return HasBuiltInInfo(GetMwIdValue(mapUid))
             || CommentContainsBegin(comments)
             || mapUid == S_DD2EasyMapUid
-            || mapUid == DD2_MAP_UID;
+            || MatchDD2::VerifyIsDD2(mapUid);
     }
 
     bool CommentContainsBegin(const string &in comment) {
