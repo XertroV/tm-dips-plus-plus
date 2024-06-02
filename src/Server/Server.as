@@ -68,6 +68,12 @@ void R_ST_Dev() {
 const string ENDPOINT = "dips-plus-plus-server.xk.io";
 #endif
 
+
+bool IsDisconnected() {
+    return g_api is null || g_api.IsShutdownClosedOrDC;
+}
+
+
 class DD2API {
     BetterSocket@ socket;
     protected string sessionToken;
@@ -106,7 +112,7 @@ class DD2API {
         while (!_isShutdown) {
             if (socket.IsConnecting) {
                 connStart = Time::Now;
-                while (socket.IsConnecting && Time::Now - connStart < 5000) yield();
+                while (!_isShutdown && socket.IsConnecting && Time::Now - connStart < 5000) yield();
             }
             if (IsShutdownClosedOrDC) {
                 if (_isShutdown) return;
@@ -133,7 +139,7 @@ class DD2API {
     bool _isShutdown = false;
     void Shutdown() {
         _isShutdown = true;
-        socket.Shutdown();
+        if (socket !is null) socket.Shutdown();
         @socket = null;
         IsReady = false;
         HasContext = false;

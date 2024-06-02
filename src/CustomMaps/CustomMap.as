@@ -6,6 +6,7 @@ void CustomMap_SetOnNewCustomMap(CustomMap@ map) {
 
 class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
     bool isDD2;
+    bool hasStats = false;
     bool useDD2Triggers;
     bool hasCustomData;
     MapStats@ stats;
@@ -22,6 +23,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
         mapUid = map.Id.GetName();
         mapMwId = GetMwIdValue(mapUid);
         if (MapCustomInfo::ShouldActivateForMap(map)) {
+            hasStats = true;
             @stats = GetMapStats(map);
             isDD2 = stats.isDD2;
             useDD2Triggers = stats.isDD2 || stats.isEzMap;

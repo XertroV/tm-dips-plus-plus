@@ -202,7 +202,7 @@ namespace Stats {
     }
 
     void LogTimeInMapMs(uint64 deltaMs) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogTimeInMapMs(deltaMs);
             return;
         }
@@ -214,7 +214,7 @@ namespace Stats {
     }
 
     void SetTimeInMapMs(uint64 timeMs) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.SetTimeInMapMs(timeMs);
             return;
         }
@@ -222,14 +222,14 @@ namespace Stats {
     }
 
     uint64 GetTimeInMapMs() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             return g_CustomMap.stats.TimeInMapMs;
         }
         return msSpentInMap;
     }
 
     void LogTriggeredSound(const string &in triggerName, const string &in audioFile) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogTriggeredSound(triggerName, audioFile);
             return;
         }
@@ -239,7 +239,7 @@ namespace Stats {
     }
 
     void LogTriggeredByeBye() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogTriggeredByeBye();
             return;
         }
@@ -248,7 +248,7 @@ namespace Stats {
     }
 
     void LogTriggeredTitle(const string &in name) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogTriggeredTitle(name);
             return;
         }
@@ -257,7 +257,7 @@ namespace Stats {
     }
 
     void LogTriggeredGG(const string &in name) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogTriggeredGG(name);
             return;
         }
@@ -266,7 +266,7 @@ namespace Stats {
     }
 
     void LogTriggeredTitleSpecial(const string &in name) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogTriggeredTitleSpecial(name);
             return;
         }
@@ -275,7 +275,7 @@ namespace Stats {
     }
 
     void LogTriggeredMonuments(MonumentSubject subj) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogTriggeredMonuments(subj);
             return;
         }
@@ -284,7 +284,7 @@ namespace Stats {
     }
 
     void LogJumpStart() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogJumpStart();
             return;
         }
@@ -292,7 +292,7 @@ namespace Stats {
     }
 
     void LogFallStart() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogFallStart();
             return;
         }
@@ -300,7 +300,7 @@ namespace Stats {
     }
 
     void LogFallEndedLessThanMin() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogFallEndedLessThanMin();
             return;
         }
@@ -308,7 +308,7 @@ namespace Stats {
     }
 
     void LogRestart(int raceTime) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogRestart(raceTime);
             return;
         }
@@ -317,7 +317,7 @@ namespace Stats {
     }
 
     void LogBleb() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogBleb();
             return;
         }
@@ -326,7 +326,7 @@ namespace Stats {
     }
 
     void LogQuack() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogQuack();
             return;
         }
@@ -335,7 +335,7 @@ namespace Stats {
     }
 
     void LogDebugTrigger() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogDebugTrigger();
             return;
         }
@@ -344,14 +344,14 @@ namespace Stats {
     }
 
     void LogFinish() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogNormalFinish();
             return;
         }
     }
 
     void LogDD2Finish() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogDD2Finish();
             return;
         }
@@ -364,7 +364,7 @@ namespace Stats {
     }
 
     void LogDD2EasyFinish() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogDD2EasyFinish();
             return;
         }
@@ -373,7 +373,7 @@ namespace Stats {
     }
 
     void LogEasyVlPlayed(const string &in name) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogEasyVlPlayed(name);
             return;
         }
@@ -386,7 +386,7 @@ namespace Stats {
     uint lastPlayerNoPbUpdateWarn = 0;
 
     void OnLocalPlayerPosUpdate(PlayerState@ player) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.OnLocalPlayerPosUpdate(player);
             return;
         }
@@ -414,14 +414,14 @@ namespace Stats {
     }
 
     float GetPBHeight() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             return g_CustomMap.stats.PBHeight;
         }
         return pbHeight;
     }
 
     void AddFloorsFallen(int floors) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.AddFloorsFallen(floors);
             return;
         }
@@ -430,7 +430,7 @@ namespace Stats {
     }
 
     void AddDistanceFallen(float dist) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.AddDistanceFallen(dist);
             return;
         }
@@ -439,21 +439,21 @@ namespace Stats {
     }
 
     int GetTotalFalls() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             return g_CustomMap.stats.TotalFalls;
         }
         return nbFalls;
     }
 
     int GetTotalFloorsFallen() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             return g_CustomMap.stats.TotalFloorsFallen;
         }
         return nbFloorsFallen;
     }
 
     float GetTotalDistanceFallen() {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             return g_CustomMap.stats.TotalDistanceFallen;
         }
         return totalDistFallen;
@@ -461,7 +461,7 @@ namespace Stats {
 
     // for when going up (don't add while falling)
     void LogFloorReached(int floor) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.LogFloorReached(floor);
             return;
         }
@@ -470,7 +470,7 @@ namespace Stats {
     }
 
     void SetVoiceLinePlayed(int floor) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             g_CustomMap.stats.SetVoiceLinePlayed(floor);
             return;
         }
@@ -482,7 +482,7 @@ namespace Stats {
     }
 
     bool HasPlayedVoiceLine(int floor) {
-        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             return g_CustomMap.stats.HasPlayedVoiceLine(floor);
         }
         if (floor < 0 || floor >= floorVoiceLinesPlayed.Length) {
