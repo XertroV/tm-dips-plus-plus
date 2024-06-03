@@ -253,7 +253,7 @@ void nvgDrawCircle(vec2 pos) {
 }
 
 // void RunFireworksTest() {
-//     sleep(1000);
+//     sleep_fix(1000);
 //     trace('starting fw test');
 //     g_DrawFireworks = true;
 //     testFWParticles.InsertLast(FireworkParticle());

@@ -97,7 +97,7 @@ class CollectionItem {
             collectedAt = Time::Stamp;
             collected = true;
             EmitCollected(this);
-            sleep(sleepTime);
+            sleep_fix(sleepTime);
         }
     }
 

@@ -57,7 +57,7 @@ namespace CameraUpdateHook {
 
     void Run15Test() {
         OnCameraUpdateHook_Other.Apply();
-        sleep(15000);
+        sleep_fix(15000);
         OnCameraUpdateHook_Other.Unapply();
     }
 }

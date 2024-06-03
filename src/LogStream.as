@@ -64,5 +64,5 @@
 // }
 
 // void WaitSleep(uint64 ms) {
-//     sleep(ms);
+//     sleep_fix(ms);
 // }

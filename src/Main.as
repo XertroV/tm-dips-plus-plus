@@ -67,12 +67,12 @@ void Main() {
     startnew(Wizard::OnPluginLoad);
     startnew(SF::LoadPtrs);
     startnew(WelcomeScreen::OnLoad);
-    sleep(100);
+    sleep_fix(100);
     startnew(Donations::SetUpCheers);
     startnew(TwitchNames::AddDefaults);
-    sleep(100);
+    sleep_fix(100);
     @g_api = DD2API();
-    sleep(300);
+    sleep_fix(300);
     startnew(RefreshAssets);
     startnew(MagicSpectate::Load);
     startnew(SecretAssets::OnPluginStart);
@@ -85,11 +85,19 @@ void Main() {
 }
 
 // void UnloadSelfSoon() {
-//     sleep(3000);
+//     sleep_fix(3000);
 //     auto self = Meta::ExecutingPlugin();
 //     Meta::UnloadPlugin(self);
 // }
 
+
+void sleep_fix(uint ms) {
+    auto start = Time::Now;
+    // 0 must still yield so `<=` instead of `<`
+    while (Time::Now - start <= ms) {
+        sleep(0);
+    }
+}
 
 
 //remove any hooks
@@ -623,6 +631,6 @@ void RNGExtraLoop() {
     float r;
     while (true) {
         r = Math::Rand(0.0, 1.0);
-        sleep(Time::Now % 1000 + 500 * r);
+        sleep_fix(Time::Now % 1000 + 500 * r);
     }
 }

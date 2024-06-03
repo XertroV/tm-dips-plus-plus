@@ -79,7 +79,7 @@ namespace OnFinish {
             // if (ui.UISequence != CGamePlaygroundUIConfig::EUISequence::Playing) continue;
             break;
         }
-        sleep(100);
+        sleep_fix(100);
         if (MatchDD2::isEasyDD2Map) {
             g_ShowEzFinishEpilogueScreen = true;
         } else if (MatchDD2::isDD2Proper) {
@@ -217,7 +217,7 @@ namespace OnFinish {
         if (!MatchDD2::VerifyIsDD2(app)) return;
         dev_trace('starting to run finish camera');
         OnCameraUpdateHook_Other.Apply();
-        sleep(1000);
+        sleep_fix(1000);
         try {
             while (true) {
                 if (app.Network.PlaygroundClientScriptAPI is null) break;
