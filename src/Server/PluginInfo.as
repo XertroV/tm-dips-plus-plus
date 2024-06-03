@@ -273,6 +273,7 @@ namespace Map {
         try {
             IO::File f(fid.FullFileName, IO::FileMode::Read);
             auto buf = f.Read(f.Size());
+            f.Close();
             buf.Seek(0);
             yield();
             string acc;
