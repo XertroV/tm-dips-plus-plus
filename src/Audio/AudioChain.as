@@ -88,7 +88,7 @@ class AudioChain {
     }
 
     protected void StartDelayedPlayCoro() {
-        sleep_fix(optPlayDelay);
+        sleep(optPlayDelay);
         Play();
     }
 

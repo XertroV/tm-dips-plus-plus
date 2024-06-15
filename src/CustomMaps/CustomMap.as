@@ -5,7 +5,10 @@ void CustomMap_SetOnNewCustomMap(CustomMap@ map) {
 }
 
 class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
+    // main map
     bool isDD2;
+    // main or cp versions
+    bool isDD2Any;
     bool hasStats = false;
     bool useDD2Triggers;
     bool hasCustomData;
@@ -32,6 +35,8 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
             startnew(CoroutineFuncUserdata(LoadCustomMapData), map);
             startnew(CoroutineFunc(RunMapLoop));
             startnew(CoroutineFunc(this.CheckUpdateLeaderboard));
+        } else {
+            startnew(CoroutineFuncUserdata(CheckForUploadedMapData), array<string> = {mapUid});
         }
     }
 
@@ -42,7 +47,8 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
         if (MapCustomInfo::ShouldActivateForMap(mapUid, "")) {
             @stats = GetMapStats(mapUid, mapName);
             isDD2 = stats.isDD2;
-            useDD2Triggers = stats.isDD2 || stats.isEzMap;
+            isDD2Any = stats.isDD2Any;
+            useDD2Triggers = stats.isDD2Any || stats.isEzMap;
             startnew(CoroutineFuncUserdata(CheckForUploadedMapData), array<string> = {mapUid});
         }
     }
@@ -148,11 +154,13 @@ const string MapInfosUploadedURL = "https://assets.xk.io/d++maps/";
 void CheckForUploadedMapData(ref@ data) {
     auto mapUid = cast<string[]>(data)[0];
     auto url = MapInfosUploadedURL + mapUid + ".txt";
+    trace('CheckForUploadedMapData: ' + mapUid + ' from ' + url);
     Net::HttpRequest@ req = Net::HttpGet(url);
     while (!req.Finished()) {
         yield();
     }
     auto status = req.ResponseCode();
+    trace('CheckForUploadedMapData: ' + mapUid + ' status ' + status);
     if (status < 200 || status > 299) {
         // error
         if (status != 404) warn("Failed to load map data from " + url + " - status " + status + " response: " + req.String());

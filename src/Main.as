@@ -67,12 +67,12 @@ void Main() {
     startnew(Wizard::OnPluginLoad);
     startnew(SF::LoadPtrs);
     startnew(WelcomeScreen::OnLoad);
-    sleep_fix(100);
+    sleep(100);
     startnew(Donations::SetUpCheers);
     startnew(TwitchNames::AddDefaults);
-    sleep_fix(100);
+    sleep(100);
     @g_api = DD2API();
-    sleep_fix(300);
+    sleep(300);
     startnew(RefreshAssets);
     startnew(MagicSpectate::Load);
     startnew(SecretAssets::OnPluginStart);
@@ -85,19 +85,11 @@ void Main() {
 }
 
 // void UnloadSelfSoon() {
-//     sleep_fix(3000);
+//     sleep(3000);
 //     auto self = Meta::ExecutingPlugin();
 //     Meta::UnloadPlugin(self);
 // }
 
-
-void sleep_fix(uint ms) {
-    auto start = Time::Now;
-    // 0 must still yield so `<=` instead of `<`
-    while (Time::Now - start <= ms) {
-        sleep(0);
-    }
-}
 
 
 //remove any hooks
@@ -299,17 +291,6 @@ void RenderMenu() {
     if (UI::MenuItem(PluginName + ": Show Minimap", "", S_ShowMinimap)) {
         S_ShowMinimap = !S_ShowMinimap;
     }
-    // if (UI::MenuItem(PluginName + ": Activate for this map")) {
-    //     auto map = GetApp().RootMap;
-    //     if (map is null) {
-    //         NotifyError("No map found");
-    //     } else {
-    //         S_ActiveForMapUids = map.EdChallengeId;
-    //     }
-    // }
-    // if (UI::MenuItem(PluginName + ": Deactivate for this map")) {
-    //     S_ActiveForMapUids = "";
-    // }
 }
 
 [Setting hidden]
@@ -631,6 +612,6 @@ void RNGExtraLoop() {
     float r;
     while (true) {
         r = Math::Rand(0.0, 1.0);
-        sleep_fix(Time::Now % 1000 + 500 * r);
+        sleep(Time::Now % 1000 + 500 * r);
     }
 }

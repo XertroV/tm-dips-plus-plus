@@ -19,7 +19,7 @@ string RunPatchML(const string &in script) {
 #if DEV
     """DeepDip2__The_Storm_Is_Here" || Map.MapInfo.MapUid == "dh2ewtzDJcWByHcAmI7j6rnqjga"""
 #else
-    """DeepDip2__The_Storm_Is_Here"""
+    """DeepDip2__The_Storm_Is_Here" || Map.MapInfo.MapUid == "DD2_Many_CPs_tOg3hwrWxPOR7l" || Map.MapInfo.MapUid == "DD2_CP_per_Floor_OAtP2rAwJ0"""
 #endif
     );
 	return script.Replace(P_ON_END_RACE, P_ON_END_RACE + "\n" + patch);

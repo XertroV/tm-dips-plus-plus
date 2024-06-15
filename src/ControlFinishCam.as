@@ -22,7 +22,7 @@ namespace CameraUpdateHook {
     // r14 is camera system
     void AfterUpdateOther(uint64 r14) {
         // todo: abort early if not in finish condition
-        if (!MatchDD2::isDD2Proper) return;
+        if (!MatchDD2::isDD2Any) return;
         // if (IsFinishedUISequence)
         vec3 vehiclePos = Dev::ReadVec3(r14 + 0x11C);
         auto p = (mat4::Rotate(TimeToAngle(Time::Now % 100000), UP) * vec3(-3, 6, -3)).xyz;
@@ -57,7 +57,7 @@ namespace CameraUpdateHook {
 
     void Run15Test() {
         OnCameraUpdateHook_Other.Apply();
-        sleep_fix(15000);
+        sleep(15000);
         OnCameraUpdateHook_Other.Unapply();
     }
 }

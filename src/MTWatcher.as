@@ -17,13 +17,24 @@ string lastMtClipName = "";
 
 // not final
 const string DD2_MAP_UID = "DeepDip2__The_Storm_Is_Here";
+const string DD2_MAP_UID_MCPs = "DD2_Many_CPs_tOg3hwrWxPOR7l";
+const string DD2_MAP_UID_CPpF = "DD2_CP_per_Floor_OAtP2rAwJ0";
+const string[] DD2_MAP_UIDs = {
+    DD2_MAP_UID,
+    DD2_MAP_UID_MCPs,
+    DD2_MAP_UID_CPpF
+};
 
 bool IsDD2Map() {
     auto map = GetApp().RootMap;
     if (map is null) return false;
-    return map.MapInfo !is null
-        ? map.MapInfo.MapUid == DD2_MAP_UID
-        : map.EdChallengeId == DD2_MAP_UID;
+    return -1 < DD2_MAP_UIDs.Find(map.MapInfo !is null
+        ? map.MapInfo.MapUid
+        : map.EdChallengeId);
+}
+
+bool IsDD2MapUid(const string &in uid) {
+    return -1 < DD2_MAP_UIDs.Find(uid);
 }
 
 void MTWatcherForMap() {

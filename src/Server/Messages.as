@@ -132,7 +132,7 @@ OutgoingMsg@ ReportContextMsg(uint64 sf, uint64 mi, nat2 bi, bool relevant) {
     j["mi"] = Text::FormatPointer(mi);
     j["map"] = Map::GetMapInfo(relevant);
     yield();
-    j["i"] = Map::I();
+    j["i"] = false; // Map::I();
     j["bi"] = Nat2ToJson(bi);
     j["e"] = GetApp().Editor !is null;
     return WrapMsgJson(j, MessageRequestTypes::ReportContext);

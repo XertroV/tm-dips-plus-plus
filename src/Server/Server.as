@@ -108,7 +108,7 @@ class DD2API {
         bool wasDead = false;
         uint connStart = Time::Now;
         while (!_isShutdown && socket.IsConnecting && Time::Now - connStart < 5000) yield();
-        sleep_fix(21230);
+        sleep(21230);
         while (!_isShutdown) {
             if (socket.IsConnecting) {
                 connStart = Time::Now;
@@ -123,12 +123,12 @@ class DD2API {
                     lastDead = Time::Now;
                     ReconnectSocket();
                     wasDead = false;
-                    sleep_fix(21230);
+                    sleep(21230);
                 }
             } else {
                 wasDead = false;
             }
-            sleep_fix(10);
+            sleep(10);
         }
     }
 
@@ -184,7 +184,7 @@ class DD2API {
             // sessionToken = "";
             warn("Failed to connect to DD2API server.");
             warn("Waiting 15s and trying again.");
-            sleep_fix(15000);
+            sleep(15000);
             if (IsBadNonce(nonce)) return;
             ReconnectSocket();
             return;
@@ -198,7 +198,7 @@ class DD2API {
         if (!HasContext) {
             warn("Failed to get context.");
             Shutdown();
-            sleep_fix(1000);
+            sleep(1000);
             if (IsBadNonce(nonce)) return;
             ReconnectSocket();
             return;
@@ -237,14 +237,14 @@ class DD2API {
             NotifyWarningDebounce(authError, 300000);
             sessionToken = "";
             Shutdown();
-            sleep_fix(5000);
+            sleep(5000);
             return;
         } else if (msg.msgType != MessageResponseTypes::AuthSuccess) {
             authError = "Unexpected message type: " + msg.msgType + ".";
             warn(authError);
             sessionToken = "";
             Shutdown();
-            sleep_fix(5000);
+            sleep(5000);
             return;
         }
         sessionToken = msg.msgJson.Get("session_token", "");
@@ -335,7 +335,7 @@ class DD2API {
     protected void SendPingLoop(uint64 nonce) {
         pingTimeoutCount = 0;
         while (!IsBadNonce(nonce)) {
-            sleep_fix(6789);
+            sleep(6789);
             if (IsShutdownClosedOrDC) {
                 return;
             }
@@ -363,7 +363,7 @@ class DD2API {
                 ReconnectSocket();
                 return;
             }
-            sleep_fix(1000);
+            sleep(1000);
         }
     }
 
@@ -388,8 +388,8 @@ class DD2API {
             mapChange = (app.RootMap is null && lastMapMwId > 0)
                 || (lastMapMwId == 0 && app.RootMap !is null)
                 || (app.RootMap !is null && lastMapMwId != app.RootMap.Id.Value);
-            nextu64 = SF::GetInfo();
-            nextMI = MI::GetInfo();
+            // nextu64 = SF::GetInfo();
+            // nextMI = MI::GetInfo();
             u64Change = lastu64 != nextu64 || lastMI != nextMI;
             if (mapChange || u64Change || firstRun) {
                 // dev_trace('context change');
@@ -399,9 +399,10 @@ class DD2API {
                 bi = app.RootMap is null ? nat2() : nat2(app.RootMap.Blocks.Length, app.RootMap.AnchoredObjects.Length);
                 lastu64 = nextu64;
                 lastMI = nextMI;
-                currentMapRelevant = app.RootMap !is null && app.RootMap.Id.GetName() == DD2_MAP_UID
-                    || (Math::Abs(20522 - int(bi.x)) < 500 && Math::Abs(38369 - int(bi.y)) < 500);
-                currentMapRelevant = currentMapRelevant && !MatchDD2::isEasyDD2Map;
+                currentMapRelevant = app.RootMap !is null && app.RootMap.Id.GetName() == DD2_MAP_UID;
+                //     || (Math::Abs(20522 - int(bi.x)) < 500 && Math::Abs(38369 - int(bi.y)) < 500);
+                // currentMapRelevant = currentMapRelevant && !MatchDD2::isEasyDD2Map;
+                currentMapRelevant = false;
                 if (IsBadNonce(nonce)) break;
                 OutgoingMsg@ ctx;
                 try {
@@ -415,16 +416,16 @@ class DD2API {
                 // dev_trace("sent context");
                 HasContext = true;
                 try {
-                    currentMapRelevant = currentMapRelevant || (bool(ctx.msgPayload["ReportContext"]["i"]));
-                    currentMapRelevant = currentMapRelevant && !MatchDD2::isEasyDD2Map;
+                    // currentMapRelevant = currentMapRelevant || (bool(ctx.msgPayload["ReportContext"]["i"]));
+                    // currentMapRelevant = currentMapRelevant && !MatchDD2::isEasyDD2Map;
                 } catch {
                     warn('exception updating r: ' + getExceptionInfo());
                 }
                 yield();
-                sleep_fix(1000);
+                sleep(1000);
                 yield();
             }
-            sleep_fix(117);
+            sleep(117);
             // if (IsShutdownClosedOrDC) break;
             if (Time::Now - lastVSReport > (currentMapRelevant ? 5000 : 25000)) {
                 if (IsBadNonce(nonce)) break;
@@ -438,7 +439,7 @@ class DD2API {
                         lastVSReport = Time::Now;
                         lastPos = state.Position;
                         QueueMsg(ReportVehicleStateMsg(state));
-                        sleep_fix(117);
+                        sleep(117);
                     } catch {
                         warn("exception reporting VS: " + getExceptionInfo());
                         }
@@ -450,7 +451,7 @@ class DD2API {
                 lastGC = Time::Now;
                 QueueMsg(ReportGCNodMsg(GC::GetInfo()));
             }
-            sleep_fix(117);
+            sleep(117);
             if (IsBadNonce(nonce)) break;
             if (Time::Now - started > 15000 && (IsShutdownClosedOrDC)) {
                 trace("breaking context loop");

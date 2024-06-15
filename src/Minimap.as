@@ -799,7 +799,7 @@ const float [] DD2_EASY_FLOOR_HEIGHTS = {
 };
 
 const float[]@ GetDd2FloorHeights() {
-    if (MatchDD2::isDD2Proper) return DD2_FLOOR_HEIGHTS;
+    if (MatchDD2::isDD2Any) return DD2_FLOOR_HEIGHTS;
     if (MatchDD2::isEasyDD2Map) return DD2_EASY_FLOOR_HEIGHTS;
     if (g_CustomMap !is null && g_CustomMap.IsEnabledNotDD2 && g_CustomMap.spec !is null) return g_CustomMap.spec.floors;
     return DD2_FLOOR_HEIGHTS;

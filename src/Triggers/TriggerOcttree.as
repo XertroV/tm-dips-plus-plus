@@ -325,7 +325,7 @@ class TitleGagTrigger : GagVoiceLineTrigger {
             // don't play immediately if we're falling
             if (PS::viewedPlayer !is null && PS::viewedPlayer.fallTracker !is null) {
                 while (PS::viewedPlayer !is null && PS::viewedPlayer.fallTracker !is null) yield();
-                sleep_fix(TITLE_GAG_DELAY_AFTER_FALLING);
+                sleep(TITLE_GAG_DELAY_AFTER_FALLING);
                 if (PS::viewedPlayer is null || lastRespawn != PS::viewedPlayer.lastRespawn) return;
             }
             gag.PlayItem(isLocalPlayer);

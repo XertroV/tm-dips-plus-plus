@@ -4,6 +4,7 @@ class MapStats {
     string mapName;
     string jsonFile;
     bool isDD2 = false;
+    bool isDD2Any = false;
     uint _mapMwId;
 
     uint64 msSpentInMap = 0;
@@ -32,18 +33,19 @@ class MapStats {
     MapStats(const string &in mapUid, const string &in name) {
         this.mapUid = mapUid;
         _mapMwId = GetMwIdValue(mapUid);
-        this.mapName = name;
+        this.mapName = Text::OpenplanetFormatCodes(name);
         AfterConstructor();
     }
     MapStats(CGameCtnChallenge@ map) {
         mapUid = map.MapInfo.MapUid;
         _mapMwId = map.Id.Value;
-        mapName = map.MapInfo.Name;
+        mapName = Text::OpenplanetFormatCodes(map.MapInfo.Name);
         AfterConstructor();
     }
 
     protected void AfterConstructor() {
-        isDD2 = MatchDD2::VerifyIsDD2(mapUid);
+        isDD2Any = MatchDD2::VerifyIsDD2(mapUid);
+        isDD2 = mapUid == DD2_MAP_UID;
         jsonFile = GetMapStatsFileName(mapUid);
         if (!IO::FileExists(jsonFile)) {
             InitJsonFile();

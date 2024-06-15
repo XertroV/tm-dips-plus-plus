@@ -1,0 +1,23 @@
+--BEGIN-DPP--
+-- Bennet Foddy Ate my CPs
+url = https://assets.xk.io/d++/bfamcps.json
+
+start = 10.0
+finish = 1434.0
+
+floor00 = 9.0
+floor01 = 136.0
+floor02 = 264.0
+floor03 = 392.0
+floor04 = 520.0
+floor05 = 648.0
+floor06 = 776.0
+floor07 = 904.0
+floor08 = 1032.0
+floor09 = 1160.0
+floor10 = 1288.0
+floor11 = 1416.0
+
+lastFloorEnd = true
+
+--END-DPP--

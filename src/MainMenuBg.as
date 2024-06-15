@@ -20,13 +20,13 @@ namespace MainMenuBg {
 // #endif
         CGameUILayer@ l;
         while ((@l = GetMenuSceneLayer()) is null) {
-            sleep_fix(200);
+            sleep(200);
         }
         origML = l.ManialinkPageUtf8;
         gotOrigML = true;
-        while (!S_EnableMainMenuPromoBg) sleep_fix(100);
-        while (!IsReady()) sleep_fix(100);
-        while (GetMenuSceneLayer() is null) sleep_fix(100);
+        while (!S_EnableMainMenuPromoBg) sleep(100);
+        while (!IsReady()) sleep(100);
+        while (GetMenuSceneLayer() is null) sleep(100);
         ApplyMenuBg();
     }
 

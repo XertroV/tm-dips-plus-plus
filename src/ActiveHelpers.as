@@ -15,7 +15,11 @@ namespace MatchDD2 {
     uint lastMapMwId = 0;
     bool lastMapMatchesAnyDD2Uid = false;
     bool isEasyDD2Map = false;
+    // only the full map
     bool isDD2Proper = false;
+    // full or many cps or cp / floor
+    bool isDD2Any = false;
+
 
     bool MapMatchesDD2Uid(CGameCtnChallenge@ map) {
         if (map is null) return false;
@@ -28,9 +32,9 @@ namespace MatchDD2 {
 #if DEV
         isDD2Proper = isDD2Proper || map.EdChallengeId == TESTING_MAP_UID;
 #endif
-        lastMapMatchesAnyDD2Uid = isEasyDD2Map || isDD2Proper;
+        isDD2Any = isDD2Proper || IsDD2MapUid(map.EdChallengeId);
+        lastMapMatchesAnyDD2Uid = isEasyDD2Map || isDD2Any;
         return lastMapMatchesAnyDD2Uid;
-            // || S_ActiveForMapUids == "*"
     }
 
     bool VerifyIsDD2(CGameCtnApp@ app) {
@@ -38,17 +42,15 @@ namespace MatchDD2 {
         return VerifyIsDD2(app.RootMap.EdChallengeId);
     }
 
+    // Check if it is a DD2 map (full, cp / floor, many cps)
     bool VerifyIsDD2(const string &in uid) {
 #if DEV
         if (uid == TESTING_MAP_UID) {
             return true;
         }
 #endif
-        return uid == DD2_MAP_UID;
+        return IsDD2MapUid(uid);
     }
 }
-
-// [Setting hidden]
-const string S_ActiveForMapUids = DD2_MAP_UID;
 
 const string S_DD2EasyMapUid = "DeepDip2__The_Gentle_Breeze";

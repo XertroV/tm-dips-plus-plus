@@ -3,7 +3,7 @@ bool F_HasUnlockedEpilogue = false;
 
 void OnLocalPlayerFinished(PlayerState@ p) {
     if (p !is null && p.isLocal) {
-        if (MatchDD2::isDD2Proper) Stats::LogDD2Finish();
+        if (MatchDD2::isDD2Any) Stats::LogDD2Finish();
         else if (MatchDD2::isEasyDD2Map) Stats::LogDD2EasyFinish();
         else Stats::LogFinish();
     }
@@ -48,7 +48,7 @@ namespace OnFinish {
         auto app = GetApp();
         if (MatchDD2::isEasyDD2Map) {
             StartEzCelebrationAnim();
-        } else if (MatchDD2::isDD2Proper || MatchDD2::VerifyIsDD2(app)) {
+        } else if (MatchDD2::isDD2Any || MatchDD2::VerifyIsDD2(app)) {
             StartDD2CelebrationAnim();
         }
     }
@@ -79,10 +79,10 @@ namespace OnFinish {
             // if (ui.UISequence != CGamePlaygroundUIConfig::EUISequence::Playing) continue;
             break;
         }
-        sleep_fix(100);
+        sleep(100);
         if (MatchDD2::isEasyDD2Map) {
             g_ShowEzFinishEpilogueScreen = true;
-        } else if (MatchDD2::isDD2Proper) {
+        } else if (MatchDD2::isDD2Any) {
             g_ShowDD2FinishEpilogueScreen = true;
         }
     }
@@ -217,7 +217,7 @@ namespace OnFinish {
         if (!MatchDD2::VerifyIsDD2(app)) return;
         dev_trace('starting to run finish camera');
         OnCameraUpdateHook_Other.Apply();
-        sleep_fix(1000);
+        sleep(1000);
         try {
             while (true) {
                 if (app.Network.PlaygroundClientScriptAPI is null) break;

@@ -166,7 +166,7 @@ namespace Signs3d {
     void LoopUpdate3dScreens() {
         uint lastChangeTime = Time::Now;;
         while (g_Active) {
-            sleep_fix(100);
+            sleep(100);
             // if (!signsApplied) continue;
             if (!S_Enable3dSigns) continue;
             if (!g_Active) return;
