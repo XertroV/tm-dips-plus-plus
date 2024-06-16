@@ -79,7 +79,6 @@ namespace SecretAssets {
         @Volume::vtSubtitlesAnim = GenFlightVaeSubs();
         AddSubtitleAnimation(Volume::vtSubtitlesAnim);
         if (flight_vae !is null) {
-            flight_vae.Reset();
             flight_vae.Play();
         } else {
             NotifyWarning("Vae flight audio not loaded");
@@ -103,9 +102,11 @@ namespace SecretAssets {
     }
 
     void Dev_CheckIn15S() {
+#if DEV
         sleep(15000);
         trace('subs len: ' + subtitleAnims.Length);
         trace('active voice: ' + IsAudioChannelPlaying(0));
+#endif
     }
 
     SubtitlesAnim@ GenFlightVaeSubs() {

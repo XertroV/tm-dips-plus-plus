@@ -18,6 +18,7 @@ class AudioChain {
     bool onlyInMap = true;
     int channel = 0;
     bool samplesLoaded = false;
+    bool firstPlayed = false;
 
     AudioChain(string[]@ samplePaths) {
         @this.samplePaths = samplePaths;
@@ -85,6 +86,7 @@ class AudioChain {
             v.Play();
         }
         queued.RemoveRange(0, queued.Length);
+        isPlaying = false;
     }
 
     void RemoveSelfFromChannel() {
@@ -110,6 +112,10 @@ class AudioChain {
 
     void Play() {
         if (isPlaying) return;
+        if (firstPlayed) {
+            Reset();
+        }
+        firstPlayed = true;
         isPlaying = true;
         startnew(CoroutineFunc(this.PlayLoop));
     }
