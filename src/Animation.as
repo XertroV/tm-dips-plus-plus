@@ -79,6 +79,11 @@ void AddSubtitleAnimation(SubtitlesAnim@ anim) {
     subtitleAnims.InsertLast(anim);
 }
 
+void AddSubtitleAnimation_PlayAnywhere(SubtitlesAnim@ anim) {
+    AddSubtitleAnimation(anim);
+    g_SubtitlesOutsideMapCount++;
+}
+
 void EmitStatusAnimation(Animation@ anim) {
     // trace('New animation: ' + anim.name);
     statusAnimations.InsertLast(anim);

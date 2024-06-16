@@ -31,8 +31,9 @@ namespace SecretAssets {
     DTexture@ fanfarePfp;
     string s_flight_vae;
     string s_flight;
-    AudioChain@ flight_vae;
-    AudioChain@ flight;
+
+    string flight_vae_fname;
+    string flight_fname;
 
     void LoadSAFromFile(const string &in name, const string &in filename) {
         if (name == "head") {
@@ -49,12 +50,20 @@ namespace SecretAssets {
         } else if (name == "s-flight") {
             s_flight = ReadTextFileFromStorage(filename);
         } else if (name == "flight-vae") {
-            @flight_vae = AudioChain({IO::FromStorageFolder(filename)}).WithPlayAnywhere().WithAwaitLoaded();
+            flight_vae_fname = filename;
         } else if (name == "flight") {
-            @flight = AudioChain({IO::FromStorageFolder(filename)}).WithPlayAnywhere().WithAwaitLoaded();
+            flight_fname = filename;
         } else {
             warn("Unknown secret asset: " + name + " : " + filename);
         }
+    }
+
+    AudioChain@ GenFlightVaeAudio() {
+        return AudioChain({IO::FromStorageFolder(flight_vae_fname)}).WithPlayAnywhere().WithAwaitLoaded();
+    }
+
+    AudioChain@ GenFlightAudio() {
+        return AudioChain({IO::FromStorageFolder(flight_fname)}).WithPlayAnywhere().WithAwaitLoaded();
     }
 
     bool startedSA = false;
@@ -76,30 +85,26 @@ namespace SecretAssets {
         ClearSubtitleAnimations();
         TryClearingAudioChannel(0);
         // while (IsVoiceLinePlaying()) yield();
-        trace('starting sec audio 1');
+        dev_trace('starting sec audio 1');
         S_VolumeGain = Math::Max(S_VolumeGain, 0.15);
-        @Volume::vtSubtitlesAnim = GenFlightVaeSubs();
-        AddSubtitleAnimation(Volume::vtSubtitlesAnim);
-        if (flight_vae !is null) {
-            flight_vae.Play();
-        } else {
-            NotifyWarning("Vae flight audio not loaded");
-        }
+        AddSubtitleAnimation_PlayAnywhere(GenFlightVaeSubs());
+        auto startVae = Time::Now;
+        GenFlightVaeAudio().Play();
         startnew(Dev_CheckIn15S);
         yield(5);
         while (IsVoiceLinePlaying()) yield();
-        trace('starting sec audio 2');
-        @Volume::vtSubtitlesAnim = GenFlightSubs();
-        AddSubtitleAnimation(Volume::vtSubtitlesAnim);
-        if (flight !is null) {
-            flight.Reset();
-            flight.Play();
+        // something happened and things got very delayed
+        if (Time::Now - startVae < 20000) {
+            dev_trace('starting sec audio 2');
+            AddSubtitleAnimation_PlayAnywhere(GenFlightSubs());
+            @Volume::vtSubtitlesAnim = null;
+            GenFlightAudio().Play();
+            while (IsVoiceLinePlaying()) yield();
+            @Volume::vtSubtitlesAnim = null;
+            dev_trace('done sec audio');
         } else {
-            NotifyWarning("Flight audio not loaded");
+            dev_trace('sec audio 2 skipped');
         }
-        while (IsVoiceLinePlaying()) yield();
-        @Volume::vtSubtitlesAnim = null;
-        trace('done sec audio');
         Meta::SaveSettings();
     }
 

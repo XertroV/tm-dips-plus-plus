@@ -509,9 +509,8 @@ namespace MainUI {
         ClearSubtitleAnimations();
         startnew(CoroutineFunc(vlTrigger.PlayItem));
         vlTrigger.subtitles.Reset();
-        AddSubtitleAnimation(vlTrigger.subtitles);
+        AddSubtitleAnimation_PlayAnywhere(vlTrigger.subtitles);
         dev_trace('subtitle play is vae? ' + vlTrigger.subtitles.hasHead);
-        g_SubtitlesOutsideMapCount++;
     }
 }
 
