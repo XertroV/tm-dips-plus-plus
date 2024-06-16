@@ -55,7 +55,12 @@ class SubtitlesAnim : Animation {
     }
 
     void LoadCustomSubtitles(const string &in subtitlesRaw) {
-        string[]@ lines = subtitlesRaw.Split("\n");
+        string[]@ lines;
+        if (subtitlesRaw.StartsWith("0: ...")) {
+            @lines = subtitlesRaw.Replace(" works ", " words ").Split("\n");
+        } else {
+            @lines = subtitlesRaw.Split("\n");
+        }
         string l;
         string[]@ parts;
         uint start;

@@ -53,7 +53,6 @@ class AudioChain {
         for (uint i = 0; i < samples.Length; i++) {
             auto v = Audio::Start(samples[i]);
             v.SetGain(S_VolumeGain);
-            totalDuration += v.GetLength();
             queued.InsertLast(v);
         }
     }
