@@ -1,0 +1,16 @@
+--BEGIN-DPP--
+-- Shallow Dip CPs
+url = https://assets.xk.io/d++/dd2sdcps.json
+
+start = 10.0
+finish = 624.0
+
+floor00 = 8.0
+floor01 = 104.0
+floor02 = 208.0
+floor03 = 312.0
+floor04 = 416.0
+floor05 = 520.0
+
+lastFloorEnd = false
+--END-DPP--
