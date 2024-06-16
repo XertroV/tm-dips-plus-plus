@@ -5,20 +5,11 @@ namespace SecretAssets {
     Json::Value@ saPayload;
 
     void OnPluginStart() {
-        // some prelim checks on pb
-        while (Stats::pbHeight < 50.) yield();
-#if DEV
-        warn("checking pb");
-        if (Stats::pbHeight < 50.) return;
-        warn("passed pb check");
-#else
-        if (Stats::pbHeight < 1200.) return;
-#endif
-        PushMessage(GetSecretAssetsMsg());
+        AddSecretAssets();
     }
 
-    void Load(Json::Value@ j) {
-        @saPayload = j;
+    void AddSecretAssets() {
+        @saPayload = Json::Parse('{"filenames_and_urls":[{"name": "head", "filename": "img/s1head.jpg", "url": "https://assets.xk.io/d++/secret/s1head-3948765.jpg"}, {"name": "s-flight-vae", "filename": "subs/flight-vae.txt", "url": "https://assets.xk.io/d++/secret/subs-vae-3948765.txt"}, {"name": "s-flight", "filename": "subs/flight.txt", "url": "https://assets.xk.io/d++/secret/subs-3948765.txt"}, {"name": "flight-vae", "filename": "vl/flight-vae.mp3", "url": "https://assets.xk.io/d++/secret/flight-vae-3948765.mp3"}, {"name": "flight", "filename": "vl/flight.mp3", "url": "https://assets.xk.io/d++/secret/flight-3948765.mp3"}, {"name": "fanfare", "filename": "img/fanfare-self.png", "url": "https://assets.xk.io/d++/secret/generic.png"}]}');
         startnew(LoadSAJson);
     }
 
@@ -31,7 +22,7 @@ namespace SecretAssets {
             coros.InsertLast(saList[saList.Length - 1].dlCoro);
         }
         await(coros);
-        dev_trace("\\$F80 Loaded secret assets");
+        dev_trace("\\$F80 Loaded no-so-secret-anymore assets");
         AreSAsLoaded = true;
     }
 
@@ -83,19 +74,38 @@ namespace SecretAssets {
 
     void PlaySecretAudio() {
         while (IsVoiceLinePlaying()) yield();
+        trace('starting sec audio 1');
         S_VolumeGain = Math::Max(S_VolumeGain, 0.15);
-        AddSubtitleAnimation(GenFlightVaeSubs());
+        @Volume::vtSubtitlesAnim = GenFlightVaeSubs();
+        AddSubtitleAnimation(Volume::vtSubtitlesAnim);
         if (flight_vae !is null) {
+            flight_vae.Reset();
             flight_vae.Play();
+        } else {
+            NotifyWarning("Vae flight audio not loaded");
         }
-        yield();
+        startnew(Dev_CheckIn15S);
+        yield(5);
         while (IsVoiceLinePlaying()) yield();
-        AddSubtitleAnimation(GenFlightSubs());
+        trace('starting sec audio 2');
+        @Volume::vtSubtitlesAnim = GenFlightSubs();
+        AddSubtitleAnimation(Volume::vtSubtitlesAnim);
         if (flight !is null) {
+            flight.Reset();
             flight.Play();
+        } else {
+            NotifyWarning("Flight audio not loaded");
         }
         while (IsVoiceLinePlaying()) yield();
+        @Volume::vtSubtitlesAnim = null;
+        trace('done sec audio');
         Meta::SaveSettings();
+    }
+
+    void Dev_CheckIn15S() {
+        sleep(15000);
+        trace('subs len: ' + subtitleAnims.Length);
+        trace('active voice: ' + IsAudioChannelPlaying(0));
     }
 
     SubtitlesAnim@ GenFlightVaeSubs() {

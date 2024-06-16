@@ -74,6 +74,9 @@ namespace Volume {
             if (vtSubtitlesAnim.Update()) {
                 vtSubtitlesAnim.Draw();
             } else {
+                if (subtitleAnims.Length > 0 && subtitleAnims[0] is vtSubtitlesAnim) {
+                    subtitleAnims.RemoveAt(0);
+                }
                 @vtSubtitlesAnim = null;
             }
         }

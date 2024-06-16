@@ -47,6 +47,16 @@ class AudioChain {
         samplesLoaded = true;
     }
 
+    void Reset() {
+        _PlayOutQueuedSamples();
+        for (uint i = 0; i < samples.Length; i++) {
+            auto v = Audio::Start(samples[i]);
+            v.SetGain(S_VolumeGain);
+            totalDuration += v.GetLength();
+            queued.InsertLast(v);
+        }
+    }
+
     AudioChain@ WithAwaitLoaded() {
         while (!samplesLoaded) yield();
         return this;
@@ -56,6 +66,17 @@ class AudioChain {
         for (uint i = 0; i < samples.Length; i++) {
             @samples[i] = null;
         }
+        _PlayOutQueuedSamples();
+        samples.RemoveRange(0, samples.Length);
+        if (voice !is null) {
+            voice.SetGain(0);
+            if (voice.IsPaused()) voice.Play();
+            @voice = null;
+        }
+        RemoveSelfFromChannel();
+    }
+
+    void _PlayOutQueuedSamples() {
         Audio::Voice@ v;
         for (uint i = 0; i < queued.Length; i++) {
             // ensure it finishes playing to clear from memory
@@ -63,14 +84,7 @@ class AudioChain {
             v.SetGain(0.0);
             v.Play();
         }
-        samples.RemoveRange(0, samples.Length);
         queued.RemoveRange(0, queued.Length);
-        if (voice !is null) {
-            voice.SetGain(0);
-            if (voice.IsPaused()) voice.Play();
-            @voice = null;
-        }
-        RemoveSelfFromChannel();
     }
 
     void RemoveSelfFromChannel() {
@@ -141,11 +155,9 @@ class AudioChain {
 
             if (voice is null) break;
             done = voice.GetPosition() >= voice.GetLength();
-            if (!done) {
-                yield();
-                continue;
+            if (done) {
+                @voice = null;
             }
-            @voice = null;
             yield();
         }
         dev_trace("Audio done " + this.samplesStr);

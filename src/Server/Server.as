@@ -639,7 +639,8 @@ class DD2API {
     }
 
     void SecretAssetsHandler(Json::Value@ msg) {
-        SecretAssets::Load(msg);
+        // ignore this message now, assets hardcoded
+        // SecretAssets::Load(msg);
     }
 }
 
