@@ -371,8 +371,8 @@ class DD2API {
     void WatchAndSendContextChanges(uint64 nonce) {
         uint lastCheck = 0;
         uint lastGC = 0;
-        uint64 nextMI = 0;
-        uint64 nextu64 = 0;
+        uint64 nextMI = -1;
+        uint64 nextu64 = -1;
         uint64 lastMI = 0;
         uint64 lastu64 = 0;
         uint lastMapMwId = 0;
@@ -388,7 +388,7 @@ class DD2API {
             mapChange = (app.RootMap is null && lastMapMwId > 0)
                 || (lastMapMwId == 0 && app.RootMap !is null)
                 || (app.RootMap !is null && lastMapMwId != app.RootMap.Id.Value);
-            // nextu64 = SF::GetInfo();
+            nextu64 = app.CurrentPlayground !is null ? (app.Editor is null ? 43 : 89) : 95;
             // nextMI = MI::GetInfo();
             u64Change = lastu64 != nextu64 || lastMI != nextMI;
             if (mapChange || u64Change || firstRun) {
