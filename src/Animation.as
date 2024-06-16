@@ -59,6 +59,7 @@ void ClearSubtitleAnimations() {
         subtitleAnims[i].Reset();
     }
     subtitleAnims.RemoveRange(0, subtitleAnims.Length);
+    @Volume::vtSubtitlesAnim = null;
 }
 
 bool IsVoiceLinePlaying() {

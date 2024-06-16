@@ -73,7 +73,9 @@ namespace SecretAssets {
     }
 
     void PlaySecretAudio() {
-        while (IsVoiceLinePlaying()) yield();
+        ClearSubtitleAnimations();
+        TryClearingAudioChannel(0);
+        // while (IsVoiceLinePlaying()) yield();
         trace('starting sec audio 1');
         S_VolumeGain = Math::Max(S_VolumeGain, 0.15);
         @Volume::vtSubtitlesAnim = GenFlightVaeSubs();
