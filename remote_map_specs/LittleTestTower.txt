@@ -1,0 +1,13 @@
+--BEGIN-DPP--
+url = https://assets.xk.io/d++/little-test-tower.json
+start = 9.0
+finish = 561
+floor00 = 9.0
+floor01 = 149.0
+floor02 = 219.0
+floor03 = 289
+floor04 = 395
+floor05 = 513
+floor06 = 552
+lastFloorEnd = true
+--END-DPP--
