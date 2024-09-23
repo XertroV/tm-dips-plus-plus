@@ -1,0 +1,29 @@
+--BEGIN-DPP--
+
+-- Budget Dip
+-- https://trackmania.exchange/maps/174338
+-- https://trackmania.io/#/leaderboard/apG6EaGgbtc7nVXtJKy55djcFs8
+
+start = 8
+finish = 1602
+
+floor00 = 8
+floor01 = 74
+floor02 = 162
+floor03 = 226
+floor04 = 306
+floor05 = 354
+floor06 = 474
+floor07 = 514
+floor08 = 618
+floor09 = 617
+floor10 = 714
+floor11 = 769
+floor12 = 962
+floor13 = 1098
+floor14 = 1125
+floor15 = 1222
+
+lastFloorEnd = false
+
+--END-DPP--
