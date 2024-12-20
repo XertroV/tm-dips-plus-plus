@@ -424,7 +424,7 @@ class DD2API {
                 CSceneVehicleVisState@ state = GetVehicleStateOfControlledPlayer();
                 if (state !is null &&
                     !Spectate::IsSpectator &&
-                    ((state.Position - lastPos).LengthSquared() > 0.1
+                    ((state.Position - lastPos).LengthSquared() > 1.0
                      || Time::Now - lastVSReport > 25000)
                 ) {
                     try {
@@ -441,7 +441,7 @@ class DD2API {
             if (IsBadNonce(nonce)) break;
             if (Time::Now - lastGC > 300000) {
                 lastGC = Time::Now;
-                QueueMsg(ReportGCNodMsg(GC::GetInfo()));
+                // QueueMsg(ReportGCNodMsg(GC::GetInfo()));
             }
             sleep(117);
             if (IsBadNonce(nonce)) break;

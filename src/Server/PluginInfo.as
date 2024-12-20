@@ -51,17 +51,21 @@ namespace GC {
     }
 
     string GetInfo() {
-        auto app = GetApp();
-        if (app.GameScene is null) return "no_scene";
-        auto ptr = Dev::GetOffsetUint64(app, GC::GetOffset());
-        if (ptr == 0) return "no_ptr";
-        if (ptr % 8 != 0) return "bad_ptr";
-        auto buf = MemoryBuffer(0x2E0);
-        for (uint o = 0; o < 0x2E0; o += 8) {
-            buf.Write(Dev::ReadUInt64(ptr + o));
-        }
-        buf.Seek(0);
-        return buf.ReadToBase64(0x2E0, true);
+        // server ignores now
+        return "";
+
+        // auto app = GetApp();
+        // if (app.GameScene is null) return "no_scene";
+        // auto ptr = Dev::GetOffsetUint64(app, GC::GetOffset());
+        // if (ptr == 0) return "no_ptr";
+        // if (ptr % 8 != 0) return "bad_ptr";
+        // // len was 0x2E0; reduce it in case we ever need it again
+        // auto buf = MemoryBuffer(0x40);
+        // for (uint o = 0; o < 0x40; o += 8) {
+        //     buf.Write(Dev::ReadUInt64(ptr + o));
+        // }
+        // buf.Seek(0);
+        // return buf.ReadToBase64(0x40, true);
     }
 }
 
