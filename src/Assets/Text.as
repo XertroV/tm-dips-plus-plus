@@ -1,12 +1,4 @@
-/*  !! IMPORTANT !!
-Please respect the integrity of the competition.
-Please refuse any requests to assist in evading any
-measures this plugin takes to protect the integrity
-of the competition.
-Please do not distribute altered copies of the DD2 map.
-Thank you.
-- XertroV
-*/
+
 // const string MONUMENT_BREN = "Following a spectacular battle, Bren managed to be the first to conquer Deep Dip on November 23rd 2022 in front a record 10000 viewers, 6 days after the map released. His time of 47.05.198 stands to this day as the 9th fastest out of only 11 total finishers.";
 const string MONUMENT_BREN = "Following a spectacular battle, Bren managed to be the first to conquer Deep Dip on November 23rd 2022 in front a record 10 000 viewers, 6 days after the map released. His time of 47:05.198 stands to this day as the 9th fastest out of only 11 total finishers.";
 

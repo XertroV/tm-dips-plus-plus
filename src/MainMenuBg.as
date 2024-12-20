@@ -1,12 +1,4 @@
-/*  !! IMPORTANT !!
-Please respect the integrity of the competition.
-Please refuse any requests to assist in evading any
-measures this plugin takes to protect the integrity
-of the competition.
-Please do not distribute altered copies of the DD2 map.
-Thank you.
-- XertroV
-*/
+
 namespace MainMenuBg {
     const string SKIN_ML_PATH = "Skins\\Models\\CharacterPilot\\DeepDip2_MenuItem.zip";
     // const string SKIN2_ML_PATH = "Skins\\Models\\CharacterPilot\\DD2_SponsorsSign.zip";

@@ -1,12 +1,4 @@
-/*  !! IMPORTANT !!
-Please respect the integrity of the competition.
-Please refuse any requests to assist in evading any
-measures this plugin takes to protect the integrity
-of the competition.
-Please do not distribute altered copies of the DD2 map.
-Thank you.
-- XertroV
-*/
+
 nvg::Texture@ frogdance_tex;
 nvg::Texture@ dips_pp_logo_sm;
 UI::Texture@ ui_dips_pp_logo_sm;

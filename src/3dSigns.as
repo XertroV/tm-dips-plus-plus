@@ -1,12 +1,3 @@
-/*  !! IMPORTANT !!
-Please respect the integrity of the competition.
-Please refuse any requests to assist in evading any
-measures this plugin takes to protect the integrity
-of the competition.
-Please do not distribute altered copies of the DD2 map.
-Thank you.
-- XertroV
-*/
 
 [Setting hidden]
 bool S_Enable3dSigns = true;
@@ -160,7 +151,7 @@ namespace Signs3d {
 #if DEV
     const uint loopNewClipTime = 60000;
 #else
-    const uint loopNewClipTime = 600000;
+    const uint loopNewClipTime = 60000;
 #endif
 
     void LoopUpdate3dScreens() {

@@ -1,12 +1,4 @@
-/*  !! IMPORTANT !!
-Please respect the integrity of the competition.
-Please refuse any requests to assist in evading any
-measures this plugin takes to protect the integrity
-of the competition.
-Please do not distribute altered copies of the DD2 map.
-Thank you.
-- XertroV
-*/
+
 
 const string STATS_FILE = IO::FromStorageFolder("stats.json");
 const string AUX_STATS_DIR = IO::FromStorageFolder("map_stats");
@@ -102,7 +94,8 @@ namespace Stats {
             lastPbSetTs = j['last_pb_set_ts'];
             lastPbSet = Time::Now;
         }
-        msSpentInMap = Math::Max(msSpentInMap, uint(j['seconds_spent_in_map']) * 1000);
+        dev_trace("\\$f80Server msSpentInMap: " + uint64(j["seconds_spent_in_map"]) + ", local: " + msSpentInMap);
+        msSpentInMap = Math_Max_U64(msSpentInMap, uint64(j['seconds_spent_in_map']) * 1000);
         nbJumps = Math::Max(nbJumps, j['nb_jumps']);
         nbFalls = Math::Max(nbFalls, j['nb_falls']);
         nbFloorsFallen = Math::Max(nbFloorsFallen, j['nb_floors_fallen']);
@@ -153,7 +146,7 @@ namespace Stats {
         if (j.HasKey("ReportStats")) @j = j['ReportStats'];
         if (j.HasKey("stats")) @j = j['stats'];
         trace("loading stats: " + Json::Write(j));
-        msSpentInMap = uint(j["seconds_spent_in_map"]) * 1000;
+        msSpentInMap = uint64(j["seconds_spent_in_map"]) * 1000;
         nbJumps = j["nb_jumps"];
         nbFalls = j["nb_falls"];
         nbFloorsFallen = j["nb_floors_fallen"];
@@ -583,4 +576,9 @@ class LBEntry {
         }
         race_time = j.Get("race_time", -1);
     }
+}
+
+
+uint64 Math_Max_U64(uint64 a, uint64 b) {
+    return a > b ? a : b;
 }
