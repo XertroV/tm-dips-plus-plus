@@ -21,9 +21,20 @@ namespace PS {
         guiPlayerMwId = 0;
     }
 
+    bool wasInvalidRulesTime = false;
+
     /// current playground must not be null
     void UpdatePlayers() {
         auto cp = cast<CSmArenaClient>(GetApp().CurrentPlayground);
+
+        // avoid reading positions when the rules are invalid, or the frame after
+        bool rulesTimeInvalid = InvalidRulesTime(cp);
+        bool exitEarly = rulesTimeInvalid || wasInvalidRulesTime;
+        wasInvalidRulesTime = rulesTimeInvalid;
+        if (exitEarly) {
+            return;
+        }
+
         guiPlayerMwId = GetViewedPlayerMwId(cp);
         if (MagicSpectate::IsActive()) {
             guiPlayerMwId = MagicSpectate::GetTarget().playerScoreMwId;
@@ -203,6 +214,14 @@ namespace PS {
         for (uint i = 0; i < nbPlayers; i++) {
             players[i].UpdateVehicleFromCSmPlayer();
         }
+    }
+
+    bool InvalidRulesTime(CSmArenaClient@ cp) {
+        if (cp is null || cp.Arena is null) return true;
+        auto rules = cp.Arena.Rules;
+        if (rules is null) return true;
+        return int(rules.RulesStateStartTime) < 0
+            || rules.RulesStateStartTime >= rules.RulesStateEndTime;
     }
 }
 
