@@ -1,0 +1,23 @@
+--BEGIN-DPP--
+// Jamz Dip
+start = 26.0
+finish = 1961.0
+floor00 = 8.0
+floor01 = 114.0
+floor02 = 217.0
+floor03 = 346.0
+floor04 = 506.0
+floor05 = 642.0
+floor06 = 755.0
+floor07 = 907.0
+floor08 = 1018.0
+floor09 = 1130.0
+floor10 = 1242.0
+floor11 = 1354.0
+floor12 = 1466.0
+floor13 = 1578.0
+floor14 = 1690.0
+floor15 = 1810.0
+floor16 = 1914.0
+lastFloorEnd = true
+--END-DPP--

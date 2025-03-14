@@ -120,7 +120,7 @@ class DD2API {
             } else {
                 wasDead = false;
             }
-            sleep(10);
+            yield();
         }
     }
 
