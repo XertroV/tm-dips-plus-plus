@@ -19,21 +19,28 @@ float S_GreenTimerFontSize = 120.;
 [Setting hidden]
 bool S_PauseTimerWhenWindowUnfocused = true;
 
-const string WRITUAL_LOGIN = "vUUgTIDxSAm5gziz8P_B7w";
-const string XERTROV_LOGIN = "Ci0bwEqqQ3Sy2z1WG9qxyQ";
-
-[Setting hidden]
-bool wirtModeDone = false;
-
-bool wirtualMode = false;
+const string GetTimerTemplateStr(int len) {
+    switch (len) {
+        case 7: return "0:00:00";
+        case 8: return "00:00:00";
+        case 9: return "000:00:00";
+        case 10: return "0000:00:00";
+        case 11: return "00000:00:00";
+        case 12: return "000000:00:00";
+        case 13: return "0000000:00:00";
+        case 14: return "00000000:00:00";
+        case 15: return "000000000:00:00";
+        case 16: return "0000000000:00:00";
+        case 17: return "00000000000:00:00";
+        case 18: return "000000000000:00:00";
+    }
+    return "00:00:00";
+}
 
 namespace GreenTimer {
-    bool wirtualMode = false;
     vec2[] extraPos = {};
 
-    void OnPluginStart() {
-        // wirtualMode = GetLocalLogin() == WRITUAL_LOGIN;
-    }
+    void OnPluginStart() {}
 
     void Render(bool doDraw) {
         if (!S_ShowGreenTimer || !doDraw) return;
@@ -43,12 +50,6 @@ namespace GreenTimer {
         nvg::TextAlign(S_GreenTimerAlign);
         nvg::BeginPath();
         _DrawGreenTimer(S_GreenTimerPos, S_GreenTimerAlign);
-        // if (!wirtModeDone && wirtualMode) {
-        //     for (uint i = 0; i < extraPos.Length; i++) {
-        //         nvg::TextAlign(nvg::Align::Center | nvg::Align::Middle);
-        //         _DrawGreenTimer(extraPos[i]);
-        //     }
-        // }
         nvg::ClosePath();
     }
 
@@ -56,8 +57,8 @@ namespace GreenTimer {
         nvg::TextAlign(align);
         string label = Time::Format(Stats::GetTimeInMapMs(), false, true, true);
         if (label.Length < 8) label = "0" + label;
-        vec2 bounds = nvg::TextBounds(label.Length > 8 ? "000:00:00" : "00:00:00");
-        int nbDigits = label.Length > 8 ? 7 : 6;
+        vec2 bounds = nvg::TextBounds(GetTimerTemplateStr(label.Length));
+        int nbDigits = label.Length - 2;
         vec2 smallBounds = nvg::TextBounds("00");
         float digitWidth = smallBounds.x / 2.;
         float colonWidth = (bounds.x - digitWidth * nbDigits) / 2.;
@@ -87,11 +88,14 @@ namespace GreenTimer {
         vec2 adj = vec2(0, 0);
         for (uint i = 0; i < parts.Length; i++) {
             p = parts[i];
+            // draw digits
             for (uint c = 0; c < p.Length; c++) {
+                // if 1, add a small offset so it's not too far left
                 adj.x = p[c] == 0x31 ? digitWidth / 4 : 0;
                 DrawTextWithShadow(textTL+adj, p.SubStr(c, 1), col);
                 textTL.x += digitWidth;
             }
+            // after each part, add a colon
             if (i < 2) {
                 DrawTextWithShadow(textTL, ":", col);
                 textTL.x += colonWidth;
@@ -104,10 +108,6 @@ namespace GreenTimer {
 
     void DrawSettings() {
         if (UI::BeginMenu("Green Timer")) {
-#if DEV
-            // UI::Text("wm: " + wirtualMode);
-            // UI::Text("wmd:" + wirtModeDone);
-#endif
             S_ShowGreenTimer = UI::Checkbox("Green Timer", S_ShowGreenTimer);
             S_PauseTimerWhenWindowUnfocused = UI::Checkbox("Pause when game paused or unfocused", S_PauseTimerWhenWindowUnfocused);
             S_PauseTimerWhileSpectating = UI::Checkbox("Pause when spectating", S_PauseTimerWhileSpectating);
@@ -147,21 +147,6 @@ namespace GreenTimer {
             parseErr = "";
         } catch {
             parseErr = "exception: " + getExceptionInfo();
-        }
-    }
-
-    void WirtModeIncrement() {
-        yield();
-        yield();
-        yield();
-        if (S_ShowGreenTimer) return;
-        if (extraPos.Length > 10) {
-            wirtModeDone = true;
-            wirtualMode = false;
-            Meta::SaveSettings();
-        } else {
-            extraPos.InsertLast(RandVec2(0.1, 0.9));
-            S_ShowGreenTimer = true;
         }
     }
 }
