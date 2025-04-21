@@ -1,0 +1,23 @@
+--BEGIN-DPP--
+start = 34.0|AB
+finish = 1910.0|Roof
+floor00 = 8.0|FG0
+floor01 = 104.0|FG1
+floor02 = 208.0
+floor03 = 312.0
+floor04 = 416.0
+floor05 = 520.0
+floor06 = 624.0
+floor07 = 728.0
+floor08 = 832.0
+floor09 = 936.0
+floor10 = 1040.0
+floor11 = 1144.0
+floor12 = 1264.0
+floor13 = 1376.0
+floor14 = 1480.0
+floor15 = 1584.0
+floor16 = 1688.0|Ruuf
+floor17 = 1793.0|Ruf
+lastFloorEnd = true
+--END-DPP--

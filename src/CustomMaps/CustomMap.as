@@ -119,7 +119,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
             return false;
         }
         for (uint i = 0; i < spec.floors.Length; i++) {
-            floors.InsertLast(spec.floors[i]);
+            floors.InsertLast(spec.floors[i].height);
         }
         lastFloorEnd = spec.lastFloorEnd;
         return true;

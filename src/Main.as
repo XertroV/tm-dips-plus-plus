@@ -9,16 +9,16 @@ UI::Font@ f_MonoSpace = null;
 UI::Font@ f_Droid = null;
 UI::Font@ f_DroidBig = null;
 UI::Font@ f_DroidBigger = null;
-// int f_Nvg_OswaldLightItalic = nvg::LoadFont("Fonts/Oswald-LightItalic.ttf", true, true);
-// int f_Nvg_ExoLightItalic = nvg::LoadFont("Fonts/Exo-LightItalic.ttf", true, true);
-int f_Nvg_ExoRegularItalic = nvg::LoadFont("Fonts/Exo-Italic.ttf", true, true);
-int f_Nvg_ExoRegular = nvg::LoadFont("Fonts/Exo-Regular.ttf", true, true);
-int f_Nvg_ExoMedium = nvg::LoadFont("Fonts/Exo-Medium.ttf", true, true);
-int f_Nvg_ExoMediumItalic = nvg::LoadFont("Fonts/Exo-MediumItalic.ttf", true, true);
-int f_Nvg_ExoBold = nvg::LoadFont("Fonts/Exo-Bold.ttf", true, true);
-int f_Nvg_ExoExtraBold = nvg::LoadFont("Fonts/Exo-ExtraBold.ttf", true, true);
-int f_Nvg_ExoExtraBoldItalic = nvg::LoadFont("Fonts/Exo-ExtraBoldItalic.ttf", true, true);
-// int g_nvgFont = nvg::LoadFont("RobotoSans.ttf", true, true);
+// int f_Nvg_OswaldLightItalic = nvg::LoadFont("Fonts/Oswald-LightItalic.ttf");
+// int f_Nvg_ExoLightItalic = nvg::LoadFont("Fonts/Exo-LightItalic.ttf");
+int f_Nvg_ExoRegularItalic = nvg::LoadFont("Fonts/Exo-Italic.ttf");
+int f_Nvg_ExoRegular = nvg::LoadFont("Fonts/Exo-Regular.ttf");
+int f_Nvg_ExoMedium = nvg::LoadFont("Fonts/Exo-Medium.ttf");
+int f_Nvg_ExoMediumItalic = nvg::LoadFont("Fonts/Exo-MediumItalic.ttf");
+int f_Nvg_ExoBold = nvg::LoadFont("Fonts/Exo-Bold.ttf");
+int f_Nvg_ExoExtraBold = nvg::LoadFont("Fonts/Exo-ExtraBold.ttf");
+int f_Nvg_ExoExtraBoldItalic = nvg::LoadFont("Fonts/Exo-ExtraBoldItalic.ttf");
+// int g_nvgFont = nvg::LoadFont("RobotoSans.ttf");
 
 #if DEV
 bool DEV_MODE = true;

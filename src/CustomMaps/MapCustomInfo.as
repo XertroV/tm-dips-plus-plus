@@ -4,12 +4,14 @@ namespace MapCustomInfo {
 
     class DipsSpec {
         string url;
-        float start = -1.0;
-        float finish = -1.0;
-        float[] floors;
+        FloorSpec start = FloorSpec();
+        FloorSpec finish = FloorSpec();
+        FloorSpec[]@ floors;
         bool lastFloorEnd = false;
+        string[] customLabels;
 
         DipsSpec(const string &in mapComment) {
+            @floors = {};
             auto @parts = mapComment.Split(BEGIN_DPP_COMMENT, 2);
             if (parts.Length < 2) throw("missing " + BEGIN_DPP_COMMENT);
             @parts = parts[1].Split(END_DPP_COMMENT, 2);
@@ -40,13 +42,13 @@ namespace MapCustomInfo {
             if (url.Length > 0) {
                 LoadFromUrl();
             }
+            if (start.height < 0.0 || finish.height < 0.0) {
+                auto minMax = GetMinMaxHeight(cast<CSmArenaClient>(GetApp().CurrentPlayground));
+                if (start.height < 0) start.height = minMax.x;
+                if (finish.height < 0) finish.height = minMax.y;
+            }
             if (floors.Find(finish) < 0) {
                 floors.InsertLast(finish);
-            }
-            if (start < 0 || finish < 0) {
-                auto minMax = GetMinMaxHeight(cast<CSmArenaClient>(GetApp().CurrentPlayground));
-                if (start < 0) start = minMax.x;
-                if (finish < 0) finish = minMax.y;
             }
         }
 
@@ -63,16 +65,31 @@ namespace MapCustomInfo {
                     return;
                 }
                 while (floorIx >= floors.Length) {
-                    floors.InsertLast(-1.0);
+                    floors.InsertLast(FloorSpec());
                 }
-                floors[floorIx] = ParseFloat(value);
-            } else if (key == "start") start = ParseFloat(value);
-            else if (key == "finish") finish = ParseFloat(value);
+                floors[floorIx] = ParseFloorVal(value);
+            } else if (key == "start") start = ParseFloorVal(value);
+            else if (key == "finish") finish = ParseFloorVal(value);
             else if (key == "lastFloorEnd") lastFloorEnd = value.ToLower() == "true";
             else {
                 warn("Unknown key: " + key + " with value: " + value);
             }
         }
+    }
+
+    FloorSpec@ ParseFloorVal(const string &in value) {
+        string[]@ parts;
+        if (value.Contains("|")) {
+            @parts = value.Split("|");
+        }
+        // if there's no label
+        if (parts is null || parts.Length == 0) {
+            return FloorSpec(ParseFloat(value));
+        }
+        // otherwise parse height and label
+        auto fHeight = ParseFloat(parts[0].Trim());
+        string fLabel = parts.Length < 2 ? "" : parts[1].Trim();
+        return FloorSpec(fHeight, fLabel);
     }
 
     float ParseFloat(const string &in value) {
@@ -84,6 +101,7 @@ namespace MapCustomInfo {
         return -1.0;
     }
 
+    // key = floorXX
     int ParseFloorNum(const string &in key) {
         auto parts = key.Split("floor", 2);
         if (parts.Length < 2) {
@@ -175,6 +193,32 @@ namespace MapCustomInfo {
         }
         builtInUidMwIds.InsertLast(uidMwId);
         builtInMapComments.InsertLast(comment);
+    }
+}
+
+class FloorSpec {
+    string label;
+    float height;
+    FloorSpec(float h, const string &in l = "") {
+        height = h;
+        label = l;
+    }
+    FloorSpec() {
+        height = -1.0;
+        label = "";
+    }
+
+    bool opEquals(const FloorSpec &in other) const {
+        return height == other.height && label == other.label;
+    }
+
+    string GenLabel(uint ix, int finNumber, int endNumber) const {
+        // endNumber checked after finNumber since it is eq when lastFloorEnd disabled.
+        if (label.Length > 0) return label;
+        if (ix == 0) return "F.G.";
+        if (ix >= finNumber) return "Fin";
+        if (ix == endNumber) return "End";
+        return Text::Format("%02d", ix);
     }
 }
 

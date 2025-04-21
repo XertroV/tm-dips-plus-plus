@@ -71,7 +71,7 @@ namespace Minimap {
             minimapCenterPos = mmPadding * vScale;
             minimapYOffset = 0.;
             if (S_ScaleMinimapToPlayers) {
-                auto @heights = GetDd2FloorHeights();
+                auto @heights = GetFloorHeights_Dd2OrCustom();
                 int drawToBottomOfFloor = Math::Clamp(int(HeightToFloor(playerMaxHeightLast)) + 2, 0, heights.Length - 1);
                 auto maxH = heights[drawToBottomOfFloor];
                 auto propShown = (maxH - heights[0]) / heights[heights.Length - 1];
@@ -621,12 +621,24 @@ namespace Minimap {
         nvg::FontFace(f_Nvg_ExoBold);
         nvg::FontSize(floorNumberBaseHeight);
 
-        vec2 textBounds = nvg::TextBounds("00") + vec2(textPad * 2.0, 0);
+        vec2 defaultTBounds = nvg::TextBounds("00") + vec2(textPad * 2.0, 0);
+        vec2 textBounds;
 
         vec2 pos = vec2(minimapCenterPos.x, 0);
-        auto @heights = GetDd2FloorHeights();
+
+        // start of main loop
+        auto @heights = GetFloorSpecs_Dd2OrCustom();
+        // prep for label
+        int finNumber = heights.Length - 1.;
+        int endNumber = MatchDD2::lastMapMatchesAnyDD2Uid ? 17 : (g_CustomMap !is null && g_CustomMap.lastFloorEnd ? finNumber - 1 : finNumber);
+        // loop over each floor
         for (uint i = 0; i < heights.Length; i++) {
-            pos.y = HeightToMinimapY(heights[i]);
+            // endNumber checked after finNumber since it is eq when lastFloorEnd disabled.
+            string label = heights[i].GenLabel(i, finNumber, endNumber);
+            textBounds = nvg::TextBounds(label) + vec2(textPad * 2.0, 0);
+            textBounds.x = Math::Max(textBounds.x, defaultTBounds.x);
+
+            pos.y = HeightToMinimapY(heights[i].height);
             nvg::BeginPath();
             nvg::LineCap(nvg::LineCapType::Round);
             drawLabelBackgroundTagLinesRev(pos, floorNumberBaseHeight, stdTriHeight * .75, textBounds);
@@ -647,16 +659,9 @@ namespace Minimap {
             nvg::BeginPath();
             nvg::FillColor(cBlack);
             nvg::TextAlign(nvg::Align::Right | nvg::Align::Middle);
-            int finNumber = heights.Length - 1.;
-            int endNumber = MatchDD2::lastMapMatchesAnyDD2Uid ? 17 : (g_CustomMap !is null && g_CustomMap.lastFloorEnd ? finNumber - 1 : finNumber);
             int numbersBelowEq = MatchDD2::isEasyDD2Map ? 5 : endNumber - 1;
-            nvg::Text(
-                pos - vec2(floorNumberBaseHeight * (i < 1 || i > numbersBelowEq ? .8 : 1.0), floorNumberBaseHeight * -0.12),
-                i == 0 ? "F.G." :
-                i >= finNumber ? "Fin" :
-                i == endNumber ? "End" :
-                Text::Format("%02d", i)
-            );
+            auto textPos = pos - vec2(floorNumberBaseHeight * (i < 1 || i > numbersBelowEq ? .8 : 1.0), floorNumberBaseHeight * -0.12);
+            nvg::Text(textPos, label);
             nvg::ClosePath();
         }
     }
@@ -780,7 +785,7 @@ const float[] DD2_FLOOR_HEIGHTS = {
     1910.0  // fin
 };
 
-const float [] DD2_EASY_FLOOR_HEIGHTS = {
+const float[] DD2_EASY_FLOOR_HEIGHTS = {
     8.0,
     104.0, // 01
     208.0, // 02
@@ -790,9 +795,27 @@ const float [] DD2_EASY_FLOOR_HEIGHTS = {
     624.0 // Fin
 };
 
-const float[]@ GetDd2FloorHeights() {
+const float[]@ GetFloorHeights_Dd2OrCustom() {
     if (MatchDD2::isDD2Any) return DD2_FLOOR_HEIGHTS;
     if (MatchDD2::isEasyDD2Map) return DD2_EASY_FLOOR_HEIGHTS;
-    if (g_CustomMap !is null && g_CustomMap.IsEnabledNotDD2 && g_CustomMap.spec !is null) return g_CustomMap.spec.floors;
+    if (g_CustomMap !is null && g_CustomMap.IsEnabledNotDD2 && g_CustomMap.spec !is null) return g_CustomMap.floors;
     return DD2_FLOOR_HEIGHTS;
 }
+
+const FloorSpec[]@ GetFloorSpecs_Dd2OrCustom() {
+    if (MatchDD2::isDD2Any) return DD2_FLOOR_SPECS;
+    if (MatchDD2::isEasyDD2Map) return DD2_EASY_FLOOR_SPECS;
+    if (g_CustomMap !is null && g_CustomMap.IsEnabledNotDD2 && g_CustomMap.spec !is null) return g_CustomMap.spec.floors;
+    return DD2_FLOOR_SPECS;
+}
+
+FloorSpec[]@ GenFloorSpec(const float[]@ heights) {
+    FloorSpec[]@ fs = {};
+    for (uint i = 0; i < heights.Length; i++) {
+        fs.InsertLast(FloorSpec(heights[i]));
+    }
+    return fs;
+}
+
+FloorSpec[]@ DD2_FLOOR_SPECS = GenFloorSpec(DD2_FLOOR_HEIGHTS);
+FloorSpec[]@ DD2_EASY_FLOOR_SPECS = GenFloorSpec(DD2_EASY_FLOOR_HEIGHTS);

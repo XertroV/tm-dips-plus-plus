@@ -25,8 +25,6 @@ const string[] F13_BOUNCE_LINES = {
     "Good Job!",
     "Nice Bounce!",
     "#NotBait",
-    "#NotBait",
-    "#NotBait",
     "Wicked!",
     "Amazing!",
     "You're a pro!",
@@ -225,7 +223,7 @@ MapFloor HeightToFloor(float h, const float[]@ heights) {
 MapFloor HeightToFloorBinarySearch(float h, const float[]@ _heights = null) {
     auto @heights = _heights;
     if (heights is null) {
-        @heights = GetDd2FloorHeights();
+        @heights = GetFloorHeights_Dd2OrCustom();
     }
     if (heights is null) throw("null heights");
     int l = 0;
