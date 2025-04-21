@@ -183,11 +183,11 @@ void CheckForUploadedMapData(ref@ data) {
 
 
 class TriggersMgr {
-    OctTree@ octTree;
+    DipsOT::OctTree@ octTree;
     bool triggerHit = false;
 
     TriggersMgr(nat3 mapSize = nat3(48, 255, 48)) {
-        @octTree = OctTree(Nat3ToVec3(mapSize));
+        @octTree = DipsOT::OctTree(Nat3ToVec3(mapSize));
     }
 
     void TriggerCheck_Update() {

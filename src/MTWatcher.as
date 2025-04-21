@@ -11,6 +11,7 @@ string lastMtClipName = "";
 const string DD2_MAP_UID = "DeepDip2__The_Storm_Is_Here";
 const string DD2_MAP_UID_MCPs = "DD2_Many_CPs_tOg3hwrWxPOR7l";
 const string DD2_MAP_UID_CPpF = "DD2_CP_per_Floor_OAtP2rAwJ0";
+const string DD2_Test_MAP_UID = "dh2ewtzDJcWByHcAmI7j6rnqjga";
 const string[] DD2_MAP_UIDs = {
     DD2_MAP_UID,
     DD2_MAP_UID_MCPs,

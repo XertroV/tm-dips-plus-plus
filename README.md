@@ -40,8 +40,8 @@ url = https://assets.xk.io/d++maps/deepdip1-spec.json
 start = 26.0
 finish = 1970.0
 
--- floors start at 00 for the ground and increase from there. If you miss a number,
---   it will be set to a height of -1.0.
+-- Floors start at 00 for the ground and increase from there. If you miss a number, it
+--   will be set to a height of -1.0.
 floor00 = 4.0
 floor01 = 138
 floor02 = 266.0
@@ -56,12 +56,19 @@ floor10 = 1296.0
 floor11 = 1426.0
 floor12 = 1554.0
 floor13 = 1680.0
-floor14 = 1824.0
+-- A custom label for the minimap can be specified by adding `|<label>` after the height.
+--   Note: there is only space for 3-4 characters by default.
+floor14 = 1824.0|Gulp
 floor15 = 1938.0
 
--- if true, the last floor's label will be 'End' instead of '15' or whatever floor it is.
+-- If true, the last floor's label will be 'End' instead of '15' or whatever floor it is.
+--   Overridden by a custom label if one exists.
 --   (default: false)
 lastFloorEnd = true
+
+-- Optional: specify a minimum Dips++ version in case there are new features that
+--   require an update. Versions below 0.5.4 do not support this property.
+minClientVersion = 0.5.4
 
 -- Blank lines are ignored.
 -- Anything outside the BEGIN and END markers is ignored.

@@ -54,8 +54,7 @@ void Main() {
     // GenerateHeightStrings();
     InitDD2TriggerTree();
     yield();
-    // disable update game modes so we're not patching them unnecessarily
-    // UpdateGameModes();
+    UpdateGameModes();
     yield();
     startnew(GreenTimer::OnPluginStart);
     startnew(Wizard::OnPluginLoad);
@@ -76,6 +75,7 @@ void Main() {
     // OnCameraUpdateHook_Other.Apply();
     // RunFireworksTest();
     CustomVL::Test();
+    Dev_SetupIntercepts();
 #endif
 }
 

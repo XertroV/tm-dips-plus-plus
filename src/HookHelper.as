@@ -40,6 +40,7 @@ class HookHelper {
         this.padding = padding;
         this.functionName = functionName;
         startnew(CoroutineFunc(_RegisterUnhookCall));
+        FindPattern();
     }
 
     ~HookHelper() {
@@ -48,6 +49,16 @@ class HookHelper {
 
     void _RegisterUnhookCall() {
         RegisterUnhookFunction(UnapplyHookFn(this.Unapply));
+    }
+
+    void FindPattern() {
+        if (patternPtr != 0) return;
+        patternPtr = Dev::FindPattern(pattern);
+        if (patternPtr == 0) {
+            warn("Failed to find pattern for hook: " + pattern + " -> " + functionName);
+            Dev_NotifyWarning("Failed to find pattern for hook: " + pattern + " -> " + functionName);
+        }
+        dev_trace("Found pattern for " + functionName + ": " + Text::FormatPointer(patternPtr));
     }
 
     bool Apply() {
