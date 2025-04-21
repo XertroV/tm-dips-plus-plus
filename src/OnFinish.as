@@ -108,7 +108,7 @@ namespace OnFinish {
         auto pos = (int2(g_screen.x / ui_scale, g_screen.y / ui_scale) - windowSize) / 2;
         UI::SetNextWindowPos(pos.x, pos.y, UI::Cond::Always);
         // timeout or no map
-        bool drawSkip = (playerFinishedLastAt > 0 && Time::Now - playerFinishedLastAt > 5000) || GetApp().RootMap is null;
+        bool drawSkip = (playerFinishedLastAt > 0 && Time::Now - playerFinishedLastAt > 3000) || GetApp().RootMap is null;
         if (UI::Begin("dpp ez fin epilogue", flags)) {
             UI::Dummy(vec2(0, 85));
             DrawCenteredText("Congratulations!", f_DroidBigger, 26);
@@ -132,7 +132,7 @@ namespace OnFinish {
         auto pos = (int2(g_screen.x / ui_scale, g_screen.y / ui_scale) - windowSize) / 2;
         UI::SetNextWindowPos(pos.x, pos.y, UI::Cond::Always);
         // timeout or no map
-        bool drawSkip = (playerFinishedLastAt > 0 && Time::Now - playerFinishedLastAt > 5000) || GetApp().RootMap is null;
+        bool drawSkip = (playerFinishedLastAt > 0 && Time::Now - playerFinishedLastAt > 3000) || GetApp().RootMap is null;
         if (UI::Begin("dpp ez fin epilogue", flags)) {
             UI::Dummy(vec2(0, 85));
             DrawCenteredText("Congratulations!", f_DroidBigger, 26);

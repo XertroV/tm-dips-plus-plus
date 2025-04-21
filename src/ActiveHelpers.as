@@ -2,6 +2,7 @@
 // Helpers for whether we're active or not
 
 const string TESTING_MAP_UID = "dh2ewtzDJcWByHcAmI7j6rnqjga";
+const string TMP_TEST_MAP_UID = "DUALzJnVhdqibn7iNra4hI_LAzc";
 
 namespace MatchDD2 {
     uint lastMapMwId = 0;
@@ -22,7 +23,9 @@ namespace MatchDD2 {
                     ||  map.EdChallengeId == DD2_EASY_MAP_UID2);
         isDD2Proper = map.EdChallengeId == DD2_MAP_UID;
 #if DEV
-        isDD2Proper = isDD2Proper || map.EdChallengeId == TESTING_MAP_UID;
+        isDD2Proper = isDD2Proper
+                || map.EdChallengeId == TESTING_MAP_UID
+                || map.EdChallengeId == TMP_TEST_MAP_UID;
 #endif
         isDD2Any = isDD2Proper || IsDD2MapUid(map.EdChallengeId);
         lastMapMatchesAnyDD2Uid = isEasyDD2Map || isDD2Any;

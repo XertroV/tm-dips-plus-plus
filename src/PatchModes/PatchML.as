@@ -28,10 +28,9 @@ string RunPatchML(const string &in script) {
 	populateDefaultUids += template.Replace("%UID%", "DeepDip2__The_Storm_Is_Here").Replace("%TIMEOUT_MS%", "30000");
 	populateDefaultUids += template.Replace("%UID%", "DD2_Many_CPs_tOg3hwrWxPOR7l").Replace("%TIMEOUT_MS%", "30000");
 	populateDefaultUids += template.Replace("%UID%", "DD2_CP_per_Floor_OAtP2rAwJ0").Replace("%TIMEOUT_MS%", "30000");
-	populateDefaultUids += template.Replace("%UID%", "dh2ewtzDJcWByHcAmI7j6rnqjga").Replace("%TIMEOUT_MS%", "30000");
+	populateDefaultUids += template.Replace("%UID%", "dh2ewtzDJcWByHcAmI7j6rnqjga").Replace("%TIMEOUT_MS%", "30000")
+								   .SubStr(0, populateDefaultUids.Length - 1);  // remove trailing \n
 	auto patch = Patch_OnEndRace.Replace("%%POPULATE_MAPUIDS%%", populateDefaultUids);
-	// remove trailing \n
-	patch = patch.SubStr(0, populateDefaultUids.Length - 1);
     print("Patch: \\n\n" + patch);
 	// return script;
 	return script.Replace(P_ON_END_RACE, P_ON_END_RACE + "\n" + patch);

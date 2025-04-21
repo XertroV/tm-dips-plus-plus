@@ -76,11 +76,18 @@ class PlayerState {
         isLocal = playerScoreMwId == g_LocalPlayerMwId;
     }
 
+    uint lastResetTime;
+    uint lastUpdateTime;
+    uint lastUpdateNonce;
+    PS::UpdateMethod lastUpdateMethod;
+
     // run this first to clear references
     void Reset() {
         @player = null;
         @vehicle = null;
         updatedThisFrame = UpdatedFlags::None;
+        lastResetTime = Time::Now;
+        lastUpdateNonce = 0;
         // this will be set to false if we get an update (isIdle = pos.LenSq == 0)
         // isIdle = true;
     }
@@ -126,11 +133,26 @@ class PlayerState {
     void UpdateVehicleFromCSmPlayer() {
         // don't do this if we already had a vehicle
         if (updatedThisFrame & UpdatedFlags::Position > 0) return;
-        if (this.player is null) return;
+        if (this.player is null) {
+            dev_trace("Player " + playerName + " has null player");
+            return;
+        }
+        if (this.player.Score.Id.Value != playerScoreMwId) {
+            dev_trace("Player " + playerName + " has different score id: " + Text::Format("0x%08x", this.player.Score.Id.Value) + " / expected: " + Text::Format("0x%08x", playerScoreMwId));
+            return;
+        }
 
         if (!GoodUISequence(lastSeq)) {
             return;
         }
+
+        if (lastUpdateNonce == PS::lastUpdateNonce) {
+            dev_trace("Updating for 2nd time this frame");
+            return;
+        }
+        lastUpdateNonce = PS::lastUpdateNonce;
+        lastUpdateMethod = PS::UpdateMethod::CSmPlayer;
+        lastUpdateTime = Time::Now;
 
         auto nextIx = Dev::GetOffsetUint32(player, O_CSmPlayer_NetPacketsBuf_NextIx);
         auto currIx = (nextIx + 200) % LEN_CSmPlayer_NetPacketsBuf;
@@ -197,6 +219,15 @@ class PlayerState {
         if (!GoodUISequence(lastSeq)) {
             return;
         }
+
+        if (lastUpdateNonce == PS::lastUpdateNonce) {
+            dev_trace("Updating for 2nd time this frame");
+            return;
+        }
+        lastUpdateNonce = PS::lastUpdateNonce;
+        lastUpdateMethod = PS::UpdateMethod::CSceneVehicleVis;
+        lastUpdateTime = Time::Now;
+
         groundDist = state.GroundDist;
 
         bool anyWheelFlying = state.FLGroundContactMaterial == EPlugSurfaceMaterialId::XXX_Null
@@ -227,7 +258,8 @@ class PlayerState {
     void UpdatePlayerFromRawValues(const vec3 &in vel, const vec3 &in pos, const quat &in rot, bool anyWheelFlying, bool allWheelsFlying, uint newDiscontCount, bool newFrozen) {
         if (Math::IsNaN(pos.y) || Math::IsInf(pos.y) || Math::Abs(pos.y) > 3000.0 || Math::Abs(pos.x) < 1. || Math::Abs(pos.z) < 1.) {
 #if DEV
-            dev_trace("Player " + playerName + " has NaN/Inf/oob pos: " + pos.ToString());
+            // happens often enough with csmplayer details
+            // dev_trace("Player " + playerName + " has NaN/Inf/oob pos: " + pos.ToString());
 #endif
             return;
         }
@@ -555,6 +587,9 @@ class PlayerState {
         UI::PushID(i);
         if (UI::TreeNode("Player "+Text::Format("0x%x", i)+": " + this.playerName + "##debug")) {
 
+            CopiableLabeledValue("Last Reset Time", Time::Format(this.lastResetTime));
+            CopiableLabeledValue("Last Update Time", Time::Format(this.lastUpdateTime));
+            CopiableLabeledValue("Last Update Method", tostring(this.lastUpdateMethod));
             CopiableLabeledValue("Fall Tracker", this.fallTracker is null ? "null" : this.fallTracker.ToString());
             CopiableLabeledValue("Last Fall", this.lastFall is null ? "null" : this.lastFall.ToString());
             CopiableLabeledValue("Vehicle ID", Text::Format("0x%08x", this.lastVehicleId));

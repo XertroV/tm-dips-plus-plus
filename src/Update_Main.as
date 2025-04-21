@@ -22,9 +22,11 @@ namespace PS {
     }
 
     bool wasInvalidRulesTime = false;
+    uint lastUpdateNonce = 0;
 
     /// current playground must not be null
     void UpdatePlayers() {
+        lastUpdateNonce = Math::Max(Time::Now, lastUpdateNonce + 1);
         auto cp = cast<CSmArenaClient>(GetApp().CurrentPlayground);
 
         // avoid reading positions when the rules are invalid, or the frame after
@@ -42,7 +44,7 @@ namespace PS {
         SortPlayersAndUpdateVehicleIds(cp);
         UpdateVehicleStates();
         // when opponents are off
-        if (nbPlayerVisStates <= 1) {
+        if (nbPlayerVisStates <= 1 && cp.Players.Length > 1) {
             TellArenaIfaceToGetPositionData();
             UpdatePlayersAsNeededFromCSmPlayer();
         }
@@ -202,6 +204,9 @@ namespace PS {
                 @player = vehicleIdToPlayers[ix];
             }
             if (player !is null) player.UpdateVehicleState(vis);
+            else {
+                trace("Unknown vehicle id: " + Text::Format("0x%08x", entId));
+            }
             // this happens on any snowcar map:
             // else trace("Player is null for valid vehicle id: " + Text::Format("0x%08x", entId));
         }
@@ -222,6 +227,12 @@ namespace PS {
         if (rules is null) return true;
         return int(rules.RulesStateStartTime) < 0
             || rules.RulesStateStartTime >= rules.RulesStateEndTime;
+    }
+
+    enum UpdateMethod {
+        None = 0,
+        CSmPlayer = 1,
+        CSceneVehicleVis = 2
     }
 }
 
