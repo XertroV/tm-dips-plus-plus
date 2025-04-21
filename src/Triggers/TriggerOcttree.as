@@ -5,7 +5,7 @@ enum GameTriggerTy {
     FloorEntry,
 }
 
-class GameTrigger : OctTreeRegion {
+class GameTrigger : DipsOT::OctTreeRegion {
     mat4 mat;
     bool resetOnLeave = false;
     vec4 debug_strokeColor = vec4(1, 0, 0, 1);
@@ -37,15 +37,15 @@ class GameTrigger : OctTreeRegion {
         DrawTextWithStroke(screenPos.xy, name, debug_strokeColor);
     }
 
-    void OnLeftTrigger(OctTreeRegion@ newTrigger) {
+    void OnLeftTrigger(DipsOT::OctTreeRegion@ newTrigger) {
         // implement via overrides
     }
 
-    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) {
+    void OnEnteredTrigger(DipsOT::OctTreeRegion@ prevTrigger) {
         // implement via overrides
     }
 
-    void ClearLastTriggerIfNewNull(OctTreeRegion@ newTrigger) {
+    void ClearLastTriggerIfNewNull(DipsOT::OctTreeRegion@ newTrigger) {
         if (newTrigger is null) {
             @lastTriggerHit = null;
             lastTriggerName = "";
@@ -61,7 +61,7 @@ class ResetFallTrigger : GameTrigger {
         resetOnLeave = true;
     }
 
-    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+    void OnEnteredTrigger(DipsOT::OctTreeRegion@ prevTrigger) override {
         if (PS::viewedPlayer !is null) {
             PS::viewedPlayer.OnResetFallTrigger();
         }
@@ -93,12 +93,12 @@ class AntiCylinderTrigger : GameTrigger {
         return point.y >= minMaxHeight.x && point.y <= minMaxHeight.y;
     }
 
-    bool RegionInside(OctTreeRegion@ region) override {
+    bool RegionInside(DipsOT::OctTreeRegion@ region) override {
         throw("unimplemented");
         return false;
     }
 
-    bool Intersects(OctTreeRegion@ region) override {
+    bool Intersects(DipsOT::OctTreeRegion@ region) override {
         throw("unimplemented");
         return false;
     }
@@ -124,13 +124,13 @@ class PlaySoundTrigger : GameTrigger {
         this.audioFile = audioFile;
     }
 
-    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+    void OnEnteredTrigger(DipsOT::OctTreeRegion@ prevTrigger) override {
         Dev_Notify(name + " entered.");
         startnew(CoroutineFunc(PlayItem));
         if (PS::viewedPlayer.isLocal) Stats::LogTriggeredSound(name, audioFile);
     }
 
-    void OnLeftTrigger(OctTreeRegion@ newTrigger) override {
+    void OnLeftTrigger(DipsOT::OctTreeRegion@ newTrigger) override {
         Dev_Notify(name + " left.");
         if (resetOnLeave) {
             ClearLastTriggerIfNewNull(newTrigger);
@@ -188,8 +188,8 @@ class FloorVLTrigger : PlaySoundTrigger {
         @subtitles = SubtitlesAnim(subtitlesFile);
     }
 
-    OctTreeRegion@ _tmpPrevTrigger;
-    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+    DipsOT::OctTreeRegion@ _tmpPrevTrigger;
+    void OnEnteredTrigger(DipsOT::OctTreeRegion@ prevTrigger) override {
         if (Stats::HasPlayedVoiceLine(floor)) return;
         @_tmpPrevTrigger = prevTrigger;
         startnew(CoroutineFunc(this.RunTrigger));
@@ -231,7 +231,7 @@ class EasyFloorVLTrigger : PlaySoundTrigger {
         @subtitles = SubtitlesAnim(subtitlesFile, false);
     }
 
-    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+    void OnEnteredTrigger(DipsOT::OctTreeRegion@ prevTrigger) override {
         // not used
     }
 
@@ -264,7 +264,7 @@ class TitleGagTrigger : GagVoiceLineTrigger {
         super(min, max, name);
     }
 
-    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+    void OnEnteredTrigger(DipsOT::OctTreeRegion@ prevTrigger) override {
         Dev_Notify(name + " entered.");
         if (NewTitleGagOkay()) {
             startnew(WaitAndPlayFloorGangFrog);
@@ -272,7 +272,7 @@ class TitleGagTrigger : GagVoiceLineTrigger {
         }
     }
 
-    void OnLeftTrigger(OctTreeRegion@ newTrigger) override {
+    void OnLeftTrigger(DipsOT::OctTreeRegion@ newTrigger) override {
         Dev_Notify(name + " left.");
         ClearLastTriggerIfNewNull(newTrigger);
     }
@@ -337,14 +337,14 @@ class GG_VLineTrigger : AntiCylinderTrigger {
         resetOnLeave = true;
     }
 
-    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+    void OnEnteredTrigger(DipsOT::OctTreeRegion@ prevTrigger) override {
         Dev_Notify(name + " entered.");
         if (NewTitleGagOkay()) {
             SelectNewGGAnimationAndCollect();
         }
     }
 
-    void OnLeftTrigger(OctTreeRegion@ newTrigger) override {
+    void OnLeftTrigger(DipsOT::OctTreeRegion@ newTrigger) override {
         Dev_Notify(name + " left.");
         if (newTrigger is null) {
             @lastTriggerHit = null;
@@ -388,11 +388,11 @@ class MonumentTrigger : TextOverlayTrigger {
         this.subject = subject;
     }
 
-    void OnLeftTrigger(OctTreeRegion@ newTrigger) override {
+    void OnLeftTrigger(DipsOT::OctTreeRegion@ newTrigger) override {
         // TextOverlayAnim handles fading out itself
     }
 
-    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+    void OnEnteredTrigger(DipsOT::OctTreeRegion@ prevTrigger) override {
         dev_trace("MonumentTrigger entered: " + name);
         // in same trigger group, do nothing
         if (prevTrigger !is null && prevTrigger.name == name) {
@@ -520,7 +520,7 @@ class DebugTrigger : SpecialTextTrigger {
         super(min, max, name, delay, debounce, onTrigger);
     }
 
-    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+    void OnEnteredTrigger(DipsOT::OctTreeRegion@ prevTrigger) override {
         SpecialTextTrigger::OnEnteredTrigger(prevTrigger);
 #if DEV
         // SecretAssets::OnTriggerHit();
@@ -534,7 +534,7 @@ GameTrigger@[]@ voiceLineTriggers = generateVoiceLineTriggers();
 GameTrigger@[]@ monumentTriggers = generateMonumentTriggers();
 GameTrigger@[]@ easterEggTriggers = genEasterEggTriggers();
 
-OctTree@ dd2TriggerTree = OctTree();
+DipsOT::OctTree@ dd2TriggerTree = DipsOT::OctTree();
 
 
 GameTrigger@ f13_dropStart = GameTrigger(vec3(740.000, 1470.000, 964.000), vec3(764.000, 1477.000, 986.000), "F13Drop");
@@ -740,11 +740,11 @@ void DrawTriggersTab() {
 }
 
 
-void UI_Debug_OctTree(OctTree@ tree, const string &in name) {
+void UI_Debug_OctTree(DipsOT::OctTree@ tree, const string &in name) {
     UI_Debug_OctTreeNode(tree.root, name + "/");
 }
 
-void UI_Debug_OctTreeNode(OctTreeNode@ node, const string &in path) {
+void UI_Debug_OctTreeNode(DipsOT::OctTreeNode@ node, const string &in path) {
     if (node is null) return;
     if (UI::TreeNode(path)) {
 

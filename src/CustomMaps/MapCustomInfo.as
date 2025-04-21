@@ -19,7 +19,7 @@ namespace MapCustomInfo {
             if (parts.Length < 2) throw("missing " + END_DPP_COMMENT);
             ParseCommentInner(parts[0]);
             if (!minClientPass) {
-                NotifyError("This map requires a newer version of Dips++.\nYou have: " + PluginVersion + "\nRequired: " + _minClientVersion);
+                NotifyError("This map requires a newer version of Dips++.\nYou have: " + PluginVersion + "\nRequired: " + minClientVersion);
             }
         }
 
@@ -37,11 +37,7 @@ namespace MapCustomInfo {
                 if (parts.Length < 2) throw("missing '=' in line: " + i + " : " + line);
                 auto key = parts[0].Trim();
                 auto value = parts[1].Trim();
-                if (key == "url") {
-                    url = value;
-                } else {
-                    SetKv(key, value);
-                }
+                SetKv(key, value);
             }
             if (url.Length > 0) {
                 LoadFromUrl();
@@ -62,7 +58,9 @@ namespace MapCustomInfo {
         }
 
         void SetKv(const string &in key, const string &in value) {
-            if (key.StartsWith("floor")) {
+            if (key == "url") {
+                url = value;
+            } else if (key.StartsWith("floor")) {
                 auto floorIx = ParseFloorNum(key);
                 if (floorIx < 0) {
                     throw("Invalid floor index: " + key);
@@ -82,14 +80,13 @@ namespace MapCustomInfo {
         }
     }
 
-    string _minClientVersion = "";
+    string minClientVersion = "";
     // Returns true if the plugin version >= minClientVersion
     bool CheckMinClientVersion(const string &in value) {
-        if (value.Length == 0) {
-            _minClientVersion = "";
+        minClientVersion = value;
+        if (value.Length == 0 || value == "0.0.0") {
             return true;
         }
-        _minClientVersion = value;
         auto mvParts = value.Split(".");
         auto pvParts = PluginVersion.Split(".");
         auto nbCompare = Math::Max(mvParts.Length, pvParts.Length);

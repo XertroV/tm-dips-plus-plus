@@ -8,4 +8,11 @@ siteid   = 519
 [script]
 #__DEFINES__
 dependencies = ["VehicleState", "Camera"]
-optional_dependencies = ["betterloadingscreen", "customloadingscreen", "static-loading-screen", "MLHook"]
+optional_dependencies = [
+    # to draw over other loading screens (since ours is motivated by events)
+    "betterloadingscreen", "customloadingscreen", "static-loading-screen",
+    # for magic spectate
+    "MLHook",
+    # for storing custom map metadata and other editor utilities
+    # "Editor", # NOTE: will add this in a future update
+]

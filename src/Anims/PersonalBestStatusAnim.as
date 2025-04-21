@@ -219,7 +219,7 @@ class SpecialTextTrigger : GameTrigger {
     uint lastTriggerTime = 0;
     uint debounce = 180000;
 
-    void OnEnteredTrigger(OctTreeRegion@ prevTrigger) override {
+    void OnEnteredTrigger(DipsOT::OctTreeRegion@ prevTrigger) override {
         if (Time::Now - lastTriggerTime < debounce) return;
         lastTriggerTime = Time::Now;
         EmitStatusAnimation(RainbowStaticStatusMsg(name).WithDuration(duration));

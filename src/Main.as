@@ -75,6 +75,7 @@ void Main() {
     // OnCameraUpdateHook.Apply();
     // OnCameraUpdateHook_Other.Apply();
     // RunFireworksTest();
+    CustomVL::Test();
 #endif
 }
 
