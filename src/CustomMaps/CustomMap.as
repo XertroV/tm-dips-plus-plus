@@ -65,10 +65,16 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
 
     void RunMapLoop() {
         if (isDD2) return;
+
+        // wait for spec to load
+        while (CurrMap::IdIs(mapMwId) && spec is null) yield();
+        if (spec is null) return;
+        if (!spec.minClientPass) return;
+
         // auto app = GetApp();
         auto lastUpdate = Time::Now + 25000;
         uint updateCount = 0;
-        while (mapMwId == CurrMap::lastMapMwId) {
+        while (CurrMap::IdIs(mapMwId)) {
             if (Time::Now - lastUpdate > 5000) {
                 if (PS::viewedPlayer !is null && PS::viewedPlayer.isLocal && PS::viewedPlayer.raceTime > 1500 && !PS::viewedPlayer.isIdle) {
                     // 3 * 2000^2
@@ -97,7 +103,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
         return hasCustomData || useDD2Triggers;
     }
 
-    // can yield
+    // can yield; must call map.MwAddRef() before passing
     void LoadCustomMapData(ref@ mapRef) {
         auto map = cast<CGameCtnChallenge>(mapRef);
         if (map is null) return;
@@ -116,6 +122,10 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
         loadError = MapCustomInfo::lastParseFailReason;
         if (spec is null) {
             startnew(CoroutineFuncUserdata(CheckForUploadedMapData), array<string> = {stats.mapUid});
+            return false;
+        }
+        if (!spec.minClientPass) {
+            NotifyWarning("This map requires a newer version of Dips++.");
             return false;
         }
         for (uint i = 0; i < spec.floors.Length; i++) {
@@ -168,7 +178,7 @@ void CheckForUploadedMapData(ref@ data) {
     }
     MapCustomInfo::AddNewMapComment(mapUid, req.String());
     trace('found and added map data for ' + mapUid + ' from ' + url);
-    CurrMap::lastMapMwId = 0;
+    CurrMap::RecheckMap();
 }
 
 

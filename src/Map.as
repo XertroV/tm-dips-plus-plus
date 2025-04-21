@@ -1,6 +1,14 @@
 namespace CurrMap {
     uint lastMapMwId = 0;
 
+    void RecheckMap() {
+        lastMapMwId = 0;
+    }
+
+    bool IdIs(uint id) {
+        return lastMapMwId == id;
+    }
+
     void CheckMapChange(CGameCtnChallenge@ map) {
         if (map is null) {
             if (lastMapMwId != 0) {

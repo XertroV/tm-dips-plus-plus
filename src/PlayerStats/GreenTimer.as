@@ -121,9 +121,14 @@ namespace GreenTimer {
             UI::Text("Current Timer: " + curr);
             bool changed = false;
             setTimerTo = UI::InputText("Set Timer To", setTimerTo, changed);
+            bool textFieldActive = UI::IsItemActive();
+
             if (changed) {
                 tryUpdateTimeInMap(setTimerTo);
+            } else if (!textFieldActive) {
+                setTimerTo = curr;
             }
+
             if (parseErr != "") {
                 UI::TextWrapped("\\$f80Parse Error: " + parseErr);
             }
@@ -140,9 +145,9 @@ namespace GreenTimer {
                 parseErr = "format: h:mm:ss";
                 return;
             }
-            int64 hours = Text::ParseInt(parts[0]);
-            int64 min = Text::ParseInt(parts[1]);
-            int64 sec = Text::ParseInt(parts[2]);
+            int64 hours = Text::ParseInt64(parts[0]);
+            int64 min = Text::ParseInt64(parts[1]);
+            int64 sec = Text::ParseInt64(parts[2]);
             Stats::SetTimeInMapMs((hours * 3600 + min * 60 + sec) * 1000);
             parseErr = "";
         } catch {

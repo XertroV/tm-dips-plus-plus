@@ -9,12 +9,15 @@ enum PatchModeTarget {
     PlayMap
 }
 
+// disable this now so we aren't patching game modes unnecessarily.
 void UpdateGameModes() {
-    UpdateGameMode(PatchModeTarget::Campaign);
-    UpdateGameMode(PatchModeTarget::PlayMap);
+    return;
+    // UpdateGameMode(PatchModeTarget::Campaign);
+    // UpdateGameMode(PatchModeTarget::PlayMap);
 }
 
 void UpdateGameMode(PatchModeTarget t) {
+    throw("Disabled as unecessary atm");
     auto textNod = GetGameModeTextScriptNod(t);
     if (textNod is null) return;
     trace('text nod okay');

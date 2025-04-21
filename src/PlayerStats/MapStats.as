@@ -60,7 +60,7 @@ class MapStats {
     }
 
     void MapWatchLoop() {
-        while (_mapMwId == CurrMap::lastMapMwId) {
+        while (CurrMap::IdIs(_mapMwId)) {
             yield();
         }
         SaveToDisk();

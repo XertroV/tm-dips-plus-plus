@@ -1,4 +1,5 @@
 --BEGIN-DPP--
+minClientVersion = 0.5.4
 start = 34.0|AB
 finish = 1910.0|Roof
 floor00 = 8.0|FG0

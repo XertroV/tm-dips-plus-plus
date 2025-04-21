@@ -4,6 +4,7 @@
 const string PluginName = Meta::ExecutingPlugin().Name;
 const string MenuIconColor = "\\$fd5";
 const string MenuTitle = MenuIconColor + Icons::ArrowDown + "\\$z " + PluginName;
+const string PluginVersion = Meta::ExecutingPlugin().Version;
 
 UI::Font@ f_MonoSpace = null;
 UI::Font@ f_Droid = null;
@@ -53,11 +54,12 @@ void Main() {
     // GenerateHeightStrings();
     InitDD2TriggerTree();
     yield();
-    UpdateGameModes();
+    // disable update game modes so we're not patching them unnecessarily
+    // UpdateGameModes();
     yield();
     startnew(GreenTimer::OnPluginStart);
     startnew(Wizard::OnPluginLoad);
-    startnew(SF::LoadPtrs);
+    // startnew(SF::LoadPtrs); // anticheat unnecessary atm
     startnew(WelcomeScreen::OnLoad);
     sleep(100);
     startnew(Donations::SetUpCheers);
@@ -251,7 +253,7 @@ bool RenderEarlyInner() {
     // if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
     lastSeq = app.CurrentPlayground.UIConfigs[0].UISequence;
     bool matchDd2 = MatchDD2::MapMatchesDD2Uid(app.RootMap);
-    // ! uncomment this to enable map UID check
+    // check if we should run for this map, otherwise return.
     if (!(matchDd2 || (g_CustomMap !is null && g_CustomMap.IsEnabled))) return Inactive(wasActive);
     if (!wasActive) EmitGoingActive(true);
     g_Active = true;

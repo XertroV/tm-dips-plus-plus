@@ -7,8 +7,9 @@ namespace MapCustomInfo {
         FloorSpec start = FloorSpec();
         FloorSpec finish = FloorSpec();
         FloorSpec[]@ floors;
-        bool lastFloorEnd = false;
         string[] customLabels;
+        bool lastFloorEnd = false;
+        bool minClientPass = true;
 
         DipsSpec(const string &in mapComment) {
             @floors = {};
@@ -17,6 +18,9 @@ namespace MapCustomInfo {
             @parts = parts[1].Split(END_DPP_COMMENT, 2);
             if (parts.Length < 2) throw("missing " + END_DPP_COMMENT);
             ParseCommentInner(parts[0]);
+            if (!minClientPass) {
+                NotifyError("This map requires a newer version of Dips++.\nYou have: " + PluginVersion + "\nRequired: " + _minClientVersion);
+            }
         }
 
         void ParseCommentInner(const string &in comment) {
@@ -71,10 +75,39 @@ namespace MapCustomInfo {
             } else if (key == "start") start = ParseFloorVal(value);
             else if (key == "finish") finish = ParseFloorVal(value);
             else if (key == "lastFloorEnd") lastFloorEnd = value.ToLower() == "true";
+            else if (key == "minClientVersion") minClientPass = CheckMinClientVersion(value);
             else {
                 warn("Unknown key: " + key + " with value: " + value);
             }
         }
+    }
+
+    string _minClientVersion = "";
+    // Returns true if the plugin version >= minClientVersion
+    bool CheckMinClientVersion(const string &in value) {
+        if (value.Length == 0) {
+            _minClientVersion = "";
+            return true;
+        }
+        _minClientVersion = value;
+        auto mvParts = value.Split(".");
+        auto pvParts = PluginVersion.Split(".");
+        auto nbCompare = Math::Max(mvParts.Length, pvParts.Length);
+        int mv, pv;
+        for (uint i = 0; i < nbCompare; i++) {
+            if (i < mvParts.Length) {
+                if (!Text::TryParseInt(mvParts[i], mv)) mv = 0;
+            } else mv = 0;
+            if (i < pvParts.Length) {
+                if (!Text::TryParseInt(pvParts[i], pv)) pv = 0;
+            } else pv = 0;
+            print("comparing: " + i + " | mv: " + mv + " pv: " + pv);
+            // int mv = i < mvParts.Length ? Text::ParseInt(mvParts[i]) : 0;
+            // int pv = i < pvParts.Length ? Text::ParseInt(pvParts[i]) : 0;
+            if (pv > mv) return true;
+            if (pv < mv) return false;
+        }
+        return true;
     }
 
     FloorSpec@ ParseFloorVal(const string &in value) {
