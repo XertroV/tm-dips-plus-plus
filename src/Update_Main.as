@@ -29,6 +29,8 @@ namespace PS {
         lastUpdateNonce = Math::Max(Time::Now, lastUpdateNonce + 1);
         auto cp = cast<CSmArenaClient>(GetApp().CurrentPlayground);
 
+        // todo: refactor this to use NSmPlayer_Mgr
+
         // avoid reading positions when the rules are invalid, or the frame after
         bool rulesTimeInvalid = InvalidRulesTime(cp);
         bool exitEarly = rulesTimeInvalid || wasInvalidRulesTime;

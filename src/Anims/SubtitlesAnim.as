@@ -48,6 +48,7 @@ class SubtitlesAnim : Animation {
 
     void LoadCustomSubtitles(const string &in subtitlesRaw) {
         string[]@ lines;
+        // fix for subtitles on roof
         if (subtitlesRaw.StartsWith("0: ...")) {
             @lines = subtitlesRaw.Replace(" works ", " words ").Split("\n");
         } else {

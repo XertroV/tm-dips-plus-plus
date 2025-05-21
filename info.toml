@@ -16,3 +16,6 @@ optional_dependencies = [
     # for storing custom map metadata and other editor utilities
     # "Editor", # NOTE: will add this in a future update
 ]
+module = "DipsPP"
+exports = ["Ex/FunctionImports.as"]
+shared_exports = ["Ex/Shared.as"]
