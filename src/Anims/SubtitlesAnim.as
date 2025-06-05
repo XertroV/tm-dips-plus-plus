@@ -9,9 +9,9 @@ class SubtitlesAnim : Animation {
     bool hasHead;
     DTexture@ customHead;
 
-    SubtitlesAnim(const string &in file, bool isVae = true, const string &in custSubtiltesText = "", DTexture@ tex = null) {
+    SubtitlesAnim(const string &in file, bool hasImage = true, const string &in custSubtiltesText = "", DTexture@ tex = null) {
         super(file);
-        this.hasHead = isVae;
+        this.hasHead = hasImage;
         @customHead = tex;
         this.file = file;
         bool fileExists = custSubtiltesText.Length > 0;

@@ -7,7 +7,7 @@ class DTexture {
 
     DTexture(const string &in path) {
         this.path = path;
-        if (!path.StartsWith(IO::FromStorageFolder(""))) {
+        if (!path.StartsWith(IO::FromDataFolder(""))) {
             this.path = IO::FromStorageFolder(path);
         }
         startnew(CoroutineFunc(WaitForTexture));
@@ -20,6 +20,7 @@ class DTexture {
         yield();
     }
     void WaitForTexture() {
+        dev_trace("waiting for texture: " + path);
         WaitForTextureSilent();
         dev_trace("Found texture: " + path);
         fileExists = true;

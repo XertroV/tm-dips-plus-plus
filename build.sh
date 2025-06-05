@@ -127,6 +127,13 @@ for pluginSrc in ${pluginSources[@]}; do
     _colortext16 red "⚠ Error: could not copy plugin to Trackmania directory. You might need to click\n\t\`F3 > Scripts > TogglePlugin > PLUGIN\`\nto unlock the file for writing."
     _colortext16 red "⚠   Also, \"Stop Recent\" and \"Reload Recent\" should work, too, if the plugin is the \"recent\" plugin."
   else
+    case $_build_mode in
+      dev|prerelease|unittest)
+        # trigger remote build
+        sync
+        tm-remote-build load folder "$PLUGIN_NAME" --host 172.18.16.1 --port 30000 -v -d "$HOME/OpenplanetNext/"
+        ;;
+    esac
     _colortext16 green "✅ Release file: ${RELEASE_NAME}"
   fi
 

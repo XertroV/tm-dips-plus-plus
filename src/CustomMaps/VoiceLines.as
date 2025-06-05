@@ -1,4 +1,73 @@
 namespace CustomVL {
+    void StartTestVoiceLine_Async(IVoiceLineParams@ params) {
+        string filePath;
+        DTexture@ imageTexture;
+        if (params.isUrl) {
+            Notify("Downloading VL and image. It will start automatically.");
+            auto fileName = Path::GetFileName(params.pathOrUrl);
+            if (fileName.Length == 0) throw("cannot get file name from URL: " + params.pathOrUrl);
+            filePath = TempFiles::GetTempFilesLoc(fileName);
+            auto dlFile = Downloader(params.pathOrUrl, filePath);
+            if (params.imagePathOrUrl.Length > 0) {
+                auto imageFileName = Path::GetFileName(params.imagePathOrUrl);
+                if (imageFileName.Length == 0) throw("cannot get file name from URL: " + params.imagePathOrUrl);
+                auto imageFilePath = TempFiles::GetTempFilesLoc(imageFileName);
+                auto dlImage = Downloader(params.imagePathOrUrl, imageFilePath);
+                await(dlImage.dlCoro);
+                @imageTexture = DTexture(imageFilePath);
+            }
+            await(dlFile.dlCoro);
+        }
+        AddSubtitleAnimation_PlayAnywhere(SubtitlesAnim("", imageTexture !is null, params.subtitles.Trim(), imageTexture));
+        AudioChain({filePath}).WithPlayAnywhere().WithAwaitLoaded().Play();
+    }
+
+    Meta::PluginCoroutine@ StartTestVoiceLine(IVoiceLineParams@ params) {
+        return startnew(CoroutineFuncUserdata(_StartTestVoiceLine_Async), params);
+    }
+
+    void _StartTestVoiceLine_Async(ref@ params) {
+        StartTestVoiceLine_Async(cast<IVoiceLineParams>(params));
+    }
+
+    class Downloader {
+        string url;
+        string filePath;
+        Meta::PluginCoroutine@ dlCoro;
+
+        Downloader(const string &in url, const string &in filePath) {
+            this.url = url;
+            this.filePath = filePath;
+            @dlCoro = startnew(CoroutineFunc(Download));
+        }
+
+        protected void Download() {
+            if (IO::FileExists(filePath)) {
+                return;
+            }
+            Net::HttpRequest@ req = Net::HttpGet(url);
+            while (!req.Finished()) {
+                yield();
+            }
+            auto respCode = req.ResponseCode();
+            dev_trace("response code: " + respCode);
+            if (respCode >= 200 && respCode < 299) {
+                auto data = req.Buffer();
+                IO::File f(filePath, IO::FileMode::Write);
+                f.Write(data);
+                f.Close();
+                dev_trace("Downloader success: " + filePath);
+                return;
+            }
+            warn("Downloader failed: " + filePath + " " + respCode + " ");
+        }
+
+    }
+
+
+
+
+
     void Test() {
         // print("VLs test");
         // auto vls = VoiceLinesSpec();
