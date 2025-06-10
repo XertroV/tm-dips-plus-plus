@@ -262,7 +262,7 @@ void test_HeightToFloorBinSearch() {
     return;
 }
 
-Meta::PluginCoroutine@ test_result = startnew(test_HeightToFloorBinSearch);
+awaitable@ test_result = startnew(test_HeightToFloorBinSearch);
 
 void assert_eq(MapFloor a, MapFloor b, const string &in msg) {
     if (a != b) {

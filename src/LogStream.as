@@ -59,7 +59,7 @@
 
 
 
-// Meta::PluginCoroutine@ TimeoutCoro(uint ms) {
+// awaitable@ TimeoutCoro(uint ms) {
 //     return startnew(CoroutineFuncUserdataUint64(WaitSleep), ms);
 // }
 

@@ -16,7 +16,7 @@ namespace SecretAssets {
     void LoadSAJson() {
         auto j = saPayload['filenames_and_urls'];
         SecretAsset@[] saList;
-        Meta::PluginCoroutine@[] coros;
+        awaitable@[] coros;
         for (uint i = 0; i < j.Length; i++) {
             saList.InsertLast(SecretAsset(j[i]));
             coros.InsertLast(saList[saList.Length - 1].dlCoro);
@@ -127,7 +127,7 @@ namespace SecretAssets {
         string name;
         string url;
         string filename;
-        Meta::PluginCoroutine@ dlCoro;
+        awaitable@ dlCoro;
 
         SecretAsset(Json::Value@ j) {
             name = j['name'];

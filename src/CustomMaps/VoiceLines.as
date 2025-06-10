@@ -22,7 +22,7 @@ namespace CustomVL {
         AudioChain({filePath}).WithPlayAnywhere().WithAwaitLoaded().Play();
     }
 
-    Meta::PluginCoroutine@ StartTestVoiceLine(IVoiceLineParams@ params) {
+    awaitable@ StartTestVoiceLine(IVoiceLineParams@ params) {
         return startnew(CoroutineFuncUserdata(_StartTestVoiceLine_Async), params);
     }
 
@@ -33,7 +33,7 @@ namespace CustomVL {
     class Downloader {
         string url;
         string filePath;
-        Meta::PluginCoroutine@ dlCoro;
+        awaitable@ dlCoro;
 
         Downloader(const string &in url, const string &in filePath) {
             this.url = url;
@@ -61,7 +61,6 @@ namespace CustomVL {
             }
             warn("Downloader failed: " + filePath + " " + respCode + " ");
         }
-
     }
 
 

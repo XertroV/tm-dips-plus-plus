@@ -287,7 +287,7 @@ void UpdateDownloads() {
 
 
 void PreloadCriticalSounds() {
-    Meta::PluginCoroutine@[] coros;
+    awaitable@[] coros;
     coros.InsertLast(AudioLoader("vt/volume_test.mp3").GetCoro());
     coros.InsertLast(AudioLoader("vl/Intro_Plugin_2.mp3").GetCoro());
     coros.InsertLast(AudioLoader("vl/Level_1_final.mp3").GetCoro());
@@ -314,7 +314,7 @@ void PreloadCriticalSounds() {
 
 class AudioLoader {
     string path;
-    Meta::PluginCoroutine@ coro;
+    awaitable@ coro;
 
     AudioLoader(const string &in path) {
         this.path = path;
@@ -323,7 +323,7 @@ class AudioLoader {
         @coro = startnew(CoroutineFunc(DoLoad));
     }
 
-    Meta::PluginCoroutine@ GetCoro() {
+    awaitable@ GetCoro() {
         return coro;
     }
 

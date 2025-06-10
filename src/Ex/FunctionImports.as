@@ -9,5 +9,5 @@ namespace CustomVL {
     // Blocks while files download
     import void StartTestVoiceLine_Async(IVoiceLineParams@ params) from "DipsPP";
     // Does not block
-    import Meta::PluginCoroutine@ StartTestVoiceLine(IVoiceLineParams@ params) from "DipsPP";
+    import awaitable@ StartTestVoiceLine(IVoiceLineParams@ params) from "DipsPP";
 }
