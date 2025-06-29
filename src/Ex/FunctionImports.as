@@ -1,5 +1,5 @@
 namespace MapCustomInfo {
-    import bool CheckMinClientVersion(const string &in value) from "DipsPP";
+    import bool CheckMinClientVersion(const string &in value, const string &in currPluginVersion = "") from "DipsPP";
 }
 
 namespace MyAuxSpecs {

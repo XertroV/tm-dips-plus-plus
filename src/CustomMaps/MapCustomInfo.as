@@ -81,14 +81,16 @@ namespace MapCustomInfo {
     }
 
     string minClientVersion = "";
-    // Returns true if the plugin version >= minClientVersion
-    bool CheckMinClientVersion(const string &in value) {
+    // Returns true if the plugin version >= value (which is the minClientVersion from a map we want to test)
+    bool CheckMinClientVersion(const string &in value, const string &in currPluginVersion = "") {
         minClientVersion = value;
         if (value.Length == 0 || value == "0.0.0") {
             return true;
         }
+        string pluginVersion = currPluginVersion.Length > 0 ? currPluginVersion : PluginVersion;
+        auto pvParts = pluginVersion.Split(".");
         auto mvParts = value.Split(".");
-        auto pvParts = PluginVersion.Split(".");
+
         auto nbCompare = Math::Max(mvParts.Length, pvParts.Length);
         int mv, pv;
         for (uint i = 0; i < uint(nbCompare); i++) {
