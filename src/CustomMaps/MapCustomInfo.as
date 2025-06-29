@@ -10,6 +10,7 @@ namespace MapCustomInfo {
         string[] customLabels;
         bool lastFloorEnd = false;
         bool minClientPass = true;
+        AuxInfo@ auxInfo;
 
         DipsSpec(const string &in mapComment) {
             @floors = {};
@@ -53,8 +54,28 @@ namespace MapCustomInfo {
         }
 
         void LoadFromUrl() {
-            warn("todo: LoadFromUrl");
-            // handle !2xx & non json errors
+            Net::HttpRequest@ req = Net::HttpGet(url);
+            while (!req.Finished()) {
+                yield();
+            }
+            auto respCode = req.ResponseCode();
+            if (respCode >= 200 && respCode < 299) {
+                try {
+                    @auxInfo = AuxInfo(Json::Parse(req.String()));
+                    if (!auxInfo.minClientPass) {
+                        minClientPass = false;
+                        minClientVersion = auxInfo.minClientVersion;
+                        // TODO: UI: Display a popup asking the user if they want to continue loading the map.
+                        // The popup should state that the map requires a newer version of Dips++ (current: PluginVersion, required: minClientVersion).
+                        // If the user confirms, set minClientPass to true.
+                        // If the user cancels, set minClientPass to false and return from LoadFromUrl.
+                    }
+                } catch {
+                    warn("Failed to parse aux spec from " + url + ": " + getExceptionInfo());
+                }
+            } else {
+                warn("Failed to download aux spec from " + url + ": " + respCode);
+            }
         }
 
         void SetKv(const string &in key, const string &in value) {
@@ -76,6 +97,20 @@ namespace MapCustomInfo {
             else if (key == "minClientVersion") minClientPass = CheckMinClientVersion(value);
             else {
                 warn("Unknown key: " + key + " with value: " + value);
+            }
+        }
+    }
+
+    class AuxInfo {
+        Json::Value@ data;
+        bool minClientPass = true;
+        string minClientVersion = "";
+
+        AuxInfo(Json::Value@ j) {
+            @data = j;
+            if (j.HasKey("info") && j["info"].HasKey("minClientVersion")) {
+                minClientPass = CheckMinClientVersion(string(j["info"]["minClientVersion"]));
+                minClientVersion = string(j["info"]["minClientVersion"]);
             }
         }
     }

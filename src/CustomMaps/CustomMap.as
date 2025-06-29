@@ -21,6 +21,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
     string mapUid;
     uint mapMwId;
     TriggersMgr@ triggersMgr;
+    Json::Value@ auxSpec;
 
     CustomMap(CGameCtnChallenge@ map) {
         mapUid = map.Id.GetName();
@@ -128,11 +129,63 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
             NotifyWarning("This map requires a newer version of Dips++.");
             return false;
         }
+        if (spec.auxInfo !is null) {
+            @auxSpec = spec.auxInfo.data;
+            AuxiliaryAssets::Load(auxSpec, spec.url);
+            LoadAuxiliaryTriggers();
+        }
         for (uint i = 0; i < spec.floors.Length; i++) {
             floors.InsertLast(spec.floors[i].height);
         }
         lastFloorEnd = spec.lastFloorEnd;
         return true;
+    }
+
+    void LoadAuxiliaryTriggers() {
+        if (auxSpec is null) return;
+        if (triggersMgr is null) {
+            @triggersMgr = TriggersMgr();
+        }
+
+        if (auxSpec.HasKey("triggers")) {
+            Json::Value@ triggers = auxSpec["triggers"];
+            if (triggers.HasKey("triggers")) {
+                Json::Value@ triggerList = triggers["triggers"];
+                for (uint i = 0; i < triggerList.Length; i++) {
+                    Json::Value@ triggerJson = triggerList[i];
+                    if (triggerJson.HasKey("trigger")) {
+                        Json::Value@ t = triggerJson["trigger"];
+                        vec3 pos = JsonToVec3(t["pos"]);
+                        vec3 size = JsonToVec3(t["size"]);
+                        string name = string(t["name"]);
+                        // todo: use SpecialTextTrigger instead
+                        // todo: pos is actually middle-XZ bottom-Y coords (where the car was when placing the box). need to convert this to min, max as is expected.
+                        triggersMgr.octTree.Insert(TextTrigger(pos - size / 2.0, pos + size / 2.0, name, "Trigger activated!"));
+                    }
+                }
+            }
+        }
+
+        if (auxSpec.HasKey("voicelines")) {
+            Json::Value@ voicelines = auxSpec["voicelines"];
+            if (voicelines.HasKey("lines")) {
+                Json::Value@ voicelineList = voicelines["lines"];
+                for (uint i = 0; i < voicelineList.Length; i++) {
+                    Json::Value@ vlJson = voicelineList[i];
+                    if (vlJson.HasKey("trigger")) {
+                        Json::Value@ t = vlJson["trigger"];
+                        vec3 pos = JsonToVec3(t["pos"]);
+                        vec3 size = JsonToVec3(t["size"]);
+                        string name = string(t["name"]);
+                        string file = string(vlJson["file"]);
+                        string subtitles = string(vlJson["subtitles"]);
+                        string imageAsset = vlJson.HasKey("imageAsset") ? string(vlJson["imageAsset"]) : "";
+                        // todo: probably don't need to use a new trigger.
+                        triggersMgr.octTree.Insert(VoiceLineTrigger(pos - size / 2.0, pos + size / 2.0, name, file, subtitles, imageAsset));
+                    }
+                }
+            }
+        }
     }
 
     void DrawMapTabs() {
