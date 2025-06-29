@@ -467,7 +467,7 @@ namespace Stats {
             g_CustomMap.stats.SetVoiceLinePlayed(floor);
             return;
         }
-        if (floor < 0 || floor >= floorVoiceLinesPlayed.Length) {
+        if (floor < 0 || floor >= int(floorVoiceLinesPlayed.Length)) {
             return;
         }
         floorVoiceLinesPlayed[floor] = true;
@@ -478,7 +478,7 @@ namespace Stats {
         if (g_CustomMap !is null && !g_CustomMap.isDD2 && g_CustomMap.hasStats) {
             return g_CustomMap.stats.HasPlayedVoiceLine(floor);
         }
-        if (floor < 0 || floor >= floorVoiceLinesPlayed.Length) {
+        if (floor < 0 || floor >= int(floorVoiceLinesPlayed.Length)) {
             return false;
         }
         return floorVoiceLinesPlayed[floor];

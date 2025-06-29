@@ -66,7 +66,7 @@ namespace MapCustomInfo {
                     throw("Invalid floor index: " + key);
                     return;
                 }
-                while (floorIx >= floors.Length) {
+                while (floorIx >= int(floors.Length)) {
                     floors.InsertLast(FloorSpec());
                 }
                 floors[floorIx] = ParseFloorVal(value);
@@ -91,7 +91,7 @@ namespace MapCustomInfo {
         auto pvParts = PluginVersion.Split(".");
         auto nbCompare = Math::Max(mvParts.Length, pvParts.Length);
         int mv, pv;
-        for (uint i = 0; i < nbCompare; i++) {
+        for (uint i = 0; i < uint(nbCompare); i++) {
             if (i < mvParts.Length) {
                 if (!Text::TryParseInt(mvParts[i], mv)) mv = 0;
             } else mv = 0;
@@ -242,8 +242,9 @@ class FloorSpec {
         return height == other.height && label == other.label;
     }
 
-    string GenLabel(uint ix, int finNumber, int endNumber) const {
+    string GenLabel(int ix, int finNumber, int endNumber) const {
         // endNumber checked after finNumber since it is eq when lastFloorEnd disabled.
+        if (ix < 0) throw("GenLabel: invalid negative ix: " + ix);
         if (label.Length > 0) return label;
         if (ix == 0) return "F.G.";
         if (ix >= finNumber) return "Fin";

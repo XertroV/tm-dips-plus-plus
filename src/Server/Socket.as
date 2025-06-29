@@ -102,8 +102,8 @@ class BetterSocket {
         // read msg length
         // read msg data
         uint startReadTime = Time::Now;
-        while (Available < 4 && !IsClosed && !ServerDisconnected && (timeout <= 0 || Time::Now - startReadTime < timeout)) yield();
-        if (timeout > 0 && Time::Now - startReadTime >= timeout) {
+        while (Available < 4 && !IsClosed && !ServerDisconnected && (timeout <= 0 || Time::Now - startReadTime < uint(timeout))) yield();
+        if (timeout > 0 && Time::Now - startReadTime >= uint(timeout)) {
             yield();
             yield();
             yield();
@@ -127,12 +127,12 @@ class BetterSocket {
         }
 
         startReadTime = Time::Now;
-        while (Available < len) {
-            if (timeout > 0 && Time::Now - startReadTime >= timeout) {
+        while (Available < int(len)) {
+            if (timeout > 0 && Time::Now - startReadTime >= uint(timeout)) {
                 yield();
                 yield();
                 yield();
-                if (Available < len) {
+                if (Available < int(len)) {
                     warn("ReadMsg timed out while reading msg; Available: " + Available + '; len: ' + len);
                     warn("Disconnecting socket");
                     Shutdown();

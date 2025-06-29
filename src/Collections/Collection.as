@@ -66,7 +66,7 @@ class CollectionItem {
     string get_BlankedName() {
         if (_blankedName == "") {
             _blankedName = name;
-            for (uint i = 0; i < _blankedName.Length; i++) {
+            for (int i = 0; i < _blankedName.Length; i++) {
                 if (_blankedName[i] != 0x20) {
                     _blankedName[i] = 0x3F; // Math::Rand(0x21, 0x41);
                 }

@@ -1,4 +1,3 @@
-
 NvgFillable@ testFillable = NvgFillableLinGrad({
     vec4(1.0, 0.0, 0.0, 1.0),
     vec4(0.0, 1.0, 0.0, 1.0),
@@ -49,7 +48,7 @@ class FloorTitleGeneric : Animation {
         this.titleName = titleName;
         this.pos = pos;
         this.size = size;
-        this.durationSec = keyframes[keyframes.Length - 1];
+        this.durationSec = keyframes[uint(keyframes.Length - 1)];
     }
 
     void SetStageTime(uint stage, float time) {
@@ -59,7 +58,7 @@ class FloorTitleGeneric : Animation {
         for (uint i = stage + 1; i < keyframes.Length; i++) {
             keyframes[i] += delta;
         }
-        durationSec = keyframes[keyframes.Length - 1];
+        durationSec = keyframes[uint(keyframes.Length - 1)];
     }
 
     uint stage;
@@ -393,7 +392,7 @@ vec4[]@ genPbNotificationTextFillColors() {
 float[]@ genPbNotificationTextFillPositions() {
     float[] positions = {0.0};
     auto nb = (12 * 2 - 1);
-    for (uint i = 1; i < nb; i++) {
+    for (uint i = 1; i < uint(nb); i++) {
         positions.InsertLast(float(i) / float(nb - 1));
     }
     return positions;

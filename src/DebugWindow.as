@@ -1,4 +1,3 @@
-
 [Setting hidden]
 bool g_DebugOpen = false;
 
@@ -234,7 +233,7 @@ void DrawPlayersAndVehiclesTab() {
     CopiableLabeledValue("Nb Player Vehicles", tostring(PS::nbPlayerVisStates));
     if (UI::TreeNode("VehicleIdToPlayers")) {
         uint count = 0;
-        for (int i = 0; i < PS::vehicleIdToPlayers.Length; i++) {
+        for (int i = 0; i < int(PS::vehicleIdToPlayers.Length); i++) {
             if (PS::vehicleIdToPlayers[i] is null) continue;
             PS::vehicleIdToPlayers[i].DrawDebugTree(i);
             count++;
@@ -244,7 +243,7 @@ void DrawPlayersAndVehiclesTab() {
     }
     if (UI::TreeNode("Players")) {
         UI::Text("Count: " + PS::players.Length);
-        for (int i = 0; i < PS::players.Length; i++) {
+        for (int i = 0; i < int(PS::players.Length); i++) {
             PS::players[i].DrawDebugTree(i);
         }
         UI::TreePop();
@@ -344,7 +343,7 @@ string Uint4ToHex(uint8 val) {
 
 MemoryBuffer@ HexToBuffer(const string &in hex) {
     MemoryBuffer@ buf = MemoryBuffer();
-    for (int i = 0; i < hex.Length; i += 2) {
+    for (int i = 0; i < int(hex.Length); i += 2) {
         buf.Write(Hex2ToUint8(hex.SubStr(i, 2)));
     }
     buf.Seek(0);

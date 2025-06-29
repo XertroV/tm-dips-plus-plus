@@ -19,7 +19,7 @@ const string CheckTokenUpdate() {
             authFails++;
             log_warn("Auth Fail ("+authFails+"); Got exception refreshing auth token: " + getExceptionInfo());
             g_opAuthToken = "";
-            uint waitFor = 5000 * Math::Pow(2, Math::Clamp(authFails, 1, 4));
+            uint waitFor = 5000 * int(Math::Pow(2, Math::Clamp(authFails, 1, 5)));
             sleep(waitFor + Math::Rand(0, 5000));
         }
         _IsRequestingAuthToken = false;

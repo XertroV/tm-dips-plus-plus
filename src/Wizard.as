@@ -17,7 +17,7 @@ namespace Wizard {
         if (!g_WizardOpen) return;
         if (!G_Initialized) return;
         UI::SetNextWindowSize(windowSize.x, windowSize.y, UI::Cond::Always);
-        auto pos = (int2(g_screen.x / ui_scale, g_screen.y / ui_scale) - windowSize) / 2;
+        auto pos = (int2(int(g_screen.x / ui_scale), int(g_screen.y / ui_scale)) - windowSize) / 2;
         UI::SetNextWindowPos(pos.x, pos.y, UI::Cond::Always);
         if (UI::Begin("D++ Wizard", g_WizardOpen, flags)) {
             DrawInner();

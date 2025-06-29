@@ -390,10 +390,10 @@ mixin class WithLeaderboard {
         int rank = arr[0]["rank"];
         int maxRank = arr[nbEntries - 1]["rank"];
         maxRank = Math::Max(maxRank, rank + nbEntries - 1);
-        while (maxRank > mapLB.Length) {
+        while (maxRank > int(mapLB.Length)) {
             mapLB.InsertLast(LBEntry());
         }
-        reachedEndOfLB = maxRank < lbLoadAtLeastNb;
+        reachedEndOfLB = maxRank < int(lbLoadAtLeastNb);
         int lastRank = 0;
         for (uint i = 0; i < nbEntries; i++) {
             rank = int(arr[i]["rank"]);
@@ -421,7 +421,7 @@ mixin class WithLeaderboard {
         UI::Columns(nbCols);
         auto cSize = vec2(-1, Math::Max(1.0, (UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.) * startNewAt * UI_SCALE * 1.07));
         UI::BeginChild("lbc1", cSize);
-        for (uint i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             if (i == startNewAt) {
                 UI::EndChild();
                 UI::NextColumn();

@@ -290,7 +290,7 @@ class MapStats {
     }
 
     void LogTriggeredMonuments(MonumentSubject subj) {
-        while (int(subj) >= monumentTriggers.Length) {
+        while (int(subj) >= int(monumentTriggers.Length)) {
             monumentTriggers.InsertLast(0);
         }
         monumentTriggers[int(subj)]++;
@@ -407,7 +407,7 @@ class MapStats {
 
     // for when going up (don't add while falling)
     void LogFloorReached(int floor) {
-        while (floor >= reachedFloorCount.Length) {
+        while (floor >= int(reachedFloorCount.Length)) {
             reachedFloorCount.InsertLast(0);
         }
         reachedFloorCount[floor]++;
@@ -418,7 +418,7 @@ class MapStats {
         if (floor < 0) {
             return;
         }
-        while (floor >= floorVoiceLinesPlayed.Length) {
+        while (floor >= int(floorVoiceLinesPlayed.Length)) {
             floorVoiceLinesPlayed.InsertLast(0);
         }
         floorVoiceLinesPlayed[floor] += 1;
@@ -430,7 +430,7 @@ class MapStats {
     }
 
     int GetFloorVoiceLineCount(int floor) {
-        if (floor < 0 || floor >= floorVoiceLinesPlayed.Length) {
+        if (floor < 0 || uint(floor) >= floorVoiceLinesPlayed.Length) {
             return 0;
         }
         return floorVoiceLinesPlayed[floor];

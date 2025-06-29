@@ -51,7 +51,7 @@ bool _PlayMapScript(CMwStack &in stack, CMwNod@ nod) {
 	auto mode = stack.CurrentWString(1);
 	auto mapList = stack.CurrentBufferWString(2);
 	string mapListStr = "";
-	for (int i = 0; i < mapList.Length; i++) {
+	for (uint i = 0; i < mapList.Length; i++) {
 		if (i > 0) mapListStr += ", ";
 		mapListStr += mapList[i];
 	}

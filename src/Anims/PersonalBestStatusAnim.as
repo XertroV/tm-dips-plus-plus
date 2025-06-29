@@ -48,9 +48,9 @@ class ProgressAnim : Animation {
         if (!pauseWhenMenuOpen || !IsPauseMenuOpen(S_PauseWhenGameUnfocused)) {
             progressMs += delta;
             t = Math::Clamp(float(progressMs - startTime) / float(endTime - startTime), 0., 1.);
-            gAlpha = progressMs < fadeIn
+            gAlpha = progressMs < int(fadeIn)
                 ? float(progressMs) / fadeIn
-                : duration - progressMs <= fadeOut
+                : duration - progressMs <= int(fadeOut)
                     ? float(duration - progressMs) / fadeOut
                     : 1.;
             UpdateInner();
@@ -138,7 +138,7 @@ class PersonalBestStatusAnim : ProgressAnim {
 
 
         vec4 activeRect;
-        for (currCharIx = 0; currCharIx < pbText.Length; currCharIx++) {
+        for (currCharIx = 0; currCharIx < uint(pbText.Length); currCharIx++) {
             if (pbText[currCharIx] == 0x20) {
                 continue;
             }

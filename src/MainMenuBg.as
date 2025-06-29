@@ -3,6 +3,8 @@ namespace MainMenuBg {
     const string SKIN_ML_PATH = "Skins\\Models\\CharacterPilot\\DeepDip2_MenuItem.zip";
     // const string SKIN2_ML_PATH = "Skins\\Models\\CharacterPilot\\DD2_SponsorsSign.zip";
 
+    const string NEW_DD2_MENU_BG_LIB = "Scripts/Libs/Dd2Menu/HomeBackgroundPatched.Script.txt";
+
     string origML;
     bool gotOrigML = false;
 
@@ -42,15 +44,79 @@ namespace MainMenuBg {
         return _MenuItemExists;
     }
 
+    CPlugFileTextScript@ GetPreloadedScriptFromTitles(const string &in path) {
+        auto fid = Fids::GetFake(path);
+        if (fid is null) return null;
+        return cast<CPlugFileTextScript>(Fids::Preload(fid));
+    }
+
+    /// script_rel_filepath: should be like "Scripts/Libs/Dd2Menu/HomeBackgroundPatched.Script.txt"
+    /// will get saved to Docs/Trackmania/Scripts.
+    void SaveScriptTextTo(const string &in body, const string &in script_rel_filepath) {
+        if (!script_rel_filepath.StartsWith("GameData/Scripts/")) throw("Must start with GameData/Scripts/. provided: " + script_rel_filepath);
+        // if (!script_rel_filepath.StartsWith("Scripts/")) throw("Must start with Scripts/. provided: " + script_rel_filepath);
+        if (!script_rel_filepath.EndsWith("Script.txt")) throw("Must end with Script.txt. provided: " + script_rel_filepath);
+        auto dir = Path::GetDirectoryName(script_rel_filepath);
+        auto abs_dir = IO::FromAppFolder(dir);
+        dev_trace("Saving script text to dir: " + abs_dir);
+        if (!IO::FolderExists(abs_dir)) IO::CreateFolder(abs_dir, true);
+        auto abs_path = IO::FromAppFolder(script_rel_filepath);
+        dev_trace("Saving script text to: " + abs_path);
+        IO::File f(abs_path, IO::FileMode::Write);
+        f.Write(body);
+        f.Close();
+        dev_trace("Saved script text (len="+body.Length+") to: " + abs_path);
+    }
+
+    bool ApplyPatchToHomeBackground() {
+        CPlugFileTextScript@ nod = GetPreloadedScriptFromTitles("Titles\\Trackmania\\Scripts\\Libs\\Nadeo\\Trackmania\\Components\\HomeBackground@2.Script.txt");
+        if (nod is null) {
+            warn("failed to load menu bg library.");
+            return false;
+        }
+        if (nod.Text.Contains("DD2ItemId")) {
+            dev_trace("MainMenuBg: Patch already applied to HomeBackground script.");
+            return false;
+        }
+        auto patch = GetMenuPatches(S_MenuBgTimeOfDay, S_MenuBgSeason);
+        nod.Text = patch.Apply(nod.Text);
+        nod.MwAddRef();
+        SaveScriptTextTo(nod.Text, "GameData/" + NEW_DD2_MENU_BG_LIB);
+        return true;
+    }
+
+    void UnapplyPatchToHomeBackground() {
+        CPlugFileTextScript@ nod = GetPreloadedScriptFromTitles("Titles\\Trackmania\\Scripts\\Libs\\Nadeo\\Trackmania\\Components\\HomeBackground@2.Script.txt");
+        if (nod is null) {
+            warn("failed to load menu bg library for unpatching.");
+            return;
+        }
+        if (!nod.Text.Contains("DD2ItemId")) {
+            dev_trace("MainMenuBg: Patch not applied to HomeBackground script, nothing to unpatch.");
+            return;
+        }
+        nod.ReGenerate();
+        if (Reflection::GetRefCount(nod) > 0) {
+            nod.MwRelease();
+        } else {
+            Dev_NotifyWarning("MainMenuBg: Patch not applied to HomeBackground script, but ref count == 0, so not releasing.");
+        }
+    }
+
+    const string MENU_BG_IMPORT_TO_REPLACE = '#Include "Libs/Nadeo/Trackmania/Components/HomeBackground@2.Script.txt" as Trackmania_HomeBackground2';
+
     bool ApplyMenuBg() {
+        ApplyPatchToHomeBackground();
         if (!IsReady()) return false;
         if (applied) return true;
         auto l = GetMenuSceneLayer(false);
         if (l is null) return false;
-        if (!l.ManialinkPageUtf8.Contains("DD2ItemId")) {
-            auto patch = GetMenuPatches(S_MenuBgTimeOfDay, S_MenuBgSeason);
+        if (l.ManialinkPageUtf8.Contains(MENU_BG_IMPORT_TO_REPLACE)) {
+            // auto patch = GetMenuPatches(S_MenuBgTimeOfDay, S_MenuBgSeason);
             EngageIntercepts();
-            l.ManialinkPageUtf8 = patch.Apply(origML);
+            auto new_import = '#Include "' + NEW_DD2_MENU_BG_LIB.SubStr(8) + '" as Trackmania_HomeBackground2';
+            dev_trace("MainMenuBg: Applying import patch. From: " + MENU_BG_IMPORT_TO_REPLACE + " to: " + new_import);
+            l.ManialinkPageUtf8 = origML.Replace(MENU_BG_IMPORT_TO_REPLACE, new_import);
         } else {
             gotOrigML = false;
         }
@@ -59,6 +125,7 @@ namespace MainMenuBg {
     }
 
     void Unapply() {
+        UnapplyPatchToHomeBackground();
         if (hasIntProcs) {
             DisengageIntercepts();
         }
@@ -83,6 +150,7 @@ namespace MainMenuBg {
         }
         auto mca = mm.MenuCustom_CurrentManiaApp;
         mca.DataFileMgr.Media_RefreshFromDisk(CGameDataFileManagerScript::EMediaType::Skins, 4);
+        mca.DataFileMgr.Media_RefreshFromDisk(CGameDataFileManagerScript::EMediaType::Script, 4);
         while (mca.UILayers.Length < 30) yield();
         for (uint i = 0; i < mca.UILayers.Length; i++) {
             auto l = mca.UILayers[i];
@@ -336,63 +404,64 @@ enum Season {
 
 APatchSet@ GetMenuPatches(int setTimeOfDay = -1, int setSeason = -1) {
     APatchSet@ patches = APatchSet();
-    patches.AddPatch(AppendPatch("Ident PodiumItemId;", "\n\tIdent[] DD2ItemIds;"));
-    patches.AddPatch(AppendPatch("#Const HomeBackground_C_PilotInCar False", "\n#Const HomeBackground_C_DD2Position <2.65, 1.05, 10.0>\n#Const HomeBackground_C_DD2Rotation 10."));
-    if (setTimeOfDay >= 0) {
-        patches.AddPatch(PrependPatch("HomeBackground_TimeOfDay::GetDayPart(HomeBackground_TimeOfDay::GetDayProgression(), False),", "" + setTimeOfDay + ", //"));
-    }
-    if (setSeason >= 0) {
-        patches.AddPatch(PrependPatch("HomeBackground_Tools::GetTimestampSeason(HomeBackground_TiL::GetCurrent())", "" + setSeason + " //"));
-    }
-    patches.AddPatch(AppendPatch("""	HomeBackground.CameraScene.PodiumItemId = MenuSceneMgr.ItemCreate(
-		HomeBackground.CameraScene.SceneId,
-		HomeBackground_C_PodiumModel,
-		"",
-		""
-	);""", """
-	HomeBackground.CameraScene.DD2ItemIds.add(MenuSceneMgr.ItemCreate(
-		HomeBackground.CameraScene.SceneId,
-		HomeBackground_C_PilotModel,
+
+    // add new constants
+    patches.AddPatch(AppendPatch("#Const C_Private_PilotEmoteCooldownDuration 10000", "\n#Const C_DD2Position <2.15, 0.85, 10.0>\n#Const C_DD2Rotation 10."));
+
+    // extend K_Private_CameraScene with DD2ItemIds
+    patches.AddPatch(AppendPatch("Ident PilotItemId;", "\n\tIdent[] DD2ItemIds;"));
+
+    // deprecate time of day controls
+    // if (setTimeOfDay >= 0) {
+    //     patches.AddPatch(PrependPatch("HomeBackground_TimeOfDay::GetDayPart(HomeBackground_TimeOfDay::GetDayProgression(), False),", "" + setTimeOfDay + ", //"));
+    // }
+    // if (setSeason >= 0) {
+    //     patches.AddPatch(PrependPatch("HomeBackground_Tools::GetTimestampSeason(HomeBackground_TiL::GetCurrent())", "" + setSeason + " //"));
+    // }
+
+    // Patches Private_CreateCameraScene_Podium
+    patches.AddPatch(AppendPatch("""	Component.CameraScene.PodiumItemId = _Context.MenuSceneMgr.ItemCreate(
+			Component.CameraScene.SceneId,
+			C_Private_PodiumModelName,
+			C_Private_PodiumSkinName,
+			C_Private_PodiumSkinUrl
+		);""", """
+	Component.CameraScene.DD2ItemIds.add(_Context.MenuSceneMgr.ItemCreate(
+		Component.CameraScene.SceneId,
+		C_Private_PilotModelName,
 		"Skins\\Models\\CharacterPilot\\DeepDip2_MenuItem.zip"
 	));
-	HomeBackground.CameraScene.DD2ItemIds.add(MenuSceneMgr.ItemCreate(
-		HomeBackground.CameraScene.SceneId,
-		HomeBackground_C_PilotModel,
+	Component.CameraScene.DD2ItemIds.add(_Context.MenuSceneMgr.ItemCreate(
+		Component.CameraScene.SceneId,
+		C_Private_PilotModelName,
 		"Skins\\Models\\CharacterPilot\\DD2_SponsorsSign.zip"
 	));
-	if (HomeBackground.CameraScene.DD2ItemIds[0] != NullId) {
-		MenuSceneMgr.ItemSetLocation(
-			HomeBackground.CameraScene.SceneId,
-			HomeBackground.CameraScene.DD2ItemIds[0],
-			HomeBackground_C_DD2Position,
-			HomeBackground_C_DD2Rotation,
+	if (Component.CameraScene.DD2ItemIds[0] != NullId) {
+		_Context.MenuSceneMgr.ItemSetLocation(
+			Component.CameraScene.SceneId,
+			Component.CameraScene.DD2ItemIds[0],
+			C_DD2Position,
+			C_DD2Rotation,
 			False
 		);
-		MenuSceneMgr.ItemSetLocation(
-			HomeBackground.CameraScene.SceneId,
-			HomeBackground.CameraScene.DD2ItemIds[1],
-			<-1.1, .25, -1.6>,
-			170.,
+		_Context.MenuSceneMgr.ItemSetLocation(
+			Component.CameraScene.SceneId,
+			Component.CameraScene.DD2ItemIds[1],
+			<-1.91, 0.240, -0.65>, // <+ right, + up, + back>
+			155.,
 			False
 		);
 	}"""));
-    patches.AddPatch(AppendPatch("""	if (HomeBackground.CameraScene.PodiumItemId != NullId) {
-		MenuSceneMgr.ItemDestroy(HomeBackground.CameraScene.SceneId, HomeBackground.CameraScene.PodiumItemId);
-		HomeBackground.CameraScene.PodiumItemId = NullId;
+
+    // Patches Private_DestroyCameraScene_Podium
+    patches.AddPatch(AppendPatch("""	declare K_Private_Component Component = _Component;
+	_Context.MenuSceneMgr.ItemDestroy(Component.CameraScene.SceneId, Component.CameraScene.PodiumItemId);
+	Component.CameraScene.PodiumItemId = NullId;
 	}""", """
-	if (HomeBackground.CameraScene.DD2ItemIds.count > 0) {
-		MenuSceneMgr.ItemDestroy(HomeBackground.CameraScene.SceneId, HomeBackground.CameraScene.DD2ItemIds[0]);
-		MenuSceneMgr.ItemDestroy(HomeBackground.CameraScene.SceneId, HomeBackground.CameraScene.DD2ItemIds[1]);
-		HomeBackground.CameraScene.DD2ItemIds.clear();
+	if (Component.CameraScene.DD2ItemIds.count > 0) {
+		_Context.MenuSceneMgr.ItemDestroy(Component.CameraScene.SceneId, Component.CameraScene.DD2ItemIds[0]);
+		_Context.MenuSceneMgr.ItemDestroy(Component.CameraScene.SceneId, Component.CameraScene.DD2ItemIds[1]);
+		Component.CameraScene.DD2ItemIds.clear();
 	}"""));
-    patches.AddPatch(AppendPatch("""		if (HomeBackground.CameraScene.PodiumItemId != NullId) {
-			MenuSceneMgr.ItemDestroy(HomeBackground.CameraScene.SceneId, HomeBackground.CameraScene.PodiumItemId);
-			HomeBackground.CameraScene.PodiumItemId = NullId;
-		}""", """
-		if (HomeBackground.CameraScene.DD2ItemIds.count > 0) {
-			MenuSceneMgr.ItemDestroy(HomeBackground.CameraScene.SceneId, HomeBackground.CameraScene.DD2ItemIds[0]);
-			MenuSceneMgr.ItemDestroy(HomeBackground.CameraScene.SceneId, HomeBackground.CameraScene.DD2ItemIds[1]);
-			HomeBackground.CameraScene.DD2ItemIds.clear();
-		}"""));
     return patches;
 }

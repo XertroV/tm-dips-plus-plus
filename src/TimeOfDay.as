@@ -50,7 +50,7 @@ namespace SetTimeOfDay {
 
         CHmsLight@ chl;
         CSceneLight@ csl;
-        for (int i = 0; i < gs.HackScene.Lights.Length; i++) {
+        for (uint i = 0; i < gs.HackScene.Lights.Length; i++) {
             if ((@csl = hs.Lights[i]) is null) continue;
             if ((@chl = cast<CHmsLight>(csl.HmsPoc)) is null) continue;
             // static = 0; dynamic = 1

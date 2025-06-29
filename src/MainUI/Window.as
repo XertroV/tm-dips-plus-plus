@@ -263,7 +263,7 @@ namespace MainUI {
                         UI::TableNextColumn();
                         DrawCollectionItem(tc.items[i + nbPerCol]);
                         UI::TableNextColumn();
-                        if ((ix = i + nbPerCol * 2) < nbItems) {
+                        if ((ix = i + nbPerCol * 2) < int(nbItems)) {
                             DrawCollectionItem(tc.items[ix]);
                         }
                     }
@@ -400,12 +400,12 @@ namespace MainUI {
         auto len = int(top3.Length);
         DrawCenteredText("Top " + len, f_DroidBigger, 26.);
         auto nbCols = len > 5 ? 2 : 1;
-        auto startNewAt = nbCols == 1 ? len : (len + 1) / nbCols;
+        uint startNewAt = nbCols == 1 ? len : (len + 1) / nbCols;
         UI::Columns(nbCols);
         auto cSize = vec2(-1, (UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.) * startNewAt * UI_SCALE * 1.1);
         UI::BeginChild("lbc1", cSize);
-        for (uint i = 0; i < len; i++) {
-            if (i == startNewAt) {
+        for (int i = 0; i < len; i++) {
+            if (i == int(startNewAt)) {
                 UI::EndChild();
                 UI::NextColumn();
                 UI::BeginChild("lbc2", cSize);

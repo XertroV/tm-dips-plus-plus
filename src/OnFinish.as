@@ -105,7 +105,7 @@ namespace OnFinish {
     void RenderEzEpilogue() {
         if (!g_ShowEzFinishEpilogueScreen) return;
         UI::SetNextWindowSize(windowSize.x, windowSize.y, UI::Cond::Always);
-        auto pos = (int2(g_screen.x / ui_scale, g_screen.y / ui_scale) - windowSize) / 2;
+        auto pos = (int2(int(g_screen.x / ui_scale), int(g_screen.y / ui_scale)) - windowSize) / 2;
         UI::SetNextWindowPos(pos.x, pos.y, UI::Cond::Always);
         // timeout or no map
         bool drawSkip = (playerFinishedLastAt > 0 && Time::Now - playerFinishedLastAt > 3000) || GetApp().RootMap is null;
@@ -129,7 +129,7 @@ namespace OnFinish {
     void RenderDD2Epilogue() {
         if (!g_ShowDD2FinishEpilogueScreen) return;
         UI::SetNextWindowSize(windowSize.x, windowSize.y, UI::Cond::Always);
-        auto pos = (int2(g_screen.x / ui_scale, g_screen.y / ui_scale) - windowSize) / 2;
+        auto pos = (int2(int(g_screen.x / ui_scale), int(g_screen.y / ui_scale)) - windowSize) / 2;
         UI::SetNextWindowPos(pos.x, pos.y, UI::Cond::Always);
         // timeout or no map
         bool drawSkip = (playerFinishedLastAt > 0 && Time::Now - playerFinishedLastAt > 3000) || GetApp().RootMap is null;
@@ -184,7 +184,7 @@ namespace OnFinish {
         }
 
         vec2 Draw() override {
-            if (progressMs > startMoveAt) {
+            if (progressMs > int(startMoveAt)) {
                 float t = Math::Clamp(float(progressMs - startMoveAt) / float(endMoveAt - startMoveAt), 0.0, 1.5);
                 if (t < 1.5) {
                     SetTimeOfDay::SetSunAngle(GetAzEl(t));

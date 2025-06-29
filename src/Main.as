@@ -1,5 +1,3 @@
-
-
 //
 const string PluginName = Meta::ExecutingPlugin().Name;
 const string MenuIconColor = "\\$fd5";
@@ -275,17 +273,6 @@ bool GoodUISequence(CGamePlaygroundUIConfig::EUISequence seq) {
 
 void RenderMenu() {
     DrawPluginMenuItem();
-    return;
-    if (UI::MenuItem(PluginName + ": Show Falls On Left Side", "", g_ShowFalls)) {
-        g_ShowFalls = !g_ShowFalls;
-        S_ShowMinimap = g_ShowFalls;
-    }
-    if (UI::MenuItem(PluginName + ": Debug Window", "", g_DebugOpen)) {
-        g_DebugOpen = !g_DebugOpen;
-    }
-    if (UI::MenuItem(PluginName + ": Show Minimap", "", S_ShowMinimap)) {
-        S_ShowMinimap = !S_ShowMinimap;
-    }
 }
 
 [Setting hidden]
@@ -497,12 +484,13 @@ void EmitOnPlayerRespawn(PlayerState@ ps) {
 
 
 
-uint g_LocalPlayerMwId = -1;
+const uint INVALID_MWID = uint(-1);
+uint g_LocalPlayerMwId = INVALID_MWID;
 
 void AwaitLocalPlayerMwId() {
-    while (g_LocalPlayerMwId == -1) {
+    while (g_LocalPlayerMwId == INVALID_MWID) {
         g_LocalPlayerMwId = GetLocalPlayerMwId();
-        if (g_LocalPlayerMwId == -1) yield();
+        if (g_LocalPlayerMwId == INVALID_MWID) yield();
         else break;
     }
     // for (uint i = 0; i < PS::players.Length; i++) {
@@ -514,7 +502,7 @@ string _LocalPlayerLogin;
 
 uint GetLocalPlayerMwId() {
     auto app = GetApp();
-    if (app.LocalPlayerInfo is null) return -1;
+    if (app.LocalPlayerInfo is null) return INVALID_MWID;
     _LocalPlayerLogin = app.LocalPlayerInfo.Id.GetName();
     return app.LocalPlayerInfo.Id.Value;
 }
@@ -607,6 +595,6 @@ void RNGExtraLoop() {
     float r;
     while (true) {
         r = Math::Rand(0.0, 1.0);
-        sleep(Time::Now % 1000 + 500 * r);
+        sleep(Time::Now % 1000 + 500 * int(r));
     }
 }

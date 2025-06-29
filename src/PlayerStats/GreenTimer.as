@@ -89,7 +89,7 @@ namespace GreenTimer {
         for (uint i = 0; i < parts.Length; i++) {
             p = parts[i];
             // draw digits
-            for (uint c = 0; c < p.Length; c++) {
+            for (int c = 0; c < p.Length; c++) {
                 // if 1, add a small offset so it's not too far left
                 adj.x = p[c] == 0x31 ? digitWidth / 4 : 0;
                 DrawTextWithShadow(textTL+adj, p.SubStr(c, 1), col);

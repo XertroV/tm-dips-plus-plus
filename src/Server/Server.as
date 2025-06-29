@@ -276,7 +276,7 @@ class DD2API {
         while (!IsBadNonce(nonce)) {
             if (IsShutdownClosedOrDC) break;
             auto nbOutgoing = Math::Min(queuedMsgs.Length, 10);
-            for (uint i = 0; i < nbOutgoing; i++) {
+            for (uint i = 0; i < uint(nbOutgoing); i++) {
                 @next = queuedMsgs[i];
                 SendMsgNow(next);
             }
@@ -363,8 +363,8 @@ class DD2API {
     void WatchAndSendContextChanges(uint64 nonce) {
         uint lastCheck = 0;
         uint lastGC = 0;
-        uint64 nextMI = -1;
-        uint64 nextu64 = -1;
+        uint64 nextMI = uint64(-1);
+        uint64 nextu64 = uint64(-1);
         uint64 lastMI = 0;
         uint64 lastu64 = 0;
         uint lastMapMwId = 0;
@@ -419,7 +419,7 @@ class DD2API {
             }
             sleep(117);
             // if (IsShutdownClosedOrDC) break;
-            if (Time::Now - lastVSReport > (currentMapRelevant ? 5000 : 25000)) {
+            if (Time::Now - lastVSReport > uint(currentMapRelevant ? 5000 : 25000)) {
                 if (IsBadNonce(nonce)) break;
                 CSceneVehicleVisState@ state = GetVehicleStateOfControlledPlayer();
                 if (state !is null &&
@@ -711,7 +711,7 @@ namespace Global {
         int firstRank = j[0]["rank"];
         int lastRank = j[j.Length-1]["rank"];
         lastRank = Math::Max(j.Length, lastRank);
-        while (globalLB.Length < lastRank) {
+        while (int(globalLB.Length) < lastRank) {
             globalLB.InsertLast(LBEntry());
         }
         int rank;

@@ -204,7 +204,7 @@ class SubtitlesAnim : Animation {
             currLineFadeProgress = 0;
             wentNext = true;
         }
-        if (currIx < startTimes.Length - 1) {
+        if (currIx < int(startTimes.Length) - 1) {
             if (progressMs >= startTimes[currIx + 1]) {
                 currIx++;
                 currLineStarts.InsertLast(startTimes[currIx]);
@@ -544,7 +544,7 @@ class DeepDip2LogoAnim : Animation {
     void DrawBoltsMain(float sign) {
         nvg::BeginPath();
         nvg::MoveTo(lightningSegments[0] * g_screen + sign * boltsOffset);
-        for (int i = 1; i < lightningSegments.Length; i++) {
+        for (uint i = 1; i < lightningSegments.Length; i++) {
             nvg::LineTo(lightningSegments[i] * g_screen + sign * boltsOffset);
         }
 
@@ -557,7 +557,7 @@ class DeepDip2LogoAnim : Animation {
 
     void DrawBoltsExtra() {
         // right, r, l, r
-        for (int i = 0; i < boltsExtraPairs.Length; i += 4) {
+        for (uint i = 0; i < boltsExtraPairs.Length; i += 4) {
             float sign = i == 8 ? -1. : 1.;
             vec2 p0 = boltsExtraPairs[i] * g_screen + sign * boltsOffset;
             vec2 p1 = boltsExtraPairs[i + 1] * g_screen + sign * boltsOffset;

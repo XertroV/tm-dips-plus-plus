@@ -128,7 +128,7 @@ namespace CustomVL {
 
         void InsertLine(VoiceLineSpec@ line, int ix = -1) {
             if (line is null) return;
-            auto nbLines = lines.Length;
+            int nbLines = lines.Length;
             if (ix < 0 && nbLines > 0) ix = (ix % nbLines) + 1;
             if (ix < 0 || ix >= nbLines) {
                 lines.InsertLast(line);

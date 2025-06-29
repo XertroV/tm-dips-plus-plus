@@ -1,4 +1,3 @@
-
 const uint AFTER_FALL_MINIMAP_SHOW_DURATION = 10000;
 const uint AFTER_FALL_STABLE_AFTER = 4000;
 
@@ -138,7 +137,7 @@ namespace Minimap {
         @hovered = null;
         // if (!g_Active) return;
         if (!S_ShowMinimap || !doDraw) return;
-        if (lastMapMwId == -1) return;
+        if (lastMapMwId == uint(-1)) return;
         RenderMinimapBg();
         RenderMinimapFloors();
         // auto editor = cast<CGameCtnEditorFree>(GetApp().Editor);
@@ -178,7 +177,7 @@ namespace Minimap {
             }
         }
 
-        for (int i = drivingPlayers.Length - 1; i >= 0; i--) {
+        for (int i = int(drivingPlayers.Length) - 1; i >= 0; i--) {
             @p = drivingPlayers[i];
             nvgDrawPointCircle(p.lastMinimapPos, size, cGreen, cMagenta);
             p.minimapLabel.Draw(p, cWhite, cBlack);
@@ -384,7 +383,7 @@ namespace Minimap {
             if (isFalling || afterFall) {
                 if (!afterFall) {
                     fallDist = p.FallYDistance();
-                    if (Time::Now - p.fallStartTs < 15.) fallDist = 0.;
+                    if (float(Time::Now - p.fallStartTs) < 15.) fallDist = 0.;
                     // about 2 floors per magnitude
                     fallMag = fallDist / (mapHeightDelta / 16.0);
                     float fallMagQ = fallMag * .25;
@@ -524,7 +523,7 @@ namespace Minimap {
         uint rank;
         int[] hovered = {};
         @top3 = Global::GetTop3();
-        for (int i = Math::Min(S_NbTopTimes, top3.Length) - 1; i >= 0; i--) {
+        for (int i = Math::Min(int(S_NbTopTimes), int(top3.Length)) - 1; i >= 0; i--) {
             // render pb under WR
             if (i == 0) {
                 if (RenderTop3Instance(pos, -1, textBounds, pbHeight)) {
@@ -629,7 +628,7 @@ namespace Minimap {
         // start of main loop
         auto @heights = GetFloorSpecs_Dd2OrCustom();
         // prep for label
-        int finNumber = heights.Length - 1.;
+        int finNumber = heights.Length - 1;
         int endNumber = MatchDD2::lastMapMatchesAnyDD2Uid ? 17 : (g_CustomMap !is null && g_CustomMap.lastFloorEnd ? finNumber - 1 : finNumber);
         // loop over each floor
         for (uint i = 0; i < heights.Length; i++) {
@@ -660,7 +659,7 @@ namespace Minimap {
             nvg::FillColor(cBlack);
             nvg::TextAlign(nvg::Align::Right | nvg::Align::Middle);
             int numbersBelowEq = MatchDD2::isEasyDD2Map ? 5 : endNumber - 1;
-            auto textPos = pos - vec2(floorNumberBaseHeight * (i < 1 || i > numbersBelowEq ? .8 : 1.0), floorNumberBaseHeight * -0.12);
+            auto textPos = pos - vec2(floorNumberBaseHeight * (i < 1 || int(i) > numbersBelowEq ? .8 : 1.0), floorNumberBaseHeight * -0.12);
             nvg::Text(textPos, label);
             nvg::ClosePath();
         }
@@ -700,7 +699,7 @@ namespace Minimap {
             S_ShowMinimap = UI::Checkbox("Show Minimap", S_ShowMinimap);
             if (MAGIC_SPEC_ENABLED) S_ClickMinimapToMagicSpectate = UI::Checkbox("Click Minimap to Magic Spectate", S_ClickMinimapToMagicSpectate);
             S_ScaleMinimapToPlayers = UI::Checkbox("Scale Minimap to Players", S_ScaleMinimapToPlayers);
-            S_MinimapPlayerLabelFS = UI::SliderInt("Player Label Font Size", S_MinimapPlayerLabelFS, 10, 40);
+            S_MinimapPlayerLabelFS = float(UI::SliderInt("Player Label Font Size", int(S_MinimapPlayerLabelFS), 10, 40));
             S_MinimapLeftPad = UI::SliderFloat("Minimap Left Padding", S_MinimapLeftPad, 0, 200);
             S_MinimapTopBottomPad = UI::SliderFloat("Minimap Top/Bottom Padding", S_MinimapTopBottomPad, 0, 500);
             S_MinimapMaxFallingGlobalExtraScale = Math::Clamp(UI::SliderFloat("Max Extra Scale for Fallers (> ~500m)", S_MinimapMaxFallingGlobalExtraScale, 1.0, 2.0, "%.2f"), 1.0, 2.0);
@@ -731,7 +730,7 @@ vec2 GetMinMaxHeight(CSmArenaClient@ cp) {
 }
 
 uint GetMapMwIdVal(CGameCtnChallenge@ map) {
-    if (map is null) return -1;
+    if (map is null) return INVALID_MWID;
     return map.Id.Value;
 }
 

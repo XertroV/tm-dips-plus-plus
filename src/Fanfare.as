@@ -29,10 +29,10 @@ namespace Fanfare {
         for (uint row = 0; row < 2; row++) {
             for (uint col = 0; col < 10; col++) {
                 if (row == 1 && col >= 7) continue;
-                AddFireworkParticle(FanfareSpritesheet.GetSprite(nat2(col * 60, row * 60), nat2(60, 59.5)));
+                AddFireworkParticle(FanfareSpritesheet.GetSprite(nat2(col * 60, row * 60), nat2(60, int(59.5))));
             }
         }
-        AddFireworkParticle(FanfareSpritesheet.GetSprite(nat2(420, 60), nat2(180, 59.5)));
+        AddFireworkParticle(FanfareSpritesheet.GetSprite(nat2(420, 60), nat2(180, int(59.5))));
     }
 }
 
@@ -57,7 +57,7 @@ class FinishFireworksFanfareAnim : ProgressAnim {
     }
 
     bool Update() override {
-        auto expectedSpawned = nbFireworks * progressMs / durationMs;
+        uint expectedSpawned = nbFireworks * progressMs / durationMs;
         if (nbSpawned < expectedSpawned) {
             nbSpawned++;
             EmitStatusAnimation(FireworkAnim(particles));
