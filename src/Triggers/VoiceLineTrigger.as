@@ -4,7 +4,7 @@ class VoiceLineTrigger : GameTrigger {
     string imageAsset;
 
     VoiceLineTrigger(vec3 &in min, vec3 &in max, const string &in name, const string &in audioFilename, const string &in subtitles, const string &in imageAsset = "") {
-        throw("should probably use an existing VL trigger instead");
+        // todo: is there a better existing trigger to use?
         super(min, max, name);
         this.audioFilename = audioFilename;
         this.subtitles = subtitles;
@@ -16,6 +16,7 @@ class VoiceLineTrigger : GameTrigger {
         // Play audio
         AudioChain({IO::FromStorageFolder(AuxiliaryAssets::GetLocalPath("audio/" + audioFilename))}).WithPlayAnywhere().Play();
         // Display subtitles
-        AddSubtitleAnimation_PlayAnywhere(SubtitlesAnim("", true, subtitles));
+        DTexture@ imgTex = null; // todo
+        AddSubtitleAnimation_PlayAnywhere(SubtitlesAnim("", true, subtitles, imgTex));
     }
 }

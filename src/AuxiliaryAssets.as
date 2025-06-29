@@ -11,6 +11,9 @@ namespace AuxiliaryAssets {
         }
     }
 
+    // todo: we should save the URL to a file in aux asset directories because otherwise there's no way to tell where they came from.
+    // todo: maybe we should keep an sqlite DB of all the downloaded files, maps they're used on, base url, filename, etc.
+
     AuxAssetInfo@[] assetsToDownload;
     string _specUrlHash = "";
 

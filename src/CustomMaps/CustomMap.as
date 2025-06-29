@@ -160,7 +160,8 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
                         string name = string(t["name"]);
                         // todo: use SpecialTextTrigger instead
                         // todo: pos is actually middle-XZ bottom-Y coords (where the car was when placing the box). need to convert this to min, max as is expected.
-                        triggersMgr.octTree.Insert(TextTrigger(pos - size / 2.0, pos + size / 2.0, name, "Trigger activated!"));
+                        warn("Skipping text trigger: todo");
+                        // triggersMgr.octTree.Insert(TextTrigger(pos - size / 2.0, pos + size / 2.0, name, "Trigger activated!"));
                     }
                 }
             }
