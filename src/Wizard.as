@@ -51,7 +51,7 @@ namespace Wizard {
         pos.y = 20.;
         dl.AddImage(ui_dips_pp_logo_sm, pos, pos + dips_pp_logo_sm_dims);
         UI::Dummy(vec2(avail.x, 40. + dips_pp_logo_sm_dims.y));
-        DrawCenteredText("Welcome to the D++ Wizard!", f_DroidBigger, 26.);
+        DrawCenteredText("Welcome to the D++ Wizard!", f_DroidBigger);
 
         if (wizardStep == 0) {
             DrawStepZero();
@@ -70,10 +70,10 @@ namespace Wizard {
 
 
     void DrawStepZero() {
-        DrawCenteredText("Please complete the volume test, now.", f_DroidBig, 20.);
+        DrawCenteredText("Please complete the volume test, now.", f_DroidBig);
 
         if (!showVolumeSlider) {
-            if (DrawCenteredButton("Begin Volume Test", f_DroidBig, 20.)) {
+            if (DrawCenteredButton("Begin Volume Test", f_DroidBig)) {
                 Volume::PlayAudioTest();
                 showVolumeSlider = true;
             }
@@ -90,27 +90,27 @@ namespace Wizard {
             UI::SameLine();
             S_PauseWhenGameUnfocused = UI::Checkbox("Pause audio when the game is unfocused", S_PauseWhenGameUnfocused);
             UI::PopFont();
-            if (DrawCenteredButton("Skip Audio Test", f_DroidBig, 20.)) {
+            if (DrawCenteredButton("Skip Audio Test", f_DroidBig)) {
                 Volume::StopAudioTest();
                 wizardStep++;
             }
-        } else if (DrawCenteredButton("Proceed", f_DroidBig, 20.)) {
+        } else if (DrawCenteredButton("Proceed", f_DroidBig)) {
             wizardStep++;
         }
     }
 
     void DrawStepOne() {
-        DrawCenteredText("Do you like options? Would it make you feel better to change some?", f_DroidBig, 20.);
+        DrawCenteredText("Do you like options? Would it make you feel better to change some?", f_DroidBig);
         UI::Dummy(vec2(avail.x * 0.125, 0));
         UI::SameLine();
         if (UI::BeginChild("##wizstep1", vec2(avail.x * .75, 0))) {
-            S_EnableMainMenuPromoBg = UI::Checkbox("Enable Main Menu Surprise?", S_EnableMainMenuPromoBg);
+            S_EnableMainMenuPromoBg = UI::Checkbox("Enable Main Menu Background?", S_EnableMainMenuPromoBg);
             if (S_EnableMainMenuPromoBg) {
-                S_MenuBgTimeOfDay = ComboTimeOfDay("Main Menu Background Time of Day", S_MenuBgTimeOfDay);
-                S_MenuBgSeason = ComboSeason("Main Menu Background Season", S_MenuBgSeason);
+                // S_MenuBgTimeOfDay = ComboTimeOfDay("Main Menu Background Time of Day", S_MenuBgTimeOfDay);
+                // S_MenuBgSeason = ComboSeason("Main Menu Background Season", S_MenuBgSeason);
             }
             S_ShowDDLoadingScreens = UI::Checkbox("Show DD2 Loading Screens?", S_ShowDDLoadingScreens);
-            if (DrawCenteredButton("Proceed", f_DroidBig, 20.)) {
+            if (DrawCenteredButton("Proceed", f_DroidBig)) {
                 wizardStep++;
             }
         }
@@ -118,27 +118,27 @@ namespace Wizard {
     }
 
     void DrawStepTwo() {
-        DrawCenteredText("I hope you liked that.", f_DroidBig, 20.);
-        if (DrawCenteredButton("Yes, very fun.", f_DroidBig, 20.)) {
+        DrawCenteredText("I hope you liked that.", f_DroidBig);
+        if (DrawCenteredButton("Yes, very fun.", f_DroidBig)) {
             wizardStep++;
         }
     }
 
     void DrawStepThree() {
-        DrawCenteredText("Fantastic.", f_DroidBig, 20.);
-        DrawCenteredText("Once you're in the map, you can change settings through the menu", f_DroidBig, 20.);
-        DrawCenteredText("Or via the button in the lower right corner.", f_DroidBig, 20.);
-        if (DrawCenteredButton("Can I go now?", f_DroidBig, 20.)) {
+        DrawCenteredText("Fantastic.", f_DroidBig);
+        DrawCenteredText("Once you're in the map, you can change settings through the menu", f_DroidBig);
+        DrawCenteredText("Or via the button in the lower right corner.", f_DroidBig);
+        if (DrawCenteredButton("Can I go now?", f_DroidBig)) {
             wizardStep++;
         }
     }
 
     void DrawStepFour() {
-        DrawCenteredText("... Yes, yes of course. I won't keep you any longer.", f_DroidBig, 20.);
-        DrawCenteredText("Have fun!", f_DroidBig, 20.);
+        DrawCenteredText("... Yes, yes of course. I won't keep you any longer.", f_DroidBig);
+        DrawCenteredText("Have fun!", f_DroidBig);
         UI::Dummy(vec2(avail.x * 0.45, 0));
         UI::SameLine();
-        if (DrawCenteredButton(".....", f_DroidBig, 20.)) {
+        if (DrawCenteredButton(".....", f_DroidBig)) {
             OnFinishWiz();
         }
     }
@@ -155,9 +155,9 @@ namespace Wizard {
 
 
 // vec2 lastCenteredTextBounds = vec2(100, 20);
-void DrawCenteredText(const string &in msg, UI::Font@ font, float fontSize, bool alignToFramePadding = true) {
+void DrawCenteredText(const string &in msg, UI::Font@ font, bool alignToFramePadding = true) {
     UI::PushFont(font);
-    auto bounds = Draw::MeasureString(msg, font, fontSize, 0.0f) * UI_SCALE;
+    auto bounds = Draw::MeasureString(msg, font, font.FontSize, 0.0f) * UI_SCALE;
     auto pos = (UI::GetWindowContentRegionMax() - bounds) / 2.;
     pos.y = UI::GetCursorPos().y;
     UI::SetCursorPos(pos);
@@ -168,9 +168,9 @@ void DrawCenteredText(const string &in msg, UI::Font@ font, float fontSize, bool
     UI::PopFont();
 }
 
-bool DrawCenteredButton(const string &in msg, UI::Font@ font, float fontSize, bool alignToFramePadding = true) {
+bool DrawCenteredButton(const string &in msg, UI::Font@ font, bool alignToFramePadding = true) {
     UI::PushFont(font);
-    auto bounds = Draw::MeasureString(msg, font, fontSize, 0.0f) * UI_SCALE + UI::GetStyleVarVec2(UI::StyleVar::FramePadding).x * 2;
+    auto bounds = Draw::MeasureString(msg, font, font.FontSize, 0.0f) * UI_SCALE + UI::GetStyleVarVec2(UI::StyleVar::FramePadding).x * 2;
     auto pos = (UI::GetWindowContentRegionMax() - bounds) / 2.;
     pos.y = UI::GetCursorPos().y;
     UI::SetCursorPos(pos);

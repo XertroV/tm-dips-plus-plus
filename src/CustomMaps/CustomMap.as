@@ -228,8 +228,8 @@ mixin class WithMapLive {
     void DrawLiveUI() {
         int nbLive = mapLive.Length;
         CheckUpdateLive();
-        DrawCenteredText("Live Heights", f_DroidBigger, 26.);
-        DrawCenteredText("# Players: " + nbLive, f_DroidBig, 20.);
+        DrawCenteredText("Live Heights", f_DroidBigger);
+        DrawCenteredText("# Players: " + nbLive, f_DroidBig);
         if (nbLive == 0) return;
         if (UI::BeginChild("Live", vec2(0, 0), false, UI::WindowFlags::AlwaysVerticalScrollbar)) {
             if (UI::BeginTable('livtabel', 3, UI::TableFlags::SizingStretchSame)) {
@@ -283,15 +283,15 @@ mixin class WithMapOverview {
 
     void DrawMapOverviewUI() {
         CheckUpdateMapOverview();
-        DrawCenteredText("Map Overview", f_DroidBigger, 26.);
+        DrawCenteredText("Map Overview", f_DroidBigger);
         UI::Columns(2);
         auto cSize = vec2(-1, ((UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.) * UI_SCALE));
         UI::BeginChild("mov1", cSize);
-        DrawCenteredText("Total Players: " + nb_players_on_lb, f_DroidBig, 20.);
+        DrawCenteredText("Total Players: " + nb_players_on_lb, f_DroidBig);
         UI::EndChild();
         UI::NextColumn();
         UI::BeginChild("mov2", cSize);
-        DrawCenteredText("Currently Climbing: " + nb_playing_now, f_DroidBig, 20.);
+        DrawCenteredText("Currently Climbing: " + nb_playing_now, f_DroidBig);
         UI::EndChild();
         UI::Columns(1);
         UI::Separator();
@@ -413,9 +413,9 @@ mixin class WithLeaderboard {
 
     void DrawLeaderboard() {
         CheckUpdateLeaderboard();
-        DrawCenteredText("Leaderboard", f_DroidBigger, 26.);
+        DrawCenteredText("Leaderboard", f_DroidBigger);
         auto len = int(Math::Min(mapLB.Length, 10));
-        DrawCenteredText("Top " + len, f_DroidBigger, 26.);
+        DrawCenteredText("Top " + len, f_DroidBigger);
         auto nbCols = len > 5 ? 2 : 1;
         auto startNewAt = nbCols == 1 ? len : (len + 1) / nbCols;
         UI::Columns(nbCols);
@@ -429,18 +429,18 @@ mixin class WithLeaderboard {
             }
             auto @player = mapLB[i];
             if (player.name == "") {
-                DrawCenteredText(tostring(i + 1) + ". ???", f_DroidBig, 20.);
+                DrawCenteredText(tostring(i + 1) + ". ???", f_DroidBig);
             } else {
-                DrawCenteredText(tostring(i + 1) + ". " + player.name + Text::Format(" - %.1f m", player.height), f_DroidBig, 20.);
+                DrawCenteredText(tostring(i + 1) + ". " + player.name + Text::Format(" - %.1f m", player.height), f_DroidBig);
             }
         }
         UI::EndChild();
         UI::Columns(1);
         UI::Separator();
-        DrawCenteredText("My Rank", f_DroidBigger, 26.);
-        DrawCenteredText(Text::Format("%d. ", myRank.rank) + Text::Format("%.4f m", myRank.height), f_DroidBig, 20.);
+        DrawCenteredText("My Rank", f_DroidBigger);
+        DrawCenteredText(Text::Format("%d. ", myRank.rank) + Text::Format("%.4f m", myRank.height), f_DroidBig);
         UI::Separator();
-        DrawCenteredText("Global Leaderboard", f_DroidBigger, 26.);
+        DrawCenteredText("Global Leaderboard", f_DroidBigger);
         if (UI::BeginChild("GlobalLeaderboard", vec2(0, 0), false, UI::WindowFlags::AlwaysVerticalScrollbar)) {
             if (UI::BeginTable('lbtabel', 3, UI::TableFlags::SizingStretchSame)) {
                 UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80. * UI_SCALE);
@@ -465,7 +465,7 @@ mixin class WithLeaderboard {
             }
         }
         UI::BeginDisabled(mapLB.Length < lbLoadAtLeastNb || reachedEndOfLB);
-        if (DrawCenteredButton("Load More", f_DroidBig, 20.)) {
+        if (DrawCenteredButton("Load More", f_DroidBig)) {
             IncrLBLoadSize();
         }
         UI::EndDisabled();

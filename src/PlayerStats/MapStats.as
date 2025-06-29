@@ -143,7 +143,7 @@ class MapStats {
 
     bool editStats = false;
     void DrawStatsUI() {
-        DrawCenteredText("My Stats - " + mapName, f_DroidBigger, 26.);
+        DrawCenteredText("My Stats - " + mapName, f_DroidBigger);
         UI::PushStyleColor(UI::Col::FrameBg, vec4(.4, .2, .1, .8));
         UI::PushStyleColor(UI::Col::Border, vec4(.8, .4, .1, 1.));
         UI::PushStyleVar(UI::StyleVar::FrameBorderSize, 1.);

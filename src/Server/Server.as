@@ -65,6 +65,12 @@ bool IsDisconnected() {
     return g_api is null || g_api.IsShutdownClosedOrDC;
 }
 
+namespace DipsPPConnection {
+    bool IsConnected() {
+        return g_api !is null && g_api.IsReady && !g_api.IsShutdownClosedOrDC;
+    }
+}
+
 
 class DD2API {
     BetterSocket@ socket;
@@ -505,6 +511,8 @@ class DD2API {
         @msgHandlers[MessageResponseTypes::MapLivePlayers] = MsgHandler(MapLivePlayersHandler);
         @msgHandlers[MessageResponseTypes::MapRank] = MsgHandler(MapRankHandler);
 
+        @msgHandlers[MessageResponseTypes::TaskResponseJson] = MsgHandler(Tasks::HandleTaskResponseJson);
+        @msgHandlers[MessageResponseTypes::TaskResponse] = MsgHandler(TaskResponseHandler);
         @msgHandlers[MessageResponseTypes::SecretAssets] = MsgHandler(SecretAssetsHandler);
     }
 
@@ -633,6 +641,10 @@ class DD2API {
     void SecretAssetsHandler(Json::Value@ msg) {
         // ignore this message now, assets hardcoded
         // SecretAssets::Load(msg);
+    }
+
+    void TaskResponseHandler(Json::Value@ msg) {
+        Tasks::HandleTaskResponse(msg);
     }
 }
 

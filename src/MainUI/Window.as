@@ -186,7 +186,7 @@ namespace MainUI {
 
 
     void DrawStatsTab() {
-        DrawCenteredText("Global Stats (DD2)", f_DroidBigger, 26.);
+        DrawCenteredText("Global Stats (DD2)", f_DroidBigger);
         UI::Columns(2, "GlobalStatsColumns", true);
         UI::Text("Players");
         UI::Text("Connected Players");
@@ -228,7 +228,7 @@ namespace MainUI {
     }
 
     void DrawMainCollectionsTab() {
-        DrawCenteredText("Collections", f_DroidBigger, 26.);
+        DrawCenteredText("Collections", f_DroidBigger);
         UI::Separator();
         S_PickRandomTitleGag = UI::Checkbox("[Workaround] Always Pick Random Title Gag", S_PickRandomTitleGag);
         AddSimpleTooltip("This is a workaround in case you get the bug where you get one title gag over and over. You probably don't need to enable this.");
@@ -300,20 +300,20 @@ namespace MainUI {
     bool donationsShowingDonors = true;
     void DrawDonationsTab() {
         Global::CheckUpdateDonations();
-        DrawCenteredText("Total Prize Pool: $" + Text::Format("%.2f", Global::totalDonations), f_DroidBigger, 26.);
+        DrawCenteredText("Total Prize Pool: $" + Text::Format("%.2f", Global::totalDonations), f_DroidBigger);
         DrawCenteredText(Text::Format("1st: $%.2f", Global::totalDonations * 0.5)
             + Text::Format(" | 2nd: $%.2f", Global::totalDonations * 0.3)
             + Text::Format(" | 3rd: $%.2f", Global::totalDonations * 0.2)
-            , f_DroidBig, 20.);
-        if (DrawCenteredButton("Contribute to the Prize Pool", f_DroidBigger, 26.)) {
+            , f_DroidBig);
+        if (DrawCenteredButton("Contribute to the Prize Pool", f_DroidBigger)) {
             OpenBrowserURL("https://matcherino.com/tournaments/111501");
         }
         UI::Separator();
-        DrawCenteredText("Donation Cheers", f_DroidBig, 20.);
-        DrawCenteredText("Mention a streamer in your donation msg to cheer them on!", f_Droid, 16.);
+        DrawCenteredText("Donation Cheers", f_DroidBig);
+        DrawCenteredText("Mention a streamer in your donation msg to cheer them on!", f_Droid);
         Donations::DrawDonoCheers();
         UI::Separator();
-        DrawCenteredText("Donations", f_DroidBigger, 26.);
+        DrawCenteredText("Donations", f_DroidBigger);
         if (UI::RadioButton("Donations", !donationsShowingDonors)) donationsShowingDonors = false;
         UI::SameLine();
         if (UI::RadioButton("Donors", donationsShowingDonors)) donationsShowingDonors = true;
@@ -395,10 +395,10 @@ namespace MainUI {
 
     void DrawLeaderboardTab() {
         CheckUpdateLeaderboard();
-        DrawCenteredText("Leaderboard", f_DroidBigger, 26.);
+        DrawCenteredText("Leaderboard", f_DroidBigger);
         auto @top3 = Global::top3;
         auto len = int(top3.Length);
-        DrawCenteredText("Top " + len, f_DroidBigger, 26.);
+        DrawCenteredText("Top " + len, f_DroidBigger);
         auto nbCols = len > 5 ? 2 : 1;
         uint startNewAt = nbCols == 1 ? len : (len + 1) / nbCols;
         UI::Columns(nbCols);
@@ -412,18 +412,18 @@ namespace MainUI {
             }
             auto @player = top3[i];
             if (player.name == "") {
-                DrawCenteredText(tostring(i + 1) + ". ???", f_DroidBig, 20.);
+                DrawCenteredText(tostring(i + 1) + ". ???", f_DroidBig);
             } else {
-                DrawCenteredText(tostring(i + 1) + ". " + player.name + Text::Format(" - %.1f m", player.height), f_DroidBig, 20.);
+                DrawCenteredText(tostring(i + 1) + ". " + player.name + Text::Format(" - %.1f m", player.height), f_DroidBig);
             }
         }
         UI::EndChild();
         UI::Columns(1);
         UI::Separator();
-        DrawCenteredText("My Rank", f_DroidBigger, 26.);
-        DrawCenteredText(Text::Format("%d. ", Global::myRank.rank) + Text::Format("%.1f m", Global::myRank.height), f_DroidBig, 20.);
+        DrawCenteredText("My Rank", f_DroidBigger);
+        DrawCenteredText(Text::Format("%d. ", Global::myRank.rank) + Text::Format("%.1f m", Global::myRank.height), f_DroidBig);
         UI::Separator();
-        DrawCenteredText("Global Leaderboard", f_DroidBigger, 26.);
+        DrawCenteredText("Global Leaderboard", f_DroidBigger);
         if (UI::BeginChild("GlobalLeaderboard", vec2(0, 0), false, UI::WindowFlags::AlwaysVerticalScrollbar)) {
             if (UI::BeginTable('lbtabel', 3, UI::TableFlags::SizingStretchSame)) {
                 UI::TableSetupColumn("Rank", UI::TableColumnFlags::WidthFixed, 80. * UI_SCALE);
@@ -449,11 +449,11 @@ namespace MainUI {
         }
         UI::EndChild();
         // UI::Text("");
-        // DrawCenteredText("-- More LB Features Soon --", f_DroidBig, 20.);
+        // DrawCenteredText("-- More LB Features Soon --", f_DroidBig);
     }
 
     void DrawVoiceLinesTab() {
-        DrawCenteredText("Voice Lines", f_DroidBigger, 26.);
+        DrawCenteredText("Voice Lines", f_DroidBigger);
         UI::Separator();
         for (uint i = 0; i < 18; i++) {
             // instead of drawing f17, draw the secret VL. Then draw epilogue (f17) later.

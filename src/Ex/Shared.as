@@ -1,3 +1,6 @@
+// error is an empty string when success is true; extra is non-null only for TaskResponseJson
+shared funcdef void DPP_TaskCallback(uint id, bool success, const string &in error, Json::Value@ extra);
+
 namespace CustomVL {
     shared class IVoiceLineParams {
         bool isUrl;

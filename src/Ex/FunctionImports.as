@@ -11,3 +11,7 @@ namespace CustomVL {
     // Does not block
     import awaitable@ StartTestVoiceLine(IVoiceLineParams@ params) from "DipsPP";
 }
+
+namespace DipsPPConnection {
+    import bool IsConnected() from "DipsPP";
+}

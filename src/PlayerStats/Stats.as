@@ -27,7 +27,7 @@ namespace Stats {
     uint lastLoadedDeepDip2Ts = 0;
 
     void DrawStatsUI() {
-        DrawCenteredText("My Stats (DD2)", f_DroidBigger, 26.);
+        DrawCenteredText("My Stats (DD2)", f_DroidBigger);
         UI::Columns(2, "myStatsColumns", true);
         UI::Text("Time spent in map");
         UI::Text("Finishes");
@@ -57,6 +57,10 @@ namespace Stats {
         UI::Text("" + ggsTriggered);
         UI::Text("" + byeByesTriggered);
         UI::Columns(1);
+#if DEV
+        UI::Separator();
+        Tasks::DrawDebugText();
+#endif
     }
 
     Json::Value@ GetStatsJson() {

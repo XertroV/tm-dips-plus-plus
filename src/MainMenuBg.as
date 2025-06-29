@@ -3,6 +3,7 @@ namespace MainMenuBg {
     const string SKIN_ML_PATH = "Skins\\Models\\CharacterPilot\\DeepDip2_MenuItem.zip";
     // const string SKIN2_ML_PATH = "Skins\\Models\\CharacterPilot\\DD2_SponsorsSign.zip";
 
+    // will end up populating a script under GameData/Scripts/Libs/Dd2Menu/
     const string NEW_DD2_MENU_BG_LIB = "Scripts/Libs/Dd2Menu/HomeBackgroundPatched.Script.txt";
 
     string origML;
@@ -81,6 +82,7 @@ namespace MainMenuBg {
         auto patch = GetMenuPatches(S_MenuBgTimeOfDay, S_MenuBgSeason);
         nod.Text = patch.Apply(nod.Text);
         nod.MwAddRef();
+        // save the script file to a GameData location so the menu can load/compile it.
         SaveScriptTextTo(nod.Text, "GameData/" + NEW_DD2_MENU_BG_LIB);
         return true;
     }
@@ -106,8 +108,8 @@ namespace MainMenuBg {
     const string MENU_BG_IMPORT_TO_REPLACE = '#Include "Libs/Nadeo/Trackmania/Components/HomeBackground@2.Script.txt" as Trackmania_HomeBackground2';
 
     bool ApplyMenuBg() {
-        ApplyPatchToHomeBackground();
         if (!IsReady()) return false;
+        ApplyPatchToHomeBackground();
         if (applied) return true;
         auto l = GetMenuSceneLayer(false);
         if (l is null) return false;
@@ -268,8 +270,9 @@ namespace MainMenuBg {
     void DrawPromoMenuSettings() {
         if (UI::BeginMenu("Main Menu")) {
             S_EnableMainMenuPromoBg = UI::Checkbox("Enable Main Menu Thing", S_EnableMainMenuPromoBg);
-            S_MenuBgTimeOfDay = ComboTimeOfDay("Time of Day", S_MenuBgTimeOfDay);
-            S_MenuBgSeason = ComboSeason("Season", S_MenuBgSeason);
+            UI::TextWrapped("\\$i\\$888  Time of day and season has been deprecated. Tell XertroV if you want it back.");
+            // S_MenuBgTimeOfDay = ComboTimeOfDay("Time of Day", S_MenuBgTimeOfDay);
+            // S_MenuBgSeason = ComboSeason("Season", S_MenuBgSeason);
             if (UI::Button("Refresh Now")) {
                 Unapply();
                 ApplyMenuBg();
@@ -406,7 +409,7 @@ APatchSet@ GetMenuPatches(int setTimeOfDay = -1, int setSeason = -1) {
     APatchSet@ patches = APatchSet();
 
     // add new constants
-    patches.AddPatch(AppendPatch("#Const C_Private_PilotEmoteCooldownDuration 10000", "\n#Const C_DD2Position <2.15, 0.85, 10.0>\n#Const C_DD2Rotation 10."));
+    patches.AddPatch(AppendPatch("#Const C_Private_PilotEmoteCooldownDuration 10000", "\n#Const C_DD2Position <2.15, 0.85, 11.2>\n#Const C_DD2Rotation 10."));
 
     // extend K_Private_CameraScene with DD2ItemIds
     patches.AddPatch(AppendPatch("Ident PilotItemId;", "\n\tIdent[] DD2ItemIds;"));

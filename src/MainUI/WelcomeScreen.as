@@ -16,7 +16,7 @@ namespace WelcomeScreen {
     void Render() {
         if (!g_ShowWelcome) return;
         if (UI::Begin("dips++ welcome", UI::WindowFlags::NoCollapse | UI::WindowFlags::NoResize | UI::WindowFlags::NoDecoration)) {
-            DrawCenteredText("Deep Dip 2 | Updates", f_DroidBigger, 26.);
+            DrawCenteredText("Deep Dip 2 | Updates", f_DroidBigger);
             // lb with time ago
             // prizepool
             // donation cheers

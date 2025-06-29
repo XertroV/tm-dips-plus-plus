@@ -23,6 +23,11 @@ enum MessageRequestTypes {
     // uid, pos
     ReportMapCurrPos = 64,
 
+    // Aux Map Spec
+    ReportCustomMapAuxSpec = 65,
+    DeleteCustomMapAuxSpec = 66,
+
+    // getters
     GetMyStats = 128,
     GetGlobalLB = 129,
     GetFriendsLB = 130,
@@ -85,6 +90,8 @@ enum MessageResponseTypes {
     MapLivePlayers = 194,
     MapRank = 195,
 
+    TaskResponseJson = 252,
+    TaskResponse = 253,
     SecretAssets = 254,
 }
 
@@ -222,6 +229,23 @@ OutgoingMsg@ ReportTwitchMsg(const string &in twitch_name) {
     return WrapMsgJson(j, MessageRequestTypes::ReportTwitch);
 }
 
+// use Tasks::GetTaskId to get an id
+OutgoingMsg@ ReportCustomMapAuxSpecMsg(uint req_id, const string &in name_id, Json::Value@ spec) {
+    auto @j = Json::Object();
+    j["id"] = req_id;
+    j["name_id"] = name_id;
+    j["spec"] = spec;
+    return WrapMsgJson(j, MessageRequestTypes::ReportCustomMapAuxSpec);
+}
+
+// use Tasks::GetTaskId to get an id
+OutgoingMsg@ DeleteCustomMapAuxSpecMsg(uint req_id, const string &in name_id) {
+    auto @j = Json::Object();
+    j["id"] = req_id;
+    j["name_id"] = name_id;
+    return WrapMsgJson(j, MessageRequestTypes::DeleteCustomMapAuxSpec);
+}
+
 OutgoingMsg@ GetMyStatsMsg() {
     return WrapMsgJson(Json::Object(), MessageRequestTypes::GetMyStats);
     // return OutgoingMsg(uint8(MessageRequestTypes::GetMyStats), Json::Object());
@@ -271,6 +295,7 @@ OutgoingMsg@ GetTwitchMsg(const string &in wsid = "") {
     if (wsid.Length > 0) j['wsid'] = wsid;
     return WrapMsgJson(j, MessageRequestTypes::GetTwitch);
 }
+
 
 OutgoingMsg@ StressMeMsg() {
     return OutgoingMsg(uint8(MessageRequestTypes::StressMe), Json::Object());

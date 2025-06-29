@@ -111,14 +111,14 @@ namespace OnFinish {
         bool drawSkip = (playerFinishedLastAt > 0 && Time::Now - playerFinishedLastAt > 3000) || GetApp().RootMap is null;
         if (UI::Begin("dpp ez fin epilogue", flags)) {
             UI::Dummy(vec2(0, 85));
-            DrawCenteredText("Congratulations!", f_DroidBigger, 26);
-            if (DrawCenteredButton("Play Epilogue", f_DroidBigger, 26)) {
+            DrawCenteredText("Congratulations!", f_DroidBigger);
+            if (DrawCenteredButton("Play Epilogue", f_DroidBigger)) {
                 startnew(PlayEzEpilogue);
                 EmitStatusAnimation(FinCelebrationAnim());
                 g_ShowEzFinishEpilogueScreen = false;
             }
             UI::Dummy(vec2(0, 18));
-            if (drawSkip && DrawCenteredButton("Skip Epilogue", f_DroidBig, 20.)) {
+            if (drawSkip && DrawCenteredButton("Skip Epilogue", f_DroidBig)) {
                 g_ShowEzFinishEpilogueScreen = false;
                 isFinishSeqRunning = false;
             }
@@ -135,14 +135,14 @@ namespace OnFinish {
         bool drawSkip = (playerFinishedLastAt > 0 && Time::Now - playerFinishedLastAt > 3000) || GetApp().RootMap is null;
         if (UI::Begin("dpp ez fin epilogue", flags)) {
             UI::Dummy(vec2(0, 85));
-            DrawCenteredText("Congratulations!", f_DroidBigger, 26);
-            if (DrawCenteredButton("Play Epilogue", f_DroidBigger, 26)) {
+            DrawCenteredText("Congratulations!", f_DroidBigger);
+            if (DrawCenteredButton("Play Epilogue", f_DroidBigger)) {
                 startnew(PlayDD2Epilogue);
                 // EmitStatusAnimation(DD2FinCelebrationAnim());
                 g_ShowDD2FinishEpilogueScreen = false;
             }
             UI::Dummy(vec2(0, 24));
-            if (drawSkip && DrawCenteredButton("Skip Epilogue", f_DroidBig, 20.)) {
+            if (drawSkip && DrawCenteredButton("Skip Epilogue", f_DroidBig)) {
                 g_ShowDD2FinishEpilogueScreen = false;
                 isFinishSeqRunning = false;
             }

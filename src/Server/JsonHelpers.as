@@ -145,3 +145,64 @@ void CopyJsonValuesIfGreater(Json::Value@ from, Json::Value@ to) {
         }
     }
 }
+
+
+
+namespace JsonX {
+    bool IsObject(const Json::Value@ j) {
+        return j.GetType() == Json::Type::Object;
+    }
+    bool IsArray(const Json::Value@ j) {
+        return j.GetType() == Json::Type::Array;
+    }
+    bool IsNumber(const Json::Value@ j) {
+        return j.GetType() == Json::Type::Number;
+    }
+    bool IsString(const Json::Value@ j) {
+        return j.GetType() == Json::Type::String;
+    }
+    bool IsBool(const Json::Value@ j) {
+        return j.GetType() == Json::Type::Boolean;
+    }
+    bool IsNull(const Json::Value@ j) {
+        return j.GetType() == Json::Type::Null;
+    }
+    bool IsUnknown(const Json::Value@ j) {
+        return j.GetType() == Json::Type::Unknown;
+    }
+
+    bool SafeGetUint(Json::Value@ j, const string &in key, uint &out value) {
+        if (!IsObject(j)) return false;
+        if (!j.HasKey(key)) return false;
+        auto j_inner = j[key];
+        if (!IsNumber(j_inner)) return false;
+        value = uint(j_inner);
+        return true;
+    }
+
+    bool SafeGetBool(Json::Value@ j, const string &in key, bool &out value) {
+        if (!IsObject(j)) return false;
+        if (!j.HasKey(key)) return false;
+        auto j_inner = j[key];
+        if (!IsBool(j_inner)) return false;
+        value = j_inner;
+        return true;
+    }
+
+    bool SafeGetString(Json::Value@ j, const string &in key, string &out value) {
+        if (!IsObject(j)) return false;
+        if (!j.HasKey(key)) return false;
+        auto j_inner = j[key];
+        if (!IsString(j_inner)) return false;
+        value = j_inner;
+        return true;
+    }
+
+    Json::Value@ SafeGetJson(Json::Value@ j, const string &in key) {
+        if (!IsObject(j)) return null;
+        if (!j.HasKey(key)) return null;
+        auto j_inner = j[key];
+        if (IsNull(j_inner)) return null;
+        return j_inner;
+    }
+}
