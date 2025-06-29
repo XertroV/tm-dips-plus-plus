@@ -26,6 +26,7 @@ enum MessageRequestTypes {
     // Aux Map Spec
     ReportCustomMapAuxSpec = 65,
     DeleteCustomMapAuxSpec = 66,
+    ListCustomMapAuxSpecs = 67,
 
     // getters
     GetMyStats = 128,
@@ -229,7 +230,7 @@ OutgoingMsg@ ReportTwitchMsg(const string &in twitch_name) {
     return WrapMsgJson(j, MessageRequestTypes::ReportTwitch);
 }
 
-// use Tasks::GetTaskId to get an id
+// use Tasks::GetTaskId or Tasks::GetNewTaskWaiter to get an id
 OutgoingMsg@ ReportCustomMapAuxSpecMsg(uint req_id, const string &in name_id, Json::Value@ spec) {
     auto @j = Json::Object();
     j["id"] = req_id;
@@ -238,13 +239,23 @@ OutgoingMsg@ ReportCustomMapAuxSpecMsg(uint req_id, const string &in name_id, Js
     return WrapMsgJson(j, MessageRequestTypes::ReportCustomMapAuxSpec);
 }
 
-// use Tasks::GetTaskId to get an id
+// use Tasks::GetTaskId or Tasks::GetNewTaskWaiter to get an id
 OutgoingMsg@ DeleteCustomMapAuxSpecMsg(uint req_id, const string &in name_id) {
     auto @j = Json::Object();
     j["id"] = req_id;
     j["name_id"] = name_id;
     return WrapMsgJson(j, MessageRequestTypes::DeleteCustomMapAuxSpec);
 }
+
+// use Tasks::GetTaskId or Tasks::GetNewTaskWaiter to get an id
+OutgoingMsg@ ListCustomMapAuxSpecsMsg(uint req_id) {
+    auto @j = Json::Object();
+    j["id"] = req_id;
+    return WrapMsgJson(j, MessageRequestTypes::ListCustomMapAuxSpecs);
+}
+
+
+
 
 OutgoingMsg@ GetMyStatsMsg() {
     return WrapMsgJson(Json::Object(), MessageRequestTypes::GetMyStats);

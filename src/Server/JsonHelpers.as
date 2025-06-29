@@ -150,25 +150,25 @@ void CopyJsonValuesIfGreater(Json::Value@ from, Json::Value@ to) {
 
 namespace JsonX {
     bool IsObject(const Json::Value@ j) {
-        return j.GetType() == Json::Type::Object;
+        return j !is null && j.GetType() == Json::Type::Object;
     }
     bool IsArray(const Json::Value@ j) {
-        return j.GetType() == Json::Type::Array;
+        return j !is null && j.GetType() == Json::Type::Array;
     }
     bool IsNumber(const Json::Value@ j) {
-        return j.GetType() == Json::Type::Number;
+        return j !is null && j.GetType() == Json::Type::Number;
     }
     bool IsString(const Json::Value@ j) {
-        return j.GetType() == Json::Type::String;
+        return j !is null && j.GetType() == Json::Type::String;
     }
     bool IsBool(const Json::Value@ j) {
-        return j.GetType() == Json::Type::Boolean;
+        return j !is null && j.GetType() == Json::Type::Boolean;
     }
     bool IsNull(const Json::Value@ j) {
-        return j.GetType() == Json::Type::Null;
+        return j !is null && j.GetType() == Json::Type::Null;
     }
     bool IsUnknown(const Json::Value@ j) {
-        return j.GetType() == Json::Type::Unknown;
+        return j !is null && j.GetType() == Json::Type::Unknown;
     }
 
     bool SafeGetUint(Json::Value@ j, const string &in key, uint &out value) {
@@ -177,6 +177,15 @@ namespace JsonX {
         auto j_inner = j[key];
         if (!IsNumber(j_inner)) return false;
         value = uint(j_inner);
+        return true;
+    }
+
+    bool SafeGetInt64(Json::Value@ j, const string &in key, int64 &out value) {
+        if (!IsObject(j)) return false;
+        if (!j.HasKey(key)) return false;
+        auto j_inner = j[key];
+        if (!IsNumber(j_inner)) return false;
+        value = int64(j_inner);
         return true;
     }
 

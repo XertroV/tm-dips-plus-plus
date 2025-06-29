@@ -20,9 +20,17 @@ namespace Tasks {
     void HandleTaskResponseJson(Json::Value@ msg) {
         // implies success
         uint id = 0;
+#if DEV
+        dev_trace("HandleTaskResponseJson: " + Json::Write(msg));
+#endif
         JsonX::SafeGetUint(msg, "id", id);
         Json::Value@ data = JsonX::SafeGetJson(msg, "data");
         _RunTaskCallback(id, true, "", data);
+    }
+
+    // comes with a request id
+    IWaiter@ GetNewTaskWaiter() {
+        return Waiter();
     }
 
     uint GetTaskId(DPP_TaskCallback@ cb) {
@@ -65,5 +73,56 @@ namespace Tasks {
             taskIds.RemoveAt(ix);
             taskCallbacks.RemoveAt(ix);
         }
+    }
+
+    class Waiter : IWaiter {
+        uint id = INVALID_MWID;
+        bool done = false;
+        bool success = false;
+        string error = "";
+        Json::Value@ extra;
+
+        Waiter() {
+            this.id = GetTaskId(DPP_TaskCallback(this.Callback));
+        }
+
+        void Callback(uint id, bool success, const string &in error, Json::Value@ extra) {
+            // warn("Waiter Callback called: " + id + " success: " + success + " error: " + error);
+            done = true;
+            if (this.id == id) {
+                this.success = success;
+                this.error = error;
+                @this.extra = extra;
+            } else {
+                warn("Waiter Callback called with wrong id: " + id + " expected: " + this.id);
+            }
+        }
+
+        void AwaitTask(int64 timeout_ms = -1) {
+            if (done) {
+                dev_trace("AwaitTask called on already done waiter: " + id);
+                return;
+            }
+            if (timeout_ms <= 0) timeout_ms = 10000; // default 10 seconds timeout
+            int64 timeoutAt = Time::Now + timeout_ms;
+            // int64 timeoutAt = Time::Now + (timeout_ms > 0 ? timeout_ms : 0xFFFFFFFF);
+
+            while (!done && Time::Now <= timeoutAt) {
+                yield();
+            }
+
+            if (!done) {
+                warn("Waiter timed out after " + timeout_ms + "ms. id = " + id);
+                // done = true;
+                // success = false;
+                // error = "Timeout after " + timeout_ms + "ms";
+            }
+        }
+
+        uint get_ReqId() { return id; }
+        bool IsDone() { return done; }
+        bool IsSuccess() { return success; }
+        string GetError() { return error; }
+        Json::Value@ GetExtra() { return extra; }
     }
 }
