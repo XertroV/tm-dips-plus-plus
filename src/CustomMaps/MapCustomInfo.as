@@ -100,7 +100,7 @@ namespace MapCustomInfo {
             if (i < pvParts.Length) {
                 if (!Text::TryParseInt(pvParts[i], pv)) pv = 0;
             } else pv = 0;
-            print("comparing: " + i + " | mv: " + mv + " pv: " + pv);
+            // print("comparing: " + i + " | mv: " + mv + " pv: " + pv);
             // int mv = i < mvParts.Length ? Text::ParseInt(mvParts[i]) : 0;
             // int pv = i < pvParts.Length ? Text::ParseInt(pvParts[i]) : 0;
             if (pv > mv) return true;
