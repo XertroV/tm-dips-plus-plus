@@ -16,6 +16,8 @@ namespace MyAuxSpecs {
     import UploadedAuxSpec_Base@[]@ JsonArrToAuxSpecs(Json::Value@ j) from "DipsPP";
 }
 
+import string LocalPlayersWSID() from "DipsPP";
+
 import Json::Value@ Vec3ToJson(const vec3 &in v) from "DipsPP";
 import vec3 JsonToVec3(const Json::Value@ j) from "DipsPP";
 

@@ -46,3 +46,94 @@ shared class UploadedAuxSpec_Base {
         this.updated_at = updated_at;
     }
 }
+
+
+
+
+
+
+namespace JsonX {
+    shared bool IsObject(const Json::Value@ j) {
+        return j !is null && j.GetType() == Json::Type::Object;
+    }
+    shared bool IsArray(const Json::Value@ j) {
+        return j !is null && j.GetType() == Json::Type::Array;
+    }
+    shared bool IsNumber(const Json::Value@ j) {
+        return j !is null && j.GetType() == Json::Type::Number;
+    }
+    shared bool IsString(const Json::Value@ j) {
+        return j !is null && j.GetType() == Json::Type::String;
+    }
+    shared bool IsBool(const Json::Value@ j) {
+        return j !is null && j.GetType() == Json::Type::Boolean;
+    }
+    shared bool IsNull(const Json::Value@ j) {
+        return j !is null && j.GetType() == Json::Type::Null;
+    }
+    shared bool IsUnknown(const Json::Value@ j) {
+        return j !is null && j.GetType() == Json::Type::Unknown;
+    }
+
+    shared bool SafeGetUint(const Json::Value@ j, const string &in key, uint &out value) {
+        if (!IsObject(j)) return false;
+        if (!j.HasKey(key)) return false;
+        auto j_inner = j[key];
+        if (!IsNumber(j_inner)) return false;
+        value = uint(j_inner);
+        return true;
+    }
+
+    shared bool SafeGetInt(const Json::Value@ j, const string &in key, int &out value) {
+        if (!IsObject(j)) return false;
+        if (!j.HasKey(key)) return false;
+        auto j_inner = j[key];
+        if (!IsNumber(j_inner)) return false;
+        value = int(j_inner);
+        return true;
+    }
+
+    shared bool SafeGetInt64(const Json::Value@ j, const string &in key, int64 &out value) {
+        if (!IsObject(j)) return false;
+        if (!j.HasKey(key)) return false;
+        auto j_inner = j[key];
+        if (!IsNumber(j_inner)) return false;
+        value = int64(j_inner);
+        return true;
+    }
+
+    shared bool SafeGetFloat(const Json::Value@ j, const string &in key, float &out value) {
+        if (!IsObject(j)) return false;
+        if (!j.HasKey(key)) return false;
+        auto j_inner = j[key];
+        if (!IsNumber(j_inner)) return false;
+        value = float(j_inner);
+        return true;
+    }
+
+    shared bool SafeGetBool(const Json::Value@ j, const string &in key, bool &out value) {
+        if (!IsObject(j)) return false;
+        if (!j.HasKey(key)) return false;
+        auto j_inner = j[key];
+        if (!IsBool(j_inner)) return false;
+        value = j_inner;
+        return true;
+    }
+
+    shared bool SafeGetString(const Json::Value@ j, const string &in key, string &out value) {
+        if (!IsObject(j)) return false;
+        if (!j.HasKey(key)) return false;
+        auto j_inner = j[key];
+        if (!IsString(j_inner)) return false;
+        value = j_inner;
+        return true;
+    }
+
+    shared Json::Value@ SafeGetJson(Json::Value@ j, const string &in key) {
+        if (!IsObject(j)) return null;
+        if (!j.HasKey(key)) return null;
+        auto j_inner = j[key];
+        if (IsNull(j_inner)) return null;
+        return j_inner;
+    }
+}
