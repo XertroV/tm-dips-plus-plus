@@ -224,7 +224,12 @@ bool IsInMainMenu() {
 }
 
 // always starts true
+#if DEV
+[Setting hidden]
 bool S_DisableUiInEditor = true;
+#else
+const bool S_DisableUiInEditor = true;  // always true in release builds
+#endif
 
 bool IsInEditor = true;
 // requires game restart so only need to set once.
@@ -242,22 +247,18 @@ bool RenderEarlyInner() {
     bool wasActive = g_Active;
     // calling Inactive sets g_Active to false
     if (!S_Enabled) return Inactive(wasActive);
-    // check this early so we can reset the flag.
-    if (app.Editor !is null) {
-        if (S_DisableUiInEditor) return Inactive(wasActive);
-    } else {
-#if !DEV
-        // always turn off showing in editor if we are not in the editor.
-        S_DisableUiInEditor = true;
-#endif
-    }
+
     // main map and playground checks
     if (app.RootMap is null) return Inactive(wasActive);
     if (app.CurrentPlayground is null) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals.Length == 0) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals[0].ControlledPlayer is null) return Inactive(wasActive);
     if (app.CurrentPlayground.UIConfigs.Length == 0) return Inactive(wasActive);
-
+#if DEV
+    if (app.Editor !is null && S_DisableUiInEditor) return Inactive(wasActive);
+#else
+    if (app.Editor !is null) return Inactive(wasActive);
+#endif
 
     // if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
     lastSeq = app.CurrentPlayground.UIConfigs[0].UISequence;
