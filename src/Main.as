@@ -242,19 +242,22 @@ bool RenderEarlyInner() {
     bool wasActive = g_Active;
     // calling Inactive sets g_Active to false
     if (!S_Enabled) return Inactive(wasActive);
+    // check this early so we can reset the flag.
+    if (app.Editor !is null) {
+        if (S_DisableUiInEditor) return Inactive(wasActive);
+    } else {
+#if !DEV
+        // always turn off showing in editor if we are not in the editor.
+        S_DisableUiInEditor = true;
+#endif
+    }
+    // main map and playground checks
     if (app.RootMap is null) return Inactive(wasActive);
     if (app.CurrentPlayground is null) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals.Length == 0) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals[0].ControlledPlayer is null) return Inactive(wasActive);
     if (app.CurrentPlayground.UIConfigs.Length == 0) return Inactive(wasActive);
-    if (app.Editor !is null) {
-        if (S_DisableUiInEditor) return Inactive(wasActive);
-        // not in test mode if CurrPG is null
-        if (app.CurrentPlayground is null) return Inactive(wasActive);
-    } else {
-        // always turn off showing in editor if we are not in the editor.
-        S_DisableUiInEditor = true;
-    }
+
 
     // if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
     lastSeq = app.CurrentPlayground.UIConfigs[0].UISequence;

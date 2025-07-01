@@ -146,14 +146,17 @@ namespace DebugMenu {
                 }
             }
 
+            // for testing custom maps with voice lines and the like
+            if (UI::MenuItem("Disable In Editor", "", S_DisableUiInEditor)) {
+                S_DisableUiInEditor = !S_DisableUiInEditor;
+            }
+            AddSimpleTooltip("This will reset while outside the editor.\n \\$i Allows you to test voice lines for custom maps after finalization.");
+
 #if DEV
             if (UI::MenuItem("Wizard", "", g_WizardOpen)) {
                 g_WizardOpen = !g_WizardOpen;
             }
-            if (UI::MenuItem("Disable In Editor", "", S_DisableUiInEditor)) {
-                S_DisableUiInEditor = !S_DisableUiInEditor;
-            }
-            AddSimpleTooltip("This will reset while outside the editor");
+
             // if (UI::Button("Set current map uid to ez map testing")) {
             //     auto map = GetApp().RootMap;
             //     if (map !is null) DD2_EASY_MAP_UID2 = map.EdChallengeId;
