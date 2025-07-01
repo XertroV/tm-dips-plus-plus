@@ -129,6 +129,7 @@ namespace JsonX {
         return true;
     }
 
+    // Returns null on failure.
     shared Json::Value@ SafeGetJson(Json::Value@ j, const string &in key) {
         if (!IsObject(j)) return null;
         if (!j.HasKey(key)) return null;

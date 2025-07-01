@@ -129,6 +129,14 @@ namespace DebugMenu {
                 }
                 UI::EndMenu();
             }
+
+            if (g_CustomMap !is null && g_CustomMap.auxSpec !is null) {
+                if (UI::MenuItem("Copy Map Aux Spec")) {
+                    IO::SetClipboard(Json::Write(g_CustomMap.auxSpec));
+                    NotifySuccess("Copied map aux spec to clipboard");
+                }
+            }
+
 #if DEV
             if (UI::MenuItem("Wizard", "", g_WizardOpen)) {
                 g_WizardOpen = !g_WizardOpen;

@@ -579,6 +579,10 @@ void TriggerCheck_Update() {
     if (player.lastRespawn + 100 > Time::Now) return;
 
     auto t = cast<GameTrigger>(dd2TriggerTree.root.PointToDeepestRegion(player.pos));
+    _TriggerCheck_Hit(t);
+}
+
+void _TriggerCheck_Hit(GameTrigger@ t) {
     bool updateCurr = t !is currTriggerHit;
     bool updateLast = t !is null && t !is lastTriggerHit;
     if (updateCurr) {

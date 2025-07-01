@@ -14,6 +14,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
     bool hasCustomData;
     MapStats@ stats;
     string mapComment;
+    string mapName;
     MapCustomInfo::DipsSpec@ spec;
     string loadError;
     float[] floors;
@@ -117,6 +118,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
         if (map is null) return false;
         @spec = MapCustomInfo::GetBuiltInInfo_Async(map.Id.Value);
         mapComment = map.Comments;
+        mapName = Text::OpenplanetFormatCodes(map.MapName);
         if (spec is null) {
             @spec = MapCustomInfo::TryParse_Async(mapComment);
         }
@@ -131,6 +133,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
         }
         if (spec.auxInfo !is null) {
             @auxSpec = spec.auxInfo.data;
+            AuxiliaryAssets::Begin(mapName);
             AuxiliaryAssets::Load(auxSpec, spec.url);
             LoadAuxiliaryTriggers();
         }
@@ -155,13 +158,13 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
                     Json::Value@ triggerJson = triggerList[i];
                     if (triggerJson.HasKey("trigger")) {
                         Json::Value@ t = triggerJson["trigger"];
-                        vec3 pos = JsonToVec3(t["pos"]);
+                        vec3 specPos = JsonToVec3(t["pos"]);
                         vec3 size = JsonToVec3(t["size"]);
+                        vec3 pos = SpecPosToPos(specPos, size);
                         string name = string(t["name"]);
+                        auto @options = name.Split("|");
                         // todo: use SpecialTextTrigger instead
-                        // todo: pos is actually middle-XZ bottom-Y coords (where the car was when placing the box). need to convert this to min, max as is expected.
-                        warn("Skipping text trigger: todo");
-                        // triggersMgr.octTree.Insert(TextTrigger(pos - size / 2.0, pos + size / 2.0, name, "Trigger activated!"));
+                        triggersMgr.InsertTrigger(TextTrigger(pos, pos + size, name, options));
                     }
                 }
             }
@@ -173,20 +176,71 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
                 Json::Value@ voicelineList = voicelines["lines"];
                 for (uint i = 0; i < voicelineList.Length; i++) {
                     Json::Value@ vlJson = voicelineList[i];
-                    if (vlJson.HasKey("trigger")) {
-                        Json::Value@ t = vlJson["trigger"];
-                        vec3 pos = JsonToVec3(t["pos"]);
-                        vec3 size = JsonToVec3(t["size"]);
-                        string name = string(t["name"]);
-                        string file = string(vlJson["file"]);
-                        string subtitles = string(vlJson["subtitles"]);
-                        string imageAsset = vlJson.HasKey("imageAsset") ? string(vlJson["imageAsset"]) : "";
-                        // todo: probably don't need to use a new trigger.
-                        triggersMgr.octTree.Insert(VoiceLineTrigger(pos - size / 2.0, pos + size / 2.0, name, file, subtitles, imageAsset));
-                    }
+                    AddVoiceLineTriggerJson(vlJson);
+                    // if (vlJson.HasKey("trigger")) {
+                    //     Json::Value@ t = vlJson["trigger"];
+                    //     vec3 specPos = JsonToVec3(t["pos"]);
+                    //     vec3 size = JsonToVec3(t["size"]);
+                    //     vec3 pos = SpecPosToPos(specPos, size);
+                    //     string name = string(t["name"]);
+                    //     string file = string(vlJson["file"]);
+
+                    //     string subtitles = "";
+                    //     JsonX::SafeGetString(vlJson, "subtitles", subtitles);
+
+                    //     string imageAsset = vlJson.HasKey("imageAsset") ? string(vlJson["imageAsset"]) : "";
+                    //     // todo: probably don't need to use a new trigger.
+                    //     triggersMgr.InsertTrigger(VoiceLineTrigger(pos, pos + size, name, file, subtitles, imageAsset));
+                    // }
                 }
             }
         }
+    }
+
+    void AddVoiceLineTriggerJson(Json::Value@ vlJson) {
+        if (vlJson is null) return;
+        string file;
+        Json::Value@ trigger;
+        if (!JsonX::SafeGetString(vlJson, "file", file)) {
+            NotifyWarning("VoiceLineTrigger JSON missing 'file' key: " + Json::Write(vlJson));
+            return;
+        }
+        @trigger = JsonX::SafeGetJson(vlJson, "trigger");
+        if (trigger is null) {
+            NotifyWarning("VoiceLineTrigger JSON missing 'trigger' key: " + Json::Write(vlJson));
+            return;
+        }
+        if (file.Length == 0) {
+            warn("VoiceLineTrigger JSON has empty 'file' key: " + Json::Write(vlJson));
+            return;
+        }
+        string subtitles = "";
+        if (!JsonX::SafeGetString(vlJson, "subtitles", subtitles)) {
+            NotifyWarning("VoiceLineTrigger JSON missing 'subtitles' key: " + Json::Write(vlJson));
+            return;
+        }
+        vec3 specPos, size, pos;
+        try {
+            specPos = JsonToVec3(trigger["pos"]);
+            size = JsonToVec3(trigger["size"]);
+            pos = SpecPosToPos(specPos, size);
+        } catch {
+            NotifyWarning("VoiceLineTrigger JSON has invalid 'pos' or 'size' key: " + Json::Write(trigger));
+            NotifyWarning(getExceptionInfo());
+            return;
+        }
+
+        string name;
+        if (!JsonX::SafeGetString(trigger, "name", name)) {
+            NotifyWarning("VoiceLineTrigger JSON missing 'name' key: " + Json::Write(trigger));
+            return;
+        }
+
+        //  = vlJson.HasKey("imageAsset") ? string(vlJson["imageAsset"]) : "";
+        string imageAsset;
+        JsonX::SafeGetString(vlJson, "imageAsset", imageAsset);
+        // todo: probably don't need to use a new trigger.
+        triggersMgr.InsertTrigger(VoiceLineTrigger(pos, pos + size, name, file, subtitles, imageAsset));
     }
 
     bool WasCustomAssetDownloadDeclined() {
@@ -200,7 +254,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
             UI::Text("Map Assets Download Declined");
             UI::SameLine();
             if (UI::Button("Show Download Prompt")) {
-                AuxiliaryAssets::ForceShowPrompt();
+                AuxiliaryAssets::ShowPrompt();
             }
             UI::Separator();
         }
@@ -249,23 +303,35 @@ void CheckForUploadedMapData(ref@ data) {
     CurrMap::RecheckMap();
 }
 
+vec3 SpecPosToPos(vec3 specPos, vec3 size) {
+    // specPos is middle-XZ bottom-Y coords (where the car was when placing the box).
+    // size is the full size of the box.
+    return specPos - vec3(size.x / 2, 0, size.z / 2);
+}
 
 class TriggersMgr {
     DipsOT::OctTree@ octTree;
-    bool triggerHit = false;
 
     TriggersMgr(nat3 mapSize = nat3(48, 255, 48)) {
         @octTree = DipsOT::OctTree(Nat3ToVec3(mapSize));
     }
 
+    void InsertTrigger(GameTrigger@ trigger) {
+        if (octTree is null) return;
+        if (trigger is null) return;
+        octTree.Insert(trigger);
+    }
+
     void TriggerCheck_Update() {
         if (octTree is null) return;
-        triggerHit = false;
         auto @player = PS::viewedPlayer;
         if (player is null) return;
+        if (lastSeq != CGamePlaygroundUIConfig::EUISequence::Playing) return;
         // don't trigger immediately after (re)spawn
         if (player.lastRespawn + 100 > Time::Now) return;
         auto t = cast<GameTrigger>(octTree.root.PointToDeepestRegion(player.pos));
+        // global function and trigger checker/doer
+        _TriggerCheck_Hit(t);
     }
 }
 

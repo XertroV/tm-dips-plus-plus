@@ -21,9 +21,17 @@ namespace AuxiliaryAssets {
             this.localPath = localPath;
             this.type = type;
         }
+
+        private bool _isCached = false;
+        bool IsCached() {
+            if (_isCached) return true; // already checked
+            // todo: check in asset DB
+            // Check if the asset is already cached
+            _isCached = IO::FileExists(IO::FromStorageFolder(localPath));
+            return _isCached;
+        }
     }
 
-    // todo: we should save the URL to a file in aux asset directories because otherwise there's no way to tell where they came from.
     // todo: maybe we should keep an sqlite DB of all the downloaded files, maps they're used on, base url, filename, etc.
 
     AuxAssetInfo@[] assetsToDownload;
@@ -37,25 +45,32 @@ namespace AuxiliaryAssets {
     bool DidUserDecline() { return userDownloadConsentStage == DownloadConsentStage::Declined; }
     bool DidUserAccept() { return userDownloadConsentStage == DownloadConsentStage::Accepted; }
     bool IsPrompting() { return userDownloadConsentStage == DownloadConsentStage::Prompting; }
-    void ForceShowPrompt() { userDownloadConsentStage = DownloadConsentStage::Prompting; }
+    void ShowPrompt() {
+        startnew(CoroutineFunc(PromptAndDownloadAssets));
+    }
 
     // Called when we are about to load auxiliary assets.
     void Begin(const string &in sourceName) {
         currentAuxSourceName = sourceName;
-        userDownloadConsentStage = DownloadConsentStage::Prompting;
+        assetsToDownload.RemoveRange(0, assetsToDownload.Length); // clear the list
+        userDownloadConsentStage = DownloadConsentStage::None; // reset the stage
+        _specUrlHash = ""; // reset the spec URL hash
+        urlPrefix = ""; // reset the URL prefix
     }
 
-    void DrawPrompt() {
+    void RenderPrompt() {
         if (userDownloadConsentStage != DownloadConsentStage::Prompting) return;
         float windowPropHeight = 0.6;
         vec2 windowSize = vec2(Math::Clamp(g_screen.x * 0.4, 400, 1000), g_screen.y * windowPropHeight);
         vec2 windowPos = g_screen / 2. + vec2(-windowSize.x/2, -g_screen.y * windowPropHeight / 2);
+        windowPos = windowPos / UI::GetScale(); // convert to UI scale
 
         UI::SetNextWindowPos(int(windowPos.x), int(windowPos.y), UI::Cond::Always);
         UI::SetNextWindowSize(int(windowSize.x), int(windowSize.y), UI::Cond::Always);
 
         UI::PushFont(UI::Font::Default20);
-        if (UI::Begin("Dips++ | Map Assets Download", AUX_PROMPT_WIN_FLAGS)) {
+        bool open = true;
+        if (UI::Begin("Dips++ | Map Assets Download", open, AUX_PROMPT_WIN_FLAGS)) {
             auto avail = UI::GetContentRegionAvail();
             auto itemSpacing = UI::GetStyleVarVec2(UI::StyleVar::ItemSpacing);
             auto framePadding = UI::GetStyleVarVec2(UI::StyleVar::FramePadding);
@@ -74,21 +89,27 @@ namespace AuxiliaryAssets {
             UI::EndChild();
 
             UI::SeparatorText("Download?");
-            if (UI::ButtonColored("No, skip", 0.1, 0.5, 0.4)) {
+            if (UI::ButtonColored("No, skip downloads", 0.05, 0.6, 0.6)) {
                 userDownloadConsentStage = DownloadConsentStage::Declined;
                 NotifyWarning("Auxiliary assets download skipped.");
             }
             UI::SameLine();
             avail = UI::GetContentRegionAvail();
-            float yesBtnWidth = Draw::MeasureString("Yes, download").x + framePadding.x;
+            float yesBtnWidth = Draw::MeasureString("Yes, download assets").x + framePadding.x;
             float gapWidth = Math::Max(avail.x - yesBtnWidth - itemSpacing.x, 0.0);
             UI::SetCursorPos(UI::GetCursorPos() + vec2(gapWidth, 0));
-            if (UI::ButtonColored("Yes, download", 0.4, 0.5, 0.4)) {
+            if (UI::ButtonColored("Yes, download assets", 0.4, 0.7, 0.5)) {
                 userDownloadConsentStage = DownloadConsentStage::Accepted;
             }
         }
         UI::End();
         UI::PopFont();
+
+        if (!open) {
+            // User closed the prompt, equivalent to decline
+            userDownloadConsentStage = DownloadConsentStage::Declined;
+            NotifyWarning("Asset download canceled. You can re-activate it from the Dips++ UI.");
+        }
     }
 
     void DrawAssetDownloadSummary() {
@@ -131,6 +152,15 @@ namespace AuxiliaryAssets {
         UI::Unindent();
     }
 
+    void QueueAssetDownload(AuxAssetInfo@ asset) {
+        if (asset is null) return;
+        if (asset.IsCached()) {
+            trace("Skipping cached asset: " + asset.localPath);
+            return;
+        }
+        assetsToDownload.InsertLast(asset);
+    }
+
     void Load(Json::Value@ auxSpec, const string &in specUrl) {
         if (auxSpec is null) return;
 
@@ -164,7 +194,7 @@ namespace AuxiliaryAssets {
                             string filename = string(audioFiles[j]);
                             string url = urlPrefix + filename;
                             string localPath = GetLocalPath("audio/" + filename);
-                            assetsToDownload.InsertLast(AuxAssetInfo(url, localPath, "audio"));
+                            QueueAssetDownload(AuxAssetInfo(url, localPath, "audio"));
                         }
                     }
                 }
@@ -180,7 +210,7 @@ namespace AuxiliaryAssets {
                             string filename = string(imageFiles[j]);
                             string url = urlPrefix + filename;
                             string localPath = GetLocalPath("img/" + filename);
-                            assetsToDownload.InsertLast(AuxAssetInfo(url, localPath, "image"));
+                            QueueAssetDownload(AuxAssetInfo(url, localPath, "image"));
                         }
                     }
                 }
@@ -188,7 +218,10 @@ namespace AuxiliaryAssets {
         }
 
         if (assetsToDownload.Length > 0) {
-            startnew(CoroutineFunc(PromptAndDownloadAssets));
+            ShowPrompt();
+        } else {
+            // There are no downloads to be done, so we just skip and act like the user accepted.
+            userDownloadConsentStage = DownloadConsentStage::Accepted;
         }
     }
 

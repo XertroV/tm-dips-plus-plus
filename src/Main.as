@@ -181,7 +181,7 @@ void Render() {
     MagicSpectate::Render();
     if (S_BlockCam7Drivable) BlockCam7Drivable::Render();
     // custom map aux download prompt
-    AuxiliaryAssets::DrawPrompt();
+    AuxiliaryAssets::RenderPrompt();
     // main UI things
     if (drawAnywhereUI) {
         MainUI::Render();

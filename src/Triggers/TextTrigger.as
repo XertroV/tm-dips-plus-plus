@@ -1,15 +1,25 @@
 class TextTrigger : GameTrigger {
-    string message;
+    string[]@ options;
 
-    TextTrigger(vec3 &in min, vec3 &in max, const string &in name, const string &in message) {
-        throw("use SpecialTextTrigger instead");
+    TextTrigger(vec3 &in min, vec3 &in max, const string &in name, string[]@ options = null) {
+        @this.options = options;
+        if (this.options is null || options.Length == 0) @this.options = {name};
+        // throw("use SpecialTextTrigger instead");
         super(min, max, name);
-        this.message = message;
-        this.debug_strokeColor = vec4(1, 0, 0, 1);
+        this.debug_strokeColor = StrHashToCol(name);
     }
 
     void OnEnteredTrigger(DipsOT::OctTreeRegion@ prevTrigger) override {
         // TODO: UI: Display the text message on screen, possibly as a temporary notification or a dedicated UI element.
-        NotifyWarning("Text Trigger Activated: " + name + " - Message: " + message);
+        auto msg = options.Length > 0 ? options[Math::Rand(0, options.Length)] : "<null>";
+        NotifyWarning("Text Trigger Activated:\n-- " + name + " --\n- msg: " + msg);
     }
+}
+
+vec4 StrHashToCol(const string &in str) {
+    // Convert the string to a hash and then to a color
+    string hash = Crypto::MD5(str);
+    return Text::ParseHexColor(hash.SubStr(0, 6));
+    // vec4 c = Text::ParseHexColor(hash.SubStr(0, 6));
+    // return c.xyz * 0.5 + vec3(0.5, 0.5, 0.5);
 }
