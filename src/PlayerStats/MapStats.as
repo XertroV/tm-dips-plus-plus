@@ -29,6 +29,8 @@ class MapStats {
     // local time, don't send to server
     uint lastPbSet = 0;
     uint lastInMap = Time::Stamp;
+    // custom map voice lines
+    Json::Value@ customVLsPlayed = Json::Object();
 
     MapStats(const string &in mapUid, const string &in name) {
         this.mapUid = mapUid;
@@ -100,6 +102,10 @@ class MapStats {
         if (j.HasKey("extra")) {
             extra = j["extra"];
         }
+        // load customVLsPlayed if present
+        if (j.HasKey("custom_vls_played") && JsonX::IsObject(j["custom_vls_played"])) {
+            @customVLsPlayed = j["custom_vls_played"];
+        }
         // load last for compat
         if (mapUid.Length == 0) mapUid = j.Get("mapUid", "1??1");
         if (mapName.Length == 0) mapName = j.Get("mapName", "1??1");
@@ -134,6 +140,7 @@ class MapStats {
         stats["reached_floor_count"] = reachedFloorCount.ToJson();
         stats["floor_voice_lines_played"] = floorVoiceLinesPlayed.ToJson();
         stats["extra"] = extra;
+        stats["custom_vls_played"] = customVLsPlayed;
         return stats;
     }
 
@@ -434,6 +441,20 @@ class MapStats {
             return 0;
         }
         return floorVoiceLinesPlayed[floor];
+    }
+
+    void Set_CM_VoiceLinePlayed(const string &in name) {
+        if (customVLsPlayed.HasKey(name)) {
+            customVLsPlayed[name] = int64(customVLsPlayed[name]) + 1;
+        } else {
+            customVLsPlayed[name] = 1;
+        }
+    }
+
+    bool Has_CM_VoiceLinePlayed(const string &in name) {
+        if (!customVLsPlayed.HasKey(name)) return false;
+        auto j = customVLsPlayed[name];
+        return JsonX::IsNumber(j) && int64(j) > 0;
     }
 
 

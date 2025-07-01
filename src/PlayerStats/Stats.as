@@ -487,6 +487,12 @@ namespace Stats {
         }
         return floorVoiceLinesPlayed[floor];
     }
+
+    void Set_CM_VoiceLinePlayed(const string &in name) {
+        if (g_CustomMap !is null && g_CustomMap.hasStats) {
+            g_CustomMap.stats.Set_CM_VoiceLinePlayed(name);
+        }
+    }
 }
 
 void UpdateStatsSoon() {

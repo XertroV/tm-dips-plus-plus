@@ -386,7 +386,8 @@ class DD2API {
             mapChange = (app.RootMap is null && lastMapMwId > 0)
                 || (lastMapMwId == 0 && app.RootMap !is null)
                 || (app.RootMap !is null && lastMapMwId != app.RootMap.Id.Value);
-            nextu64 = app.CurrentPlayground !is null ? (app.Editor is null ? 43 : 89) : 95;
+            bool editor = app.Editor !is null;
+            nextu64 = app.CurrentPlayground !is null ? (!editor ? 43 : 89) : 95;
             // nextMI = MI::GetInfo();
             u64Change = lastu64 != nextu64 || lastMI != nextMI;
             if (mapChange || u64Change || firstRun) {
