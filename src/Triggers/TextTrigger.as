@@ -1,18 +1,19 @@
 class TextTrigger : GameTrigger {
     string[]@ options;
+    uint duration = 6000; // default duration in ms
 
-    TextTrigger(vec3 &in min, vec3 &in max, const string &in name, string[]@ options = null) {
+    TextTrigger(vec3 &in min, vec3 &in max, const string &in name, string[]@ options = null, uint duration = 6000) {
+        super(min, max, name);
         @this.options = options;
         if (this.options is null || options.Length == 0) @this.options = {name};
-        // throw("use SpecialTextTrigger instead");
-        super(min, max, name);
+        this.duration = duration;
         this.debug_strokeColor = StrHashToCol(name);
     }
 
     void OnEnteredTrigger(DipsOT::OctTreeRegion@ prevTrigger) override {
-        // TODO: UI: Display the text message on screen, possibly as a temporary notification or a dedicated UI element.
         auto msg = options.Length > 0 ? options[Math::Rand(0, options.Length)] : "<null>";
-        NotifyWarning("Text Trigger Activated:\n-- " + name + " --\n- msg: " + msg);
+        // NotifyWarning("Text Trigger Activated:\n-- " + name + " --\n- msg: " + msg);
+        EmitStatusAnimation(RainbowStaticStatusMsg(msg).WithDuration(duration));
     }
 }
 
