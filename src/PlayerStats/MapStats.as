@@ -173,6 +173,7 @@ class MapStats {
             UI::Text("Special Title Gags triggered");
             UI::Text("GGs triggered");
             UI::Text("Bye Byes triggered");
+            UI::Text("Voice Lines Found");
             UI::NextColumn();
             UI::Text(Time::Format(msSpentInMap, false, true, true));
             UI::Text("" + GetNbFinishes());
@@ -188,6 +189,8 @@ class MapStats {
             UI::Text("" + titleGagsSpecialTriggered);
             UI::Text("" + ggsTriggered);
             UI::Text("" + byeByesTriggered);
+            auto vlsPlayed = Count_CM_VoiceLinePlayed();
+            UI::Text("" + vlsPlayed.x); // UI::Text("" + vlsPlayed.y);
             UI::Columns(1);
         } else {
             UI::Text("Time spent in map: Edit via Green Timer settings");
@@ -455,6 +458,24 @@ class MapStats {
         if (!customVLsPlayed.HasKey(name)) return false;
         auto j = customVLsPlayed[name];
         return JsonX::IsNumber(j) && int64(j) > 0;
+    }
+
+    int Get_CM_VoiceLinePlayedCount(const string &in name) {
+        if (!customVLsPlayed.HasKey(name)) return 0;
+        auto j = customVLsPlayed[name];
+        if (!JsonX::IsNumber(j)) return 0;
+        return int(j);
+    }
+
+    // returns (unique count, total count)
+    int2 Count_CM_VoiceLinePlayed() {
+        int2 count;
+        auto keys = customVLsPlayed.GetKeys();
+        for (uint i = 0; i < keys.Length; i++) {
+            count.x++;
+            count.y += Get_CM_VoiceLinePlayedCount(keys[i]);
+        }
+        return count;
     }
 
 
