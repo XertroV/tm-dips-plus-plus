@@ -180,6 +180,9 @@ void Render() {
     // render Magic Spectate UI regardless of UI visibility, including warnings
     MagicSpectate::Render();
     if (S_BlockCam7Drivable) BlockCam7Drivable::Render();
+    // custom map aux download prompt
+    AuxiliaryAssets::DrawPrompt();
+    // main UI things
     if (drawAnywhereUI) {
         MainUI::Render();
     }

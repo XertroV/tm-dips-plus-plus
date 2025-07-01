@@ -189,7 +189,21 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
         }
     }
 
+    bool WasCustomAssetDownloadDeclined() {
+        if (auxSpec is null) return false;
+        return AuxiliaryAssets::DidUserDecline();
+    }
+
     void DrawMapTabs() {
+        if (WasCustomAssetDownloadDeclined()) {
+            UI::AlignTextToFramePadding();
+            UI::Text("Map Assets Download Declined");
+            UI::SameLine();
+            if (UI::Button("Show Download Prompt")) {
+                AuxiliaryAssets::ForceShowPrompt();
+            }
+            UI::Separator();
+        }
         UI::BeginTabBar("cmtabs" + mapUid);
         if (UI::BeginTabItem("Stats")) {
             CheckUpdateMapOverview();

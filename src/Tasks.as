@@ -107,7 +107,7 @@ namespace Tasks {
             int64 timeoutAt = Time::Now + timeout_ms;
             // int64 timeoutAt = Time::Now + (timeout_ms > 0 ? timeout_ms : 0xFFFFFFFF);
 
-            while (!done && Time::Now <= timeoutAt) {
+            while (!done && int64(Time::Now) <= timeoutAt) {
                 yield();
             }
 
