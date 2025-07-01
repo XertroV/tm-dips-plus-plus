@@ -109,6 +109,8 @@ namespace Visibility {
 
 
 
+bool g_DebugDrawCustomMapTriggers = false;
+
 
 namespace DebugMenu {
     void DrawMenu() {
@@ -131,9 +133,16 @@ namespace DebugMenu {
             }
 
             if (g_CustomMap !is null && g_CustomMap.auxSpec !is null) {
-                if (UI::MenuItem("Copy Map Aux Spec")) {
-                    IO::SetClipboard(Json::Write(g_CustomMap.auxSpec));
-                    NotifySuccess("Copied map aux spec to clipboard");
+                if (UI::BeginMenu("Custom Map")) {
+                    if (UI::MenuItem("Debug: Show Triggers", "No Cheating!", g_DebugDrawCustomMapTriggers)) {
+                        g_DebugDrawCustomMapTriggers = !g_DebugDrawCustomMapTriggers;
+                    }
+
+                    if (UI::MenuItem("Copy Map Aux Spec", "VLs JSON")) {
+                        IO::SetClipboard(Json::Write(g_CustomMap.auxSpec));
+                        NotifySuccess("Copied map aux spec to clipboard");
+                    }
+                    UI::EndMenu();
                 }
             }
 
@@ -141,9 +150,10 @@ namespace DebugMenu {
             if (UI::MenuItem("Wizard", "", g_WizardOpen)) {
                 g_WizardOpen = !g_WizardOpen;
             }
-            if (UI::MenuItem("Disable UI In Editor", "", S_DisableUiInEditor)) {
+            if (UI::MenuItem("Disable In Editor", "", S_DisableUiInEditor)) {
                 S_DisableUiInEditor = !S_DisableUiInEditor;
             }
+            AddSimpleTooltip("This will reset while outside the editor");
             // if (UI::Button("Set current map uid to ez map testing")) {
             //     auto map = GetApp().RootMap;
             //     if (map !is null) DD2_EASY_MAP_UID2 = map.EdChallengeId;

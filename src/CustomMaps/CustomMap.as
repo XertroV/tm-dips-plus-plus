@@ -279,6 +279,11 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
         }
         UI::EndTabBar();
     }
+
+    void RenderDebugTriggers() {
+        if (triggersMgr is null) return;
+        triggersMgr.RenderDebugTriggers();
+    }
 }
 
 const string MapInfosUploadedURL = "https://assets.xk.io/d++maps/";
@@ -311,6 +316,7 @@ vec3 SpecPosToPos(vec3 specPos, vec3 size) {
 
 class TriggersMgr {
     DipsOT::OctTree@ octTree;
+    GameTrigger@[] triggers;
 
     TriggersMgr(nat3 mapSize = nat3(48, 255, 48)) {
         @octTree = DipsOT::OctTree(Nat3ToVec3(mapSize));
@@ -320,6 +326,7 @@ class TriggersMgr {
         if (octTree is null) return;
         if (trigger is null) return;
         octTree.Insert(trigger);
+        triggers.InsertLast(trigger);
     }
 
     void TriggerCheck_Update() {
@@ -332,6 +339,14 @@ class TriggersMgr {
         auto t = cast<GameTrigger>(octTree.root.PointToDeepestRegion(player.pos));
         // global function and trigger checker/doer
         _TriggerCheck_Hit(t);
+    }
+
+    void RenderDebugTriggers() {
+        for (uint i = 0; i < triggers.Length; i++) {
+            if (triggers[i].Debug_NvgDrawTrigger()) {
+                triggers[i].Debug_NvgDrawTriggerName();
+            }
+        }
     }
 }
 

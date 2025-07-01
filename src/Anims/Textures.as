@@ -1,4 +1,6 @@
+const string OPENPLANET_DATA_FOLDER = IO::FromDataFolder("");
 
+// path should be relative to the storage folder, or absolute somewhere in the user OpenplanetNext folder.
 class DTexture {
     string path;
     bool fileExists;
@@ -6,8 +8,13 @@ class DTexture {
     vec2 dims;
 
     DTexture(const string &in path) {
+        if (path.Length == 0) {
+            Dev_NotifyWarning("DTexture: path cannot be empty");
+            return;
+        }
+
         this.path = path;
-        if (!path.StartsWith(IO::FromDataFolder(""))) {
+        if (!path.StartsWith(OPENPLANET_DATA_FOLDER)) {
             this.path = IO::FromStorageFolder(path);
         }
         startnew(CoroutineFunc(WaitForTexture));

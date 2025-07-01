@@ -61,7 +61,7 @@ namespace AuxiliaryAssets {
     void RenderPrompt() {
         if (userDownloadConsentStage != DownloadConsentStage::Prompting) return;
         float windowPropHeight = 0.6;
-        vec2 windowSize = vec2(Math::Clamp(g_screen.x * 0.4, 400, 1000), g_screen.y * windowPropHeight);
+        vec2 windowSize = vec2(Math::Clamp(g_screen.x * 0.4, 400.0, 1000.0), g_screen.y * windowPropHeight);
         vec2 windowPos = g_screen / 2. + vec2(-windowSize.x/2, -g_screen.y * windowPropHeight / 2);
         windowPos = windowPos / UI::GetScale(); // convert to UI scale
 

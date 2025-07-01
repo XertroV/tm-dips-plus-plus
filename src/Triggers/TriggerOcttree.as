@@ -19,12 +19,14 @@ class GameTrigger : DipsOT::OctTreeRegion {
 
     vec3 screenPos;
 
-    void Debug_NvgDrawTrigger() {
+    // returns true if drawn
+    bool Debug_NvgDrawTrigger() {
         screenPos = Camera::ToScreen(midp);
         // behind check
-        if (screenPos.z > 0) return;
+        if (screenPos.z > 0) return false;
 
         nvgDrawBlockBox(mat, size, debug_strokeColor);
+        return true;
     }
 
     void Debug_NvgDrawTriggerName() {

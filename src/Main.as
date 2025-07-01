@@ -182,6 +182,10 @@ void Render() {
     if (S_BlockCam7Drivable) BlockCam7Drivable::Render();
     // custom map aux download prompt
     AuxiliaryAssets::RenderPrompt();
+    // debug for triggers
+    if (g_DebugDrawCustomMapTriggers && g_CustomMap !is null) {
+        g_CustomMap.RenderDebugTriggers();
+    }
     // main UI things
     if (drawAnywhereUI) {
         MainUI::Render();
@@ -219,12 +223,8 @@ bool IsInMainMenu() {
     return cast<CTrackManiaMenus>(switcher.ModuleStack[0]) !is null;
 }
 
-#if DEV
-[Setting hidden]
+// always starts true
 bool S_DisableUiInEditor = true;
-#else
-const bool S_DisableUiInEditor = true;
-#endif
 
 bool IsInEditor = true;
 // requires game restart so only need to set once.
@@ -247,11 +247,15 @@ bool RenderEarlyInner() {
     if (app.CurrentPlayground.GameTerminals.Length == 0) return Inactive(wasActive);
     if (app.CurrentPlayground.GameTerminals[0].ControlledPlayer is null) return Inactive(wasActive);
     if (app.CurrentPlayground.UIConfigs.Length == 0) return Inactive(wasActive);
-#if DEV
-    if (app.Editor !is null && S_DisableUiInEditor) return Inactive(wasActive);
-#else
-    if (app.Editor !is null) return Inactive(wasActive);
-#endif
+    if (app.Editor !is null) {
+        if (S_DisableUiInEditor) return Inactive(wasActive);
+        // not in test mode if CurrPG is null
+        if (app.CurrentPlayground is null) return Inactive(wasActive);
+    } else {
+        // always turn off showing in editor if we are not in the editor.
+        S_DisableUiInEditor = true;
+    }
+
     // if (!GoodUISequence(app.CurrentPlayground.UIConfigs[0].UISequence)) return Inactive(wasActive);
     lastSeq = app.CurrentPlayground.UIConfigs[0].UISequence;
     bool matchDd2 = MatchDD2::MapMatchesDD2Uid(app.RootMap);
