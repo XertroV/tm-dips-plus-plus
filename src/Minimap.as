@@ -288,6 +288,10 @@ namespace Minimap {
         return minimapCenterPos.y + minimapSize.y * (1.0 - (h - mapMinMax.x) / Math::Max(mapHeightDelta, 8));
     }
 
+    float VDistToMinimapPxDist(float vDist) {
+        return minimapSize.y * vDist / mapHeightDelta;
+    }
+
     void RenderMinimapBg() {
         nvg::Reset();
         nvg::StrokeWidth(0.0);
@@ -644,6 +648,13 @@ namespace Minimap {
 
             vec2 hovTL = rect.xy + vec2(rect.z + textPad * 2., 0);
 
+            float fs = playerLabelBaseHeight * .9 * extraGlobalScale;
+
+            if (VDistToMinimapPxDist(Math::Abs(pbHeight - height)) < rect.w * 0.66) {
+                // if the label is small, add a bit to tl.x so that the PB label doesn't cover this status text
+                hovTL.x += fs * 2.5;
+            }
+
             canSpectate = canSpectate && ((S_ClickMinimapToMagicSpectate && MAGIC_SPEC_ENABLED) || Spectate::IsSpectator);
             if (canSpectate) {
                 UI::SetMouseCursor(UI::MouseCursor::Hand);
@@ -652,7 +663,6 @@ namespace Minimap {
             nvg::Reset();
             nvg::BeginPath();
             nvg::FontFace(f_Nvg_ExoBold);
-            float fs = playerLabelBaseHeight * .9 * extraGlobalScale;
             nvg::FontSize(fs);
             vec2 bounds = nvg::TextBounds(l) + textPad * 4.;
             vec2 size = vec2(bounds.x, rect.w);
@@ -897,17 +907,17 @@ namespace Minimap {
             UI::SeparatorText("Performance");
             RBi("mm-ndriv", S_MinimapLimitNbDriving, 20, S_MinimapLimitNbDriving);
             S_MinimapLimitNbDriving = UI::SliderInt("Max. # of Driving Players to Show", S_MinimapLimitNbDriving, 0, 100);
-            AddSimpleTooltip("Limits the number of players on the minimap. Useful on servers.\nFalling and turtled/afk players are always shown for technical (lazy) reasons.");
+            AddSimpleTooltip("Limits the number of players on the minimap. Useful on servers.\nFalling and turtled/afk players are always shown for technical (lazy) reasons.\nRender Time: ~0.15ms per 10.");
 
             UI::SeparatorText("Leaderboard");
             RBi("mm-ntop", S_NbTopTimes, 3, S_NbTopTimes);
             S_NbTopTimes = UI::SliderInt("# of Top Times to Show", S_NbTopTimes, 1, 10);
-            AddSimpleTooltip("Shows WR, #2 record, etc, up to #10 record.");
+            AddSimpleTooltip("Shows WR, #2 record, etc, up to #10 record.\nRender Time: ~0.1ms for 10");
 
             UI::SeparatorText("Solo");
             RBi("mms-nlive", S_Solo_ShowNbCurrentHighestPlayers, 5, S_Solo_ShowNbCurrentHighestPlayers);
             S_Solo_ShowNbCurrentHighestPlayers = UI::SliderInt("# of Live Climbers to Show", S_Solo_ShowNbCurrentHighestPlayers, 0, 10);
-            AddSimpleTooltip("Set to 0 to disable.\nShows other players currently climbing this tower\n\\$i\\$fbbSolo only.");
+            AddSimpleTooltip("Set to 0 to disable.\nShows other players currently climbing this tower\nRender Time: ~0.15ms for 10\n\\$i\\$fbbSolo only.");
 
             updateMatrices = true;
             UI::EndMenu();
