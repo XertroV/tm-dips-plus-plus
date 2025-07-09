@@ -91,7 +91,10 @@ namespace HUD {
         float carYPos = player.pos.y;
         float heightPct = (carYPos - Minimap::mapMinMax.x) / (Minimap::mapMinMax.y - Minimap::mapMinMax.x) * 100;
         if (S_HUDShowHeight) {
-            mainHudLabel = Text::Format("Height: %4.0f m", Math::Round(carYPos)) + Text::Format(" (%.1f %%)", heightPct);
+            mainHudLabel = Text::Format("Height: %4.0f m", Math::Round(carYPos))
+                + Text::Format(" (%.1f %%)", heightPct)
+                + Text::Format("  F.%02d", int(HeightToFloor(carYPos)));
+
             DrawHudLabel(h, pos, mainHudLabel, cWhite);
         }
         int currFallFloors = 0;

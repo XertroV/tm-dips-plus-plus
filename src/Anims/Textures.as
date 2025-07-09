@@ -52,6 +52,7 @@ class DTexture {
         @tex = nvg::LoadTexture(f.Read(f.Size()), nvg::TextureFlags::None);
         dev_trace("<<< Loaded texture: " + path);
         dims = tex.GetSize();
+        dev_trace("< < Got size: " + dims.ToString());
         return tex;
     }
 

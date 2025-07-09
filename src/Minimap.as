@@ -650,7 +650,7 @@ namespace Minimap {
 
             float fs = playerLabelBaseHeight * .9 * extraGlobalScale;
 
-            if (VDistToMinimapPxDist(Math::Abs(pbHeight - height)) < rect.w * 0.66) {
+            if (VDistToMinimapPxDist(Math::Abs(pbHeight - height)) < rect.w * 0.85) {
                 // if the label is small, add a bit to tl.x so that the PB label doesn't cover this status text
                 hovTL.x += fs * 2.5;
             }

@@ -38,12 +38,14 @@ namespace SecretAssets {
     void LoadSAFromFile(const string &in name, const string &in filename) {
         if (name == "head") {
             @head = DTexture(filename);
+            head.WaitForTextureSilent();
             while (head.Get() is null) yield();
         } else if (name == "fanfare") {
             @fanfarePfp = DTexture(filename);
             for (uint i = 0; i < 3; i++) {
                 Fanfare::AddFireworkParticle(fanfarePfp);
             }
+            fanfarePfp.WaitForTextureSilent();
             while (fanfarePfp.Get() is null) yield();
         } else if (name == "s-flight-vae") {
             s_flight_vae = ReadTextFileFromStorage(filename);
