@@ -3,20 +3,20 @@ class VoiceLineTrigger : GameTrigger {
     string audioFilename;
     string subtitles;
     string imageAsset;
-    bool allowRepeats = false;
+    int maxPlays = -1;
     bool played = false;
 
-    VoiceLineTrigger(vec3 &in min, vec3 &in max, const string &in name, const string &in audioFilename, const string &in subtitles, const string &in imageAsset = "", bool allowRepeats = false) {
+    VoiceLineTrigger(vec3 &in min, vec3 &in max, const string &in name, const string &in audioFilename, const string &in subtitles, const string &in imageAsset = "", int maxPlays = 1) {
         // todo: is there a better existing trigger to use?
         super(min, max, name);
         this.debug_strokeColor = StrHashToCol(name);
         this.audioFilename = AuxiliaryAssets::GetLocalPath("audio/" + audioFilename);
         this.subtitles = subtitles;
         this.imageAsset = imageAsset.Length > 0 ? AuxiliaryAssets::GetLocalPath("img/" + imageAsset) : "";
-        this.allowRepeats = allowRepeats;
+        this.maxPlays = Math::Max(maxPlays, 1); // ensure at least 1 play
         // Check if the voice line has already been played
         if (g_CustomMap !is null && g_CustomMap.hasStats) {
-            played = g_CustomMap.stats.Has_CM_VoiceLinePlayed(name);
+            played = g_CustomMap.stats.Has_CM_VoiceLinePlayed(name, this.maxPlays);
             dev_trace("VoiceLineTrigger: " + name + " already played: " + played);
         }
     }
@@ -25,21 +25,20 @@ class VoiceLineTrigger : GameTrigger {
         bool hasStats = g_CustomMap !is null && g_CustomMap.hasStats;
 
         // check if we should exit early (if we've already played this voice line and it doesn't allow repeats)
-        if (!allowRepeats) {
-            if (played) return;
-            if (hasStats) {
-                if (g_CustomMap.stats.Has_CM_VoiceLinePlayed(name)) {
-                    dev_trace("VoiceLineTrigger::OnEnteredTrigger: " + name + " already played: " + played);
-                    played = true;
-                    return;
-                }
+        if (played) return;
+        if (hasStats) {
+            if (g_CustomMap.stats.Get_CM_VoiceLinePlayedCount(name) >= maxPlays) {
+                dev_trace("VoiceLineTrigger::OnEnteredTrigger: " + name + " already played maxPlays: " + played);
+                played = true;
+                return;
             }
         }
 
         // update stats
         if (hasStats) {
-            g_CustomMap.stats.Set_CM_VoiceLinePlayed(name);
-            played = true;
+            if (g_CustomMap.stats.Set_CM_VoiceLinePlayed(name) >= maxPlays) {
+                played = true;
+            }
         }
         dev_trace("VoiceLineTrigger::OnEnteredTrigger: Playing " + name);
 

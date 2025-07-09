@@ -446,18 +446,20 @@ class MapStats {
         return floorVoiceLinesPlayed[floor];
     }
 
-    void Set_CM_VoiceLinePlayed(const string &in name) {
+    // returns number of times played
+    int64 Set_CM_VoiceLinePlayed(const string &in name) {
+        int64 newVal = 1;
         if (customVLsPlayed.HasKey(name)) {
-            customVLsPlayed[name] = int64(customVLsPlayed[name]) + 1;
-        } else {
-            customVLsPlayed[name] = 1;
+            newVal = int64(customVLsPlayed[name]) + 1;
         }
+        customVLsPlayed[name] = newVal;
+        return newVal;
     }
 
-    bool Has_CM_VoiceLinePlayed(const string &in name) {
+    bool Has_CM_VoiceLinePlayed(const string &in name, int64 maxPlays = 1) {
         if (!customVLsPlayed.HasKey(name)) return false;
         auto j = customVLsPlayed[name];
-        return JsonX::IsNumber(j) && int64(j) > 0;
+        return JsonX::IsNumber(j) && int64(j) >= maxPlays;
     }
 
     int Get_CM_VoiceLinePlayedCount(const string &in name) {

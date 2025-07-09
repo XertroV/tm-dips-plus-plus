@@ -12,6 +12,8 @@ float S_MinimapTopBottomPad = 150.0;
 float S_MinimapMaxFallingGlobalExtraScale = 1.3;
 [Setting hidden]
 bool S_ScaleMinimapToPlayers = false;
+[Setting hidden]
+bool S_MinimapShowPlayerPbOnHover = true;
 
 [Setting hidden]
 bool S_MinimapShowPbRank = true;
@@ -217,7 +219,7 @@ namespace Minimap {
                 auto @label = livePlayerLabels[liveIx];
                 // apply lerp
                 if (label.origPos.LengthSquared() > 0.01) {
-                    screenPos = FrameIndependentLerp(label.origPos, screenPos, 8.0);
+                    screenPos = FrameIndependentLerp(label.origPos, screenPos, 0.5);
                 }
                 // actually draw
                 nvgDrawPointCircle(screenPos, size, cGreen, cMagenta);
@@ -274,7 +276,7 @@ namespace Minimap {
             hoveredPbHeight = hLabel.DrawHovered(g_CustomMap.mapLive[hoveredLiveIx]);
         }
 
-        if (hLabel !is null && hoveredPbHeight > 0.0) {
+        if (hLabel !is null && hoveredPbHeight > 0.0 && S_MinimapShowPlayerPbOnHover) {
             // draw label at PB height
             auto pos = vec2(minimapCenterPos.x, HeightToMinimapY(hoveredPbHeight));
             hoveredPbLabel.Update(hLabel.playerCol, pos, hLabel.name + " [PB]");
@@ -666,8 +668,8 @@ namespace Minimap {
 
             float fs = playerLabelBaseHeight * .9 * extraGlobalScale;
 
-            if (VDistToMinimapPxDist(Math::Abs(pbHeight - height)) < rect.w * 0.85) {
-                // if the label is small, add a bit to tl.x so that the PB label doesn't cover this status text
+            // if the label is small, add a bit to tl.x so that the PB label doesn't cover this status text
+            if (S_MinimapShowPlayerPbOnHover && VDistToMinimapPxDist(Math::Abs(pbHeight - height)) < rect.w * 0.85) {
                 hovTL.x += fs * 2.5;
             }
 
@@ -854,8 +856,8 @@ namespace Minimap {
             textBounds.x = Math::Max(textBounds.x, defaultTBounds.x);
             // enable some squishing of text, but not too much.
             vec2 textStretch = vec2(1.0);
-            if (textBounds.x > defaultTBounds.x * 1.2) {
-                textStretch.x = Math::Clamp((defaultTBounds.x * 1.2) / textBounds.x, 0.8, 1.0);
+            if (textBounds.x > defaultTBounds.x * 1.25) {
+                textStretch.x = Math::Clamp((defaultTBounds.x * 1.25) / textBounds.x, 0.8, 1.0);
             }
 
             pos.y = HeightToMinimapY(heights[i].height);
@@ -928,6 +930,7 @@ namespace Minimap {
             S_ShowMinimap = UI::Checkbox("Show Minimap", S_ShowMinimap);
             if (MAGIC_SPEC_ENABLED) S_ClickMinimapToMagicSpectate = UI::Checkbox("Click Minimap to Magic Spectate", S_ClickMinimapToMagicSpectate);
             S_ScaleMinimapToPlayers = UI::Checkbox("Scale Minimap to Players", S_ScaleMinimapToPlayers);
+            S_MinimapShowPlayerPbOnHover = UI::Checkbox("Hover: Show Player PB Label" + NewIndicator, S_MinimapShowPlayerPbOnHover);
             RBf("mm-fs", S_MinimapPlayerLabelFS, 22.0 * vScale, S_MinimapPlayerLabelFS);
             S_MinimapPlayerLabelFS = float(UI::SliderInt("Player Label Font Size", int(S_MinimapPlayerLabelFS), 10, 40));
             RBf("mm-lp", S_MinimapLeftPad, 50.0 * vScale, S_MinimapLeftPad);
@@ -937,19 +940,19 @@ namespace Minimap {
             RBf("mm-mfgxs", S_MinimapMaxFallingGlobalExtraScale, 1.3, S_MinimapMaxFallingGlobalExtraScale);
             S_MinimapMaxFallingGlobalExtraScale = Math::Clamp(UI::SliderFloat("Max Extra Scale for Big Fallers (> ~500m)", S_MinimapMaxFallingGlobalExtraScale, 1.0, 2.0, "%.2f"), 1.0, 2.0);
 
-            UI::SeparatorText("Performance");
+            UI::SeparatorText("Performance" + NewIndicator);
             RBi("mm-ndriv", S_MinimapLimitNbDriving, 20, S_MinimapLimitNbDriving);
             S_MinimapLimitNbDriving = UI::SliderInt("Max. # of Driving Players to Show", S_MinimapLimitNbDriving, 0, 100);
             AddSimpleTooltip("Limits the number of players on the minimap. Useful on servers.\nFalling and turtled/afk players are always shown for technical (lazy) reasons.\nRender Time: ~0.15ms per 10.");
 
-            UI::SeparatorText("Leaderboard");
+            UI::SeparatorText("Leaderboard" + NewIndicator);
             RBi("mm-ntop", S_NbTopTimes, 3, S_NbTopTimes);
             S_NbTopTimes = UI::SliderInt("# of Top Times to Show", S_NbTopTimes, 1, 10);
             AddSimpleTooltip("Shows WR, #2 record, etc, up to #10 record.\nRender Time: ~0.1ms for 10");
 
             S_MinimapShowPbRank = UI::Checkbox("Show PB Rank", S_MinimapShowPbRank);
 
-            UI::SeparatorText("Live Players / Solo");
+            UI::SeparatorText("Live Players / Solo" + NewIndicator);
             RBi("mms-nlive", S_Solo_ShowNbCurrentHighestPlayers, 5, S_Solo_ShowNbCurrentHighestPlayers);
             S_Solo_ShowNbCurrentHighestPlayers = UI::SliderInt("# of Top Live Climbers to Show", S_Solo_ShowNbCurrentHighestPlayers, 0, 10);
             AddSimpleTooltip("Set to 0 to disable.\nShows top players currently climbing this tower\nRender Time: ~0.15ms for 10\n\\$i\\$fbbSolo only by default.");

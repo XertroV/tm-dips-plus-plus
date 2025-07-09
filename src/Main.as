@@ -3,6 +3,7 @@ const string PluginName = Meta::ExecutingPlugin().Name;
 const string MenuIconColor = "\\$fd5";
 const string MenuTitle = MenuIconColor + Icons::ArrowDown + "\\$z " + PluginName;
 const string PluginVersion = Meta::ExecutingPlugin().Version;
+const string NewIndicator = "\\$<\\$z\\$s\\$2f2 " + Icons::Info + " \\$iNew!\\$>";
 
 UI::Font@ f_MonoSpace = null;
 UI::Font@ f_Droid = null;
