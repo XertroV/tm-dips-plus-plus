@@ -48,11 +48,9 @@ class DTexture {
             return null;
         }
         IO::File f(path, IO::FileMode::Read);
-        dev_trace(">>> Loading texture: " + path);
+        // this appears before a crash, but it completes successfully.
         @tex = nvg::LoadTexture(f.Read(f.Size()), nvg::TextureFlags::None);
-        dev_trace("<<< Loaded texture: " + path);
         dims = tex.GetSize();
-        dev_trace("< < Got size: " + dims.ToString());
         return tex;
     }
 

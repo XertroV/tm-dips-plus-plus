@@ -13,12 +13,16 @@ float S_MinimapMaxFallingGlobalExtraScale = 1.3;
 [Setting hidden]
 bool S_ScaleMinimapToPlayers = false;
 
+[Setting hidden]
+bool S_MinimapShowPbRank = true;
 
 [Setting hidden]
 int S_MinimapLimitNbDriving = 20;
 
 [Setting hidden]
 uint S_Solo_ShowNbCurrentHighestPlayers = 8;
+[Setting hidden]
+bool S_Minimap_ShowLivePlayersOnServer = false;
 
 namespace Minimap {
     vec3 camPos;
@@ -122,7 +126,7 @@ namespace Minimap {
         updateMatrices = true;
     }
 
-    bool isPlayingInServer = false;
+    bool drawLivePlayers = false;
     PlayerState@[] fallers;
     PlayerState@[] drivingPlayers;
     PlayerMinimapLabel@[] livePlayerLabels;
@@ -170,7 +174,7 @@ namespace Minimap {
         float size = 5.0 * vScale;
         nvg::FontFace(f_Nvg_ExoRegular);
         playerMaxHeightLast = 0.;
-        isPlayingInServer = nbPlayers > 1;
+        drawLivePlayers = nbPlayers <= 1 || S_Minimap_ShowLivePlayersOnServer;
         for (uint i = 0; i < nbPlayers; i++) {
             @p = PS::players[i];
             if (p.IsIdleOrNotUpdated()) continue;
@@ -196,7 +200,7 @@ namespace Minimap {
         }
 
         // if not in a server and we want to draw highest players currently climbing
-        if (!isPlayingInServer && S_Solo_ShowNbCurrentHighestPlayers > 0 && g_CustomMap !is null) {
+        if (drawLivePlayers && S_Solo_ShowNbCurrentHighestPlayers > 0 && g_CustomMap !is null) {
             // update list to draw
             uint nbToShow = Math::Min(S_Solo_ShowNbCurrentHighestPlayers, g_CustomMap.mapLive.Length);
             while (livePlayerLabels.Length < nbToShow) {
@@ -215,9 +219,6 @@ namespace Minimap {
                 if (label.origPos.LengthSquared() > 0.01) {
                     screenPos = FrameIndependentLerp(label.origPos, screenPos, 8.0);
                 }
-
-                g_CustomMap.mapLive[liveIx].lastMinimapPos = screenPos;
-                // todo: do some kind of frame independent lerp to avoid annoying updates
                 // actually draw
                 nvgDrawPointCircle(screenPos, size, cGreen, cMagenta);
                 label.Draw(g_CustomMap.mapLive[liveIx], screenPos, cWhite, cSlate75);
@@ -280,7 +281,21 @@ namespace Minimap {
             hoveredPbLabel.DrawNoUpdate(hLabel.lastFg, hLabel.lastBg, true);
         }
 
-        pbHeight = (localPlayer is null || localPlayer.isLocal) ? Stats::GetPBHeight() : Global::GetPlayersPBHeight(localPlayer);
+        // update height and rank from PB entry if we can
+        pbRank = -1;
+        if (localPlayer !is null) {
+            LBEntry@ lb = Global::GetPlayersPBEntry(localPlayer);
+            if (lb !is null) {
+                pbHeight = lb.height;
+                pbRank = lb.rank;
+            }
+        }
+
+        // update height from stats if no player or local player (this will be more up to date than the LB entry)
+        if (localPlayer is null || localPlayer.isLocal) {
+            // if local player, get PB height from stats
+            pbHeight = Stats::GetPBHeight();
+        }
         RenderMinimapTop3();
     }
 
@@ -616,6 +631,7 @@ namespace Minimap {
         }
 
         void Draw(LBEntry &in lb, vec2 newPos, const vec4 &in fg, const vec4 &in bg) {
+            lb.lastMinimapPos = newPos;
             Update(lb, newPos);
             _Draw_AfterUpdate(false, fg, bg);
         }
@@ -681,6 +697,7 @@ namespace Minimap {
 
     LBEntry@[]@ top3;
     float pbHeight;
+    int pbRank = -1;
     float hoverTime = 0.;
     float hoverDelta;
     void RenderMinimapTop3() {
@@ -695,8 +712,18 @@ namespace Minimap {
         for (int i = Math::Min(int(S_NbTopTimes), int(top3.Length)) - 1; i >= 0; i--) {
             // render pb under WR
             if (i == 0) {
-                if (RenderTop3Instance(pos, -1, textBounds, pbHeight, Math::Abs(pbHeight - top3[0].height) > 1.0)) {
+                bool drawPbOnLHS = Math::Abs(pbHeight - top3[0].height) > 1.0;
+                if (RenderTop3Instance(pos, -1, textBounds, pbHeight, drawPbOnLHS)) {
                     hovered.InsertLast(-1);
+                }
+                // draw PB rank if we can and should
+                if (S_MinimapShowPbRank && pbRank > 0) {
+                    float scaleDown = 0.8;
+                    nvg::FontSize(floorNumberBaseHeight * scaleDown);
+                    string rank = Text::Format("#%d", pbRank);
+                    auto tb2 = nvg::TextBounds(rank) + vec2(textPad * 2.0, 0);
+                    RenderTop3Instance(pos, -1, tb2, pbHeight, false, rank, scaleDown);
+                    nvg::FontSize(floorNumberBaseHeight);
                 }
             }
             rank = i + 1;
@@ -762,18 +789,23 @@ namespace Minimap {
     };
 
     // returns hovered
-    bool RenderTop3Instance(vec2 pos, int rank, vec2 textBounds, float height, bool drawOnLHS = true) {
+    bool RenderTop3Instance(vec2 pos, int rank, vec2 textBounds, float height, bool drawOnLHS = true, const string &in replaceText = "", float scaleDown = 1.0) {
         pos.y = HeightToMinimapY(height);
         nvg::BeginPath();
         nvg::LineCap(nvg::LineCapType::Round);
 
         if (drawOnLHS) {
-            drawLabelBackgroundTagLinesRev(pos, floorNumberBaseHeight, stdTriHeight * .95, textBounds);
+            drawLabelBackgroundTagLinesRev(pos, floorNumberBaseHeight * scaleDown, stdTriHeight * .95 * scaleDown, textBounds);
         } else {
-            drawLabelBackgroundTagLines(pos, floorNumberBaseHeight, stdTriHeight * .95, textBounds);
+            drawLabelBackgroundTagLines(pos, floorNumberBaseHeight * scaleDown, stdTriHeight * .95 * scaleDown, textBounds);
         }
 
-        nvg::FillColor(rank == 1 ? cGold : rank == 2 ? cSilver : rank == 3 ? cBronze : rank < 0 ?  cSkyBlue : cPaleBlue35);
+        auto fillCol = rank == 1 ? cGold
+                : rank == 2 ? cSilver
+                : rank == 3 ? cBronze
+                : rank < 0 ?  cSkyBlue
+                : cPaleBlue35;
+        nvg::FillColor(fillCol);
         nvg::Fill();
         nvg::StrokeWidth(1.5 * vScale);
         nvg::StrokeColor(cBlack);
@@ -782,14 +814,15 @@ namespace Minimap {
         nvg::BeginPath();
         nvg::FillColor(cBlack);
 
+        string text = replaceText.Length > 0 ? replaceText : (rank < 1 ? "PB" : rank == 1 ? "WR" : "#" + rank);
         if (drawOnLHS) {
             nvg::TextAlign(nvg::Align::Right | nvg::Align::Middle);
-            pos = pos - vec2(floorNumberBaseHeight, floorNumberBaseHeight * -0.12);
-            nvg::Text(pos, rank < 1 ? "PB" : rank == 1 ? "WR" : "#" + rank);
+            pos = pos - vec2(floorNumberBaseHeight, floorNumberBaseHeight * -0.12) * scaleDown;
+            nvg::Text(pos, text);
         } else {
             nvg::TextAlign(nvg::Align::Left | nvg::Align::Middle);
-            pos = pos + vec2(floorNumberBaseHeight * 1.2, floorNumberBaseHeight * 0.12);
-            nvg::Text(pos, rank < 1 ? "PB" : rank == 1 ? "WR" : "#" + rank);
+            pos = pos + vec2(floorNumberBaseHeight * 1.2, floorNumberBaseHeight * 0.12) * scaleDown;
+            nvg::Text(pos, text);
         }
 
         nvg::ClosePath();
@@ -914,10 +947,13 @@ namespace Minimap {
             S_NbTopTimes = UI::SliderInt("# of Top Times to Show", S_NbTopTimes, 1, 10);
             AddSimpleTooltip("Shows WR, #2 record, etc, up to #10 record.\nRender Time: ~0.1ms for 10");
 
-            UI::SeparatorText("Solo");
+            S_MinimapShowPbRank = UI::Checkbox("Show PB Rank", S_MinimapShowPbRank);
+
+            UI::SeparatorText("Live Players / Solo");
             RBi("mms-nlive", S_Solo_ShowNbCurrentHighestPlayers, 5, S_Solo_ShowNbCurrentHighestPlayers);
-            S_Solo_ShowNbCurrentHighestPlayers = UI::SliderInt("# of Live Climbers to Show", S_Solo_ShowNbCurrentHighestPlayers, 0, 10);
-            AddSimpleTooltip("Set to 0 to disable.\nShows other players currently climbing this tower\nRender Time: ~0.15ms for 10\n\\$i\\$fbbSolo only.");
+            S_Solo_ShowNbCurrentHighestPlayers = UI::SliderInt("# of Top Live Climbers to Show", S_Solo_ShowNbCurrentHighestPlayers, 0, 10);
+            AddSimpleTooltip("Set to 0 to disable.\nShows top players currently climbing this tower\nRender Time: ~0.15ms for 10\n\\$i\\$fbbSolo only by default.");
+            S_Minimap_ShowLivePlayersOnServer = UI::Checkbox("Show Top Live Players when on a Server", S_Minimap_ShowLivePlayersOnServer);
 
             updateMatrices = true;
             UI::EndMenu();
