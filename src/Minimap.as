@@ -636,11 +636,16 @@ namespace Minimap {
             string label = heights[i].GenLabel(i, finNumber, endNumber);
             textBounds = nvg::TextBounds(label) + vec2(textPad * 2.0, 0);
             textBounds.x = Math::Max(textBounds.x, defaultTBounds.x);
+            // enable some squishing of text, but not too much.
+            vec2 textStretch = vec2(1.0);
+            if (textBounds.x > defaultTBounds.x * 1.2) {
+                textStretch.x = Math::Clamp((defaultTBounds.x * 1.2) / textBounds.x, 0.8, 1.0);
+            }
 
             pos.y = HeightToMinimapY(heights[i].height);
             nvg::BeginPath();
             nvg::LineCap(nvg::LineCapType::Round);
-            drawLabelBackgroundTagLinesRev(pos, floorNumberBaseHeight, stdTriHeight * .75, textBounds);
+            drawLabelBackgroundTagLinesRev(pos, floorNumberBaseHeight, stdTriHeight * .75, textBounds * textStretch);
             nvg::FillColor(cWhite25);
             nvg::Fill();
             nvg::StrokeWidth(1.5 * vScale);
@@ -660,7 +665,14 @@ namespace Minimap {
             nvg::TextAlign(nvg::Align::Right | nvg::Align::Middle);
             int numbersBelowEq = MatchDD2::isEasyDD2Map ? 5 : endNumber - 1;
             auto textPos = pos - vec2(floorNumberBaseHeight * (i < 1 || int(i) > numbersBelowEq ? .8 : 1.0), floorNumberBaseHeight * -0.12);
-            nvg::Text(textPos, label);
+            if (textStretch.x < 1.0) {
+                nvg::Save();
+                nvg::Scale(textStretch);
+                nvg::Text(textPos / textStretch, label);
+                nvg::Restore();
+            } else {
+                nvg::Text(textPos, label);
+            }
             nvg::ClosePath();
         }
     }
@@ -699,15 +711,33 @@ namespace Minimap {
             S_ShowMinimap = UI::Checkbox("Show Minimap", S_ShowMinimap);
             if (MAGIC_SPEC_ENABLED) S_ClickMinimapToMagicSpectate = UI::Checkbox("Click Minimap to Magic Spectate", S_ClickMinimapToMagicSpectate);
             S_ScaleMinimapToPlayers = UI::Checkbox("Scale Minimap to Players", S_ScaleMinimapToPlayers);
+            RBf("mm-fs", S_MinimapPlayerLabelFS, 22.0 * vScale, S_MinimapPlayerLabelFS);
             S_MinimapPlayerLabelFS = float(UI::SliderInt("Player Label Font Size", int(S_MinimapPlayerLabelFS), 10, 40));
+            RBf("mm-lp", S_MinimapLeftPad, 50.0 * vScale, S_MinimapLeftPad);
             S_MinimapLeftPad = UI::SliderFloat("Minimap Left Padding", S_MinimapLeftPad, 0, 200);
+            RBf("mm-tbp", S_MinimapTopBottomPad, 150.0 * vScale, S_MinimapTopBottomPad);
             S_MinimapTopBottomPad = UI::SliderFloat("Minimap Top/Bottom Padding", S_MinimapTopBottomPad, 0, 500);
-            S_MinimapMaxFallingGlobalExtraScale = Math::Clamp(UI::SliderFloat("Max Extra Scale for Fallers (> ~500m)", S_MinimapMaxFallingGlobalExtraScale, 1.0, 2.0, "%.2f"), 1.0, 2.0);
+            RBf("mm-mfgxs", S_MinimapMaxFallingGlobalExtraScale, 1.3, S_MinimapMaxFallingGlobalExtraScale);
+            S_MinimapMaxFallingGlobalExtraScale = Math::Clamp(UI::SliderFloat("Max Extra Scale for Big Fallers (> ~500m)", S_MinimapMaxFallingGlobalExtraScale, 1.0, 2.0, "%.2f"), 1.0, 2.0);
             updateMatrices = true;
             UI::EndMenu();
         }
     }
 }
+
+// Reset Button for Float settings
+bool RBf(const string &in id, float &out setting, float def, float currVal) {
+    bool didReset = false;
+    if (UI::Button(Icons::Refresh + "##RB-"+id)) {
+        setting = def;
+        didReset = true;
+    } else {
+        setting = currVal;
+    }
+    UI::SameLine();
+    return didReset;
+}
+
 
 vec2 GetMinMaxHeight(CSmArenaClient@ cp) {
     if (cp is null || cp.Arena is null) {
