@@ -568,6 +568,8 @@ class LBEntry {
     vec3 color;
     vec3 pos;
     int race_time;
+    // temp var in case we draw this entry somewhere
+    vec2 lastMinimapPos = vec2();
 
     void SetFromJson(Json::Value@ j) {
         name = j["name"];

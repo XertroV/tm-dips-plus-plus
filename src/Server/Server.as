@@ -333,15 +333,19 @@ class DD2API {
     protected void SendPingLoop(uint64 nonce) {
         pingTimeoutCount = 0;
         while (!IsBadNonce(nonce)) {
-            sleep(6789);
+            // add randomness to spread this out over time since the server might do stuff in response to pings
+            // pings are sent every 9-10 seconds
+            sleep(9000 + Math::Rand(0, 1000));
             if (IsShutdownClosedOrDC) {
                 return;
             }
             if (IsBadNonce(nonce)) return;
             QueueMsg(PingMsg());
-            if (Time::Now - lastPingTime > 45000 && IsReady) {
+            // count ping timeouts after 25s without a response
+            if (Time::Now - lastPingTime > 25000 && IsReady) {
                 if (IsBadNonce(nonce)) return;
                 pingTimeoutCount++;
+                // triggers on 4th consecutive timeout -> time since last response ping: 25s + ~40s + change
                 if (pingTimeoutCount > 3) {
                     warn("Ping timeout.");
                     lastPingTime = Time::Now;
@@ -818,6 +822,17 @@ namespace Global {
             return -1.;
         }
         return pb.height;
+    }
+
+    // Note: this LBEntry is probably the live height, not PB
+    float GetPlayersPBHeight(LBEntry@ lb) {
+        if (g_CustomMap !is null && !g_CustomMap.isDD2) {
+            return g_CustomMap.GetPlayersPBHeight(lb);
+        }
+        if (pbCache.Exists(lb.name)) {
+            return cast<LBEntry@>(pbCache[lb.name]).height;
+        }
+        return -1.;
     }
 
     // donations

@@ -487,9 +487,13 @@ mixin class WithLeaderboard {
 
     LBEntry@ GetPlayersPBEntry(PlayerState@ p) {
         if (p is null) return null;
-        CheckUpdatePlayersHeight(p.playerLogin);
-        if (pbCache.Exists(p.playerName)) {
-            return cast<LBEntry>(pbCache[p.playerName]);
+        return GetPlayersPBEntry(p.playerName, p.playerLogin);
+    }
+
+    LBEntry@ GetPlayersPBEntry(const string &in name, const string &in login) {
+        CheckUpdatePlayersHeight(login);
+        if (pbCache.Exists(name)) {
+            return cast<LBEntry>(pbCache[name]);
         }
         return null;
     }
@@ -497,6 +501,14 @@ mixin class WithLeaderboard {
     float GetPlayersPBHeight(PlayerState@ p) {
         if (p is null) return -2.;
         auto pb = GetPlayersPBEntry(p);
+        if (pb is null) return -1.;
+        return pb.height;
+    }
+
+    // Note: this LBEntry is probably the live height, not PB
+    float GetPlayersPBHeight(LBEntry &in lb) {
+        // hmm, is WSIDToLogin too much overhead?
+        auto pb = GetPlayersPBEntry(lb.name, WSIDToLogin(lb.wsid));
         if (pb is null) return -1.;
         return pb.height;
     }

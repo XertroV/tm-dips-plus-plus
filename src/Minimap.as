@@ -13,6 +13,13 @@ float S_MinimapMaxFallingGlobalExtraScale = 1.3;
 [Setting hidden]
 bool S_ScaleMinimapToPlayers = false;
 
+
+[Setting hidden]
+int S_MinimapLimitNbDriving = 20;
+
+[Setting hidden]
+uint S_Solo_ShowNbCurrentHighestPlayers = 8;
+
 namespace Minimap {
     vec3 camPos;
     mat4 camProjMat;
@@ -115,8 +122,11 @@ namespace Minimap {
         updateMatrices = true;
     }
 
+    bool isPlayingInServer = false;
     PlayerState@[] fallers;
     PlayerState@[] drivingPlayers;
+    PlayerMinimapLabel@[] livePlayerLabels;
+    PlayerMinimapLabel@ hoveredPbLabel = PlayerMinimapLabel();
     // PlayerState@[] afkPlayers;
 
     int SortFallersAsc(PlayerState@ &in a, PlayerState@ &in b) {
@@ -131,15 +141,22 @@ namespace Minimap {
     }
 
     PlayerState@ hovered;
+    int hoveredLiveIx = int(-1);
     float playerMaxHeightLast = 2000.;
 
     void Render(bool doDraw) {
         @hovered = null;
+        hoveredLiveIx = int(-1);
         // if (!g_Active) return;
         if (!S_ShowMinimap || !doDraw) return;
         if (lastMapMwId == uint(-1)) return;
         RenderMinimapBg();
         RenderMinimapFloors();
+
+        // these should always be empty already, but just in case
+        if (fallers.Length > 0) fallers.RemoveRange(0, fallers.Length);
+        if (drivingPlayers.Length > 0) drivingPlayers.RemoveRange(0, drivingPlayers.Length);
+
         // auto editor = cast<CGameCtnEditorFree>(GetApp().Editor);
         // if (editor !is null) {
         //     DrawEditorCameraTargetHeight(editor);
@@ -150,9 +167,10 @@ namespace Minimap {
         UpdatePlayerLabelGlobals();
         PlayerState@ p;
         PlayerState@ localPlayer;
-        float size;
+        float size = 5.0 * vScale;
         nvg::FontFace(f_Nvg_ExoRegular);
         playerMaxHeightLast = 0.;
+        isPlayingInServer = nbPlayers > 1;
         for (uint i = 0; i < nbPlayers; i++) {
             @p = PS::players[i];
             if (p.IsIdleOrNotUpdated()) continue;
@@ -161,8 +179,8 @@ namespace Minimap {
             if (Math::IsNaN(h)) continue;
             screenPos.y = HeightToMinimapY(h);
             if (screenPos.y < minMaxLabelHeight.x || screenPos.y > minMaxLabelHeight.y) continue;
-            size = 5 * vScale;
             p.lastMinimapPos = screenPos;
+            // put players in priority categories. local, fallers, driving, idle.
             if (p.isViewed) {
                 @localPlayer = p;
             } else if (p.HasFallTracker() && p.GetFallTracker().IsFallPastMinFall() && !p.IsLowVelocityTurtleIdle) {
@@ -177,7 +195,40 @@ namespace Minimap {
             }
         }
 
-        for (int i = int(drivingPlayers.Length) - 1; i >= 0; i--) {
+        // if not in a server and we want to draw highest players currently climbing
+        if (!isPlayingInServer && S_Solo_ShowNbCurrentHighestPlayers > 0 && g_CustomMap !is null) {
+            // update list to draw
+            uint nbToShow = Math::Min(S_Solo_ShowNbCurrentHighestPlayers, g_CustomMap.mapLive.Length);
+            while (livePlayerLabels.Length < nbToShow) {
+                livePlayerLabels.InsertLast(PlayerMinimapLabel());
+            }
+            // loop and draw
+            for (uint i = 0; i < nbToShow; i++) {
+                int liveIx = nbToShow - i - 1;
+                h = g_CustomMap.mapLive[liveIx].pos.y;
+                playerMaxHeightLast = Math::Max(h, playerMaxHeightLast);
+                if (Math::IsNaN(h)) continue;
+                screenPos.y = HeightToMinimapY(h);
+                if (screenPos.y < minMaxLabelHeight.x || screenPos.y > minMaxLabelHeight.y) continue;
+                auto @label = livePlayerLabels[liveIx];
+                // apply lerp
+                if (label.origPos.LengthSquared() > 0.01) {
+                    screenPos = FrameIndependentLerp(label.origPos, screenPos, 8.0);
+                }
+
+                g_CustomMap.mapLive[liveIx].lastMinimapPos = screenPos;
+                // todo: do some kind of frame independent lerp to avoid annoying updates
+                // actually draw
+                nvgDrawPointCircle(screenPos, size, cGreen, cMagenta);
+                label.Draw(g_CustomMap.mapLive[liveIx], screenPos, cWhite, cSlate75);
+                if (label.isHovered_Right) hoveredLiveIx = liveIx;
+            }
+        }
+
+        int nbDrivingToDraw = Math::Min(drivingPlayers.Length, S_MinimapLimitNbDriving);
+        // int lastDriverIxToDraw = drivingPlayers.Length - nbDrivingToDraw;
+        // for (int i = int(drivingPlayers.Length) - 1; i >= lastDriverIxToDraw; i--) {
+        for (int i = nbDrivingToDraw - 1; i >= 0; i--) {
             @p = drivingPlayers[i];
             nvgDrawPointCircle(p.lastMinimapPos, size, cGreen, cMagenta);
             p.minimapLabel.Draw(p, cWhite, cBlack);
@@ -205,12 +256,28 @@ namespace Minimap {
             if (localPlayer.minimapLabel.isHovered_Right) @hovered = localPlayer;
         }
 
+        // hovered label
+        PlayerMinimapLabel@ hLabel;
+        float hoveredPbHeight = 0.0;
         if (hovered !is null) {
-            hovered.minimapLabel.DrawHovered(hovered);
+            @hLabel = hovered.minimapLabel;
+            hLabel.Redraw();
+            hoveredPbHeight = hLabel.DrawHovered(hovered);
             // if clicked and fulfil conditions to spectate
             if (UI::IsMouseClicked(UI::MouseButton::Left) && (Spectate::IsSpectator || S_ClickMinimapToMagicSpectate)) {
                 Spectate::SpectatePlayer(hovered);
             }
+        } else if (hoveredLiveIx >= 0) {
+            @hLabel = livePlayerLabels[hoveredLiveIx];
+            hLabel.DrawNoUpdate(cWhite, cSlate);
+            hoveredPbHeight = hLabel.DrawHovered(g_CustomMap.mapLive[hoveredLiveIx]);
+        }
+
+        if (hLabel !is null && hoveredPbHeight > 0.0) {
+            // draw label at PB height
+            auto pos = vec2(minimapCenterPos.x, HeightToMinimapY(hoveredPbHeight));
+            hoveredPbLabel.Update(hLabel.playerCol, pos, hLabel.name + " [PB]");
+            hoveredPbLabel.DrawNoUpdate(hLabel.lastFg, hLabel.lastBg, true);
         }
 
         pbHeight = (localPlayer is null || localPlayer.isLocal) ? Stats::GetPBHeight() : Global::GetPlayersPBHeight(localPlayer);
@@ -366,18 +433,79 @@ namespace Minimap {
             playerCol = p.color;
         }
 
-        void Update(PlayerState@ p) {
+        PlayerMinimapLabel(LBEntry &in lb) {
+            name = lb.name;
+            playerCol = vec4(lb.color, 1);
+        }
+
+        PlayerMinimapLabel() {
+            name = "UNINITIALIZED";
+            playerCol = vec4(1, 0, 1, 1);
+        }
+
+        void _Update_00_Pre() {
             nvg::Reset();
             nvg::StrokeWidth(0.0);
             nvg::FontFace(f_Nvg_ExoBold);
-
-            pos = p.lastMinimapPos;
             nvg::FontSize(playerLabelBaseHeight);
             textPad = playerLabelBaseHeight * 0.2;
-            textBounds = nvg::TextBounds(p.playerName) + vec2(textPad * 2.0, 0);
+        }
+
+        void _Update_02_Pos(const vec2 &in newPos) {
+            origPos = pos = newPos;
+        }
+
+        void _Update_04_Name(const string &in _name) {
+            if (_name != this.name) {
+                this.name = _name;
+            }
+            textBounds = nvg::TextBounds(_name) + vec2(textPad * 2.0, 0);
             textPos = pos + textPosOff;
             origPos = pos;
-            hoverAreaExtraWidth = stdTriHeight / -2.;
+            hoverAreaExtraWidth = stdTriHeight * -0.5;
+        }
+
+        void _Update_06_NotFalling() {
+            isFalling = afterFall = false;
+            fallDist = 0.0;
+            fallDegree = 0.0;
+            extraGlobalScale = 1.0;
+            extraBounds = vec2();
+            extraPos = textPos + vec2(textBounds.x - textPad / 2.0, 0);
+        }
+
+        void _Update_08_RectAndHover() {
+            rect = vec4(pos.x + stdTriHeight / 2. * extraGlobalScale,
+                        pos.y - stdTriHeight * extraGlobalScale,
+                        extraPos.x + (extraBounds.x + hoverAreaExtraWidth) * extraGlobalScale - pos.x,
+                        stdTriHeight * 2.0 * extraGlobalScale);
+            isHovered_Right = IsWithin(g_MousePos, rect.xy, rect.zw);
+        }
+
+        void Update(const vec4 &in col, vec2 newPos, const string &in _name) {
+            this.playerCol = col;
+            _Update_00_Pre();
+            _Update_02_Pos(newPos);
+            _Update_04_Name(_name);
+            _Update_06_NotFalling();
+            _Update_08_RectAndHover();
+        }
+
+        void Update(LBEntry &in lb, vec2 newPos) {
+            this.playerCol = vec4(lb.color, 1);
+            _Update_00_Pre();
+            _Update_02_Pos(newPos);
+            _Update_04_Name(lb.name);
+            _Update_06_NotFalling();
+            _Update_08_RectAndHover();
+        }
+
+        void Update(PlayerState@ p) {
+            this.playerCol = p.color;
+            _Update_00_Pre();
+            _Update_02_Pos(p.lastMinimapPos);
+            _Update_04_Name(p.playerName);
+
             isFalling = p.isFalling;
             afterFall = !isFalling && Time::Now - lastFalling < AFTER_FALL_MINIMAP_SHOW_DURATION;
             if (isFalling || afterFall) {
@@ -419,24 +547,19 @@ namespace Minimap {
                     extraFS = 0;
                 }
             } else {
-                fallDist = 0.0;
-                fallDegree = 0.0;
-                extraGlobalScale = 1.0;
-                extraBounds = vec2();
-                extraPos = textPos + vec2(textBounds.x - textPad / 2.0, 0);
+                _Update_06_NotFalling();
             }
-            rect = vec4(pos.x + stdTriHeight / 2. * extraGlobalScale,
-                        pos.y - stdTriHeight * extraGlobalScale,
-                        extraPos.x + (extraBounds.x + hoverAreaExtraWidth) * extraGlobalScale - pos.x,
-                        stdTriHeight * 2.0 * extraGlobalScale);
-            isHovered_Right = IsWithin(g_MousePos, rect.xy, rect.zw);
+            _Update_08_RectAndHover();
         }
 
         vec4 rect;
         bool isHovered_Right;
+        vec4 lastFg;
+        vec4 lastBg;
 
-        void Draw(PlayerState@ p, const vec4 &in fg, const vec4 &in bg) {
-            Update(p);
+        void _Draw_AfterUpdate(bool addStrokeLocalOrViewed, const vec4 &in fg, const vec4 &in bg) {
+            lastFg = fg;
+            lastBg = bg;
             nvg::Reset();
 
             // debug hover/click rect
@@ -453,7 +576,7 @@ namespace Minimap {
             drawLabelBackgroundTagLines(pos / extraGlobalScale, playerLabelBaseHeight, stdTriHeight, textBounds);
             nvg::FillColor(bg);
             nvg::Fill();
-            if (p.isLocal || p.isViewed) {
+            if (addStrokeLocalOrViewed) {
                 nvg::StrokeWidth(1.5 * vScale);
                 nvg::StrokeColor(playerCol);
                 nvg::Stroke();
@@ -483,13 +606,49 @@ namespace Minimap {
             nvg::ResetTransform();
         }
 
-        void DrawHovered(PlayerState@ p) {
-            vec2 hovTL = rect.xy + vec2(rect.z + textPad * 2., 0);
-            string l = Text::Format("%.1f m", p.pos.y) + Text::Format(" | PB: %.1f m", Global::GetPlayersPBHeight(p));
+        void Draw(PlayerState@ p, const vec4 &in fg, const vec4 &in bg) {
+            Update(p);
+            _Draw_AfterUpdate(p.isLocal || p.isViewed, fg, bg);
+        }
 
-            if ((S_ClickMinimapToMagicSpectate && MAGIC_SPEC_ENABLED) || Spectate::IsSpectator) {
+        void Draw(LBEntry &in lb, vec2 newPos, const vec4 &in fg, const vec4 &in bg) {
+            Update(lb, newPos);
+            _Draw_AfterUpdate(false, fg, bg);
+        }
+
+        void DrawNoUpdate(const vec4 &in fg, const vec4 &in bg, bool addStroke = false) {
+            // used for hovered
+            _Draw_AfterUpdate(addStroke, fg, bg);
+        }
+
+        void Redraw() {
+            _Draw_AfterUpdate(false, lastFg, lastBg);
+        }
+
+        // returns pb height
+        float DrawHovered(PlayerState@ p) {
+            float pbHeight = Global::GetPlayersPBHeight(p);
+            DrawHovered(p.pos.y, pbHeight, true);
+            return pbHeight;
+        }
+
+        // returns pb height
+        float DrawHovered(LBEntry &in lb) {
+            float pbHeight = Global::GetPlayersPBHeight(lb);
+            DrawHovered(lb.height, pbHeight, false);
+            return pbHeight;
+        }
+
+        void DrawHovered(float height, float pbHeight, bool canSpectate) {
+            string l = Text::Format("%.1f m", height) + Text::Format(" | PB: %.1f m", pbHeight);
+
+            vec2 hovTL = rect.xy + vec2(rect.z + textPad * 2., 0);
+
+            canSpectate = canSpectate && ((S_ClickMinimapToMagicSpectate && MAGIC_SPEC_ENABLED) || Spectate::IsSpectator);
+            if (canSpectate) {
                 UI::SetMouseCursor(UI::MouseCursor::Hand);
             }
+
             nvg::Reset();
             nvg::BeginPath();
             nvg::FontFace(f_Nvg_ExoBold);
@@ -505,7 +664,7 @@ namespace Minimap {
             nvg::StrokeColor(cBlack);
             nvg::StrokeWidth(2.0);
             nvg::Stroke();
-            nvg::FillColor((cWhite + p.color) / 2.);
+            nvg::FillColor((cWhite + playerCol) / 2.);
             nvg::Text(midPoint + vec2(0, fs * .1), l);
         }
     }
@@ -526,7 +685,7 @@ namespace Minimap {
         for (int i = Math::Min(int(S_NbTopTimes), int(top3.Length)) - 1; i >= 0; i--) {
             // render pb under WR
             if (i == 0) {
-                if (RenderTop3Instance(pos, -1, textBounds, pbHeight)) {
+                if (RenderTop3Instance(pos, -1, textBounds, pbHeight, Math::Abs(pbHeight - top3[0].height) > 1.0)) {
                     hovered.InsertLast(-1);
                 }
             }
@@ -593,11 +752,17 @@ namespace Minimap {
     };
 
     // returns hovered
-    bool RenderTop3Instance(vec2 pos, int rank, vec2 textBounds, float height) {
+    bool RenderTop3Instance(vec2 pos, int rank, vec2 textBounds, float height, bool drawOnLHS = true) {
         pos.y = HeightToMinimapY(height);
         nvg::BeginPath();
         nvg::LineCap(nvg::LineCapType::Round);
-        drawLabelBackgroundTagLinesRev(pos, floorNumberBaseHeight, stdTriHeight * .95, textBounds);
+
+        if (drawOnLHS) {
+            drawLabelBackgroundTagLinesRev(pos, floorNumberBaseHeight, stdTriHeight * .95, textBounds);
+        } else {
+            drawLabelBackgroundTagLines(pos, floorNumberBaseHeight, stdTriHeight * .95, textBounds);
+        }
+
         nvg::FillColor(rank == 1 ? cGold : rank == 2 ? cSilver : rank == 3 ? cBronze : rank < 0 ?  cSkyBlue : cPaleBlue35);
         nvg::Fill();
         nvg::StrokeWidth(1.5 * vScale);
@@ -606,11 +771,19 @@ namespace Minimap {
         nvg::ClosePath();
         nvg::BeginPath();
         nvg::FillColor(cBlack);
-        nvg::TextAlign(nvg::Align::Right | nvg::Align::Middle);
-        pos = pos - vec2(floorNumberBaseHeight, floorNumberBaseHeight * -0.12);
-        nvg::Text(pos, rank < 1 ? "PB" : rank == 1 ? "WR" : "#" + rank);
+
+        if (drawOnLHS) {
+            nvg::TextAlign(nvg::Align::Right | nvg::Align::Middle);
+            pos = pos - vec2(floorNumberBaseHeight, floorNumberBaseHeight * -0.12);
+            nvg::Text(pos, rank < 1 ? "PB" : rank == 1 ? "WR" : "#" + rank);
+        } else {
+            nvg::TextAlign(nvg::Align::Left | nvg::Align::Middle);
+            pos = pos + vec2(floorNumberBaseHeight * 1.2, floorNumberBaseHeight * 0.12);
+            nvg::Text(pos, rank < 1 ? "PB" : rank == 1 ? "WR" : "#" + rank);
+        }
+
         nvg::ClosePath();
-        return IsWithin(g_MousePos, vec2(0, pos.y - stdTriHeight), vec2(pos.x + stdTriHeight*.5, stdTriHeight * 2.));
+        return IsWithin(g_MousePos, vec2(pos.x - textBounds.x, pos.y - stdTriHeight), vec2(pos.x + stdTriHeight*.5, stdTriHeight * 2.));
     }
 
     void RenderMinimapFloors() {
@@ -708,6 +881,7 @@ namespace Minimap {
 
     void DrawMenu() {
         if (UI::BeginMenu("Minimap")) {
+            UI::SeparatorText("Visuals");
             S_ShowMinimap = UI::Checkbox("Show Minimap", S_ShowMinimap);
             if (MAGIC_SPEC_ENABLED) S_ClickMinimapToMagicSpectate = UI::Checkbox("Click Minimap to Magic Spectate", S_ClickMinimapToMagicSpectate);
             S_ScaleMinimapToPlayers = UI::Checkbox("Scale Minimap to Players", S_ScaleMinimapToPlayers);
@@ -719,6 +893,22 @@ namespace Minimap {
             S_MinimapTopBottomPad = UI::SliderFloat("Minimap Top/Bottom Padding", S_MinimapTopBottomPad, 0, 500);
             RBf("mm-mfgxs", S_MinimapMaxFallingGlobalExtraScale, 1.3, S_MinimapMaxFallingGlobalExtraScale);
             S_MinimapMaxFallingGlobalExtraScale = Math::Clamp(UI::SliderFloat("Max Extra Scale for Big Fallers (> ~500m)", S_MinimapMaxFallingGlobalExtraScale, 1.0, 2.0, "%.2f"), 1.0, 2.0);
+
+            UI::SeparatorText("Performance");
+            RBi("mm-ndriv", S_MinimapLimitNbDriving, 20, S_MinimapLimitNbDriving);
+            S_MinimapLimitNbDriving = UI::SliderInt("Max. # of Driving Players to Show", S_MinimapLimitNbDriving, 0, 100);
+            AddSimpleTooltip("Limits the number of players on the minimap. Useful on servers.\nFalling and turtled/afk players are always shown for technical (lazy) reasons.");
+
+            UI::SeparatorText("Leaderboard");
+            RBi("mm-ntop", S_NbTopTimes, 3, S_NbTopTimes);
+            S_NbTopTimes = UI::SliderInt("# of Top Times to Show", S_NbTopTimes, 1, 10);
+            AddSimpleTooltip("Shows WR, #2 record, etc, up to #10 record.");
+
+            UI::SeparatorText("Solo");
+            RBi("mms-nlive", S_Solo_ShowNbCurrentHighestPlayers, 5, S_Solo_ShowNbCurrentHighestPlayers);
+            S_Solo_ShowNbCurrentHighestPlayers = UI::SliderInt("# of Live Climbers to Show", S_Solo_ShowNbCurrentHighestPlayers, 0, 10);
+            AddSimpleTooltip("Set to 0 to disable.\nShows other players currently climbing this tower\n\\$i\\$fbbSolo only.");
+
             updateMatrices = true;
             UI::EndMenu();
         }
@@ -736,6 +926,22 @@ bool RBf(const string &in id, float &out setting, float def, float currVal) {
     }
     UI::SameLine();
     return didReset;
+}
+
+bool RBi(const string &in id, int &out setting, int def, int currVal) {
+    bool didReset = false;
+    if (UI::Button(Icons::Refresh + "##RB-"+id)) {
+        setting = def;
+        didReset = true;
+    } else {
+        setting = currVal;
+    }
+    UI::SameLine();
+    return didReset;
+}
+
+vec2 FrameIndependentLerp(const vec2 &in a, const vec2 &in b, float speed) {
+    return Math::Lerp(a, b, 1.0 - Math::Exp(-speed * g_DT / 1000.0));
 }
 
 
