@@ -9,7 +9,7 @@ namespace MainUI {
         UI::SetNextWindowSize(600, 400, UI::Cond::FirstUseEver);
         int flags = UI::WindowFlags::NoCollapse | UI::WindowFlags::MenuBar;
 
-        if (UI::Begin("Dips++   \\$aaa by XertroV", g_MainUiVisible, flags)) {
+        if (UI::Begin("DIPS++ \\$aaa by  \\$o\\$s\\$fe9S\\$fd8K\\$fd8Y\\$fc7W\\$fb7A\\$fa6R\\$f95D", g_MainUiVisible, flags)) {
             if (g_api !is null && g_api.authError.Length > 0) {
                 UI::TextWrapped("\\$f80Auth Error: \\$z" + g_api.authError);
             }

@@ -23,6 +23,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
     uint mapMwId;
     TriggersMgr@ triggersMgr;
     Json::Value@ auxSpec;
+    string[] voiceLineNames;
 
     CustomMap(CGameCtnChallenge@ map) {
         mapUid = map.Id.GetName();
@@ -236,11 +237,10 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
             return;
         }
 
-        //  = vlJson.HasKey("imageAsset") ? string(vlJson["imageAsset"]) : "";
         string imageAsset;
         JsonX::SafeGetString(vlJson, "imageAsset", imageAsset);
-        // todo: probably don't need to use a new trigger.
         triggersMgr.InsertTrigger(VoiceLineTrigger(pos, pos + size, name, file, subtitles, imageAsset));
+        voiceLineNames.InsertLast(name);
     }
 
     bool WasCustomAssetDownloadDeclined() {
