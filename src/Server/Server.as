@@ -307,6 +307,9 @@ class DD2API {
 
     void PersistCachedStats() {
         if (IO::FileExists(STATS_FILE)) {
+            try {
+                IO::Delete(STATS_FILE + ".bak");
+            } catch {}
             IO::Move(STATS_FILE, STATS_FILE + ".bak");
         }
         IO::File f(STATS_FILE, IO::FileMode::Write);
