@@ -137,12 +137,15 @@ class PlayerState {
             dev_trace("Player " + playerName + " has null player");
             return;
         }
-        if (this.player.Score is null) {
-            dev_trace("\\$ff0" + "Player " + playerName + " has null score. Left? " + this.hasLeftGame + " / login: " + this.playerLogin + " / updated ago: " + (Time::Now - this.lastUpdateTime));
-            return;
-        }
-        if (this.player.Score.Id.Value != playerScoreMwId) {
-            dev_trace("Player " + playerName + " has different score id: " + Text::Format("0x%08x", this.player.Score.Id.Value) + " / expected: " + Text::Format("0x%08x", playerScoreMwId));
+
+        // Score can be null if we modify the Scores array.
+        // if (this.player.Score is null) {
+        //     dev_trace("\\$ff0" + "Player " + playerName + " has null score. Left? " + this.hasLeftGame + " / login: " + this.playerLogin + " / updated ago: " + (Time::Now - this.lastUpdateTime));
+        //     // return;
+        // }
+        // use player.User instead of player.Score here to avoid null Score issue
+        if (this.player.User.Id.Value != playerScoreMwId) {
+            dev_trace("Player " + playerName + " has different score id: " + Text::Format("0x%08x", this.player.User.Id.Value) + " / expected: " + Text::Format("0x%08x", playerScoreMwId));
             return;
         }
 

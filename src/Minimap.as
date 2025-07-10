@@ -722,9 +722,9 @@ namespace Minimap {
                 if (S_MinimapShowPbRank && pbRank > 0) {
                     float scaleDown = 0.8;
                     nvg::FontSize(floorNumberBaseHeight * scaleDown);
-                    string rank = Text::Format("#%d", pbRank);
-                    auto tb2 = nvg::TextBounds(rank) + vec2(textPad * 2.0, 0);
-                    RenderTop3Instance(pos, -1, tb2, pbHeight, false, rank, scaleDown);
+                    string rankText = Text::Format("#%d", pbRank);
+                    auto tb2 = nvg::TextBounds(rankText) + vec2(textPad * 2.0, 0);
+                    RenderTop3Instance(pos, -1, tb2, pbHeight, false, rankText, scaleDown);
                     nvg::FontSize(floorNumberBaseHeight);
                 }
             }
