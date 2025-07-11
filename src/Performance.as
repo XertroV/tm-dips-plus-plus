@@ -46,6 +46,8 @@ namespace MoreFrames {
     uint nbPlayers;
 
     void RefreshNbDisconnectedPlayers() {
+        nbScores = nbPlayers = nbDisconnectedPlayers = 0;
+        nbDisconnectedPlayersUpdated = Time::Now;
         auto app = GetApp();
         auto pg = cast<CSmArenaClient>(app.CurrentPlayground);
         if (pg is null || pg.Arena is null || pg.Arena.Rules is null) return;
@@ -53,7 +55,6 @@ namespace MoreFrames {
         nbScores = rules.Scores.Length;
         nbPlayers = pg.Players.Length;
         nbDisconnectedPlayers = nbScores - nbPlayers;
-        nbDisconnectedPlayersUpdated = Time::Now;
     }
 
     const Reflection::MwClassInfo@ _ArenaRulesTy = Reflection::GetType("CSmArenaRules");

@@ -71,7 +71,7 @@ namespace Signs3d {
 
     void DrawMenu() {
         if (UI::BeginMenu("Stad. Signs")) {
-            S_Enable3dSigns = UI::Checkbox("Enable 3D Signs", S_Enable3dSigns);
+            S_Enable3dSigns = UI::Checkbox("Enable Clips on Stadium Signs", S_Enable3dSigns);
             UI::BeginDisabled(!g_Active);
             if (UI::Button("Disable Now")) {
                 S_Enable3dSigns = false;

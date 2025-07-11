@@ -209,6 +209,7 @@ namespace Minimap {
             mwidsShown.InsertLast(p.playerScoreMwId);
         }
 
+        // live players
         // if not in a server and we want to draw highest players currently climbing
         if (drawLivePlayers && S_Solo_ShowNbCurrentHighestPlayers > 0 && g_CustomMap !is null) {
             // update list to draw
@@ -235,8 +236,8 @@ namespace Minimap {
                 if (label.origPos.LengthSquared() > 0.01) {
                     screenPos = FrameIndependentLerp(label.origPos, screenPos, 0.5);
                 }
-                // actually draw
-                nvgDrawPointCircle(screenPos, size, cGreen, cMagenta);
+                // actually draw (but no circle)
+                // nvgDrawPointCircle(screenPos, size, cGreen, cMagenta);
                 label.Draw(g_CustomMap.mapLive[liveIx], screenPos, cWhite, cSlate75);
                 if (label.isHovered_Right) hoveredLiveIx = liveIx;
             }

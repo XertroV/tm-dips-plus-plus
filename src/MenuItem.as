@@ -228,9 +228,10 @@ namespace Gameplay {
 
 namespace Alerts {
     void DrawMenu() {
-        if (UI::BeginMenu("Alerts")) {
-            S_NotifyOnNewWR = UI::Checkbox("Notification on new WR?", S_NotifyOnNewWR);
-            UI::EndMenu();
-        }
+        // disable now that dd2 done
+        // if (UI::BeginMenu("Alerts")) {
+        //     S_NotifyOnNewWR = UI::Checkbox("Notification on new WR?", S_NotifyOnNewWR);
+        //     UI::EndMenu();
+        // }
     }
 }

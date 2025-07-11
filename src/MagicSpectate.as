@@ -179,6 +179,7 @@ namespace MagicSpectate {
     void DrawMenu() {
         if (UI::BeginMenu("Magic Spectate")) {
             S_ClickMinimapToMagicSpectate = UI::Checkbox("Click Minimap to Magic Spectate", S_ClickMinimapToMagicSpectate);
+            UI::SeparatorText("Inputs");
             S_DrawInputsWhileMagicSpec = UI::Checkbox("Show Inputs While Magic Spectating", S_DrawInputsWhileMagicSpec);
             DrawInputsSettingsMenu();
             UI::EndMenu();

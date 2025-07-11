@@ -8,7 +8,7 @@ void DrawUpdatesTab() {
     UI::TextWrapped("");
 
     UI::Markdown("## Minimap");
-    UI::TextWrapped("-  Added top live climbers \\$<\\$i(Solo: default on, Server: enable in settings)\\$>");
+    UI::TextWrapped("-  Added top live climbers \\$<\\$i(Solo: default on, Server: disable in settings)\\$>");
     UI::TextWrapped("-  Added rank next to PB \\$<\\$i(disable in settings)\\$>");
     UI::TextWrapped("-  Show PB label on RHS when equal to WR");
     UI::TextWrapped("-  Show PB of players on minimap when hovering \\$<\\$i(disable in settings)\\$>");

@@ -914,14 +914,15 @@ namespace Global {
 }
 
 
-[Setting hidden]
-bool S_NotifyOnNewWR = true;
+// [Setting hidden]
+bool S_NotifyOnNewWR = false;
 
 
 uint lastWRTime = 0;
 void EmitNewWR(LBEntry@ leader) {
+    if (!S_NotifyOnNewWR) return;
     if (leader.wsid == LocalPlayersWSID()) return;
-    if (S_NotifyOnNewWR && Time::Now - lastWRTime > 30000) {
+    if (Time::Now - lastWRTime > 30000) {
         lastWRTime = Time::Now;
         NotifySuccess("New DD2 WR Height: " + leader.name + " @ " + Text::Format("%.1f m", leader.height));
     }
