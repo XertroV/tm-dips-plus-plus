@@ -24,7 +24,7 @@ int S_MinimapLimitNbDriving = 20;
 [Setting hidden]
 uint S_Solo_ShowNbCurrentHighestPlayers = 8;
 [Setting hidden]
-bool S_Minimap_ShowLivePlayersOnServer = false;
+bool S_Minimap_ShowLivePlayersOnServer = true;
 
 namespace Minimap {
     vec3 camPos;

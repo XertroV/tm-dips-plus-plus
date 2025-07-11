@@ -181,7 +181,7 @@ void Render() {
     // render Magic Spectate UI regardless of UI visibility, including warnings
     MagicSpectate::Render();
     if (S_BlockCam7Drivable) BlockCam7Drivable::Render();
-    if (S_Cam7MovementAlert) Cam7::MovementAlertRender();
+    // if (S_Cam7MovementAlert) Cam7::MovementAlertRender();
     // custom map aux download prompt
     AuxiliaryAssets::RenderPrompt();
     // debug for triggers

@@ -48,10 +48,19 @@ namespace Cam7 {
     }
 
     int64 lastCam7Time = -1;
+    bool cartoonPlayed = false;
     void Update(CGameTerminal@ gt) {
         if (!S_Cam7MovementAlert || gt is null) return;
         if (GetIsInCam7(gt)) {
             lastCam7Time = Time::Now;
+            if (PS::localPlayer.isFalling && !cartoonPlayed) {
+                // play cartoon sound when fall started in cam7
+                AudioChain({"cartoon.mp3"}).WithPlayAnywhere().Play();
+                cartoonPlayed = true;
+            }
+        } else {
+            lastCam7Time = -1; // reset if not in cam7
+            cartoonPlayed = false;
         }
     }
 

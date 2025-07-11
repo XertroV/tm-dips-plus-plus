@@ -1,7 +1,6 @@
 // disable RefreshLeaderboard (0.3ms)
-// disable green timer
-// experimental score patch
-
+// disable green timer (0.15ms)
+// experimental score fix
 
 namespace MoreFrames {
     void RenderUI() {
@@ -166,7 +165,7 @@ namespace MoreFrames {
         }
         UI::SeparatorText("\\$fd0Experimental Server Lag Fix  " + Icons::ExclamationTriangle + " " + Icons::QuestionCircle);
         UI::TextWrapped("This removes disconnected players from the scoreboard. Can help a LOT on servers that have been on for a while.");
-        UI::Text("Estimated\\$<\\$i time per frame\\$> to Save: \\$4f4" + Text::Format("%.2f ms", float(nbDisconnectedPlayers) / 80.0));
+        UI::Text("Estimated\\$<\\$i time per frame\\$> to save: \\$4f4" + Text::Format("%.2f ms", float(nbDisconnectedPlayers) / 80.0) + "  \\$aaa("+nbDisconnectedPlayers+" DC'd players)");
         if (UI::Button("Run Fix")) {
             bool ran = RunFixDisconnectedPlayers();
             if (ran) {
@@ -190,8 +189,4 @@ namespace MoreFrames {
         }
         UI::EndDisabled();
     }
-
-    // [x] need button to force exit map if something with scores goes very wrong
-    // todo: live data, count consecutive no-movement updates to detect AFK
-    // todo: dedup minimap live players with server players
 }
