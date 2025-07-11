@@ -1,14 +1,13 @@
 [Setting hidden]
 bool S_BlockCam7Drivable = true;
+[Setting hidden]
+bool S_Cam7MovementAlert = true;
 
 namespace BlockCam7Drivable {
     int64 lastBlockTime = 0;
-    void Update() {
+    void Update(CGameTerminal@ gt) {
         if (!S_BlockCam7Drivable) return;
-        auto app = GetApp();
-        if (app.CurrentPlayground is null) return;
         try {
-            auto gt = app.CurrentPlayground.GameTerminals[0];
             if (gt is null) return;
             if (gt.UISequence_Current != SGamePlaygroundUIConfig::EUISequence::Playing) return;
             if (GetIsCam7Drivable(gt)) {
@@ -38,5 +37,26 @@ namespace BlockCam7Drivable {
 
     void SetCam7Drivable(CGameTerminal@ gt, bool value) {
         Dev::SetOffset(gt, 0x60, value ? 0 : 1);
+    }
+}
+
+namespace Cam7 {
+    bool GetIsInCam7(CGameTerminal@ gt) {
+        // setting 0x34 to 2 does nothing; setting 0x40 will change to freecam, so use that for test
+        // return Dev::GetOffsetUint32(gt, 0x34) == 2;
+        return Dev::GetOffsetUint32(gt, 0x40) == 2;
+    }
+
+    int64 lastCam7Time = -1;
+    void Update(CGameTerminal@ gt) {
+        if (!S_Cam7MovementAlert || gt is null) return;
+        if (GetIsInCam7(gt)) {
+            lastCam7Time = Time::Now;
+        }
+    }
+
+    // todo: play cartoon sound when falling in cam7
+    void MovementAlertRender() {
+        // could add a visual indicator here, but funnier (at least to start with) if we just play a sound when falling starts.
     }
 }

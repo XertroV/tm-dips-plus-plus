@@ -40,8 +40,12 @@ class VoiceLineTrigger : GameTrigger {
                 played = true;
             }
         }
-        dev_trace("VoiceLineTrigger::OnEnteredTrigger: Playing " + name);
 
+        dev_trace("VoiceLineTrigger::OnEnteredTrigger: Playing " + name);
+        this.PlayNowFromAnywhereNoStatsCount();
+    }
+
+    void PlayNowFromAnywhereNoStatsCount() {
         // Play audio
         // must call IO::FromStorageFolder because it will default to DD2 asset folder otherwise.
         AudioChain({IO::FromStorageFolder(audioFilename)}).WithPlayAnywhere().Play();

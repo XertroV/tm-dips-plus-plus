@@ -24,6 +24,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
     TriggersMgr@ triggersMgr;
     Json::Value@ auxSpec;
     string[] voiceLineNames;
+    VoiceLineTrigger@[] customVlTriggers;
 
     CustomMap(CGameCtnChallenge@ map) {
         mapUid = map.Id.GetName();
@@ -178,21 +179,6 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
                 for (uint i = 0; i < voicelineList.Length; i++) {
                     Json::Value@ vlJson = voicelineList[i];
                     AddVoiceLineTriggerJson(vlJson);
-                    // if (vlJson.HasKey("trigger")) {
-                    //     Json::Value@ t = vlJson["trigger"];
-                    //     vec3 specPos = JsonToVec3(t["pos"]);
-                    //     vec3 size = JsonToVec3(t["size"]);
-                    //     vec3 pos = SpecPosToPos(specPos, size);
-                    //     string name = string(t["name"]);
-                    //     string file = string(vlJson["file"]);
-
-                    //     string subtitles = "";
-                    //     JsonX::SafeGetString(vlJson, "subtitles", subtitles);
-
-                    //     string imageAsset = vlJson.HasKey("imageAsset") ? string(vlJson["imageAsset"]) : "";
-                    //     // todo: probably don't need to use a new trigger.
-                    //     triggersMgr.InsertTrigger(VoiceLineTrigger(pos, pos + size, name, file, subtitles, imageAsset));
-                    // }
                 }
             }
         }
@@ -239,8 +225,10 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
 
         string imageAsset;
         JsonX::SafeGetString(vlJson, "imageAsset", imageAsset);
-        triggersMgr.InsertTrigger(VoiceLineTrigger(pos, pos + size, name, file, subtitles, imageAsset));
-        voiceLineNames.InsertLast(name);
+        auto theTrigger = VoiceLineTrigger(pos, pos + size, name, file, subtitles, imageAsset);
+        this.triggersMgr.InsertTrigger(theTrigger);
+        this.voiceLineNames.InsertLast(name);
+        this.customVlTriggers.InsertLast(theTrigger);
     }
 
     bool WasCustomAssetDownloadDeclined() {
@@ -258,6 +246,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
             }
             UI::Separator();
         }
+
         UI::BeginTabBar("cmtabs" + mapUid);
         if (UI::BeginTabItem("Stats")) {
             CheckUpdateMapOverview();
@@ -277,7 +266,42 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
             this.DrawLiveUI();
             UI::EndTabItem();
         }
+        // VLs: show if we have any
+        if (voiceLineNames.Length > 0 && UI::BeginTabItem("Voice Lines")) {
+            this.DrawVoiceLinesTab();
+            UI::EndTabItem();
+        }
+
         UI::EndTabBar();
+    }
+
+    void DrawVoiceLinesTab() {
+        auto nbPlayed = stats.CountAll_CM_VoiceLinesPlayed();
+        auto nbVLs = voiceLineNames.Length;
+        DrawCenteredText("Voice Lines: " + nbVLs, f_DroidBigger);
+        UI::Separator();
+        DrawCenteredText("Collected: " + nbPlayed + " / " + nbVLs, f_DroidBig);
+        UI::Separator();
+        for (uint i = 0; i < nbVLs; i++) {
+            UI::PushID("vl" + i);
+            DrawVoiceLineStatus(voiceLineNames[i], i);
+            UI::PopID();
+        }
+    }
+
+    void DrawVoiceLineStatus(const string &in vlName, uint ix) {
+        auto nbPlayed = stats.Get_CM_VoiceLinePlayedCount(vlName);
+        if (nbPlayed <= 0) {
+            UI::Text("???");
+            return;
+        }
+
+        bool startPlaying = UI::Button(Icons::Play + "##" + vlName);
+        UI::SameLine();
+        UI::Text(Text::Format("[%d] ", nbPlayed) + vlName);
+        if (startPlaying) {
+            this.customVlTriggers[ix].PlayNowFromAnywhereNoStatsCount();
+        }
     }
 
     void RenderDebugTriggers() {
@@ -432,7 +456,7 @@ mixin class WithMapOverview {
 
     void DrawMapOverviewUI() {
         CheckUpdateMapOverview();
-        DrawCenteredText("Map Overview", f_DroidBigger);
+        DrawCenteredText("Overview: " + mapName, f_DroidBigger);
         UI::Columns(2);
         auto cSize = vec2(-1, ((UI::GetStyleVarVec2(UI::StyleVar::FramePadding).y + 20.) * UI_SCALE));
         UI::BeginChild("mov1", cSize);
@@ -508,7 +532,7 @@ mixin class WithLeaderboard {
     // Note: this LBEntry is probably the live height, not PB
     float GetPlayersPBHeight(LBEntry &in lb) {
         // hmm, is WSIDToLogin too much overhead?
-        auto pb = GetPlayersPBEntry(lb.name, WSIDToLogin(lb.wsid));
+        auto pb = GetPlayersPBEntry(lb.name, lb.loginMwId.GetName());
         if (pb is null) return -1.;
         return pb.height;
     }

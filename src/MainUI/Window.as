@@ -14,40 +14,38 @@ namespace MainUI {
                 UI::TextWrapped("\\$f80Auth Error: \\$z" + g_api.authError);
             }
 
-
             if (UI::BeginMenuBar()) {
                 DrawPluginMenuInner(true);
                 UI::EndMenuBar();
             }
             UI::BeginTabBar("MainTabBar");
-            if (UI::BeginTabItem("DD2 Stats")) {
-                DrawStatsTab();
+
+            if (UI::BeginTabItem("Updates")) {
+                DrawUpdatesTab();
                 UI::EndTabItem();
             }
 
-            if (UI::BeginTabItem("Leaderboard")) {
-                DrawLeaderboardTab();
-                UI::EndTabItem();
-            }
+            if (g_Active) {
+                // push a new tab color then replace it once we start drawing the inner tab.
+                auto tabCol = UI::GetStyleColor(UI::Col::Tab);
+                UI::PushStyleColor(UI::Col::Tab, cGoldDarker);
 
-            if (UI::BeginTabItem("Prize Pool")) {
-                DrawDonationsTab();
-                UI::EndTabItem();
-            }
+                if (!MatchDD2::isDD2Proper && UI::BeginTabItem("This Map")) {
+                    // push default tab color
+                    UI::PushStyleColor(UI::Col::Tab, tabCol);
+                    if (g_CustomMap is null) {
+                        UI::TextWrapped("Unknown error: g_CustomMap is null. (Bug)");
+                    } else {
+                        g_CustomMap.DrawMapTabs();
+                    }
+                    // pop re-pushed default tab color
+                    UI::PopStyleColor(1);
 
-            if (UI::BeginTabItem("Collections")) {
-                DrawMainCollectionsTab();
-                UI::EndTabItem();
-            }
+                    UI::EndTabItem();
+                }
 
-            if (UI::BeginTabItem("Voice Lines")) {
-                DrawVoiceLinesTab();
-                UI::EndTabItem();
-            }
-
-            if (UI::BeginTabItem("Profile")) {
-                DrawProfileTab();
-                UI::EndTabItem();
+                // pop this map color
+                UI::PopStyleColor(1);
             }
 
             if (g_Active) {
@@ -55,15 +53,21 @@ namespace MainUI {
                     DrawSpectateTab();
                     UI::EndTabItem();
                 }
+            }
 
-                if (!MatchDD2::isDD2Proper && UI::BeginTabItem("Map Stats")) {
-                    if (g_CustomMap is null) {
-                        UI::TextWrapped("Unknown error: g_CustomMap is null. (Bug)");
-                    } else {
-                        g_CustomMap.DrawMapTabs();
-                    }
-                    UI::EndTabItem();
-                }
+            if (UI::BeginTabItem("Performance")) {
+                MoreFrames::RenderUI();
+                UI::EndTabItem();
+            }
+
+            if (UI::BeginTabItem("Deep Dip 2")) {
+                DrawDeepDip2Tabs();
+                UI::EndTabItem();
+            }
+
+            if (UI::BeginTabItem("Profile")) {
+                DrawProfileTab();
+                UI::EndTabItem();
             }
 
             // if (UI::BeginTabItem("Credits")) {
@@ -74,6 +78,37 @@ namespace MainUI {
         }
         UI::End();
     }
+
+
+    void DrawDeepDip2Tabs() {
+        UI::BeginTabBar("DD2Tabs");
+        if (UI::BeginTabItem("DD2 Stats")) {
+            DrawStatsTab();
+            UI::EndTabItem();
+        }
+
+        if (UI::BeginTabItem("Leaderboard")) {
+            DrawLeaderboardTab();
+            UI::EndTabItem();
+        }
+
+        if (UI::BeginTabItem("Prize Pool")) {
+            DrawDonationsTab();
+            UI::EndTabItem();
+        }
+
+        if (UI::BeginTabItem("Collections")) {
+            DrawMainCollectionsTab();
+            UI::EndTabItem();
+        }
+
+        if (UI::BeginTabItem("Voice Lines")) {
+            DrawVoiceLinesTab();
+            UI::EndTabItem();
+        }
+        UI::EndTabBar();
+    }
+
 
     string m_TwitchID;
     void DrawProfileTab() {

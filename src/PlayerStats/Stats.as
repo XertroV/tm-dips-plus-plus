@@ -570,6 +570,7 @@ class LBEntry {
     int race_time;
     // temp var in case we draw this entry somewhere
     vec2 lastMinimapPos = vec2();
+    MwId loginMwId;
 
     void SetFromJson(Json::Value@ j) {
         name = j["name"];
@@ -587,6 +588,9 @@ class LBEntry {
             height = pos.y;
         }
         race_time = j.Get("race_time", -1);
+        if (wsid.Length > 30) {
+            loginMwId.SetName(WSIDToLogin(wsid));
+        }
     }
 }
 

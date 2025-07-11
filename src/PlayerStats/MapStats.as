@@ -484,6 +484,10 @@ class MapStats {
         return customVLsPlayed.GetKeys();
     }
 
+    uint CountAll_CM_VoiceLinesPlayed() {
+        return customVLsPlayed.Length;
+    }
+
 
     void OnNewPB() {
         startnew(CoroutineFunc(this.UpdatePBHeightWaitLoop));

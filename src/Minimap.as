@@ -149,6 +149,7 @@ namespace Minimap {
     PlayerState@ hovered;
     int hoveredLiveIx = int(-1);
     float playerMaxHeightLast = 2000.;
+    uint[] mwidsShown;
 
     void Render(bool doDraw) {
         @hovered = null;
@@ -177,6 +178,12 @@ namespace Minimap {
         nvg::FontFace(f_Nvg_ExoRegular);
         playerMaxHeightLast = 0.;
         drawLivePlayers = nbPlayers <= 1 || S_Minimap_ShowLivePlayersOnServer;
+
+        // to deduplicate live players
+        // auto maxNbLive = S_Solo_ShowNbCurrentHighestPlayers;
+        mwidsShown.Resize(0);
+
+        // loop through players on server
         for (uint i = 0; i < nbPlayers; i++) {
             @p = PS::players[i];
             if (p.IsIdleOrNotUpdated()) continue;
@@ -199,6 +206,7 @@ namespace Minimap {
                 p.minimapLabel.Draw(p, cWhite25, cGray35);
                 if (p.minimapLabel.isHovered_Right) @hovered = p;
             }
+            mwidsShown.InsertLast(p.playerScoreMwId);
         }
 
         // if not in a server and we want to draw highest players currently climbing
@@ -211,6 +219,12 @@ namespace Minimap {
             // loop and draw
             for (uint i = 0; i < nbToShow; i++) {
                 int liveIx = nbToShow - i - 1;
+                // skip if this player is already drawn
+                if (mwidsShown.Find(g_CustomMap.mapLive[liveIx].loginMwId.Value) >= 0) {
+                    // already shown
+                    continue;
+                }
+                // otherwise draw
                 h = g_CustomMap.mapLive[liveIx].pos.y;
                 playerMaxHeightLast = Math::Max(h, playerMaxHeightLast);
                 if (Math::IsNaN(h)) continue;

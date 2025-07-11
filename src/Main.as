@@ -181,6 +181,7 @@ void Render() {
     // render Magic Spectate UI regardless of UI visibility, including warnings
     MagicSpectate::Render();
     if (S_BlockCam7Drivable) BlockCam7Drivable::Render();
+    if (S_Cam7MovementAlert) Cam7::MovementAlertRender();
     // custom map aux download prompt
     AuxiliaryAssets::RenderPrompt();
     // debug for triggers
@@ -269,7 +270,8 @@ bool RenderEarlyInner() {
     if (!wasActive) EmitGoingActive(true);
     g_Active = true;
     PS::UpdatePlayers();
-    BlockCam7Drivable::Update();
+    BlockCam7Drivable::Update(app.CurrentPlayground.GameTerminals[0]);
+    Cam7::Update(app.CurrentPlayground.GameTerminals[0]);
     if (PS::localPlayer !is null) {
         PS::localPlayer.UpdateFinishCheck(app.CurrentPlayground.UIConfigs[0].UISequence);
     }

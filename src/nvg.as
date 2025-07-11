@@ -26,11 +26,23 @@ const vec4 cSkyBlue = vec4(0.33, 0.66, 0.98, 1);
 const vec4 cLimeGreen = vec4(0.2, 0.8, 0.2, 1);
 const vec4 cGold = vec4(1, 0.84, 0, 1);
 const vec4 cGoldLight = vec4(1, 0.9, 0.25, 1);
+const vec4 cGoldDark = vec4(0.8, 0.6, 0, 1);
+const vec4 cGoldDarker = vec4(0.6, 0.4, 0, 1);
 const vec4 cSilver = vec4(0.75, 0.75, 0.75, 1);
 const vec4 cBronze = vec4(0.797f, 0.479f, 0.225f, 1.000f);
 const vec4 cPaleBlue35 = vec4(0.68, 0.85, 0.90, .35);
 const vec4 cTwitch = vec4(0.57f, 0.27f, 1.f, 1.f);
 
+
+
+vec4 LightenV4Col(const vec4 &in col, float stops) {
+    auto c = (col + vec4(stops)) / (stops + 1.0);
+    c.w = col.w;
+    return c;
+}
+
+const vec4 cGoldL1 = LightenV4Col(cGold, 1.0);
+const vec4 cGoldL2 = LightenV4Col(cGold, 2.0);
 
 
 // this does not seem to be expensive

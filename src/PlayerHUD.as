@@ -37,8 +37,10 @@ namespace HUD {
 
     void DrawMenu() {
         if (UI::BeginMenu("HUD")) {
+            UI::SeparatorText("Font");
             S_HudHeight = UI::SliderFloat("Font Size", S_HudHeight, 10, 100);
-            UI::Text("Left Side");
+
+            UI::SeparatorText("Left Side");
             S_HudPos = UI::SliderFloat2("Position##lhs", S_HudPos, 0, g_screen.y);
             S_HUDShowHeight = UI::Checkbox("Show Height", S_HUDShowHeight);
             S_HUDShowFalls = UI::Checkbox("Show Falls", S_HUDShowFalls);
@@ -46,7 +48,7 @@ namespace HUD {
             S_HUDShowMetersFallen = UI::Checkbox("Show Meters Fallen", S_HUDShowMetersFallen);
             S_HUDShowPB = UI::Checkbox("Show PB", S_HUDShowPB);
 
-            UI::Text("Right Side");
+            UI::SeparatorText("Right Side");
             S_HudFallingPos = UI::SliderFloat2("Position##rhs", S_HudFallingPos, -g_screen.x, g_screen.y);
             S_HUDShowCurrentFall = UI::Checkbox("Show Current Fall", S_HUDShowCurrentFall);
             S_HUDJumpSpeed = UI::Checkbox("Show Jump Speed", S_HUDJumpSpeed);
