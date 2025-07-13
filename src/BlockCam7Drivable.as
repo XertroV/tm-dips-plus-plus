@@ -52,8 +52,13 @@ namespace Cam7 {
     void Update(CGameTerminal@ gt) {
         if (!S_Cam7MovementAlert || gt is null) return;
         if (GetIsInCam7(gt)) {
+            bool isFalling = PS::localPlayer.isFalling && PS::localPlayer.vel.y < -1.0;
+            // if we enter cam7 while falling, don't trigger
+            if (lastCam7Time < 0) {
+                cartoonPlayed = isFalling;
+            }
             lastCam7Time = Time::Now;
-            if (PS::localPlayer.isFalling && !cartoonPlayed) {
+            if (isFalling && !cartoonPlayed) {
                 // play cartoon sound when fall started in cam7
                 AudioChain({"cartoon.mp3"}).WithPlayAnywhere().Play();
                 cartoonPlayed = true;
