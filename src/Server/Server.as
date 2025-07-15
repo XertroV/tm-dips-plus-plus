@@ -513,6 +513,7 @@ class DD2API {
 
         @msgHandlers[MessageResponseTypes::UsersProfile] = MsgHandler(UsersProfileHandler);
         @msgHandlers[MessageResponseTypes::YourPreferences] = MsgHandler(MyPreferencesHandler);
+        @msgHandlers[MessageResponseTypes::PlayersSpecInfo] = MsgHandler(PlayersSpecInfoHandler);
 
         @msgHandlers[MessageResponseTypes::MapOverview] = MsgHandler(MapOverviewHandler);
         @msgHandlers[MessageResponseTypes::MapLB] = MsgHandler(MapLBHandler);
@@ -615,6 +616,15 @@ class DD2API {
 
     void MyPreferencesHandler(Json::Value@ msg) {
         MyPreferences::HandleMsg(msg);
+    }
+
+    void PlayersSpecInfoHandler(Json::Value@ msg) {
+        // warn("PlayersSpecInfo received. " + Json::Write(msg));
+        if (msg.HasKey("wsid")) {
+            PlayerSpecInfo::Handle(msg);
+        } else {
+            warn("PlayersSpecInfo message missing wsid: " + Json::Write(msg));
+        }
     }
 
     // MapOverview

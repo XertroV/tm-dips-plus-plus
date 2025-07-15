@@ -121,6 +121,7 @@ namespace MagicSpectate {
 
 
     void _DrawCurrentlySpectatingUI() {
+        PlayerSpecInfo::Update(currentlySpectating);
         auto p = currentlySpectating;
         auto pad = SPEC_BG_PAD * Minimap::vScale;
         auto namePosCM = SPEC_NAME_POS * g_screen;
@@ -154,6 +155,7 @@ namespace MagicSpectate {
                 MS_RenderInputs(p);
             }
         }
+        PlayerSpecInfo::SetUpFixChrono();
     }
 
     void MS_RenderInputs(PlayerState@ p) {
@@ -218,6 +220,7 @@ namespace MagicSpectate {
     void _DrawGameSpectatingUI() {
         auto p = PS::viewedPlayer;
         if (p is null) return;
+        PlayerSpecInfo::Update();
         string twitchName = TwitchNames::GetTwitchName(p.playerWsid);
         // if (twitchName.Length == 0) twitchName = "<< Unknown >>";
         float fs = 36. * Minimap::vScale;
@@ -229,6 +232,7 @@ namespace MagicSpectate {
         if (twitchName.Length > 0) {
             DrawTwitchName(twitchName, fs, pad, false);
         }
+        PlayerSpecInfo::SetUpFixChrono();
     }
 
     void DrawTwitchName(const string &in twitchName, float fs, vec2 pad, bool isMagicSpec) {

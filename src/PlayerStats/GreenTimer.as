@@ -53,9 +53,21 @@ namespace GreenTimer {
         nvg::ClosePath();
     }
 
+    bool allowShowTimerAsPaused = true;
+    int64 _GetCurrGTimer() {
+        allowShowTimerAsPaused = true;
+        // if we are spectating, we should try to use the target's value
+        if (MagicSpectate::IsActive() || Spectate::IsSpectator) {
+            if (PlayerSpecInfo::specServerNowMs < 0) return 0;
+            allowShowTimerAsPaused = false;
+            return PlayerSpecInfo::specTotalMapTime + (Time::Stamp * 1000 - PlayerSpecInfo::specServerNowMs);
+        }
+        return Stats::GetTimeInMapMs();
+    }
+
     void _DrawGreenTimer(vec2 pos, int align) {
         nvg::TextAlign(align);
-        string label = Time::Format(Stats::GetTimeInMapMs(), false, true, true);
+        string label = Time::Format(_GetCurrGTimer(), false, true, true);
         if (label.Length < 8) label = "0" + label;
         vec2 bounds = nvg::TextBounds(GetTimerTemplateStr(label.Length));
         int nbDigits = label.Length - 2;
@@ -76,8 +88,9 @@ namespace GreenTimer {
         }
         nvg::TextAlign(nvg::Align::Top | nvg::Align::Left);
 
-        bool paused = (S_PauseTimerWhileSpectating && Spectate::IsSpectatorOrMagicSpectator)
-                || S_PauseTimerWhenWindowUnfocused && IsPauseMenuOpen(true)
+        bool paused = allowShowTimerAsPaused
+                && (( S_PauseTimerWhileSpectating && Spectate::IsSpectatorOrMagicSpectator)
+                   || S_PauseTimerWhenWindowUnfocused && IsPauseMenuOpen(true))
                 ;
         vec4 col = paused ? cGray : S_GreenTimerColor;
 

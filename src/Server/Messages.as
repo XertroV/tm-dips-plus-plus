@@ -27,6 +27,8 @@ enum MessageRequestTypes {
     ReportCustomMapAuxSpec = 65,
     DeleteCustomMapAuxSpec = 66,
     ListCustomMapAuxSpecs = 67,
+    // CM stats
+    ReportMapStats = 68,
 
     // getters
     GetMyStats = 128,
@@ -45,6 +47,7 @@ enum MessageRequestTypes {
     GetMyPreferences = 140,
     SetMyPreferences = 141,
     GetUsersProfile = 142,
+    GetPlayersSpecInfo = 143,
 
     // uid
     GetMapOverview = 192,
@@ -85,6 +88,8 @@ enum MessageResponseTypes {
     TwitchName = 137,
     UsersProfile = 138,
     YourPreferences = 139,
+    // space for preference/profile stuff
+    PlayersSpecInfo = 143,
 
     MapOverview = 192,
     MapLB = 193,
@@ -254,6 +259,12 @@ OutgoingMsg@ ListCustomMapAuxSpecsMsg(uint req_id) {
     return WrapMsgJson(j, MessageRequestTypes::ListCustomMapAuxSpecs);
 }
 
+OutgoingMsg@ ReportMapStatsMsg(const string &in uid, Json::Value@ stats) {
+    auto @j = Json::Object();
+    j["uid"] = uid;
+    j["stats"] = stats;
+    return WrapMsgJson(j, MessageRequestTypes::ReportMapStats);
+}
 
 
 
@@ -380,6 +391,14 @@ OutgoingMsg@ SetMyPreferencesMsg(Json::Value@ prefs) {
     j["body"] = prefs;
     return WrapMsgJson(j, MessageRequestTypes::SetMyPreferences);
 }
+
+OutgoingMsg@ GetPlayersSpecInfoMsg(const string &in wsid, const string &in uid) {
+    auto @j = Json::Object();
+    j["wsid"] = wsid;
+    j["uid"] = uid;
+    return WrapMsgJson(j, MessageRequestTypes::GetPlayersSpecInfo);
+}
+
 
 
 OutgoingMsg@ GetSecretAssetsMsg() {
