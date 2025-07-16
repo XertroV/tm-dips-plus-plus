@@ -57,10 +57,10 @@ namespace GreenTimer {
     int64 _GetCurrGTimer() {
         allowShowTimerAsPaused = true;
         // if we are spectating, we should try to use the target's value
-        if (MagicSpectate::IsActive() || Spectate::IsSpectator) {
-            if (PlayerSpecInfo::specServerNowMs < 0) return 0;
+        if (Spectate::IsSpectatorOrMagicSpectator) {
+            if (PlayerSpecInfo::specServerNowTs <= 10000) return 0;
             allowShowTimerAsPaused = false;
-            return PlayerSpecInfo::specTotalMapTime + (Time::Stamp * 1000 - PlayerSpecInfo::specServerNowMs);
+            return (PlayerSpecInfo::specTotalMapTime + (Time::Stamp - PlayerSpecInfo::specServerNowTs)) * 1000;
         }
         return Stats::GetTimeInMapMs();
     }

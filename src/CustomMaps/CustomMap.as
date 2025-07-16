@@ -77,8 +77,17 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
 
         // auto app = GetApp();
         auto lastUpdate = Time::Now + 25000;
+        int64 nextStatsUpdate = Time::Now + 30000;
         uint updateCount = 0;
         while (CurrMap::IdIs(mapMwId)) {
+            // check update stats every 30-45s
+            if (nextStatsUpdate - Time::Now <= 0) {
+                nextStatsUpdate = Time::Now + 30000 + Math::Rand(0, 15000);
+                if (stats !is null) {
+                    stats.PushMapStatsToServer();
+                }
+            }
+            // check update position every 5s
             if (Time::Now - lastUpdate > 5000) {
                 if (PS::viewedPlayer !is null && PS::viewedPlayer.isLocal && PS::viewedPlayer.raceTime > 1500 && !PS::viewedPlayer.isIdle) {
                     // 3 * 2000^2
@@ -95,6 +104,10 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
                 }
             }
             yield();
+        }
+        // when we leave the map, push latest stats.
+        if (stats !is null) {
+            stats.PushMapStatsToServer();
         }
     }
 

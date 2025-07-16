@@ -78,7 +78,7 @@ class MapStats {
 
     void LoadJsonFromFile(Json::Value@ j) {
         dev_trace("loading stats: " + Json::Write(j));
-        msSpentInMap = uint(j["seconds_spent_in_map"]) * 1000;
+        msSpentInMap = uint64(j["seconds_spent_in_map"]) * 1000;
         nbJumps = j["nb_jumps"];
         nbFalls = j["nb_falls"];
         nbFloorsFallen = j["nb_floors_fallen"];
@@ -117,10 +117,8 @@ class MapStats {
         SaveToDisk();
     }
 
-    Json::Value@ ToJson() {
+    Json::Value@ ToJson(bool fat = true) {
         Json::Value@ stats = Json::Object();
-        stats["mapUid"] = mapUid;
-        stats["mapName"] = mapName;
         stats["seconds_spent_in_map"] = msSpentInMap / 1000;
         stats["nb_jumps"] = nbJumps;
         stats["nb_falls"] = nbFalls;
@@ -132,15 +130,19 @@ class MapStats {
         stats["pb_race_time"] = pbRaceTime;
         stats["pb_pos"] = Vec3ToJson(pbPos);
         stats["nb_resets"] = nbResets;
-        stats["ggs_triggered"] = ggsTriggered;
-        stats["title_gags_triggered"] = titleGagsTriggered;
-        stats["title_gags_special_triggered"] = titleGagsSpecialTriggered;
-        stats["bye_byes_triggered"] = byeByesTriggered;
-        stats["monument_triggers"] = monumentTriggers.ToJson();
         stats["reached_floor_count"] = reachedFloorCount.ToJson();
-        stats["floor_voice_lines_played"] = floorVoiceLinesPlayed.ToJson();
         stats["extra"] = extra;
-        stats["custom_vls_played"] = customVLsPlayed;
+        if (fat) {
+            stats["mapUid"] = mapUid;
+            stats["mapName"] = mapName;
+            stats["ggs_triggered"] = ggsTriggered;
+            stats["title_gags_triggered"] = titleGagsTriggered;
+            stats["title_gags_special_triggered"] = titleGagsSpecialTriggered;
+            stats["bye_byes_triggered"] = byeByesTriggered;
+            stats["monument_triggers"] = monumentTriggers.ToJson();
+            stats["floor_voice_lines_played"] = floorVoiceLinesPlayed.ToJson();
+            stats["custom_vls_played"] = customVLsPlayed;
+        }
         return stats;
     }
 
@@ -511,6 +513,10 @@ class MapStats {
 
     void PushMapPBToServer() {
         PushMessage(ReportMapCurrPosMsg(mapUid, pbPos, pbRaceTime));
+    }
+
+    void PushMapStatsToServer() {
+        PushMessage(ReportMapStatsMsg(mapUid, this.ToJson(false)));
     }
 }
 

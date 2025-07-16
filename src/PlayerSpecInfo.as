@@ -3,19 +3,19 @@ namespace PlayerSpecInfo {
 
 	void Handle(Json::Value@ msg) {
 		string newWsid, newUid;
-		int64 newRaceTime = -1, newTotalMapTime = -1, serverNowMs = -1;
+		int64 newTotalMapTime = -1, serverNowTs = -1;
 		bool gotWsid = JsonX::SafeGetString(msg, "wsid", newWsid);
 		bool gotUid = JsonX::SafeGetString(msg, "uid", newUid);
 		JsonX::SafeGetInt64(msg, "total_map_time", newTotalMapTime);
-		JsonX::SafeGetInt64(msg, "now_ms", serverNowMs);
+		JsonX::SafeGetInt64(msg, "now_ts", serverNowTs);
 		if (!gotWsid || !gotUid) {
 			warn("PlayerSpecInfo message missing wsid or uid: " + Json::Write(msg));
 			return;
 		}
-		_OnRecvUpdate(newWsid, newUid, newTotalMapTime, serverNowMs);
+		_OnRecvUpdate(newWsid, newUid, newTotalMapTime, serverNowTs);
 	}
 
-	void _OnRecvUpdate(const string &in wsid, const string &in uid, int64 totalMapTime, int64 serverNowMs) {
+	void _OnRecvUpdate(const string &in wsid, const string &in uid, int64 totalMapTime, int64 serverNowTs) {
 		_lastUpdated = Time::Now;
 		if (lastMapUid.GetName() != uid) {
 			dev_trace("PlayerSpecInfo::_OnRecvUpdate: unexpected map uid: " + uid + ", expected: " + lastMapUid.GetName());
@@ -27,10 +27,10 @@ namespace PlayerSpecInfo {
 			return;
 		}
 		specTotalMapTime = totalMapTime;
-		specServerNowMs = serverNowMs;
+		specServerNowTs = serverNowTs;
 	}
 
-	int64 specRaceTime = -1, specTotalMapTime = -1, specServerNowMs = -1;
+	int64 specRaceTime = -1, specTotalMapTime = -1, specServerNowTs = -1;
 
 	const int64 PLAYER_SPEC_INFO_UPDATE = 21 * 1000;
 	int64 lastSentUpdate = 0;
@@ -40,7 +40,9 @@ namespace PlayerSpecInfo {
 	void Update(PlayerState@ specTarget = null) {
 		if (specTarget is null) @specTarget = PS::viewedPlayer;
 		if (specTarget is null) return;
+#if !DEV
 		if (specTarget.isLocal) return;
+#endif
 		auto mapUidValue = CurrMap::lastMapMwId;
 		if (mapUidValue == 0) return;
 
@@ -58,7 +60,7 @@ namespace PlayerSpecInfo {
 
 		PushMessage(GetPlayersSpecInfoMsg(specTarget.playerWsid, lastMapUid.GetName()));
 		if (resetValues) {
-			specServerNowMs = specTotalMapTime = -1;
+			specServerNowTs = specTotalMapTime = -1;
 		}
 	}
 
