@@ -23,9 +23,11 @@ namespace Fanfare {
     DTexture@ FanfareSpritesheet;
 
     void LoadDefaultFanfareTextures() {
+        if (fwParticles.Length > 0) return;
         if (FanfareSpritesheet is null) {
             @FanfareSpritesheet = DTexture("img/fanfare-spritesheet.png");
         }
+        fwParticles.Reserve(20);
         for (uint row = 0; row < 2; row++) {
             for (uint col = 0; col < 10; col++) {
                 if (row == 1 && col >= 7) continue;

@@ -27,6 +27,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
     VoiceLineTrigger@[] customVlTriggers;
 
     CustomMap(CGameCtnChallenge@ map) {
+        ClsCount::LogConstruct("CustomMap");
         mapUid = map.Id.GetName();
         mapMwId = GetMwIdValue(mapUid);
         if (MapCustomInfo::ShouldActivateForMap(map)) {
@@ -34,6 +35,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
             @stats = GetMapStats(map);
             isDD2 = stats.isDD2;
             useDD2Triggers = stats.isDD2 || stats.isEzMap;
+            // release occurs in LoadCustomMapData
             map.MwAddRef();
             if (!useDD2Triggers) @triggersMgr = TriggersMgr();
             startnew(CoroutineFuncUserdata(LoadCustomMapData), map);
@@ -46,6 +48,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
 
     // used for access outside the map
     CustomMap(const string &in mapUid, const string &in mapName) {
+        ClsCount::LogConstruct("CustomMap");
         this.mapUid = mapUid;
         mapMwId = GetMwIdValue(mapUid);
         if (MapCustomInfo::ShouldActivateForMap(mapUid, "")) {
@@ -58,7 +61,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
     }
 
     ~CustomMap() {
-
+        ClsCount::LogDestruct("CustomMap");
     }
 
     void TriggerCheck_Update() {

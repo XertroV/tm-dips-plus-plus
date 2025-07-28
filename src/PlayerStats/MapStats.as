@@ -46,6 +46,7 @@ class MapStats {
     }
 
     protected void AfterConstructor() {
+        ClsCount::LogConstruct("MapStats");
         isDD2Any = MatchDD2::VerifyIsDD2(mapUid);
         isDD2 = mapUid == DD2_MAP_UID;
         jsonFile = GetMapStatsFileName(mapUid);
@@ -58,6 +59,7 @@ class MapStats {
     }
 
     ~MapStats() {
+        ClsCount::LogDestruct("MapStats");
         SaveToDisk();
     }
 
@@ -536,6 +538,9 @@ namespace MapStatsCache {
     }
 
     MapStats@ Get(const string &in mapUid, const string &in mapName) {
+        if (_cachedMapStats.GetSize() > 50000) {
+            warn("MapStatsCache over 50k! MapUID: " + mapUid);
+        }
         if (_cachedMapStats.Exists(mapUid)) {
             return cast<MapStats>(_cachedMapStats[mapUid]);
         }

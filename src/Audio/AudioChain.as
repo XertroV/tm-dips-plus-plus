@@ -13,9 +13,25 @@ class AudioChain {
     bool firstPlayed = false;
 
     AudioChain(string[]@ samplePaths) {
+        ClsCount::LogConstruct("AudioChain");
         @this.samplePaths = samplePaths;
         samplesStr = Json::Write(samplePaths.ToJson());
         startnew(CoroutineFunc(this.LoadSamples));
+    }
+
+    ~AudioChain() {
+        ClsCount::LogDestruct("AudioChain");
+        for (uint i = 0; i < samples.Length; i++) {
+            @samples[i] = null;
+        }
+        _PlayOutQueuedSamples();
+        samples.RemoveRange(0, samples.Length);
+        if (voice !is null) {
+            voice.SetGain(0);
+            if (voice.IsPaused()) voice.Play();
+            @voice = null;
+        }
+        RemoveSelfFromChannel();
     }
 
     AudioChain@ WithPlayAnywhere() {
@@ -52,20 +68,6 @@ class AudioChain {
     AudioChain@ WithAwaitLoaded() {
         while (!samplesLoaded) yield();
         return this;
-    }
-
-    ~AudioChain() {
-        for (uint i = 0; i < samples.Length; i++) {
-            @samples[i] = null;
-        }
-        _PlayOutQueuedSamples();
-        samples.RemoveRange(0, samples.Length);
-        if (voice !is null) {
-            voice.SetGain(0);
-            if (voice.IsPaused()) voice.Play();
-            @voice = null;
-        }
-        RemoveSelfFromChannel();
     }
 
     void _PlayOutQueuedSamples() {
@@ -171,17 +173,16 @@ class AudioChain {
 
     protected void FadeOutCoro() {
         while (true) {
-            if (voice !is null) {
-                float t = (Time::Now - startFadeOut);
-                if (t >= VoiceFadeOutDurationMs) {
-                    voice.SetGain(0.0);
-                    voice.Play();
-                    @voice = null;
-                    break;
-                }
-                t = Math::Max(0.0, 1.0 - t / (float(VoiceFadeOutDurationMs) / 1000.0));
-                voice.SetGain(S_VolumeGain * t); // Math::Sqrt(t))
+            if (voice is null) break;
+            float t = (Time::Now - startFadeOut);
+            if (t >= VoiceFadeOutDurationMs) {
+                voice.SetGain(0.0);
+                voice.Play();
+                @voice = null;
+                break;
             }
+            t = Math::Max(0.0, 1.0 - t / (float(VoiceFadeOutDurationMs) / 1000.0));
+            voice.SetGain(S_VolumeGain * t); // Math::Sqrt(t))
             yield();
         }
         RemoveSelfFromChannel();

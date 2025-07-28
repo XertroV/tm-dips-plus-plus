@@ -6,7 +6,11 @@ UI::Texture@ dips_pp_logo_horiz_vsm;
 vec2 dips_pp_logo_horiz_vsm_dims;
 vec2 dips_pp_logo_sm_dims;
 
+bool _haveLoadedGlobalTextures = false;
+
 void LoadGlobalTextures() {
+    if (_haveLoadedGlobalTextures) return;
+    _haveLoadedGlobalTextures = true;
     IO::FileSource sprites("sprites/frogdance_sprites.png");
     auto buf = sprites.Read(sprites.Size());
     @frogdance_tex = nvg::LoadTexture(buf, nvg::TextureFlags::Nearest);

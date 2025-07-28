@@ -49,8 +49,8 @@ void RenderDebugWindow() {
             DrawCurrentStatusesTab();
             UI::EndTabItem();
         }
-        if (UI::BeginTabItem("Credits -------------")) {
-            DrawCreditsTab();
+        if (UI::BeginTabItem("Class Debug")) {
+            DrawClassDebugTab();
             UI::EndTabItem();
         }
         if (UI::BeginTabItem("Offsets")) {
@@ -61,6 +61,12 @@ void RenderDebugWindow() {
     }
     UI::End();
 }
+
+
+void DrawClassDebugTab() {
+    ClsCount::RenderUI();
+}
+
 
 void DrawCreditsTab() {
     if (UI::Button("Roll Credits")) {

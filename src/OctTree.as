@@ -6,7 +6,13 @@ namespace DipsOT {
 
 		// input is in blocks, not world units
 		OctTree(vec3 &in mapSize = vec3(48, 255, 48)) {
+			ClsCount::LogConstruct("OctTree");
 			@root = OctTreeNode(null, 0, vec3(0, 0, 0), mapSize * vec3(32, 8, 32));
+		}
+
+		~OctTree() {
+			ClsCount::LogDestruct("OctTree");
+			@root = null;
 		}
 
 		void Insert(const vec3 &in point) {
@@ -60,11 +66,16 @@ namespace DipsOT {
 		// mat4 mat;
 
 		OctTreeRegion(vec3 &in min, vec3 &in max) {
+			ClsCount::LogConstruct("OctTreeRegion");
 			this.min = min;
 			this.max = max;
 			this.size = max - min;
 			midp = (max + min) / 2.;
 			name = "unnamed region";
+		}
+
+		~OctTreeRegion() {
+			ClsCount::LogDestruct("OctTreeRegion");
 		}
 
 		string ToString() {
@@ -107,10 +118,15 @@ namespace DipsOT {
 
 
 		OctTreeNode(OctTreeNode@ parent, int depth, const vec3 &in min, const vec3 &in max) {
+			ClsCount::LogConstruct("OctTreeNode : OctTreeRegion");
 			super(min, max);
 			isNode = true;
 			@this.parent = parent;
 			this.depth = depth;
+		}
+
+		~OctTreeNode() {
+			ClsCount::LogDestruct("OctTreeNode : OctTreeRegion");
 		}
 
 		bool Contains(const vec3 &in point) {
