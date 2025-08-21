@@ -1,0 +1,21 @@
+--BEGIN-DPP--
+
+start = 66.0
+finish = 1000.0
+
+floor00 = 25.9|FG
+floor01 = 98.0
+floor02 = 202.0
+floor03 = 290.0
+floor04 = 378.0
+floor05 = 477.0
+floor06 = 575.0
+floor07 = 666.0
+floor08 = 762.0
+floor09 = 890.0|roof
+floor10 = 1000.0|fin
+
+lastFloorEnd = true
+minClientVersion = 0.5.4
+
+--END-DPP--
