@@ -3,7 +3,7 @@
 string[] heightStrings;
 
 string[] GenerateHeightStrings() {
-    uint nbStrs = 3000;
+    uint nbStrs = 5000;
     heightStrings.Reserve(nbStrs);
     for (uint i = 0; i < nbStrs; i++) {
         heightStrings.InsertLast(tostring(i));

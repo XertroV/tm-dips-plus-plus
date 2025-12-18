@@ -263,7 +263,7 @@ class PlayerState {
     }
 
     void UpdatePlayerFromRawValues(const vec3 &in vel, const vec3 &in pos, const quat &in rot, bool anyWheelFlying, bool allWheelsFlying, uint newDiscontCount, bool newFrozen) {
-        if (Math::IsNaN(pos.y) || Math::IsInf(pos.y) || Math::Abs(pos.y) > 3000.0 || Math::Abs(pos.x) < 1. || Math::Abs(pos.z) < 1.) {
+        if (Math::IsNaN(pos.y) || Math::IsInf(pos.y) || Math::Abs(pos.y) > 5000.0 || Math::Abs(pos.x) < 1. || Math::Abs(pos.z) < 1.) {
 #if DEV
             // happens often enough with csmplayer details
             // dev_trace("Player " + playerName + " has NaN/Inf/oob pos: " + pos.ToString());
