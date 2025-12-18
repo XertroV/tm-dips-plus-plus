@@ -2,6 +2,8 @@
 
 //
 const uint32 LOW_VELOCITY_TURTLE_MIN_TIME = 30000;
+// Ignore heights with magnitudes greater than this.
+const float MAX_HEIGHT = 5000.0;
 
 // Player state
 class PlayerState {
@@ -263,7 +265,7 @@ class PlayerState {
     }
 
     void UpdatePlayerFromRawValues(const vec3 &in vel, const vec3 &in pos, const quat &in rot, bool anyWheelFlying, bool allWheelsFlying, uint newDiscontCount, bool newFrozen) {
-        if (Math::IsNaN(pos.y) || Math::IsInf(pos.y) || Math::Abs(pos.y) > 5000.0 || Math::Abs(pos.x) < 1. || Math::Abs(pos.z) < 1.) {
+        if (Math::IsNaN(pos.y) || Math::IsInf(pos.y) || Math::Abs(pos.y) > MAX_HEIGHT || Math::Abs(pos.x) < 1. || Math::Abs(pos.z) < 1.) {
 #if DEV
             // happens often enough with csmplayer details
             // dev_trace("Player " + playerName + " has NaN/Inf/oob pos: " + pos.ToString());

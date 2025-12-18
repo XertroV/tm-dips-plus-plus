@@ -61,7 +61,7 @@ namespace HUD {
         if (player is null || !doDraw) {
             return;
         }
-        if (player.pos.y > 5000 || player.pos.y < -1000) {
+        if (player.pos.y > MAX_HEIGHT || player.pos.y < -1000) {
             // we read some bad data
             return;
         }
