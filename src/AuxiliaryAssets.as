@@ -46,7 +46,7 @@ namespace AuxiliaryAssets {
     bool DidUserAccept() { return userDownloadConsentStage == DownloadConsentStage::Accepted; }
     bool IsPrompting() { return userDownloadConsentStage == DownloadConsentStage::Prompting; }
     void ShowPrompt() {
-        startnew(CoroutineFunc(PromptAndDownloadAssets));
+        startnew(PromptAndDownloadAssets);
     }
 
     // Called when we are about to load auxiliary assets.
@@ -68,7 +68,7 @@ namespace AuxiliaryAssets {
         UI::SetNextWindowPos(int(windowPos.x), int(windowPos.y), UI::Cond::Always);
         UI::SetNextWindowSize(int(windowSize.x), int(windowSize.y), UI::Cond::Always);
 
-        UI::PushFont(UI::Font::Default20);
+        UI::PushFontSize(20);
         bool open = true;
         if (UI::Begin("Dips++ | Map Assets Download", open, AUX_PROMPT_WIN_FLAGS)) {
             auto avail = UI::GetContentRegionAvail();
@@ -95,7 +95,7 @@ namespace AuxiliaryAssets {
             }
             UI::SameLine();
             avail = UI::GetContentRegionAvail();
-            float yesBtnWidth = Draw::MeasureString("Yes, download assets").x + framePadding.x;
+            float yesBtnWidth = UI::MeasureString("Yes, download assets").x + framePadding.x;
             float gapWidth = Math::Max(avail.x - yesBtnWidth - itemSpacing.x, 0.0);
             UI::SetCursorPos(UI::GetCursorPos() + vec2(gapWidth, 0));
             if (UI::ButtonColored("Yes, download assets", 0.4, 0.7, 0.5)) {
@@ -103,7 +103,7 @@ namespace AuxiliaryAssets {
             }
         }
         UI::End();
-        UI::PopFont();
+        UI::PopFontSize();
 
         if (!open) {
             // User closed the prompt, equivalent to decline
@@ -132,7 +132,7 @@ namespace AuxiliaryAssets {
 
         UI::Indent();
 
-        auto assetNumCursorMod = vec2(Draw::MeasureString("0000").x, 0);
+        auto assetNumCursorMod = vec2(UI::MeasureString("0000").x, 0);
 
         for (uint i = 0; i < assetsToDownload.Length; i++) {
             AuxAssetInfo@ asset = assetsToDownload[i];

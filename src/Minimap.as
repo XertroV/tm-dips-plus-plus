@@ -256,7 +256,7 @@ namespace Minimap {
         drivingPlayers.RemoveRange(0, drivingPlayers.Length);
 
         if (fallers.Length > 1) {
-            playerQuicksort(fallers, PlayerLessF(SortFallersAsc));
+            playerQuicksort(fallers, SortFallersAsc);
         }
 
         for (uint i = 0; i < fallers.Length; i++) {

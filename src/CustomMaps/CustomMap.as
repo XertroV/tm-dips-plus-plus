@@ -42,7 +42,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
             startnew(CoroutineFunc(RunMapLoop));
             startnew(CoroutineFunc(this.CheckUpdateLeaderboard));
         } else {
-            startnew(CoroutineFuncUserdata(CheckForUploadedMapData), array<string> = {mapUid});
+            startnew(CheckForUploadedMapData, array<string> = {mapUid});
         }
     }
 
@@ -56,7 +56,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
             isDD2 = stats.isDD2;
             isDD2Any = stats.isDD2Any;
             useDD2Triggers = stats.isDD2Any || stats.isEzMap;
-            startnew(CoroutineFuncUserdata(CheckForUploadedMapData), array<string> = {mapUid});
+            startnew(CheckForUploadedMapData, array<string> = {mapUid});
         }
     }
 
@@ -142,7 +142,7 @@ class CustomMap : WithMapOverview, WithLeaderboard, WithMapLive {
         }
         loadError = MapCustomInfo::lastParseFailReason;
         if (spec is null) {
-            startnew(CoroutineFuncUserdata(CheckForUploadedMapData), array<string> = {stats.mapUid});
+            startnew(CheckForUploadedMapData, array<string> = {stats.mapUid});
             return false;
         }
         if (!spec.minClientPass) {

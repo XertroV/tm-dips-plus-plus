@@ -23,7 +23,7 @@ namespace CustomVL {
     }
 
     awaitable@ StartTestVoiceLine(IVoiceLineParams@ params) {
-        return startnew(CoroutineFuncUserdata(_StartTestVoiceLine_Async), params);
+        return startnew(_StartTestVoiceLine_Async, params);
     }
 
     void _StartTestVoiceLine_Async(ref@ params) {

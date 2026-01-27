@@ -498,7 +498,7 @@ namespace MainUI {
                     UI::Text("End VL unlocked!");
                     UI::SameLine();
                     if (UI::Button("Replay End Voice Line")) {
-                        startnew(CoroutineFunc(SecretAssets::PlaySecretAudio));
+                        startnew(SecretAssets::PlaySecretAudio);
                     }
                 } else {
                     // just hide it
@@ -510,7 +510,7 @@ namespace MainUI {
                 UI::SameLine();
                 if (UI::Button("Replay Voice Line##floor"+i)) {
                     voiceLineToPlay = i;
-                    startnew(CoroutineFunc(MainUI::PlayVoiceLine));
+                    startnew(MainUI::PlayVoiceLine);
                 }
             } else {
                 UI::AlignTextToFramePadding();
@@ -522,7 +522,7 @@ namespace MainUI {
             UI::SameLine();
             if (UI::Button("Replay Epilogue")) {
                 voiceLineToPlay = 17;
-                startnew(CoroutineFunc(MainUI::PlayVoiceLine));
+                startnew(MainUI::PlayVoiceLine);
             }
         } else {
             UI::Text("Epilogue locked");
