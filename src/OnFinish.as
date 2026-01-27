@@ -59,7 +59,7 @@ namespace OnFinish {
     }
 
     void StartDD2CelebrationAnim() {
-        startnew(RunFinishCamera).WithRunContext(Meta::RunContext::AfterScripts);
+        Meta::StartWithRunContext(Meta::RunContext::AfterScripts, RunFinishCamera);
         startnew(Fanfare::OnFinishHit);
         F_HasUnlockedEpilogue = true;
         Meta::SaveSettings();
