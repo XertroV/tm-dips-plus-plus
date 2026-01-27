@@ -95,7 +95,7 @@ namespace AuxiliaryAssets {
             }
             UI::SameLine();
             avail = UI::GetContentRegionAvail();
-            float yesBtnWidth = Draw::MeasureString("Yes, download assets").x + framePadding.x;
+            float yesBtnWidth = UI::MeasureString("Yes, download assets").x + framePadding.x;
             float gapWidth = Math::Max(avail.x - yesBtnWidth - itemSpacing.x, 0.0);
             UI::SetCursorPos(UI::GetCursorPos() + vec2(gapWidth, 0));
             if (UI::ButtonColored("Yes, download assets", 0.4, 0.7, 0.5)) {
@@ -132,7 +132,7 @@ namespace AuxiliaryAssets {
 
         UI::Indent();
 
-        auto assetNumCursorMod = vec2(Draw::MeasureString("0000").x, 0);
+        auto assetNumCursorMod = vec2(UI::MeasureString("0000").x, 0);
 
         for (uint i = 0; i < assetsToDownload.Length; i++) {
             AuxAssetInfo@ asset = assetsToDownload[i];

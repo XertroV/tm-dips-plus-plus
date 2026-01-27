@@ -147,7 +147,7 @@ bool IsVehicleActionMap;
 
 void RenderEarly() {
     IsVehicleActionMap = UI::CurrentActionMap() == "Vehicle";
-    g_screen = vec2(Draw::GetWidth(), Draw::GetHeight());
+    g_screen = vec2(Display::GetWidth(), Display::GetHeight());
     RenderEarlyInner();
     UpdateDownloads();
     if (g_Active || Minimap::updateMatrices) {

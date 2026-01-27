@@ -69,7 +69,7 @@ namespace Inputs {
     void DrawInputs(CSceneVehicleVisState@ vis, const vec4 &in col, const vec2 &in size) {
         keyCol = col;
         strokeCol = (col + vec4(1, 1, 1, .8)) / 2.;
-        if (padding < 0) padding = float(Draw::GetHeight()) * 0.004;
+        if (padding < 0) padding = float(Display::GetHeight()) * 0.004;
         // float _padding =
 
         float steerLeft = vis.InputSteer < 0 ? Math::Abs(vis.InputSteer) : 0.0f;
