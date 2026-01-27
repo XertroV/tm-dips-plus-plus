@@ -68,7 +68,7 @@ namespace AuxiliaryAssets {
         UI::SetNextWindowPos(int(windowPos.x), int(windowPos.y), UI::Cond::Always);
         UI::SetNextWindowSize(int(windowSize.x), int(windowSize.y), UI::Cond::Always);
 
-        UI::PushFont(UI::Font::Default20);
+        UI::PushFontSize(20);
         bool open = true;
         if (UI::Begin("Dips++ | Map Assets Download", open, AUX_PROMPT_WIN_FLAGS)) {
             auto avail = UI::GetContentRegionAvail();
@@ -103,7 +103,7 @@ namespace AuxiliaryAssets {
             }
         }
         UI::End();
-        UI::PopFont();
+        UI::PopFontSize();
 
         if (!open) {
             // User closed the prompt, equivalent to decline
