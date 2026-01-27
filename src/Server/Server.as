@@ -520,7 +520,7 @@ class DD2API {
         @msgHandlers[MessageResponseTypes::MapLivePlayers] = MsgHandler(MapLivePlayersHandler);
         @msgHandlers[MessageResponseTypes::MapRank] = MsgHandler(MapRankHandler);
 
-        @msgHandlers[MessageResponseTypes::TaskResponseJson] = MsgHandler(Tasks::HandleTaskResponseJson);
+        @msgHandlers[MessageResponseTypes::TaskResponseJson] = Tasks::HandleTaskResponseJson;
         @msgHandlers[MessageResponseTypes::TaskResponse] = MsgHandler(TaskResponseHandler);
         @msgHandlers[MessageResponseTypes::SecretAssets] = MsgHandler(SecretAssetsHandler);
     }
@@ -864,7 +864,7 @@ namespace Global {
     float totalDonations = 0;
 
     void SetDonationsFromJson(Json::Value@ j) {
-        startnew(CoroutineFuncUserdata(SetDonationsFromJsonAsync), j);
+        startnew(SetDonationsFromJsonAsync, j);
     }
 
     float gfmDonoAmount = 0.;

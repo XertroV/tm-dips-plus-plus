@@ -46,7 +46,7 @@ namespace AuxiliaryAssets {
     bool DidUserAccept() { return userDownloadConsentStage == DownloadConsentStage::Accepted; }
     bool IsPrompting() { return userDownloadConsentStage == DownloadConsentStage::Prompting; }
     void ShowPrompt() {
-        startnew(CoroutineFunc(PromptAndDownloadAssets));
+        startnew(PromptAndDownloadAssets);
     }
 
     // Called when we are about to load auxiliary assets.
